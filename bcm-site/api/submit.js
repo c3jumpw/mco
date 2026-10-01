@@ -1,27 +1,65 @@
 // Vercel serverless function: /api/submit
-// Receives the book-a-call form, pushes the contact into Systeme.io, tags it.
+// Receives the book-a-call form, pushes the contact into Systeme.io,
+// fills custom fields, and tags it.
 //
-// Required env vars (set in Vercel → Project → Settings → Environment Variables):
-//   SYSTEME_API_KEY         Your Systeme.io API key (keep this server-side only)
+// ── Required ────────────────────────────────────────────────────────────
+//   SYSTEME_API_KEY          Your Systeme.io API key (server-side only)
 //
-// Optional env vars (map form answers → Systeme.io tag IDs):
-//   SYSTEME_TAG_INQUIRY     Tag applied to every submission (e.g. "new-inquiry")
-//   SYSTEME_TAG_URGENCY_ASAP
-//   SYSTEME_TAG_URGENCY_90D
-//   SYSTEME_TAG_URGENCY_EXPLORING
-//   SYSTEME_TAG_PAIN_CHAOS
-//   SYSTEME_TAG_PAIN_PLATEAU
-//   SYSTEME_TAG_PAIN_DEPENDENCE
-//   SYSTEME_TAG_PAIN_TIME
-//   SYSTEME_TAG_PAIN_OTHER
+// ── Custom field slugs (optional) ───────────────────────────────────────
+// Set each to the slug of the matching custom field in your Systeme.io
+// account. Run /api/fields once to discover your real slugs.
+//   SYSTEME_FIELD_URGENCY    e.g. "urgency"
+//   SYSTEME_FIELD_PAIN       e.g. "pain_point"
+//   SYSTEME_FIELD_BUSINESS   e.g. "business"
+//   SYSTEME_FIELD_TEAMSIZE   e.g. "team_size"
+//   SYSTEME_FIELD_TIMEOFDAY  e.g. "preferred_time"
+//   SYSTEME_FIELD_NOTES      e.g. "inquiry_notes"
+//   SYSTEME_FIELD_FIRSTNAME  defaults to "first_name"
+//   SYSTEME_FIELD_PHONE      defaults to "phone_number"
 //
-// Each tag ID should be the numeric Systeme.io tag ID (visible on the tag's edit screen).
-// Any missing tag var is just skipped — the submission still succeeds.
+// ── Tag IDs (optional) ──────────────────────────────────────────────────
+//   SYSTEME_TAG_INQUIRY
+//   SYSTEME_TAG_URGENCY_ASAP | _90D | _EXPLORING
+//   SYSTEME_TAG_PAIN_CHAOS | _PLATEAU | _DEPENDENCE | _TIME | _OTHER
+//
+// Anything not set is simply skipped — the submission still succeeds.
 
 const SYSTEME_BASE = 'https://api.systeme.io/api';
 
+// Human-readable labels so the CRM shows words, not internal codes.
+const LABELS = {
+  pain: {
+    chaos:      'Systems chaos',
+    plateau:    'Growth plateau',
+    dependence: 'Team depends on owner',
+    time:       'No time to grow',
+    other:      'Other',
+  },
+  urgency: {
+    asap:      'ASAP (next 30 days)',
+    '90d':     'Within 90 days',
+    exploring: 'Just exploring',
+  },
+  teamSize: {
+    solo:    'Just me',
+    '2-5':   '2-5',
+    '6-15':  '6-15',
+    '16-50': '16-50',
+    '50+':   '50+',
+  },
+  timeOfDay: {
+    morning:   'Mornings',
+    midday:    'Midday',
+    afternoon: 'Afternoons',
+    evening:   'Evenings',
+  },
+};
+
+function label(group, value) {
+  return (LABELS[group] && LABELS[group][value]) || value || '';
+}
+
 export default async function handler(req, res) {
-  // Only POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method_not_allowed' });
@@ -33,7 +71,6 @@ export default async function handler(req, res) {
   }
   body = body || {};
 
-  // Minimum: email
   const email = String(body.email || '').trim();
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ error: 'invalid_email' });
@@ -49,28 +86,36 @@ export default async function handler(req, res) {
   const notes     = String(body.notes     || '').trim();
   const source    = String(body.source    || 'book-a-call').trim();
 
-  // Always log server-side so nothing is lost even if Systeme.io is misconfigured
+  // Always log so nothing is lost even if Systeme.io is misconfigured
   console.log('[book-a-call] new submission', {
     email, firstName, business, pain, teamSize, urgency, timeOfDay, source
   });
 
   const apiKey = process.env.SYSTEME_API_KEY;
   if (!apiKey) {
-    // No key set: don't fail the user — log and move on. Owner can wire it up later.
     console.warn('[book-a-call] SYSTEME_API_KEY not set; submission logged only.');
     return res.status(200).json({ ok: true, delivered: 'log_only' });
   }
 
   try {
-    // 1. Create (or upsert) the contact
-    //    Systeme.io: POST /api/contacts  — body: { email, locale, fields: [{slug, value}] }
-    //    If the email exists, API returns 422; we fetch the existing contact id as fallback.
-    const fields = [
-      firstName && { slug: 'first_name',   value: firstName },
-      phone     && { slug: 'phone_number', value: phone     },
-      business  && { slug: 'company_name', value: business  },
-    ].filter(Boolean);
+    // ── Build the custom field payload ──────────────────────────────────
+    // Each entry only included when BOTH a slug env var and a value exist.
+    const fieldSpec = [
+      [process.env.SYSTEME_FIELD_FIRSTNAME || 'first_name',   firstName],
+      [process.env.SYSTEME_FIELD_PHONE     || 'phone_number', phone],
+      [process.env.SYSTEME_FIELD_BUSINESS,   business],
+      [process.env.SYSTEME_FIELD_URGENCY,    label('urgency',   urgency)],
+      [process.env.SYSTEME_FIELD_PAIN,       label('pain',      pain)],
+      [process.env.SYSTEME_FIELD_TEAMSIZE,   label('teamSize',  teamSize)],
+      [process.env.SYSTEME_FIELD_TIMEOFDAY,  label('timeOfDay', timeOfDay)],
+      [process.env.SYSTEME_FIELD_NOTES,      notes],
+    ];
 
+    const fields = fieldSpec
+      .filter(([slug, value]) => slug && value)
+      .map(([slug, value]) => ({ slug, value: String(value) }));
+
+    // ── 1. Create (or find) the contact ─────────────────────────────────
     const createResp = await fetch(SYSTEME_BASE + '/contacts', {
       method: 'POST',
       headers: {
@@ -81,11 +126,14 @@ export default async function handler(req, res) {
     });
 
     let contactId;
+    let createdFresh = false;
+
     if (createResp.ok) {
       const created = await createResp.json();
       contactId = created.id;
+      createdFresh = true;
     } else if (createResp.status === 422) {
-      // Already exists — look it up
+      // Already exists — look it up, then PATCH the fields on
       const lookupResp = await fetch(
         SYSTEME_BASE + '/contacts?email=' + encodeURIComponent(email),
         { headers: { 'X-API-Key': apiKey } }
@@ -95,17 +143,32 @@ export default async function handler(req, res) {
         const item = (lookup.items && lookup.items[0]) || null;
         contactId = item && item.id;
       }
+
+      // Update the existing contact's fields with the fresh answers
+      if (contactId && fields.length) {
+        const patchResp = await fetch(SYSTEME_BASE + '/contacts/' + contactId, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/merge-patch+json',
+            'X-API-Key': apiKey,
+          },
+          body: JSON.stringify({ fields }),
+        });
+        if (!patchResp.ok) {
+          console.warn('[book-a-call] field update failed',
+            patchResp.status, await patchResp.text());
+        }
+      }
     } else {
-      const txt = await createResp.text();
-      console.error('[book-a-call] systeme create failed', createResp.status, txt);
+      console.error('[book-a-call] systeme create failed',
+        createResp.status, await createResp.text());
     }
 
     if (!contactId) {
-      // Still report success to the user; the submission is in the logs.
       return res.status(200).json({ ok: true, delivered: 'logged_create_failed' });
     }
 
-    // 2. Apply tags
+    // ── 2. Apply tags ───────────────────────────────────────────────────
     const painTagMap = {
       chaos:      process.env.SYSTEME_TAG_PAIN_CHAOS,
       plateau:    process.env.SYSTEME_TAG_PAIN_PLATEAU,
@@ -143,37 +206,45 @@ export default async function handler(req, res) {
       }
     });
 
-    // 3. Also push the vetting answers as a note on the contact so they survive
-    //    even if custom fields aren't configured in the account.
-    const noteBody = [
-      '--- Book-a-call submission ---',
-      'Business: ' + business,
-      'Team size: ' + teamSize,
-      'Biggest friction: ' + pain,
-      'Urgency: ' + urgency,
-      'Preferred time of day: ' + timeOfDay,
-      notes ? '\nNotes:\n' + notes : '',
-      '\nSource: ' + source,
-    ].filter(Boolean).join('\n');
+    // ── 3. Belt-and-braces: also write the answers as a note ────────────
+    // Harmless duplication, but it means the data survives even if a slug
+    // is wrong. Set SYSTEME_SKIP_NOTE=1 once your fields are confirmed.
+    if (process.env.SYSTEME_SKIP_NOTE !== '1') {
+      const noteBody = [
+        '--- Book-a-call submission ---',
+        'Business: '              + business,
+        'Team size: '             + label('teamSize',  teamSize),
+        'Biggest friction: '      + label('pain',      pain),
+        'Urgency: '               + label('urgency',   urgency),
+        'Preferred time of day: ' + label('timeOfDay', timeOfDay),
+        notes ? '\nNotes:\n' + notes : '',
+        '\nSource: ' + source,
+      ].filter(Boolean).join('\n');
 
-    try {
-      await fetch(SYSTEME_BASE + '/contacts/' + contactId + '/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': apiKey,
-        },
-        body: JSON.stringify({ content: noteBody }),
-      });
-    } catch (noteErr) {
-      // Notes endpoint may not be enabled on every plan — not fatal.
-      console.warn('[book-a-call] note failed (non-fatal)', noteErr && noteErr.message);
+      try {
+        await fetch(SYSTEME_BASE + '/contacts/' + contactId + '/notes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey,
+          },
+          body: JSON.stringify({ content: noteBody }),
+        });
+      } catch (noteErr) {
+        console.warn('[book-a-call] note failed (non-fatal)',
+          noteErr && noteErr.message);
+      }
     }
 
-    return res.status(200).json({ ok: true, contactId });
+    return res.status(200).json({
+      ok: true,
+      contactId,
+      createdFresh,
+      fieldsSent: fields.map(f => f.slug),
+      tagsSent: tagIds,
+    });
   } catch (err) {
-    console.error('[book-a-call] handler error', err && err.stack || err);
-    // Still return 200 so the user sees the success screen — their info IS in the logs.
+    console.error('[book-a-call] handler error', (err && err.stack) || err);
     return res.status(200).json({ ok: true, delivered: 'logged_error' });
   }
 }
