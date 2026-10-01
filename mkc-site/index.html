@@ -3,162 +3,195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#ffffff" />
-  <meta name="description" content="MK Holding Co – a collective of organizations and brands. We partner with and invest in companies across technology, consulting, real estate, consumer goods, and industrial services." />
-  <title>MK Holding Co – Collective of Organizations &amp; Brands</title>
-  <link rel="icon" type="image/png" href="media/mkc-logo-1.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#0f1113" />
+  <meta name="description" content="MK Holding Co partners with and invests in companies across technology, consulting, real estate, consumer goods, and industrial services." />
+  <title>MK Holding Co &mdash; Collective of Organizations &amp; Brands</title>
+
+  <link rel="icon" type="image/png" href="media/mkc-logo-1-150x150.png" />
+  <link rel="apple-touch-icon" href="media/mkc-logo-1-150x150.png" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MK Holding Co" />
+  <meta property="og:description" content="Finding great businesses and making them better." />
+  <meta property="og:image" content="media/home-image.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Header / Navigation -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="#top" class="brand" aria-label="MK Holding Co home">
-        <img src="media/mkc-logo-1.png" alt="MK Holding Co logo" class="brand-logo" />
+    <div class="shell header-inner">
+      <a href="#top" class="brand" aria-label="MK Holding Co, home">
+        <img src="media/mkc-logo-1.png" alt="MK Holding Co" class="brand-logo" width="84" height="45" />
       </a>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="#about">About</a>
+
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="primary-nav" aria-label="Primary">
+        <a href="#approach">Approach</a>
         <a href="#portfolio">Portfolio</a>
         <a href="#standards">Standards</a>
         <a href="#contact" class="nav-cta">Contact</a>
       </nav>
-      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </div>
   </header>
 
-  <main id="top">
+  <main id="main">
     <!-- Hero -->
-    <section class="hero">
-      <div class="container hero-inner">
-        <div class="hero-copy">
-          <p class="eyebrow">MK Holding Co</p>
-          <h1>Finding great businesses &amp; making them better.</h1>
-          <p class="lede">A collective of organizations and brands built to partner with and invest in companies across sectors.</p>
-          <div class="hero-cta">
-            <a href="#contact" class="btn btn-primary">Start a conversation</a>
-            <a href="#about" class="btn btn-ghost">Learn more</a>
+    <section class="hero" id="top">
+      <div class="shell">
+        <h1 class="hero-title">Finding great businesses<br />&amp; making them better.</h1>
+        <div class="hero-meta">
+          <p class="hero-lede">A collective of organizations and brands built to partner with and invest in companies across sectors.</p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-solid">Start a conversation</a>
+            <a href="#approach" class="btn btn-line">See our approach</a>
           </div>
         </div>
-        <div class="hero-media" aria-hidden="true">
-          <img src="media/hero.jpg" alt="" onerror="this.style.display='none'" />
-        </div>
+      </div>
+      <div class="shell">
+        <figure class="hero-figure">
+          <img src="media/home-image.png" alt="A leadership team reviewing performance figures around a conference table" width="1200" height="675" />
+        </figure>
       </div>
     </section>
 
-    <!-- About / Mission -->
-    <section id="about" class="section section-light">
-      <div class="container two-col">
-        <div class="col-media">
-          <img src="media/about-1.jpg" alt="" onerror="this.style.display='none'" />
-        </div>
-        <div class="col-copy">
+    <!-- Approach / sectors -->
+    <section class="band band-paper" id="approach">
+      <div class="shell approach-grid">
+        <div class="approach-copy">
           <h2>We are a company built to partner &amp; invest in organizations across sectors.</h2>
-          <p>Helping our partners in technology, consulting, real estate, consumer goods, industrial services, and more bring in more capital, expertise, and hands-on management to companies with scalable paths.</p>
+          <p>We help our partners bring in more capital, expertise, and hands-on management &mdash; backing companies that already have a scalable path in front of them.</p>
+        </div>
+        <div class="approach-sectors">
+          <h3 class="sector-heading">Where we work</h3>
+          <ul class="sector-list">
+            <li>Technology</li>
+            <li>Consulting</li>
+            <li>Real estate</li>
+            <li>Consumer goods</li>
+            <li>Industrial services</li>
+            <li class="sector-more">and more</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- Portfolio value -->
-    <section id="portfolio" class="section section-dark">
-      <div class="container two-col reverse">
-        <div class="col-media">
-          <img src="media/about-2.jpg" alt="" onerror="this.style.display='none'" />
-        </div>
-        <div class="col-copy">
-          <h2>Our portfolio companies get more than funding.</h2>
+    <!-- Portfolio -->
+    <section class="band" id="portfolio">
+      <div class="shell portfolio-inner">
+        <h2 class="statement">Our portfolio companies get more than funding.</h2>
+        <div class="portfolio-detail">
           <p>They get access to seasoned operators, strong governance structures, and the kind of institutional support that typically only comes with scale &mdash; without losing the speed and flexibility that makes smaller businesses competitive.</p>
         </div>
       </div>
     </section>
 
     <!-- Long run -->
-    <section class="section section-accent">
-      <div class="container center-narrow">
+    <section class="band band-deep">
+      <div class="shell measure-center">
         <h2>We&rsquo;re in this for the long run.</h2>
-        <p class="lede">We&rsquo;re in the business of acquiring and developing companies that create genuine value &mdash; for their customers, their people, and their markets.</p>
+        <p>We&rsquo;re in the business of acquiring and developing companies that create genuine value &mdash; for their customers, their people, and their markets.</p>
       </div>
     </section>
 
     <!-- Standards -->
-    <section id="standards" class="section section-light">
-      <div class="container">
-        <header class="section-head">
-          <h2>Upholding standards across all of our projects</h2>
-        </header>
+    <section class="band band-paper" id="standards">
+      <div class="shell">
+        <h2 class="band-title">Upholding standards across all of our projects</h2>
         <div class="pillars">
           <article class="pillar">
-            <div class="pillar-icon">
-              <img src="media/pillar-1.svg" alt="" onerror="this.style.display='none'" />
-            </div>
+            <img class="pillar-icon" src="media/pillar-1.svg" alt="" width="28" height="28" />
             <h3>Consistent systems &amp; practices</h3>
-            <p>Repeatable playbooks and shared infrastructure that let every company we back operate with clarity.</p>
+            <p>Repeatable playbooks and shared infrastructure, so every company we back operates with the same clarity.</p>
           </article>
           <article class="pillar">
-            <div class="pillar-icon">
-              <img src="media/pillar-2.svg" alt="" onerror="this.style.display='none'" />
-            </div>
+            <img class="pillar-icon" src="media/pillar-2.svg" alt="" width="28" height="28" />
             <h3>Continuous staff growth &amp; development</h3>
-            <p>Investing in people first &mdash; leadership development, coaching, and pathways for the teams that build the work.</p>
+            <p>Leadership development, coaching, and real pathways for the teams doing the work.</p>
           </article>
           <article class="pillar">
-            <div class="pillar-icon">
-              <img src="media/pillar-3.svg" alt="" onerror="this.style.display='none'" />
-            </div>
+            <img class="pillar-icon" src="media/pillar-3.svg" alt="" width="28" height="28" />
             <h3>Relationships built first on mutual benefit</h3>
-            <p>Partnerships that work over decades, not quarters &mdash; grounded in trust, transparency, and shared upside.</p>
+            <p>Partnerships measured in decades rather than quarters, grounded in transparency and shared upside.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- Contact / CTA -->
-    <section id="contact" class="section section-cta">
-      <div class="container center-narrow">
-        <p class="eyebrow">Explore Opportunities With MK</p>
-        <h2>We&rsquo;re always evaluating new partnership opportunities across industries.</h2>
-        <p class="lede">Let&rsquo;s start a conversation.</p>
-        <a href="mailto:hello@mkholdingco.com" class="btn btn-primary btn-lg">Contact Our Team</a>
+    <!-- Contact -->
+    <section class="band band-contact" id="contact">
+      <div class="shell contact-grid">
+        <div class="contact-intro">
+          <h2>Explore opportunities with MK</h2>
+          <p>We&rsquo;re always evaluating new partnership opportunities across industries. Tell us about your company and someone from our team will follow up.</p>
+          <p class="contact-direct">
+            Prefer email?
+            <a href="mailto:contact@mkholdingco.com">contact@mkholdingco.com</a>
+          </p>
+        </div>
+
+        <form class="contact-form" id="contact-form" novalidate>
+          <div class="field">
+            <label for="cf-name">Name</label>
+            <input type="text" id="cf-name" name="name" autocomplete="name" required maxlength="100" />
+            <p class="field-error" data-error-for="name" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" autocomplete="email" required maxlength="200" />
+            <p class="field-error" data-error-for="email" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="cf-company">Company <span class="optional">(optional)</span></label>
+            <input type="text" id="cf-company" name="company" autocomplete="organization" maxlength="120" />
+          </div>
+
+          <div class="field">
+            <label for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" rows="5" required maxlength="5000"></textarea>
+            <p class="field-error" data-error-for="message" hidden></p>
+          </div>
+
+          <!-- Spam trap: hidden from people, tempting to bots. -->
+          <div class="trap" aria-hidden="true">
+            <label for="cf-website">Website</label>
+            <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn-solid btn-block" id="cf-submit">Send message</button>
+
+          <p class="form-status" id="cf-status" role="status" aria-live="polite" hidden></p>
+        </form>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="site-footer">
-    <div class="container footer-inner">
-      <a href="#top" class="brand" aria-label="MK Holding Co home">
-        <img src="media/mkc-logo-1.png" alt="MK Holding Co logo" class="footer-logo" />
+    <div class="shell footer-inner">
+      <a href="#top" class="brand" aria-label="MK Holding Co, home">
+        <img src="media/Untitled-design-e1774482509240.png" alt="MK Holding Co" class="footer-logo" width="110" height="45" />
       </a>
       <nav class="footer-nav" aria-label="Footer">
-        <a href="#about">About</a>
+        <a href="#approach">Approach</a>
         <a href="#portfolio">Portfolio</a>
         <a href="#standards">Standards</a>
         <a href="#contact">Contact</a>
       </nav>
-      <p class="copyright">&copy; <span id="year">2026</span> Mambay, LLC. All Rights Reserved.</p>
+    </div>
+    <div class="shell">
+      <p class="colophon">&copy; <span id="year">2026</span> Mambay, LLC. All rights reserved.</p>
     </div>
   </footer>
 
-  <script>
-    // Footer year
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Mobile nav toggle
-    const toggle = document.querySelector('.nav-toggle');
-    const nav = document.querySelector('.site-nav');
-    toggle?.addEventListener('click', () => {
-      const open = nav.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', String(open));
-    });
-    // Close nav on link click (mobile)
-    nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      nav.classList.remove('open');
-      toggle?.setAttribute('aria-expanded', 'false');
-    }));
-  </script>
+  <script src="main.js" defer></script>
 </body>
 </html>

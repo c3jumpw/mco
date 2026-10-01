@@ -1,86 +1,86 @@
-# MK Holding Co — Static Site
+# MK Holding Co — mkc-site
 
-A clean, static recreation of [mkholdingco.com](https://mkholdingco.com/), ready to deploy on GitHub Pages, Netlify, Vercel, or any static host.
-
-## Project structure
+Static marketing site deployed on Vercel from the `mkc-site/` directory of `c3jumpw/mco`.
 
 ```
-.
-├── index.html         # Single-page site
-├── styles.css         # All styling
-├── media/             # Drop your images here (logos, hero, etc.)
-│   ├── mkc-logo-1.png
-│   ├── hero.jpg
-│   ├── about-1.jpg
-│   ├── about-2.jpg
-│   ├── pillar-1.svg
-│   ├── pillar-2.svg
-│   └── pillar-3.svg
-└── README.md
+mkc-site/
+├── index.html          # The page
+├── styles.css          # All styling
+├── main.js             # Nav toggle + contact form
+├── api/
+│   └── contact.js      # Serverless function: receives the form, sends email
+└── media/              # Images
 ```
+
+Pushing to `main` redeploys automatically.
+
+## Contact form
+
+The form posts JSON to `/api/contact`, which validates the submission and relays it
+by email through [Resend](https://resend.com). Replies go straight to the sender
+because the function sets `reply_to` to whatever address they entered.
+
+Protections in place: a hidden honeypot field, server-side length and format
+validation, and a short-window rate limit per IP.
+
+### Environment variables
+
+Set these in Vercel under **Settings → Environment Variables**:
+
+| Variable | Required | Default | Notes |
+| --- | --- | --- | --- |
+| `RESEND_API_KEY` | Yes | — | From the Resend dashboard. Without it the form returns 503 and the page tells visitors to email directly. |
+| `CONTACT_TO` | No | `contact@mkholdingco.com` | Where submissions land. |
+| `CONTACT_FROM` | No | `MK Holding Co <onboarding@resend.dev>` | Must be on a Resend-verified domain. |
+
+### Turning it on
+
+1. Create a free account at [resend.com](https://resend.com) (3,000 emails/month).
+2. **Domains → Add Domain → `mkholdingco.com`.** Resend gives you DKIM and SPF
+   records; add them at your DNS provider and wait for verification.
+3. **API Keys → Create API Key.** Copy it.
+4. In Vercel, add `RESEND_API_KEY` with that value, and set
+   `CONTACT_FROM` to `MK Holding Co <contact@mkholdingco.com>`.
+5. Redeploy so the function picks up the new variables.
+
+Until the domain is verified you can still test: leave `CONTACT_FROM` unset and
+set `CONTACT_TO` to the email you signed up to Resend with. Resend's shared
+testing sender only delivers to that address.
+
+### Swapping in a different provider
+
+`api/contact.js` makes one `fetch` call to Resend near the bottom. Point that at
+Postmark, SendGrid, or Mailgun and the rest of the function is unchanged.
 
 ## Media
 
-Add your images to the `/media` folder using these filenames (or edit `index.html` to point at your own names):
-
-| File | Where it appears |
+| File | Used for |
 | --- | --- |
-| `mkc-logo-1.png` | Header + footer + favicon |
-| `hero.jpg`       | Hero section (right side) |
-| `about-1.jpg`    | "Partner & invest" section |
-| `about-2.jpg`    | "Portfolio companies" section |
-| `pillar-1.svg`   | Pillar 1 icon (Consistent systems) |
-| `pillar-2.svg`   | Pillar 2 icon (Staff growth) |
-| `pillar-3.svg`   | Pillar 3 icon (Relationships) |
+| `mkc-logo-1.png` | Header logo (dark, for light backgrounds) |
+| `Untitled-design-e1774482509240.png` | Footer logo (white, for dark backgrounds) |
+| `home-image.png` | Hero image |
+| `pillar-1.svg` … `pillar-3.svg` | Standards icons |
 
-Missing images are hidden automatically (`onerror` handler), so the site renders cleanly even before you upload media.
-
-## Editing content
-
-Everything is in **`index.html`**. Text lives directly in the HTML; the section IDs (`#about`, `#portfolio`, `#standards`, `#contact`) drive the nav anchors. To change the contact email, edit the `mailto:` link near the bottom of `index.html`.
+The other files are WordPress-generated size variants, kept in case they're useful.
 
 ## Local preview
 
-Just open `index.html` in a browser. Or, for a proper local server:
-
 ```bash
-# Python
+cd mkc-site
 python3 -m http.server 8000
-
-# Node
-npx serve .
 ```
 
-## Deploy via GitHub Pages
+The static page works, but `/api/contact` needs the Vercel runtime. For the
+full thing including the function:
 
-1. Create a new GitHub repo (e.g. `mkholdingco-site`).
-2. Push these files to `main`:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial site"
-   git branch -M main
-   git remote add origin git@github.com:YOUR-USERNAME/mkholdingco-site.git
-   git push -u origin main
-   ```
-3. On GitHub: **Settings → Pages → Build and deployment**
-   - Source: **Deploy from a branch**
-   - Branch: **`main`**, folder: **`/ (root)`**
-   - Save.
-4. GitHub gives you a URL like `https://YOUR-USERNAME.github.io/mkholdingco-site/`.
+```bash
+npx vercel dev
+```
 
-### Custom domain (mkholdingco.com)
+## Custom domain
 
-1. In your repo, add a file named `CNAME` (no extension) containing exactly:
-   ```
-   mkholdingco.com
-   ```
-2. At your DNS provider, point the domain at GitHub Pages:
-   - `A` records for `@` to:
-     `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-   - `CNAME` record for `www` to `YOUR-USERNAME.github.io`
-3. In **Settings → Pages**, enter the custom domain and enable **Enforce HTTPS** once the cert provisions.
-
-## License
-
-Copy is © Mambay, LLC. The scaffolding here is yours to modify.
+Add `mkholdingco.com` in **Vercel → Settings → Domains** and follow the DNS
+instructions. Note that the project currently has Vercel Authentication enabled,
+which puts a login wall on `*.vercel.app` URLs but not on custom domains — turn
+it off under **Settings → Deployment Protection** if you want the preview URLs
+public too.
