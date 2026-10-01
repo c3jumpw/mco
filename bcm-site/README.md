@@ -1,69 +1,78 @@
 # The Brand Craftsman — Static Site
 
-A GitHub Pages–ready recreation of https://bcm.mambaykanu.com
+Deployed via Vercel from https://github.com/c3jumpw/mco (project root
+is `bcm-site/`). Live at: https://mco-bcm-site.vercel.app
 
 ## Structure
 
 ```
 .
-├── index.html      # The full one-page site
-├── styles.css      # All styling
-├── media/          # Drop your images here (see below)
+├── index.html          # Homepage
+├── styles.css          # Shared styles
+├── book-a-call.html    # Multi-step intake form
+├── book-a-call.css     # Form-only styles
+├── book-a-call.js      # Form logic
+├── api/
+│   └── submit.js       # Vercel serverless function → Systeme.io
+├── media/              # All site images (WordPress export)
 └── README.md
 ```
 
-## Media files to upload to `/media/`
+## Book-a-call form
 
-Rename the files from your current site to these names (or edit the `src`
-paths in `index.html`) — the code references these filenames:
+The form at `/book-a-call.html` collects:
 
-| Filename in `/media/` | Source on your current site                                    | Where it appears           |
-|-----------------------|----------------------------------------------------------------|----------------------------|
-| `logo.png`            | `/wp-content/uploads/2025/09/logo.png`                         | Header + footer            |
-| `hero.jpg`            | `/wp-content/uploads/2025/09/Untitled-design.jpg`              | Hero image                 |
-| `framework.png`       | `/wp-content/uploads/2025/09/Website-DB-1-2.png`               | 90-Day Framework diagram   |
-| `case-1.jpg`          | `/wp-content/uploads/2025/09/2.jpg`                            | Case Study #1 (Printing)   |
-| `case-2.jpg`          | `/wp-content/uploads/2025/09/3.jpg`                            | Case Study #2 (Tax)        |
-| `case-3.jpg`          | `/wp-content/uploads/2025/09/4.jpg`                            | Case Study #3 (Real Estate)|
-| `mambay.png`          | `/wp-content/uploads/2025/09/bcm-photo-1.png`                  | About section              |
-| `dashboard.jpg`       | `/wp-content/uploads/2025/10/Website-DB.jpg`                   | Final CTA visual           |
+1. First name
+2. Business + what you do
+3. Biggest friction (chaos / plateau / dependence / time / other)
+4. Team size (solo / 2-5 / 6-15 / 16-50 / 50+)
+5. Urgency (asap / 90d / exploring) + preferred time of day
+6. Email + phone + optional notes
 
-## Deploy on GitHub Pages
+On submit it `POST`s JSON to `/api/submit`, which calls the Systeme.io API
+server-side (so the API key never ships to the browser).
 
-1. Create a new repo on GitHub (e.g. `brandcraftsman-site`) and push these files:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial site"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/<repo>.git
-   git push -u origin main
-   ```
-2. In the repo on GitHub go to **Settings → Pages**.
-3. Under **Build and deployment**, set **Source** to `Deploy from a branch`,
-   pick **`main` / `(root)`**, and save.
-4. In a minute your site is live at
-   `https://<your-username>.github.io/<repo>/`.
+## Wiring up Systeme.io
 
-## Point your custom domain (optional)
+In Vercel → Project `mco-bcm-site` → **Settings → Environment Variables**,
+add the following for `Production` (and `Preview` if you want staging to
+tag too):
 
-If you want `bcm.mambaykanu.com` to serve this instead of the WordPress
-site:
+| Variable                        | What to put                                                 | Required |
+|---------------------------------|-------------------------------------------------------------|----------|
+| `SYSTEME_API_KEY`               | Your Systeme.io API key (Settings → Public API keys)        | **Yes**  |
+| `SYSTEME_TAG_INQUIRY`           | Tag ID applied to every submission (e.g. `new-inquiry`)     | optional |
+| `SYSTEME_TAG_URGENCY_ASAP`      | Tag ID for "ASAP, next 30 days"                             | optional |
+| `SYSTEME_TAG_URGENCY_90D`       | Tag ID for "Within 90 days"                                 | optional |
+| `SYSTEME_TAG_URGENCY_EXPLORING` | Tag ID for "Just exploring"                                 | optional |
+| `SYSTEME_TAG_PAIN_CHAOS`        | Tag ID for "Systems chaos"                                  | optional |
+| `SYSTEME_TAG_PAIN_PLATEAU`      | Tag ID for "Growth plateau"                                 | optional |
+| `SYSTEME_TAG_PAIN_DEPENDENCE`   | Tag ID for "Team depends on me"                             | optional |
+| `SYSTEME_TAG_PAIN_TIME`         | Tag ID for "No time to grow"                                | optional |
+| `SYSTEME_TAG_PAIN_OTHER`        | Tag ID for "Something else"                                 | optional |
 
-1. Add a `CNAME` file to the repo root containing exactly:
-   ```
-   bcm.mambaykanu.com
-   ```
-2. At your DNS provider, set a `CNAME` record for `bcm` →
-   `<your-username>.github.io`.
-3. Back in **Settings → Pages**, enter the domain and let it verify.
-   HTTPS will provision automatically.
+Each tag ID is the numeric ID shown on the tag's edit screen in
+Systeme.io. Any missing tag var is just skipped — the submission still
+succeeds. If `SYSTEME_API_KEY` isn't set at all, submissions are still
+accepted and logged in Vercel (**Project → Logs**) so nothing is lost
+while you set things up.
 
-## Editing
+The function also writes the full vetting answers as a **Note** on the
+contact in Systeme.io, so you can see team size / urgency / preferred
+time of day at a glance when the contact opens.
 
-- All copy lives in `index.html`.
-- All colors, spacing, and typography live in the `:root` block at the top
-  of `styles.css` — change those tokens to rebrand quickly.
-- The two CTA buttons currently point to
-  `https://brandcraftsman.mambayk.com/book-a-call/`. Change those `href`s
-  if the URL moves.
+After changing env vars in Vercel, hit **Deployments → Redeploy** on the
+latest production deploy so the function picks up the new values.
+
+## Local development notes
+
+Everything is static HTML + CSS + JS plus one serverless function; no
+build step. Open `index.html` directly in a browser to preview most of
+the site (the form submit will 404 locally — it only works on Vercel).
+To test the function locally, install the Vercel CLI and run `vercel dev`.
+
+## Custom domain
+
+Vercel → Project → **Settings → Domains** → add `bcm.mambaykanu.com` (or
+whatever) and update the CNAME at your DNS provider to
+`cname.vercel-dns.com`. HTTPS is provisioned automatically.

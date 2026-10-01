@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="description" content="Book a free business systems audit with The Brand Craftsman." />
+  <title>Book a Call — The Brand Craftsman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="book-a-call.css" />
+  <link rel="icon" href="media/favi.png" type="image/png" />
+</head>
+<body class="book-page">
+
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">
+        <img src="media/logo-300x185.png" alt="The Brand Craftsman" />
+      </a>
+      <a class="btn btn-outline btn-sm" href="index.html">← Back to site</a>
+    </div>
+  </header>
+
+  <main class="book-main">
+    <div class="form-shell">
+
+      <!-- Progress -->
+      <div class="progress-wrap" aria-hidden="true">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-meta"><span id="stepLabel">Step 1 of 6</span></div>
+      </div>
+
+      <form id="bookForm" novalidate autocomplete="on">
+
+        <!-- Step 1: Name -->
+        <section class="step is-active" data-step="1">
+          <p class="eyebrow">Let's start simple</p>
+          <h1>Hey, I'm Mambay. What should I call you?</h1>
+          <p class="sub">First name is perfect.</p>
+          <label class="field">
+            <span class="visually-hidden">First name</span>
+            <input type="text" name="firstName" id="firstName" placeholder="Your first name" required autocomplete="given-name" />
+          </label>
+          <div class="step-nav">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next>Continue →</button>
+          </div>
+        </section>
+
+        <!-- Step 2: Business -->
+        <section class="step" data-step="2">
+          <p class="eyebrow">Nice to meet you, <span class="echo-name">friend</span></p>
+          <h1>Tell me about your business.</h1>
+          <p class="sub">One line is fine — what does your company do?</p>
+          <label class="field">
+            <span class="visually-hidden">Business name and what you do</span>
+            <input type="text" name="business" id="business" placeholder="e.g. Acme Printing — commercial printing in Dallas" required />
+          </label>
+          <div class="step-nav">
+            <button type="button" class="btn btn-ghost" data-back>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue →</button>
+          </div>
+        </section>
+
+        <!-- Step 3: Pain -->
+        <section class="step" data-step="3">
+          <p class="eyebrow">Got it</p>
+          <h1>Where's the biggest friction right now?</h1>
+          <p class="sub">Pick what feels closest — we'll go deeper on the call.</p>
+          <div class="choice-grid" role="radiogroup" aria-label="Biggest friction">
+            <label class="choice"><input type="radio" name="pain" value="chaos" required /><span><strong>Systems chaos</strong><em>Constant firefighting, nothing documented</em></span></label>
+            <label class="choice"><input type="radio" name="pain" value="plateau" /><span><strong>Growth plateau</strong><em>Revenue has flatlined for a while</em></span></label>
+            <label class="choice"><input type="radio" name="pain" value="dependence" /><span><strong>Team depends on me</strong><em>Nothing moves without my involvement</em></span></label>
+            <label class="choice"><input type="radio" name="pain" value="time" /><span><strong>No time to grow</strong><em>Stuck doing instead of leading</em></span></label>
+            <label class="choice"><input type="radio" name="pain" value="other" /><span><strong>Something else</strong><em>I'll explain on the call</em></span></label>
+          </div>
+          <div class="step-nav">
+            <button type="button" class="btn btn-ghost" data-back>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue →</button>
+          </div>
+        </section>
+
+        <!-- Step 4: Fit -->
+        <section class="step" data-step="4">
+          <p class="eyebrow">Quick fit check</p>
+          <h1>How large is your team today?</h1>
+          <p class="sub">Including you — contractors count.</p>
+          <div class="choice-grid choice-grid-compact" role="radiogroup" aria-label="Team size">
+            <label class="choice"><input type="radio" name="teamSize" value="solo" required /><span><strong>Just me</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="2-5" /><span><strong>2 – 5</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="6-15" /><span><strong>6 – 15</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="16-50" /><span><strong>16 – 50</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="50+" /><span><strong>50+</strong></span></label>
+          </div>
+          <div class="step-nav">
+            <button type="button" class="btn btn-ghost" data-back>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue →</button>
+          </div>
+        </section>
+
+        <!-- Step 5: Urgency + Timing -->
+        <section class="step" data-step="5">
+          <p class="eyebrow">Almost there</p>
+          <h1>When would you want to start?</h1>
+          <p class="sub">No wrong answer — this helps me prep the call.</p>
+          <div class="choice-grid" role="radiogroup" aria-label="Urgency">
+            <label class="choice"><input type="radio" name="urgency" value="asap" required /><span><strong>ASAP — the next 30 days</strong><em>Something has to change now</em></span></label>
+            <label class="choice"><input type="radio" name="urgency" value="90d" /><span><strong>Within 90 days</strong><em>Ready to move, planning ahead</em></span></label>
+            <label class="choice"><input type="radio" name="urgency" value="exploring" /><span><strong>Just exploring</strong><em>Curious what's possible</em></span></label>
+          </div>
+
+          <h2 class="sub-h">Best time of day to catch you?</h2>
+          <div class="chip-row" role="radiogroup" aria-label="Preferred time of day">
+            <label class="chip"><input type="radio" name="timeOfDay" value="morning" required /><span>🌅 Mornings</span></label>
+            <label class="chip"><input type="radio" name="timeOfDay" value="midday" /><span>☀️ Midday</span></label>
+            <label class="chip"><input type="radio" name="timeOfDay" value="afternoon" /><span>🌤 Afternoons</span></label>
+            <label class="chip"><input type="radio" name="timeOfDay" value="evening" /><span>🌙 Evenings</span></label>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn btn-ghost" data-back>← Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue →</button>
+          </div>
+        </section>
+
+        <!-- Step 6: Contact -->
+        <section class="step" data-step="6">
+          <p class="eyebrow">Last one</p>
+          <h1>Where should I send the calendar link?</h1>
+          <p class="sub">I'll follow up personally within one business day.</p>
+
+          <label class="field">
+            <span>Email</span>
+            <input type="email" name="email" id="email" placeholder="you@company.com" required autocomplete="email" />
+          </label>
+          <label class="field">
+            <span>Phone <em>(optional)</em></span>
+            <input type="tel" name="phone" id="phone" placeholder="555-123-4567" autocomplete="tel" />
+          </label>
+          <label class="field">
+            <span>Anything else I should know? <em>(optional)</em></span>
+            <textarea name="notes" id="notes" rows="3" placeholder="Context, specific questions, or a goal in mind…"></textarea>
+          </label>
+
+          <div class="step-nav">
+            <button type="button" class="btn btn-ghost" data-back>← Back</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Request my call →</button>
+          </div>
+        </section>
+
+        <!-- Done -->
+        <section class="step step-done" data-step="done">
+          <div class="done-icon">✓</div>
+          <h1>You're in, <span class="echo-name">friend</span>.</h1>
+          <p class="sub done-sub">Your request landed. I'll be in touch within one business day with a time that fits.</p>
+          <p class="sub"><em>In the meantime</em> — if you want to grab a slot yourself:</p>
+          <a class="btn btn-outline btn-lg" href="https://zcal.co/mkanu/1on1withmk" target="_blank" rel="noopener">Open my calendar →</a>
+        </section>
+
+        <!-- Error (shown if submit fails) -->
+        <section class="step step-error" data-step="error">
+          <h1>Hm, that didn't go through.</h1>
+          <p class="sub">Something on our end hiccupped. You can try again, or email <a href="mailto:hello@mambaykanu.com">hello@mambaykanu.com</a> directly and we'll pick it up.</p>
+          <button type="button" class="btn btn-primary" id="retryBtn">Try again</button>
+        </section>
+
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer book-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> The Brand Craftsman</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="https://zcal.co/mkanu/1on1withmk">Open calendar</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="book-a-call.js" defer></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
