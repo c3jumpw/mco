@@ -1,4 +1,4 @@
-# The Brand Craftsman — Static Site
+# The Brand Craftsman: Static Site
 
 Deployed via Vercel from https://github.com/c3jumpw/mco (project root
 is `bcm-site/`). Live at: https://mco-bcm-site.vercel.app
@@ -52,7 +52,7 @@ tag too):
 | `SYSTEME_TAG_PAIN_OTHER`        | Tag ID for "Something else"                                 | optional |
 
 Each tag ID is the numeric ID shown on the tag's edit screen in
-Systeme.io. Any missing tag var is just skipped — the submission still
+Systeme.io. Any missing tag var is just skipped, the submission still
 succeeds. If `SYSTEME_API_KEY` isn't set at all, submissions are still
 accepted and logged in Vercel (**Project → Logs**) so nothing is lost
 while you set things up.
@@ -68,7 +68,7 @@ latest production deploy so the function picks up the new values.
 
 Everything is static HTML + CSS + JS plus one serverless function; no
 build step. Open `index.html` directly in a browser to preview most of
-the site (the form submit will 404 locally — it only works on Vercel).
+the site (the form submit will 404 locally, it only works on Vercel).
 To test the function locally, install the Vercel CLI and run `vercel dev`.
 
 ## Custom domain

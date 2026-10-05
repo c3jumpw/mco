@@ -22,7 +22,7 @@
 //   SYSTEME_TAG_URGENCY_ASAP | _90D | _EXPLORING
 //   SYSTEME_TAG_PAIN_CHAOS | _PLATEAU | _DEPENDENCE | _TIME | _OTHER
 //
-// Anything not set is simply skipped — the submission still succeeds.
+// Anything not set is simply skipped, the submission still succeeds.
 
 const SYSTEME_BASE = 'https://api.systeme.io/api';
 
@@ -36,7 +36,7 @@ const LABELS = {
     other:      'Other',
   },
   urgency: {
-    asap:      'ASAP (next 30 days)',
+    asap:      'ASAP, within 30 days',
     '90d':     'Within 90 days',
     exploring: 'Just exploring',
   },
@@ -133,7 +133,7 @@ export default async function handler(req, res) {
       contactId = created.id;
       createdFresh = true;
     } else if (createResp.status === 422) {
-      // Already exists — look it up, then PATCH the fields on
+      // Already exists: look it up, then PATCH the fields on
       const lookupResp = await fetch(
         SYSTEME_BASE + '/contacts?email=' + encodeURIComponent(email),
         { headers: { 'X-API-Key': apiKey } }

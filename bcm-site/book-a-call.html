@@ -3,15 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="theme-color" content="#000000" />
   <meta name="description" content="Book a free business systems audit with The Brand Craftsman." />
-  <title>Book a Call — The Brand Craftsman</title>
+  <meta name="robots" content="noindex" />
+  <title>Book a Call | The Brand Craftsman</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="book-a-call.css" />
-  <link rel="icon" href="media/favi.png" type="image/png" />
+
+  <!-- Icons -->
+  <link rel="icon" href="icons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
 </head>
 <body class="book-page">
 
@@ -54,10 +61,10 @@
         <section class="step" data-step="2">
           <p class="eyebrow">Nice to meet you, <span class="echo-name">friend</span></p>
           <h1>Tell me about your business.</h1>
-          <p class="sub">One line is fine — what does your company do?</p>
+          <p class="sub">One line is fine. What does your company do?</p>
           <label class="field">
             <span class="visually-hidden">Business name and what you do</span>
-            <input type="text" name="business" id="business" placeholder="e.g. Acme Printing — commercial printing in Dallas" required />
+            <input type="text" name="business" id="business" placeholder="e.g. Acme Printing, commercial printing in Dallas" required />
           </label>
           <div class="step-nav">
             <button type="button" class="btn btn-ghost" data-back>← Back</button>
@@ -69,7 +76,7 @@
         <section class="step" data-step="3">
           <p class="eyebrow">Got it</p>
           <h1>Where's the biggest friction right now?</h1>
-          <p class="sub">Pick what feels closest — we'll go deeper on the call.</p>
+          <p class="sub">Pick what feels closest. We'll go deeper on the call.</p>
           <div class="choice-grid" role="radiogroup" aria-label="Biggest friction">
             <label class="choice"><input type="radio" name="pain" value="chaos" required /><span><strong>Systems chaos</strong><em>Constant firefighting, nothing documented</em></span></label>
             <label class="choice"><input type="radio" name="pain" value="plateau" /><span><strong>Growth plateau</strong><em>Revenue has flatlined for a while</em></span></label>
@@ -87,12 +94,12 @@
         <section class="step" data-step="4">
           <p class="eyebrow">Quick fit check</p>
           <h1>How large is your team today?</h1>
-          <p class="sub">Including you — contractors count.</p>
+          <p class="sub">Including you. Contractors count.</p>
           <div class="choice-grid choice-grid-compact" role="radiogroup" aria-label="Team size">
             <label class="choice"><input type="radio" name="teamSize" value="solo" required /><span><strong>Just me</strong></span></label>
-            <label class="choice"><input type="radio" name="teamSize" value="2-5" /><span><strong>2 – 5</strong></span></label>
-            <label class="choice"><input type="radio" name="teamSize" value="6-15" /><span><strong>6 – 15</strong></span></label>
-            <label class="choice"><input type="radio" name="teamSize" value="16-50" /><span><strong>16 – 50</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="2-5" /><span><strong>2 to 5</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="6-15" /><span><strong>6 to 15</strong></span></label>
+            <label class="choice"><input type="radio" name="teamSize" value="16-50" /><span><strong>16 to 50</strong></span></label>
             <label class="choice"><input type="radio" name="teamSize" value="50+" /><span><strong>50+</strong></span></label>
           </div>
           <div class="step-nav">
@@ -105,9 +112,9 @@
         <section class="step" data-step="5">
           <p class="eyebrow">Almost there</p>
           <h1>When would you want to start?</h1>
-          <p class="sub">No wrong answer — this helps me prep the call.</p>
+          <p class="sub">No wrong answer. This just helps me prep the call.</p>
           <div class="choice-grid" role="radiogroup" aria-label="Urgency">
-            <label class="choice"><input type="radio" name="urgency" value="asap" required /><span><strong>ASAP — the next 30 days</strong><em>Something has to change now</em></span></label>
+            <label class="choice"><input type="radio" name="urgency" value="asap" required /><span><strong>ASAP, within 30 days</strong><em>Something has to change now</em></span></label>
             <label class="choice"><input type="radio" name="urgency" value="90d" /><span><strong>Within 90 days</strong><em>Ready to move, planning ahead</em></span></label>
             <label class="choice"><input type="radio" name="urgency" value="exploring" /><span><strong>Just exploring</strong><em>Curious what's possible</em></span></label>
           </div>
@@ -155,15 +162,15 @@
         <section class="step step-done" data-step="done">
           <div class="done-icon">✓</div>
           <h1>You're in, <span class="echo-name">friend</span>.</h1>
-          <p class="sub done-sub">Your request landed. I'll be in touch within one business day with a time that fits.</p>
-          <p class="sub"><em>In the meantime</em> — if you want to grab a slot yourself:</p>
-          <a class="btn btn-outline btn-lg" href="https://zcal.co/mkanu/1on1withmk" target="_blank" rel="noopener">Open my calendar →</a>
+          <p class="sub done-sub">Your request landed. I'll review what you shared and reach out within one business day to set up a time.</p>
+          <p class="sub">Keep an eye on your inbox. If you don't see anything, check your spam folder just in case.</p>
+          <a class="btn btn-outline btn-lg" href="index.html">Back to the site</a>
         </section>
 
         <!-- Error (shown if submit fails) -->
         <section class="step step-error" data-step="error">
           <h1>Hm, that didn't go through.</h1>
-          <p class="sub">Something on our end hiccupped. You can try again, or email <a href="mailto:hello@mambaykanu.com">hello@mambaykanu.com</a> directly and we'll pick it up.</p>
+          <p class="sub">Something on our end hiccupped, and your answers weren't saved. Give it another try and it should go through.</p>
           <button type="button" class="btn btn-primary" id="retryBtn">Try again</button>
         </section>
 
@@ -176,7 +183,6 @@
       <p>© <span id="year"></span> The Brand Craftsman</p>
       <div class="footer-links">
         <a href="index.html">Home</a>
-        <a href="https://zcal.co/mkanu/1on1withmk">Open calendar</a>
       </div>
     </div>
   </footer>
