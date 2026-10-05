@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f1113" />
+  <meta name="robots" content="noindex" />
+  <title>Page not found | MK Holding Co</title>
+  <link rel="icon" type="image/png" href="/media/mkc-logo-1-150x150.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .notfound {
+      min-height: 100vh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(160deg, var(--navy) 0%, var(--ink) 100%);
+      color: var(--on-dark);
+    }
+    .notfound h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--on-dark);
+      margin-bottom: 0.6rem;
+    }
+    .notfound p {
+      color: var(--on-dark-soft);
+      margin-inline: auto;
+      max-width: 42ch;
+      margin-bottom: 2rem;
+    }
+    .notfound .mark { height: 44px; width: auto; margin: 0 auto 2.5rem; }
+  </style>
+</head>
+<body>
+  <main class="notfound">
+    <a href="/" aria-label="MK Holding Co, home">
+      <picture>
+        <source srcset="/media/mkc-logo-white.webp" type="image/webp" />
+        <img class="mark" src="/media/Untitled-design-e1774482509240.png" alt="MK Holding Co" width="460" height="188" />
+      </picture>
+    </a>
+    <h1>We couldn&rsquo;t find that page.</h1>
+    <p>The link may be out of date, or the address might have a typo in it. Everything we publish lives on the home page.</p>
+    <a href="/" class="btn btn-solid">Back to the home page</a>
+  </main>
+</body>
+</html>

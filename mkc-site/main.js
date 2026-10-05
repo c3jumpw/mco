@@ -1,4 +1,4 @@
-/* MK Holding Co — navigation + contact form */
+/* MK Holding Co: navigation and contact form */
 (function () {
   'use strict';
 

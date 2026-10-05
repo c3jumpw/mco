@@ -112,7 +112,7 @@ module.exports = async function handler(req, res) {
   const rows = [
     ['Name', name],
     ['Email', email],
-    ['Company', company || '—']
+    ['Company', company || 'Not provided']
   ];
 
   const html = [
@@ -142,7 +142,7 @@ module.exports = async function handler(req, res) {
     '',
     'Name: ' + name,
     'Email: ' + email,
-    'Company: ' + (company || '—'),
+    'Company: ' + (company || 'Not provided'),
     '',
     message
   ].join('\n');
@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
         from: FROM,
         to: [TO],
         reply_to: email,
-        subject: 'Website enquiry — ' + name + (company ? ' (' + company + ')' : ''),
+        subject: 'Website enquiry from ' + name + (company ? ' (' + company + ')' : ''),
         html: html,
         text: text
       })
