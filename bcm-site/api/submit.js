@@ -22,12 +22,15 @@
 //   SYSTEME_TAG_URGENCY_ASAP | _90D | _EXPLORING          (optional)
 //   SYSTEME_TAG_PAIN_CHAOS | _PLATEAU | _DEPENDENCE | _TIME | _OTHER
 //
-// ── Owner notification email (optional) ─────────────────────────────────
-//   RESEND_API_KEY           from resend.com
-//   NOTIFY_EMAIL             where inquiry alerts go (your inbox)
-//   NOTIFY_FROM              defaults to "BCM Website <onboarding@resend.dev>"
-//                            (that sender only delivers to the email you signed
-//                            up to Resend with; verify a domain to use your own)
+// ── Owner notification email ────────────────────────────────────────────
+//   RESEND_API_KEY           from resend.com. Alerts are off until this is set.
+//   NOTIFY_EMAIL             overrides the recipient (default admin@bcm.mambaykanu.com)
+//   NOTIFY_FROM              overrides the sender
+//                            (default "BCM Website <support@bcm.mambaykanu.com>";
+//                            the domain must be verified in Resend)
+
+const DEFAULT_NOTIFY_EMAIL = 'admin@bcm.mambaykanu.com';
+const DEFAULT_NOTIFY_FROM = 'BCM Website <support@bcm.mambaykanu.com>';
 
 const SYSTEME_BASE = 'https://api.systeme.io/api';
 const CALL_TIMEOUT_MS = 6000;
@@ -218,8 +221,8 @@ function escapeHtml(s) {
 // Optional owner alert via Resend. Returns { sent, skipped }.
 async function notifyOwner(lead, crm) {
   const key = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
-  if (!key || !to) return { sent: false, skipped: true };
+  const to = process.env.NOTIFY_EMAIL || DEFAULT_NOTIFY_EMAIL;
+  if (!key) return { sent: false, skipped: true };
 
   const rows = [
     ['Name',              lead.firstName],
@@ -261,7 +264,7 @@ async function notifyOwner(lead, crm) {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: process.env.NOTIFY_FROM || 'BCM Website <onboarding@resend.dev>',
+      from: process.env.NOTIFY_FROM || DEFAULT_NOTIFY_FROM,
       to: [to],
       reply_to: lead.email,
       subject,

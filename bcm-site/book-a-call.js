@@ -143,7 +143,7 @@
       phone:     form.phone.value.trim(),
       notes:     form.notes.value.trim(),
       submittedAt: new Date().toISOString(),
-      source: 'bcm.mambaykanu.com book-a-call'
+      source: location.hostname + ' book-a-call'
     };
 
     try {

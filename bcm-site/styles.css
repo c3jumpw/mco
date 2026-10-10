@@ -389,10 +389,22 @@ section { padding: 96px 0; }
   gap: 60px;
   align-items: center;
 }
+/* Circular cutout with transparent corners: no box border or box-shadow
+   (they'd draw a rectangle around the circle). drop-shadow follows the
+   image's alpha, so the shadow hugs the circle. */
+.about-photo {
+  display: flex;
+  justify-content: center;
+}
+.about-photo picture {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+}
 .about-photo img {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.14));
 }
 .about-copy h2 { margin-bottom: 0; }
 .title-line {

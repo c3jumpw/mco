@@ -1,7 +1,7 @@
 # The Brand Craftsman: Static Site
 
 Deployed via Vercel from https://github.com/c3jumpw/mco (project root
-is `bcm-site/`). Live at: https://bcm.mambaykanu.com
+is `bcm-site/`). Live at: https://brandcraftsman.mambaykanu.com
 
 ## Structure
 
@@ -86,18 +86,17 @@ trigger **Tag added: new inquiry**, action **Send email**. Create the rule
 *before* the next inquiry arrives, because it only fires on tags added
 after the rule exists.
 
-## Owner notification email (optional)
+## Owner notification email
 
-| Variable         | What to put                                                        |
-|------------------|--------------------------------------------------------------------|
-| `RESEND_API_KEY` | API key from resend.com                                            |
-| `NOTIFY_EMAIL`   | The inbox inquiry alerts go to                                     |
-| `NOTIFY_FROM`    | Sender. Defaults to `BCM Website <onboarding@resend.dev>`          |
+Sent through Resend from **support@bcm.mambaykanu.com** to
+**admin@bcm.mambaykanu.com** (a Zoho mailbox). `bcm.mambaykanu.com` is
+verified in Resend. Alerts stay off until the API key is set:
 
-The default sender only delivers to the address you signed up to Resend
-with, which is fine for alerts to yourself. To send from your own domain,
-verify `mambaykanu.com` in Resend and set `NOTIFY_FROM`, e.g.
-`BCM Website <inquiries@mambaykanu.com>`.
+| Variable         | What to put                                                     |
+|------------------|-----------------------------------------------------------------|
+| `RESEND_API_KEY` | API key from resend.com (mark it **Sensitive** in Vercel)       |
+| `NOTIFY_EMAIL`   | Optional. Overrides the recipient                               |
+| `NOTIFY_FROM`    | Optional. Overrides the sender, e.g. `Name <addr@domain>`       |
 
 Inquiries marked "ASAP" get an `[ASAP]` prefix in the subject line. The
 email also says whether the lead made it into Systeme.io, so if the CRM
@@ -121,8 +120,32 @@ build step. Open `index.html` directly in a browser to preview most of
 the site (the form submit will 404 locally, it only works on Vercel).
 To test the function locally, install the Vercel CLI and run `vercel dev`.
 
-## Custom domain
+## Domains and DNS
 
-Vercel → Project → **Settings → Domains** → add `bcm.mambaykanu.com` (or
-whatever) and update the CNAME at your DNS provider to
-`cname.vercel-dns.com`. HTTPS is provisioned automatically.
+The web host and the email domain are deliberately different:
+
+| Hostname                         | Purpose                                         |
+|----------------------------------|-------------------------------------------------|
+| `brandcraftsman.mambaykanu.com`  | The website (CNAME to Vercel)                   |
+| `bcm.mambaykanu.com`             | Email: Zoho inbox, Resend sending, SPF. Also 308-redirects old web links to the new host |
+
+DNS for `mambaykanu.com` is at GoDaddy. Records that matter:
+
+| Name                       | Type  | Value                                  | For                      |
+|----------------------------|-------|----------------------------------------|--------------------------|
+| `brandcraftsman`           | CNAME | `e93be3eb5c32c597.vercel-dns-016.com`  | Website                  |
+| `bcm`                      | A     | `216.150.1.1`                          | Old-link redirect        |
+| `bcm`                      | A     | `216.150.16.1`                         | Old-link redirect        |
+| `bcm`                      | MX    | `mx.zoho.com` / `mx2` / `mx3`          | Receiving mail           |
+| `bcm`                      | TXT   | `v=spf1 include:zohomail.com ~all`     | SPF (ONE record only)    |
+| `send.bcm`                 | CNAME | `send.forge.rmta.net`                  | Resend sending           |
+| `resend._domainkey.bcm`    | TXT   | `p=MIGf...`                            | Resend DKIM              |
+
+`bcm` must use **A** records, not a CNAME: a CNAME can't share a name
+with the MX and TXT records that run the mailbox.
+
+A domain may have only **one** SPF record. If another sender (Systeme.io,
+say) asks you to add SPF to `bcm`, merge its `include:` into the existing
+record rather than adding a second TXT, e.g.
+`v=spf1 include:zohomail.com include:<their-value> ~all`. Two SPF records
+make receiving servers treat both as invalid.
