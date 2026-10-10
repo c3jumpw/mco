@@ -38,6 +38,7 @@
   // Project pages link here as /?project=dayforge#contact, so the form opens
   // already pointed at the thing the visitor was just reading about.
   var PROJECT_LABELS = {
+    'dispatch-it': 'Dispatch It',
     'dayforge': 'DayForge',
     'contentflow': 'ContentFlow',
     'my-pd': 'My PD',
