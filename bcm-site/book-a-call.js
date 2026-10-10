@@ -51,16 +51,17 @@
     const inputs = el.querySelectorAll('input[required], textarea[required]');
     let ok = true;
 
-    // Group required radios by name
-    const radioGroups = {};
-    inputs.forEach(i => {
-      if (i.type === 'radio') {
-        radioGroups[i.name] = radioGroups[i.name] || [];
-        radioGroups[i.name].push(i);
-      }
-    });
-    Object.keys(radioGroups).forEach(name => {
-      const anyChecked = radioGroups[name].some(r => r.checked);
+    // Required radio groups. Only the first radio in a group carries the
+    // `required` attribute, so collect the group NAMES and then check every
+    // radio sharing that name. (Checking only the required radio meant any
+    // answer other than the first option failed validation.)
+    const radioNames = new Set();
+    inputs.forEach(i => { if (i.type === 'radio') radioNames.add(i.name); });
+    radioNames.forEach(name => {
+      const group = el.querySelector('[role="radiogroup"] input[name="' + name + '"]')
+        .closest('[role="radiogroup"]');
+      const anyChecked = !!el.querySelector('input[name="' + name + '"]:checked');
+      group.classList.toggle('needs-choice', !anyChecked);
       if (!anyChecked) ok = false;
     });
 
@@ -86,6 +87,11 @@
   form.addEventListener('input', (e) => {
     const wrap = e.target.closest('.field');
     if (wrap) wrap.classList.remove('invalid');
+  });
+  form.addEventListener('change', (e) => {
+    if (e.target.type !== 'radio') return;
+    const group = e.target.closest('[role="radiogroup"]');
+    if (group) group.classList.remove('needs-choice');
   });
 
   // Advance to the next step via Next buttons

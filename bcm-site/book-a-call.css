@@ -316,3 +316,18 @@
   .form-shell { padding: 34px 22px; }
   .step h1 { font-size: 1.5rem; }
 }
+
+/* Unanswered required choice: a visible prompt instead of a silent no-op */
+.needs-choice { position: relative; }
+.needs-choice .choice > span,
+.needs-choice .chip > span { border-color: var(--danger); }
+.needs-choice::after {
+  content: "Pick one to continue.";
+  display: block;
+  grid-column: 1 / -1;
+  flex-basis: 100%;
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 0.88rem;
+  font-weight: 600;
+}

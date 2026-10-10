@@ -1,32 +1,40 @@
 // Vercel serverless function: /api/submit
-// Receives the book-a-call form, pushes the contact into Systeme.io,
-// fills custom fields, and tags it.
 //
-// ── Required ────────────────────────────────────────────────────────────
-//   SYSTEME_API_KEY          Your Systeme.io API key (server-side only)
+// Receives the book-a-call form and saves the lead to two independent places:
+//   1. Systeme.io: creates (or updates) the contact, fills custom fields, tags it.
+//   2. Your inbox: an optional notification email via Resend.
 //
-// ── Custom field slugs (optional) ───────────────────────────────────────
-// Set each to the slug of the matching custom field in your Systeme.io
-// account. Run /api/fields once to discover your real slugs.
-//   SYSTEME_FIELD_URGENCY    e.g. "urgency"
-//   SYSTEME_FIELD_PAIN       e.g. "pain_point"
-//   SYSTEME_FIELD_BUSINESS   e.g. "business"
-//   SYSTEME_FIELD_TEAMSIZE   e.g. "team_size"
-//   SYSTEME_FIELD_TIMEOFDAY  e.g. "preferred_time"
-//   SYSTEME_FIELD_NOTES      e.g. "inquiry_notes"
+// The visitor sees success if EITHER one worked. If both fail, the function
+// returns 502 and the form shows its "didn't go through, try again" screen,
+// so a lead is never silently dropped.
+//
+// ── Systeme.io ──────────────────────────────────────────────────────────
+//   SYSTEME_API_KEY          required for the CRM step
+//   SYSTEME_FIELD_BUSINESS   custom field slugs (optional, skipped if unset)
+//   SYSTEME_FIELD_URGENCY
+//   SYSTEME_FIELD_PAIN
+//   SYSTEME_FIELD_TEAMSIZE
+//   SYSTEME_FIELD_TIMEOFDAY
+//   SYSTEME_FIELD_NOTES
 //   SYSTEME_FIELD_FIRSTNAME  defaults to "first_name"
 //   SYSTEME_FIELD_PHONE      defaults to "phone_number"
-//
-// ── Tag IDs (optional) ──────────────────────────────────────────────────
-//   SYSTEME_TAG_INQUIRY
-//   SYSTEME_TAG_URGENCY_ASAP | _90D | _EXPLORING
+//   SYSTEME_TAG_INQUIRY      tag ID applied to every inquiry
+//   SYSTEME_TAG_URGENCY_ASAP | _90D | _EXPLORING          (optional)
 //   SYSTEME_TAG_PAIN_CHAOS | _PLATEAU | _DEPENDENCE | _TIME | _OTHER
 //
-// Anything not set is simply skipped, the submission still succeeds.
+// ── Owner notification email (optional) ─────────────────────────────────
+//   RESEND_API_KEY           from resend.com
+//   NOTIFY_EMAIL             where inquiry alerts go (your inbox)
+//   NOTIFY_FROM              defaults to "BCM Website <onboarding@resend.dev>"
+//                            (that sender only delivers to the email you signed
+//                            up to Resend with; verify a domain to use your own)
 
 const SYSTEME_BASE = 'https://api.systeme.io/api';
+const CALL_TIMEOUT_MS = 6000;
+const LOOKUP_PAGE_SIZE = 100;
+const LOOKUP_MAX_PAGES = 5;
 
-// Human-readable labels so the CRM shows words, not internal codes.
+// Human-readable labels so the CRM and email show words, not internal codes.
 const LABELS = {
   pain: {
     chaos:      'Systems chaos',
@@ -59,6 +67,213 @@ function label(group, value) {
   return (LABELS[group] && LABELS[group][value]) || value || '';
 }
 
+// fetch with a timeout, returning { ok, status, json, text } and never throwing.
+async function call(url, options = {}) {
+  try {
+    const resp = await fetch(url, {
+      ...options,
+      signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+    });
+    const text = await resp.text();
+    let json = null;
+    try { json = text ? JSON.parse(text) : null; } catch { /* not JSON */ }
+    return { ok: resp.ok, status: resp.status, json, text };
+  } catch (err) {
+    return { ok: false, status: 0, json: null, text: String(err && err.message) };
+  }
+}
+
+function systeme(path, apiKey, { method = 'GET', body, contentType } = {}) {
+  const headers = { 'X-API-Key': apiKey, 'Accept': 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = contentType || 'application/json';
+  return call(SYSTEME_BASE + path, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+}
+
+function logFail(step, r) {
+  console.error('[book-a-call] systeme ' + step + ' failed',
+    r.status, (r.text || '').slice(0, 800));
+}
+
+// Find a contact by EXACT email match. The list endpoint isn't documented to
+// filter by email, so we pass the hint but never trust the result blindly:
+// every candidate is compared to the address we were given, and we only
+// return a contact whose email actually matches. Taking items[0] without that
+// check could overwrite an unrelated contact.
+async function findContactByEmail(email, apiKey) {
+  const target = email.toLowerCase();
+  let cursor = null;
+  for (let page = 0; page < LOOKUP_MAX_PAGES; page++) {
+    const qs = new URLSearchParams({ email, limit: String(LOOKUP_PAGE_SIZE) });
+    if (cursor) qs.set('startingAfter', cursor);
+    const r = await systeme('/contacts?' + qs.toString(), apiKey);
+    if (!r.ok) { logFail('lookup', r); return null; }
+    const items = (r.json && r.json.items) || [];
+    const match = items.find(c => String(c.email || '').toLowerCase() === target);
+    if (match) return match.id;
+    if (!r.json || !r.json.hasMore || !items.length) return null;
+    cursor = items[items.length - 1].id;
+  }
+  console.warn('[book-a-call] lookup gave up after', LOOKUP_MAX_PAGES, 'pages');
+  return null;
+}
+
+// PATCH fields onto a contact. If Systeme rejects the batch, retry one field
+// at a time so a single bad value can't drop the rest.
+async function patchFields(contactId, fields, apiKey) {
+  if (!fields.length) return { saved: [], rejected: [] };
+  const patch = (f) => systeme('/contacts/' + contactId, apiKey, {
+    method: 'PATCH',
+    contentType: 'application/merge-patch+json',
+    body: { fields: f },
+  });
+
+  const all = await patch(fields);
+  if (all.ok) return { saved: fields.map(f => f.slug), rejected: [] };
+  logFail('field batch update', all);
+
+  const saved = [];
+  const rejected = [];
+  for (const f of fields) {
+    const one = await patch([f]);
+    if (one.ok) saved.push(f.slug);
+    else { rejected.push(f.slug); logFail('field "' + f.slug + '"', one); }
+  }
+  return { saved, rejected };
+}
+
+// Create or update the contact, then tag it. Returns a result object; never throws.
+async function saveToSysteme(lead, fields, tagIds, apiKey) {
+  const result = { saved: false, contactId: null, mode: null,
+                   fieldsSaved: [], fieldsRejected: [], tagsApplied: [], tagsFailed: [] };
+
+  // 1. Try to create the contact with everything at once.
+  const create = await systeme('/contacts', apiKey, {
+    method: 'POST',
+    body: { email: lead.email, locale: 'en', fields },
+  });
+
+  if (create.ok && create.json && create.json.id) {
+    result.contactId = create.json.id;
+    result.mode = 'created';
+    result.fieldsSaved = fields.map(f => f.slug);
+  } else {
+    logFail('create', create);
+
+    // 2. A failed create is either "email already exists" or a genuine
+    //    validation error. Rather than guess from the status code, check
+    //    whether the contact actually exists.
+    const existingId = await findContactByEmail(lead.email, apiKey);
+
+    if (existingId) {
+      result.contactId = existingId;
+      result.mode = 'updated';
+      const p = await patchFields(existingId, fields, apiKey);
+      result.fieldsSaved = p.saved;
+      result.fieldsRejected = p.rejected;
+    } else if (create.status >= 400 && create.status < 500) {
+      // 3. Validation error on something other than a duplicate. Create a
+      //    bare contact so the lead lands, then add fields individually.
+      const bare = await systeme('/contacts', apiKey, {
+        method: 'POST',
+        body: { email: lead.email, locale: 'en' },
+      });
+      if (bare.ok && bare.json && bare.json.id) {
+        result.contactId = bare.json.id;
+        result.mode = 'created_minimal';
+        const p = await patchFields(bare.json.id, fields, apiKey);
+        result.fieldsSaved = p.saved;
+        result.fieldsRejected = p.rejected;
+      } else {
+        logFail('minimal create', bare);
+      }
+    }
+  }
+
+  if (!result.contactId) return result;
+  result.saved = true;
+
+  // 4. Tags.
+  for (const tagId of tagIds) {
+    const t = await systeme('/contacts/' + result.contactId + '/tags', apiKey, {
+      method: 'POST',
+      body: { tagId },
+    });
+    if (t.ok) result.tagsApplied.push(tagId);
+    else { result.tagsFailed.push(tagId); logFail('tag ' + tagId, t); }
+  }
+
+  return result;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+// Optional owner alert via Resend. Returns { sent, skipped }.
+async function notifyOwner(lead, crm) {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  if (!key || !to) return { sent: false, skipped: true };
+
+  const rows = [
+    ['Name',              lead.firstName],
+    ['Email',             lead.email],
+    ['Phone',             lead.phone || 'not given'],
+    ['Business',          lead.business],
+    ['Biggest friction',  label('pain', lead.pain)],
+    ['Team size',         label('teamSize', lead.teamSize)],
+    ['Urgency',           label('urgency', lead.urgency)],
+    ['Best time of day',  label('timeOfDay', lead.timeOfDay)],
+    ['Notes',             lead.notes || 'none'],
+  ];
+
+  const crmLine = crm.saved
+    ? 'Saved to Systeme.io (' + crm.mode + ')'
+      + (crm.fieldsRejected.length ? '. Fields rejected: ' + crm.fieldsRejected.join(', ') : '')
+      + (crm.tagsFailed.length ? '. Tags failed: ' + crm.tagsFailed.join(', ') : '')
+    : crm.attempted
+      ? 'NOT saved to Systeme.io. Add this contact manually.'
+      : 'Systeme.io not configured.';
+
+  const urgent = lead.urgency === 'asap';
+  const subject = (urgent ? '[ASAP] ' : '') + 'New inquiry: '
+    + (lead.firstName || lead.email) + (lead.business ? ', ' + lead.business : '');
+
+  const text = rows.map(([k, v]) => k + ': ' + v).join('\n')
+    + '\n\n' + crmLine + '\n\nReply to this email to respond to ' + (lead.firstName || 'them') + ' directly.';
+
+  const html = '<table style="font-family:sans-serif;font-size:14px;border-collapse:collapse">'
+    + rows.map(([k, v]) =>
+        '<tr><td style="padding:6px 14px 6px 0;color:#4a4a4b;vertical-align:top"><b>'
+        + escapeHtml(k) + '</b></td><td style="padding:6px 0;white-space:pre-wrap">'
+        + escapeHtml(v) + '</td></tr>').join('')
+    + '</table><p style="font-family:sans-serif;font-size:13px;color:'
+    + (crm.saved ? '#4a4a4b' : '#d14343') + '">' + escapeHtml(crmLine) + '</p>'
+    + '<p style="font-family:sans-serif;font-size:13px;color:#9d9d9d">Reply to this email to respond directly.</p>';
+
+  const r = await call('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: process.env.NOTIFY_FROM || 'BCM Website <onboarding@resend.dev>',
+      to: [to],
+      reply_to: lead.email,
+      subject,
+      text,
+      html,
+    }),
+  });
+
+  if (!r.ok) console.error('[book-a-call] notify email failed', r.status, (r.text || '').slice(0, 500));
+  return { sent: r.ok, skipped: false };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -71,180 +286,89 @@ export default async function handler(req, res) {
   }
   body = body || {};
 
-  const email = String(body.email || '').trim();
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+  const lead = {
+    email:     String(body.email     || '').trim(),
+    firstName: String(body.firstName || '').trim(),
+    phone:     String(body.phone     || '').trim(),
+    business:  String(body.business  || '').trim(),
+    pain:      String(body.pain      || '').trim(),
+    teamSize:  String(body.teamSize  || '').trim(),
+    urgency:   String(body.urgency   || '').trim(),
+    timeOfDay: String(body.timeOfDay || '').trim(),
+    notes:     String(body.notes     || '').trim(),
+    source:    String(body.source    || 'book-a-call').trim(),
+  };
+
+  if (!lead.email || !/^\S+@\S+\.\S+$/.test(lead.email)) {
     return res.status(400).json({ error: 'invalid_email' });
   }
 
-  const firstName = String(body.firstName || '').trim();
-  const phone     = String(body.phone     || '').trim();
-  const business  = String(body.business  || '').trim();
-  const pain      = String(body.pain      || '').trim();
-  const teamSize  = String(body.teamSize  || '').trim();
-  const urgency   = String(body.urgency   || '').trim();
-  const timeOfDay = String(body.timeOfDay || '').trim();
-  const notes     = String(body.notes     || '').trim();
-  const source    = String(body.source    || 'book-a-call').trim();
+  // Full record in the logs, so even a total failure is recoverable by hand.
+  console.log('[book-a-call] new submission', lead);
 
-  // Always log so nothing is lost even if Systeme.io is misconfigured
-  console.log('[book-a-call] new submission', {
-    email, firstName, business, pain, teamSize, urgency, timeOfDay, source
-  });
-
+  // ── Systeme.io ────────────────────────────────────────────────────────
   const apiKey = process.env.SYSTEME_API_KEY;
-  if (!apiKey) {
-    console.warn('[book-a-call] SYSTEME_API_KEY not set; submission logged only.');
-    return res.status(200).json({ ok: true, delivered: 'log_only' });
-  }
+  let crm = { attempted: false, saved: false, fieldsRejected: [], tagsFailed: [] };
 
-  try {
-    // ── Build the custom field payload ──────────────────────────────────
-    // Each entry only included when BOTH a slug env var and a value exist.
-    const fieldSpec = [
-      [process.env.SYSTEME_FIELD_FIRSTNAME || 'first_name',   firstName],
-      [process.env.SYSTEME_FIELD_PHONE     || 'phone_number', phone],
-      [process.env.SYSTEME_FIELD_BUSINESS,   business],
-      [process.env.SYSTEME_FIELD_URGENCY,    label('urgency',   urgency)],
-      [process.env.SYSTEME_FIELD_PAIN,       label('pain',      pain)],
-      [process.env.SYSTEME_FIELD_TEAMSIZE,   label('teamSize',  teamSize)],
-      [process.env.SYSTEME_FIELD_TIMEOFDAY,  label('timeOfDay', timeOfDay)],
-      [process.env.SYSTEME_FIELD_NOTES,      notes],
-    ];
-
-    const fields = fieldSpec
+  if (apiKey) {
+    const fields = [
+      [process.env.SYSTEME_FIELD_FIRSTNAME || 'first_name',   lead.firstName],
+      [process.env.SYSTEME_FIELD_PHONE     || 'phone_number', lead.phone],
+      [process.env.SYSTEME_FIELD_BUSINESS,   lead.business],
+      [process.env.SYSTEME_FIELD_URGENCY,    label('urgency',   lead.urgency)],
+      [process.env.SYSTEME_FIELD_PAIN,       label('pain',      lead.pain)],
+      [process.env.SYSTEME_FIELD_TEAMSIZE,   label('teamSize',  lead.teamSize)],
+      [process.env.SYSTEME_FIELD_TIMEOFDAY,  label('timeOfDay', lead.timeOfDay)],
+      [process.env.SYSTEME_FIELD_NOTES,      lead.notes],
+    ]
       .filter(([slug, value]) => slug && value)
       .map(([slug, value]) => ({ slug, value: String(value) }));
 
-    // ── 1. Create (or find) the contact ─────────────────────────────────
-    const createResp = await fetch(SYSTEME_BASE + '/contacts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': apiKey,
-      },
-      body: JSON.stringify({ email, locale: 'en', fields }),
-    });
-
-    let contactId;
-    let createdFresh = false;
-
-    if (createResp.ok) {
-      const created = await createResp.json();
-      contactId = created.id;
-      createdFresh = true;
-    } else if (createResp.status === 422) {
-      // Already exists: look it up, then PATCH the fields on
-      const lookupResp = await fetch(
-        SYSTEME_BASE + '/contacts?email=' + encodeURIComponent(email),
-        { headers: { 'X-API-Key': apiKey } }
-      );
-      if (lookupResp.ok) {
-        const lookup = await lookupResp.json();
-        const item = (lookup.items && lookup.items[0]) || null;
-        contactId = item && item.id;
-      }
-
-      // Update the existing contact's fields with the fresh answers
-      if (contactId && fields.length) {
-        const patchResp = await fetch(SYSTEME_BASE + '/contacts/' + contactId, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/merge-patch+json',
-            'X-API-Key': apiKey,
-          },
-          body: JSON.stringify({ fields }),
-        });
-        if (!patchResp.ok) {
-          console.warn('[book-a-call] field update failed',
-            patchResp.status, await patchResp.text());
-        }
-      }
-    } else {
-      console.error('[book-a-call] systeme create failed',
-        createResp.status, await createResp.text());
-    }
-
-    if (!contactId) {
-      return res.status(200).json({ ok: true, delivered: 'logged_create_failed' });
-    }
-
-    // ── 2. Apply tags ───────────────────────────────────────────────────
-    const painTagMap = {
+    const painTags = {
       chaos:      process.env.SYSTEME_TAG_PAIN_CHAOS,
       plateau:    process.env.SYSTEME_TAG_PAIN_PLATEAU,
       dependence: process.env.SYSTEME_TAG_PAIN_DEPENDENCE,
       time:       process.env.SYSTEME_TAG_PAIN_TIME,
       other:      process.env.SYSTEME_TAG_PAIN_OTHER,
     };
-    const urgencyTagMap = {
+    const urgencyTags = {
       asap:      process.env.SYSTEME_TAG_URGENCY_ASAP,
       '90d':     process.env.SYSTEME_TAG_URGENCY_90D,
       exploring: process.env.SYSTEME_TAG_URGENCY_EXPLORING,
     };
-
     const tagIds = [
       process.env.SYSTEME_TAG_INQUIRY,
-      painTagMap[pain],
-      urgencyTagMap[urgency],
+      painTags[lead.pain],
+      urgencyTags[lead.urgency],
     ].filter(Boolean).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
 
-    const tagResults = await Promise.allSettled(
-      tagIds.map(tagId =>
-        fetch(SYSTEME_BASE + '/contacts/' + contactId + '/tags', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': apiKey,
-          },
-          body: JSON.stringify({ tagId }),
-        })
-      )
-    );
-    tagResults.forEach((r, i) => {
-      if (r.status === 'rejected' || (r.value && !r.value.ok)) {
-        console.warn('[book-a-call] tag apply failed for id', tagIds[i]);
-      }
-    });
-
-    // ── 3. Belt-and-braces: also write the answers as a note ────────────
-    // Harmless duplication, but it means the data survives even if a slug
-    // is wrong. Set SYSTEME_SKIP_NOTE=1 once your fields are confirmed.
-    if (process.env.SYSTEME_SKIP_NOTE !== '1') {
-      const noteBody = [
-        '--- Book-a-call submission ---',
-        'Business: '              + business,
-        'Team size: '             + label('teamSize',  teamSize),
-        'Biggest friction: '      + label('pain',      pain),
-        'Urgency: '               + label('urgency',   urgency),
-        'Preferred time of day: ' + label('timeOfDay', timeOfDay),
-        notes ? '\nNotes:\n' + notes : '',
-        '\nSource: ' + source,
-      ].filter(Boolean).join('\n');
-
-      try {
-        await fetch(SYSTEME_BASE + '/contacts/' + contactId + '/notes', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': apiKey,
-          },
-          body: JSON.stringify({ content: noteBody }),
-        });
-      } catch (noteErr) {
-        console.warn('[book-a-call] note failed (non-fatal)',
-          noteErr && noteErr.message);
-      }
-    }
-
-    return res.status(200).json({
-      ok: true,
-      contactId,
-      createdFresh,
-      fieldsSent: fields.map(f => f.slug),
-      tagsSent: tagIds,
-    });
-  } catch (err) {
-    console.error('[book-a-call] handler error', (err && err.stack) || err);
-    return res.status(200).json({ ok: true, delivered: 'logged_error' });
+    crm = { attempted: true, ...(await saveToSysteme(lead, fields, tagIds, apiKey)) };
   }
+
+  // ── Owner email ───────────────────────────────────────────────────────
+  const mail = await notifyOwner(lead, crm);
+
+  const summary = {
+    systeme: crm.attempted
+      ? { saved: crm.saved, mode: crm.mode, contactId: crm.contactId,
+          fieldsSaved: crm.fieldsSaved, fieldsRejected: crm.fieldsRejected,
+          tagsApplied: crm.tagsApplied, tagsFailed: crm.tagsFailed }
+      : 'not_configured',
+    email: mail.skipped ? 'not_configured' : (mail.sent ? 'sent' : 'failed'),
+  };
+  console.log('[book-a-call] result', JSON.stringify(summary));
+
+  // Nothing configured at all: setup mode, lead is in the logs.
+  if (!crm.attempted && mail.skipped) {
+    return res.status(200).json({ ok: true, delivered: 'log_only' });
+  }
+
+  // At least one destination holds the lead.
+  if (crm.saved || mail.sent) {
+    return res.status(200).json({ ok: true, ...summary });
+  }
+
+  // Every configured destination failed. Tell the visitor so they retry,
+  // instead of showing a success screen for a lead nobody received.
+  return res.status(502).json({ ok: false, error: 'not_saved', ...summary });
 }
