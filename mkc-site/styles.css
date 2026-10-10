@@ -283,6 +283,86 @@ p:last-child { margin-bottom: 0; }
 .pillar h3 { margin-bottom: 0.65rem; }
 .pillar p { font-size: 0.97rem; margin: 0; }
 
+/* ---------- Ventures collage ---------- */
+.ventures-head { max-width: 48rem; margin-bottom: 3rem; }
+.ventures-head h2 { max-width: 16ch; }
+.ventures-head p { font-size: 1.06rem; }
+
+.collage {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.25rem;
+}
+.tile > a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon name"
+    "desc desc"
+    "kind kind";
+  column-gap: 1rem;
+  row-gap: 0.7rem;
+  align-items: center;
+  height: 100%;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.tile > a:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+.tile img {
+  grid-area: icon;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  /* Some marks are light-on-transparent and would otherwise vanish against
+     the white card, so every icon gets the same hairline ring. */
+  box-shadow: 0 0 0 1px rgba(25, 27, 30, 0.1);
+}
+.tile-name {
+  grid-area: name;
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: var(--text);
+  line-height: 1.25;
+}
+.tile-desc {
+  grid-area: desc;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+.tile-kind {
+  grid-area: kind;
+  justify-self: start;
+  align-self: end;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-soft);
+  padding-top: 0.55rem;
+  border-top: 2px solid var(--gold);
+}
+
+.ventures-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+}
+.ventures-foot p { margin: 0; max-width: 52ch; }
+.ventures-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
 /* ---------- Contact ---------- */
 .band-contact {
   background: linear-gradient(160deg, var(--navy) 0%, var(--ink) 100%);
@@ -320,7 +400,8 @@ p:last-child { margin-bottom: 0; }
   font-weight: 400;
 }
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   font: inherit;
   font-size: 0.97rem;
@@ -331,15 +412,31 @@ p:last-child { margin-bottom: 0; }
   padding: 0.8rem 0.9rem;
   transition: border-color 0.18s ease, background-color 0.18s ease;
 }
+.field select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--on-dark-soft) 50%),
+                    linear-gradient(135deg, var(--on-dark-soft) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(50% + 2px), calc(100% - 15px) calc(50% + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+/* Native option lists render on the OS surface, so they need their own colors. */
+.field select option { background: var(--ink); color: var(--on-dark); }
 .field textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
 .field input::placeholder,
 .field textarea::placeholder { color: rgba(243, 242, 239, 0.4); }
 .field input:hover,
-.field textarea:hover { border-color: rgba(255, 255, 255, 0.3); }
+.field textarea:hover,
+.field select:hover { border-color: rgba(255, 255, 255, 0.3); }
+/* background-color, not the background shorthand: the select's arrow is a
+   background-image and the shorthand would erase it on focus. */
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.09);
+  background-color: rgba(255, 255, 255, 0.09);
   border-color: var(--gold-lift);
   box-shadow: 0 0 0 3px rgba(215, 169, 73, 0.18);
 }

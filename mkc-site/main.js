@@ -35,6 +35,45 @@
   var FALLBACK = 'contact@mkholdingco.com';
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+  // Project pages link here as /?project=dayforge#contact, so the form opens
+  // already pointed at the thing the visitor was just reading about.
+  var PROJECT_LABELS = {
+    'dayforge': 'DayForge',
+    'contentflow': 'ContentFlow',
+    'my-pd': 'My PD',
+    'circuit-book': 'Circuit Book',
+    'pingpath': 'PingPath',
+    'brand-craftsman': 'The Brand Craftsman'
+  };
+
+  (function prefillInterest() {
+    var select = form.elements.interest;
+    if (!select) return;
+
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('project');
+    var intent = params.get('intent');
+
+    var wanted = intent === 'partner'
+      ? 'Propose a project'
+      : (slug && PROJECT_LABELS[slug]);
+    if (!wanted) return;
+
+    for (var i = 0; i < select.options.length; i++) {
+      if (select.options[i].value === wanted) {
+        select.selectedIndex = i;
+        break;
+      }
+    }
+
+    if (intent === 'partner' && slug && PROJECT_LABELS[slug]) {
+      var msg = form.elements.message;
+      if (msg && !msg.value) {
+        msg.value = 'I am interested in partnering on ' + PROJECT_LABELS[slug] + '. ';
+      }
+    }
+  })();
+
   function setStatus(tone, html) {
     if (!statusEl) return;
     if (!tone) {
@@ -107,6 +146,7 @@
       name: form.elements.name.value.trim(),
       email: form.elements.email.value.trim(),
       company: form.elements.company.value.trim(),
+      interest: form.elements.interest ? form.elements.interest.value : '',
       message: form.elements.message.value.trim(),
       website: form.elements.website.value.trim() // honeypot
     };

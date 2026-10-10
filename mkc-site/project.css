@@ -1,0 +1,242 @@
+/* =========================================================
+   Project pages. Loads after styles.css and inherits its
+   header, footer, buttons and shell.
+
+   Each page sets its own --accent (decorative) and
+   --accent-ink (text-safe, contrast-checked) on <body>.
+   ========================================================= */
+
+:root {
+  --accent: var(--gold);
+  --accent-ink: #8a6a1f;
+  --accent-wash: rgba(183, 134, 40, 0.09);
+}
+
+/* ---------- Breadcrumb ---------- */
+.crumb {
+  padding-top: 1.75rem;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+.crumb ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.crumb li::after {
+  content: "/";
+  margin-left: 0.5rem;
+  color: #bdb9ae;
+}
+.crumb li:last-child::after { content: none; }
+.crumb a { color: var(--text-soft); }
+.crumb a:hover { color: var(--accent-ink); }
+.crumb [aria-current="page"] { color: var(--text); font-weight: 500; }
+
+/* ---------- Hero ---------- */
+.proj-hero {
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 5rem);
+  background:
+    radial-gradient(120% 100% at 85% 0%, var(--accent-wash), transparent 62%),
+    linear-gradient(180deg, #fbfaf8 0%, #ffffff 70%);
+}
+.proj-mark {
+  height: 72px;
+  width: auto;
+  margin-bottom: 2rem;
+}
+.proj-mark--icon {
+  height: 84px;
+  width: 84px;
+  border-radius: 18px;
+}
+.proj-hero h1 {
+  font-size: clamp(2.1rem, 4.8vw, 3.5rem);
+  max-width: 18ch;
+  margin-bottom: 1rem;
+}
+.proj-lede {
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  max-width: 60ch;
+  margin-bottom: 2rem;
+}
+.proj-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+  padding: 0.38rem 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- Body prose ---------- */
+.proj-section { padding-block: clamp(3rem, 6vw, 5rem); }
+.proj-section--paper { background: var(--paper); }
+
+.proj-intro {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.proj-intro h2 { max-width: 16ch; margin: 0; }
+.proj-intro p { font-size: 1.06rem; }
+.proj-intro p + p { margin-top: 1em; }
+
+/* ---------- Feature grid ---------- */
+.feature-head { max-width: 46rem; margin-bottom: 3rem; }
+.feature-head h2 { max-width: 22ch; }
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.feature {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1.9rem 1.6rem;
+}
+.proj-section--paper .feature { background: #fff; }
+.feature h3 {
+  font-size: 1.04rem;
+  margin-bottom: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 2px solid var(--accent);
+  display: inline-block;
+}
+.feature p { font-size: 0.96rem; margin: 0; }
+.feature ul {
+  margin: 0.8rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.93rem;
+  color: var(--text-soft);
+}
+.feature li { margin-bottom: 0.35rem; }
+
+/* ---------- Numbered flow (only where content is a real sequence) ---------- */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  counter-reset: flow;
+}
+.flow-step { counter-increment: flow; }
+.flow-step h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 1.04rem;
+  margin-bottom: 0.5rem;
+}
+.flow-step h3::before {
+  content: counter(flow, decimal-leading-zero);
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--accent-ink);
+  line-height: 1;
+}
+.flow-step p { font-size: 0.96rem; margin: 0; }
+
+/* ---------- Spec list ---------- */
+.specs { list-style: none; margin: 0; padding: 0; max-width: 46rem; }
+.specs li {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.97rem;
+}
+.specs dt, .specs .k { font-weight: 500; color: var(--text); }
+.specs .v { color: var(--text-soft); }
+
+/* ---------- Closing CTA ---------- */
+.proj-cta {
+  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--ink) 100%);
+  color: var(--on-dark);
+  text-align: center;
+}
+.proj-cta h2 { color: var(--on-dark); max-width: 20ch; margin-inline: auto; }
+.proj-cta p {
+  color: var(--on-dark-soft);
+  margin-inline: auto;
+  max-width: 52ch;
+  margin-bottom: 2rem;
+}
+.proj-cta .btn-line {
+  color: var(--on-dark);
+  border-color: rgba(255,255,255,0.35);
+}
+.proj-cta .btn-line:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--on-dark);
+  border-color: rgba(255,255,255,0.6);
+}
+.proj-actions-center {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* ---------- Sibling projects ---------- */
+.more-projects { padding-block: clamp(3rem, 5vw, 4rem); background: var(--paper); }
+.more-projects h2 { font-size: 1.4rem; margin-bottom: 1.75rem; }
+.more-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.more-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.18s ease;
+}
+.more-card:hover { border-color: var(--accent); }
+.more-card img {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  box-shadow: 0 0 0 1px rgba(25, 27, 30, 0.1);
+}
+.proj-mark--icon { box-shadow: 0 0 0 1px rgba(25, 27, 30, 0.1); }
+
+@media (max-width: 860px) {
+  .proj-intro { grid-template-columns: 1fr; gap: 1.5rem; }
+  .proj-intro h2 { max-width: none; }
+  .specs li { grid-template-columns: 1fr; gap: 0.25rem; }
+}

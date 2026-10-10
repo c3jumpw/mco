@@ -60,7 +60,7 @@
 
       <nav class="site-nav" id="primary-nav" aria-label="Primary">
         <a href="#approach">Approach</a>
-        <a href="#portfolio">Portfolio</a>
+        <a href="#ventures">Projects</a>
         <a href="#standards">Standards</a>
         <a href="#contact" class="nav-cta">Contact</a>
       </nav>
@@ -117,6 +117,75 @@
         <h2 class="statement">Our portfolio companies get more than funding.</h2>
         <div class="portfolio-detail">
           <p>They get access to seasoned operators, strong governance structures, and the kind of institutional support that typically only comes with scale, without losing the speed and flexibility that makes smaller businesses competitive.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ventures -->
+    <section class="band band-paper" id="ventures">
+      <div class="shell">
+        <header class="ventures-head">
+          <h2>What we are building</h2>
+          <p>A working collection of software and service brands, built and operated inside MK Holding Co. Each one started as a real problem somebody had.</p>
+        </header>
+
+        <ul class="collage">
+          <li class="tile">
+            <a href="/projects/dayforge">
+              <img src="/projects/assets/dayforge-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">DayForge</span>
+              <span class="tile-desc">Time-blocked daily planning, with notes, voice memos and files in one place.</span>
+              <span class="tile-kind">Web app</span>
+            </a>
+          </li>
+          <li class="tile">
+            <a href="/projects/contentflow">
+              <img src="/projects/assets/contentflow-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">ContentFlow</span>
+              <span class="tile-desc">A content production board a whole organization works from.</span>
+              <span class="tile-kind">Web app</span>
+            </a>
+          </li>
+          <li class="tile">
+            <a href="/projects/my-pd">
+              <img src="/projects/assets/my-pd-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">My PD</span>
+              <span class="tile-desc">A personal media library and knowledge vault, built for daily practice.</span>
+              <span class="tile-kind">Web app</span>
+            </a>
+          </li>
+          <li class="tile">
+            <a href="/projects/circuit-book">
+              <img src="/projects/assets/circuit-book-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">Circuit Book</span>
+              <span class="tile-desc">Training routines planned by the week, run one full-screen card per set.</span>
+              <span class="tile-kind">Progressive web app</span>
+            </a>
+          </li>
+          <li class="tile">
+            <a href="/projects/pingpath">
+              <img src="/projects/assets/pingpath-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">PingPath</span>
+              <span class="tile-desc">Personal outreach that remembers who has heard from you, and when.</span>
+              <span class="tile-kind">Web app</span>
+            </a>
+          </li>
+          <li class="tile">
+            <a href="/projects/brand-craftsman">
+              <img src="/projects/assets/brand-craftsman-icon.webp" alt="" width="64" height="64" />
+              <span class="tile-name">The Brand Craftsman</span>
+              <span class="tile-desc">Strategy, systems and brand positioning for business owners.</span>
+              <span class="tile-kind">Consulting</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="ventures-foot">
+          <p>Most of these are not publicly listed. If one of them fits a problem you have, ask for a walkthrough, or tell us about something you would like to build with us.</p>
+          <div class="ventures-actions">
+            <a href="#contact" class="btn btn-solid">Request a demo</a>
+            <a href="#contact" class="btn btn-line">Propose a project</a>
+          </div>
         </div>
       </div>
     </section>
@@ -181,6 +250,21 @@
           <div class="field">
             <label for="cf-company">Company <span class="optional">(optional)</span></label>
             <input type="text" id="cf-company" name="company" autocomplete="organization" maxlength="120" />
+          </div>
+
+          <div class="field">
+            <label for="cf-interest">What is this about?</label>
+            <select id="cf-interest" name="interest">
+              <option value="General enquiry">General enquiry</option>
+              <option value="Partnership or investment">Partnership or investment</option>
+              <option value="DayForge">DayForge, request a demo</option>
+              <option value="ContentFlow">ContentFlow, request a demo</option>
+              <option value="My PD">My PD, request a demo</option>
+              <option value="Circuit Book">Circuit Book, request a demo</option>
+              <option value="PingPath">PingPath, request a demo</option>
+              <option value="The Brand Craftsman">The Brand Craftsman, consulting</option>
+              <option value="Propose a project">Propose a new project</option>
+            </select>
           </div>
 
           <div class="field">

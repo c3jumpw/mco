@@ -14,7 +14,7 @@ const TO = process.env.CONTACT_TO || 'contact@mkholdingco.com';
 const FROM = process.env.CONTACT_FROM || 'MK Holding Co <onboarding@resend.dev>';
 const API_KEY = process.env.RESEND_API_KEY;
 
-const LIMITS = { name: 100, email: 200, company: 120, message: 5000 };
+const LIMITS = { name: 100, email: 200, company: 120, interest: 80, message: 5000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Best-effort burst control. Serverless instances are short-lived and not
@@ -92,6 +92,7 @@ module.exports = async function handler(req, res) {
   const name = clean(body.name, LIMITS.name);
   const email = clean(body.email, LIMITS.email);
   const company = clean(body.company, LIMITS.company);
+  const interest = clean(body.interest, LIMITS.interest);
   const message = clean(body.message, LIMITS.message);
 
   if (!name) {
@@ -112,7 +113,8 @@ module.exports = async function handler(req, res) {
   const rows = [
     ['Name', name],
     ['Email', email],
-    ['Company', company || 'Not provided']
+    ['Company', company || 'Not provided'],
+    ['Regarding', interest || 'General enquiry']
   ];
 
   const html = [
@@ -143,6 +145,7 @@ module.exports = async function handler(req, res) {
     'Name: ' + name,
     'Email: ' + email,
     'Company: ' + (company || 'Not provided'),
+    'Regarding: ' + (interest || 'General enquiry'),
     '',
     message
   ].join('\n');
@@ -158,7 +161,8 @@ module.exports = async function handler(req, res) {
         from: FROM,
         to: [TO],
         reply_to: email,
-        subject: 'Website enquiry from ' + name + (company ? ' (' + company + ')' : ''),
+        subject: (interest ? '[' + interest + '] ' : '') +
+          'Website enquiry from ' + name + (company ? ' (' + company + ')' : ''),
         html: html,
         text: text
       })
