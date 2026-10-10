@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mkholdingco.com/sitemap.xml
+Sitemap: https://www.mkholdingco.com/sitemap.xml
