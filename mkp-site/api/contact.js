@@ -5,12 +5,12 @@
  *
  * Environment variables:
  *   RESEND_API_KEY  (required)  API key from https://resend.com
- *   CONTACT_TO      (optional)  Recipient. Defaults to hello@mambaykanu.com
+ *   CONTACT_TO      (optional)  Recipient. Defaults to contact@mambaykanu.com
  *   CONTACT_FROM    (optional)  Sender. Must be on a Resend-verified domain.
  *                               Defaults to Resend's shared testing sender.
  */
 
-const TO = process.env.CONTACT_TO || 'hello@mambaykanu.com';
+const TO = process.env.CONTACT_TO || 'contact@mambaykanu.com';
 const FROM = process.env.CONTACT_FROM || 'Mambay Kanu <onboarding@resend.dev>';
 const API_KEY = process.env.RESEND_API_KEY;
 

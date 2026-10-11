@@ -32,7 +32,7 @@
 
   var submitBtn = document.getElementById('cf-submit');
   var statusEl = document.getElementById('cf-status');
-  var FALLBACK = 'hello@mambaykanu.com';
+  var FALLBACK = 'contact@mambaykanu.com';
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   // Project pages link here as /?project=dayforge#contact, so the form opens
@@ -207,6 +207,85 @@
       .then(function () {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send message';
+      });
+  });
+
+  // ---- The Anvil signup ----
+  var subForm = document.getElementById('subscribe-form');
+  if (!subForm) return;
+
+  var subBtn = document.getElementById('sub-submit');
+  var subStatus = document.getElementById('sub-status');
+  var subInput = subForm.elements.email;
+
+  function setSubStatus(tone, html) {
+    if (!subStatus) return;
+    if (!tone) {
+      subStatus.hidden = true;
+      subStatus.removeAttribute('data-tone');
+      subStatus.innerHTML = '';
+      return;
+    }
+    subStatus.hidden = false;
+    subStatus.setAttribute('data-tone', tone);
+    subStatus.innerHTML = html;
+  }
+
+  subInput.addEventListener('input', function () {
+    subInput.removeAttribute('aria-invalid');
+  });
+
+  subForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    setSubStatus(null);
+
+    var email = subInput.value.trim();
+    if (!email || !EMAIL_RE.test(email)) {
+      subInput.setAttribute('aria-invalid', 'true');
+      subInput.focus();
+      setSubStatus('error', 'Enter a valid email address and try again.');
+      return;
+    }
+
+    subBtn.disabled = true;
+    subBtn.textContent = 'Joining\u2026';
+
+    fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; })
+          .then(function (b) { return { status: res.status, body: b }; });
+      })
+      .then(function (r) {
+        if (r.status === 200) {
+          subForm.reset();
+          setSubStatus('ok', 'You are on the list. The next one will land in your inbox.');
+          return;
+        }
+        if (r.status === 400) {
+          subInput.setAttribute('aria-invalid', 'true');
+          setSubStatus('error', (r.body && r.body.error) || 'Check that address and try again.');
+          return;
+        }
+        if (r.status === 429) {
+          setSubStatus('error', 'That is a few attempts in quick succession. Wait a minute and try again.');
+          return;
+        }
+        if (r.status === 503) {
+          setSubStatus('error', 'Signups are not switched on yet. Email <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a> and I will add you by hand.');
+          return;
+        }
+        setSubStatus('error', 'That did not go through. Try again, or email <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
+      })
+      .catch(function () {
+        setSubStatus('error', 'We could not reach the server. Check your connection and try again.');
+      })
+      .then(function () {
+        subBtn.disabled = false;
+        subBtn.textContent = 'Join The Anvil';
       });
   });
 })();
