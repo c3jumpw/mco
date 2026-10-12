@@ -541,3 +541,7 @@ p:last-child { margin-bottom: 0; }
 @media (max-width: 940px) {
   .pf-band { grid-template-columns: 1fr; }
 }
+
+/* Preview shelf + read-more links */
+.more-link { margin-top: 2.25rem; }
+.shelf--preview { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
