@@ -372,6 +372,52 @@
       </div>
     </section>
 
+    <section class="p-section" id="recommend">
+      <div class="shell rec">
+        <div class="rec-intro">
+          <p class="kicker">Add to the shelf</p>
+          <h2>Read something that belongs here?</h2>
+          <p>Send it over. I read most of what comes in, and the ones that earn their place end up on this
+            page. You will get a note back either way.</p>
+        </div>
+
+        <form class="rec-form" id="rec-form" novalidate>
+          <div class="field">
+            <label for="rc-title">Book title</label>
+            <input type="text" id="rc-title" name="title" required maxlength="160" />
+            <p class="field-error" data-error-for="title" hidden></p>
+          </div>
+          <div class="rec-row">
+            <div class="field">
+              <label for="rc-author">Author <span class="optional">(optional)</span></label>
+              <input type="text" id="rc-author" name="author" maxlength="120" />
+            </div>
+            <div class="field">
+              <label for="rc-name">Your name <span class="optional">(optional)</span></label>
+              <input type="text" id="rc-name" name="name" autocomplete="name" maxlength="100" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="rc-email">Your email</label>
+            <input type="email" id="rc-email" name="email" autocomplete="email" required maxlength="200" />
+            <p class="field-error" data-error-for="email" hidden></p>
+          </div>
+          <div class="field">
+            <label for="rc-note">Why it stuck with you <span class="optional">(optional)</span></label>
+            <textarea id="rc-note" name="note" rows="3" maxlength="1200"></textarea>
+          </div>
+
+          <div class="trap" aria-hidden="true">
+            <label for="rc-website">Website</label>
+            <input type="text" id="rc-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn-accent" id="rc-submit" style="justify-content:center">Send the recommendation</button>
+          <p class="form-status" id="rc-status" role="status" aria-live="polite" hidden></p>
+        </form>
+      </div>
+    </section>
+
     <section class="p-cta">
       <div class="shell">
         <h2>Most of these ended up in the work</h2>
@@ -406,5 +452,6 @@
   </footer>
 
   <script src="/main.js" defer></script>
+  <script src="/recommend.js" defer></script>
 </body>
 </html>

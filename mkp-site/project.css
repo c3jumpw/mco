@@ -256,3 +256,42 @@
   .story-long { grid-template-columns: 1fr; }
   .story-long-figure { max-width: 380px; }
 }
+
+/* ---------- Recommend a book ---------- */
+.rec {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: start;
+}
+.rec-intro h2 { max-width: 16ch; }
+.rec-form { display: grid; gap: 1rem; }
+.rec-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+/* The shared field styles are written for dark bands; this form sits on paper. */
+.rec-form .field label { color: var(--text); }
+.rec-form .field .optional { color: var(--text-soft); font-weight: 400; }
+.rec-form .field input,
+.rec-form .field textarea {
+  color: var(--text);
+  background: var(--white);
+  border: 1px solid #cfcac1;
+}
+.rec-form .field input:hover,
+.rec-form .field textarea:hover { border-color: #ada89e; }
+.rec-form .field input:focus,
+.rec-form .field textarea:focus {
+  background-color: var(--white);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(194,52,43,0.18);
+}
+.rec-form .field-error { color: var(--accent-deep); }
+.rec-form .form-status[data-tone="ok"] {
+  color: #2f6b45; background: rgba(93,173,118,0.14); border-color: rgba(93,173,118,0.45);
+}
+.rec-form .form-status[data-tone="error"] {
+  color: #93261e; background: rgba(194,52,43,0.08); border-color: rgba(194,52,43,0.35);
+}
+.more-link--pair { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+@media (max-width: 860px) {
+  .rec { grid-template-columns: 1fr; }
+  .rec-row { grid-template-columns: 1fr; }
+}
