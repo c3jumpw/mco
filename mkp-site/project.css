@@ -138,3 +138,67 @@
   .p-intro h2 { max-width: none; }
   .specs li { grid-template-columns: 1fr; gap: 0.2rem; }
 }
+
+/* ---------- Portfolio directory ---------- */
+.pstats {
+  display: flex; flex-wrap: wrap; gap: 2.5rem;
+  margin-top: 2.25rem; padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+}
+.pstat { display: flex; flex-direction: column; gap: 0.2rem; }
+.pstat-n {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1;
+  letter-spacing: -0.03em; color: var(--text);
+}
+.pstat-l { font-size: 0.85rem; color: var(--text-soft); }
+
+.pfilters { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-bottom: 2.25rem; }
+.pfilter {
+  font: inherit; font-size: 0.88rem; font-weight: 500;
+  color: var(--text-soft);
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0.55rem 1.05rem;
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+}
+.pfilter span { opacity: 0.6; margin-left: 0.3rem; font-variant-numeric: tabular-nums; }
+.pfilter:hover { border-color: var(--slate); color: var(--text); }
+.pfilter.is-on {
+  background: var(--ink); border-color: var(--ink); color: var(--on-dark);
+}
+.pfilter.is-on span { opacity: 0.7; }
+
+.pgrid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem;
+}
+.pcard[hidden] { display: none; }
+.pcard > a {
+  display: grid; gap: 0.4rem; height: 100%;
+  padding: 1.4rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.pcard > a:hover { border-color: var(--accent); transform: translateY(-2px); }
+.pcard-mark { font-size: 1.5rem; line-height: 1; margin-bottom: 0.35rem; }
+.pcard-name { font-family: var(--display); font-weight: 600; font-size: 1.02rem; color: var(--text); }
+.pcard-industry { font-size: 0.8rem; color: var(--accent-deep); font-weight: 500; }
+.pcard-desc { font-size: 0.91rem; color: var(--text-soft); line-height: 1.55; }
+.pcard-go {
+  margin-top: auto; padding-top: 0.75rem;
+  font-size: 0.82rem; font-weight: 500; color: var(--text-soft);
+}
+.pcard > a:hover .pcard-go { color: var(--accent); }
+
+.pempty { margin: 2rem 0 0; color: var(--text-soft); }
+
+.pnote {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 1.5rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--rule);
+}
+.pnote p { margin: 0; max-width: 56ch; }
