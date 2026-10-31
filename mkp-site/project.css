@@ -509,3 +509,8 @@
   .walk-row:nth-child(even) .walk-media { order: 0; }
   .walk-media--tall .shot-frame { max-width: 280px; }
 }
+
+/* A phone capture as the lead shot: centred and capped, or it runs the page. */
+.p-shot--tall { display: flex; flex-direction: column; align-items: center; }
+.p-shot--tall .shot-frame { max-width: 300px; }
+.p-shot--tall .shot-cap { text-align: center; max-width: 46ch; }

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img"
+     aria-label="Diagram: a spoken capture is read, routed to a ClickUp list with a due date and priority, and filed, with one-tap undo on every action.">
+  <defs>
+    <style>
+      .lbl { font-family: Archivo, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.06em; fill: #9a7a3e; }
+      .ttl { font-family: Archivo, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 17px; fill: #16191a; }
+      .txt { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 13px; fill: #51575a; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; fill: #16191a; }
+      .card { fill: #ffffff; stroke: #e0dcd4; }
+      .chip { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 11.5px; font-weight: 500; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="300" fill="#f7f6f4"/>
+
+  <!-- 1. capture -->
+  <rect x="24" y="48" width="276" height="178" rx="6" class="card"/>
+  <text x="48" y="80" class="lbl">01 · CAPTURE</text>
+  <text x="48" y="106" class="ttl">Say it once</text>
+  <rect x="48" y="122" width="228" height="48" rx="4" fill="#faf8f4" stroke="#e8e2d6"/>
+  <circle cx="70" cy="146" r="9" fill="#e6a03c"/>
+  <rect x="66.5" y="141" width="7" height="10" rx="3.5" fill="#fff"/>
+  <text x="90" y="143" class="mono">“Send Dana the</text>
+  <text x="90" y="159" class="mono">revised SOW Friday”</text>
+  <text x="48" y="196" class="txt">Typed, dictated or a voice note.</text>
+  <text x="48" y="213" class="txt">Queues offline, sends when back.</text>
+
+  <!-- arrow -->
+  <path d="M308 137h44" stroke="#c8c3b9" stroke-width="1.5" fill="none"/>
+  <path d="M346 132l7 5-7 5" stroke="#c8c3b9" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 2. route -->
+  <rect x="362" y="48" width="276" height="178" rx="6" class="card"/>
+  <text x="386" y="80" class="lbl">02 · ROUTE</text>
+  <text x="386" y="106" class="ttl">It reads the workspace</text>
+  <g>
+    <rect x="386" y="122" width="104" height="24" rx="12" fill="#fdf4e6" stroke="#eccf9c"/>
+    <text x="400" y="138" class="chip" fill="#8f5f10">Vance Logistics</text>
+    <rect x="496" y="122" width="56" height="24" rx="12" fill="#fdf4e6" stroke="#eccf9c"/>
+    <text x="510" y="138" class="chip" fill="#8f5f10">Friday</text>
+    <rect x="558" y="122" width="52" height="24" rx="12" fill="#fdf4e6" stroke="#eccf9c"/>
+    <text x="571" y="138" class="chip" fill="#8f5f10">High</text>
+  </g>
+  <text x="386" y="172" class="txt">Picks the list, the title, the due</text>
+  <text x="386" y="189" class="txt">date and the priority, and shows</text>
+  <text x="386" y="206" class="txt">the reasoning behind each one.</text>
+
+  <!-- arrow -->
+  <path d="M646 137h44" stroke="#c8c3b9" stroke-width="1.5" fill="none"/>
+  <path d="M684 132l7 5-7 5" stroke="#c8c3b9" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 3. filed -->
+  <rect x="700" y="48" width="276" height="178" rx="6" class="card"/>
+  <text x="724" y="80" class="lbl">03 · FILED</text>
+  <text x="724" y="106" class="ttl">Or it asks first</text>
+  <rect x="724" y="122" width="228" height="30" rx="4" fill="#f3f8f3" stroke="#cfe3cf"/>
+  <path d="M740 137l5 5 9-10" stroke="#3f7a4f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="764" y="141" class="chip" fill="#2f6b45">Filed automatically · 94%</text>
+  <rect x="724" y="158" width="228" height="30" rx="4" fill="#fdf4e6" stroke="#eccf9c"/>
+  <circle cx="740" cy="173" r="7" fill="none" stroke="#8f5f10" stroke-width="2"/>
+  <path d="M740 170v3M740 177v.5" stroke="#8f5f10" stroke-width="2" stroke-linecap="round"/>
+  <text x="764" y="177" class="chip" fill="#8f5f10">Needs a look · 61%</text>
+  <text x="724" y="213" class="txt">Every action carries one-tap undo.</text>
+</svg>
