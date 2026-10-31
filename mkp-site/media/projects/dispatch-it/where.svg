@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 310" width="1000" height="310" role="img"
+     aria-label="Diagram: the phone holds only a passcode and an offline queue, the ClickUp connection and AI key live on a private server, and the workspace stays in ClickUp. Sensitive lists are never sent to the AI.">
+  <defs>
+    <style>
+      .lbl { font-family: Archivo, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12.5px; letter-spacing: 0.07em; fill: #9a7a3e; }
+      .ttl { font-family: Archivo, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 16px; fill: #16191a; }
+      .txt { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 12.5px; fill: #51575a; }
+      .note { font-family: Inter, Helvetica, Arial, sans-serif; font-size: 12.5px; font-weight: 500; fill: #8f5f10; }
+      .card { fill: #ffffff; stroke: #e0dcd4; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="310" fill="#f7f6f4"/>
+
+  <!-- phone -->
+  <rect x="24" y="40" width="276" height="162" rx="6" class="card"/>
+  <rect x="48" y="66" width="30" height="44" rx="5" fill="none" stroke="#e6a03c" stroke-width="2"/>
+  <path d="M58 76h10M58 86h10M58 96h6" stroke="#e6a03c" stroke-width="2" stroke-linecap="round"/>
+  <text x="92" y="76" class="lbl">ON THE PHONE</text>
+  <text x="92" y="98" class="ttl">A passcode and a queue</text>
+  <text x="48" y="134" class="txt">Every device needs its own passcode.</text>
+  <text x="48" y="153" class="txt">Captures made offline wait here and</text>
+  <text x="48" y="172" class="txt">send themselves when signal returns.</text>
+
+  <path d="M308 118h44" stroke="#c8c3b9" stroke-width="1.5" fill="none"/>
+  <path d="M346 113l7 5-7 5" stroke="#c8c3b9" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- server -->
+  <rect x="362" y="40" width="276" height="162" rx="6" class="card"/>
+  <g stroke="#e6a03c" stroke-width="2" fill="none">
+    <rect x="386" y="68" width="34" height="13" rx="3"/>
+    <rect x="386" y="86" width="34" height="13" rx="3"/>
+  </g>
+  <circle cx="393" cy="74.5" r="1.8" fill="#e6a03c"/>
+  <circle cx="393" cy="92.5" r="1.8" fill="#e6a03c"/>
+  <text x="434" y="76" class="lbl">ON A PRIVATE SERVER</text>
+  <text x="434" y="98" class="ttl">The keys</text>
+  <text x="386" y="134" class="txt">The ClickUp connection and the AI</text>
+  <text x="386" y="153" class="txt">key live here, never on the phone.</text>
+  <text x="386" y="172" class="txt">Losing the phone loses neither.</text>
+
+  <path d="M646 118h44" stroke="#c8c3b9" stroke-width="1.5" fill="none"/>
+  <path d="M684 113l7 5-7 5" stroke="#c8c3b9" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- clickup -->
+  <rect x="700" y="40" width="276" height="162" rx="6" class="card"/>
+  <g stroke="#e6a03c" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M726 70h10M726 80h22M726 90h16M726 100h22"/>
+  </g>
+  <text x="762" y="76" class="lbl">IN YOUR WORKSPACE</text>
+  <text x="762" y="98" class="ttl">Every list, kept current</text>
+  <text x="724" y="134" class="txt">Spaces, lists, statuses and custom</text>
+  <text x="724" y="153" class="txt">fields read in real time. A new list</text>
+  <text x="724" y="172" class="txt">becomes a destination on its own.</text>
+
+  <!-- guard rail -->
+  <rect x="24" y="226" width="952" height="56" rx="6" fill="#fdf7ec" stroke="#eccf9c"/>
+  <path d="M60 240l16 7v10c0 7-7 12-16 15-9-3-16-8-16-15v-10z" fill="none" stroke="#8f5f10" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M54 253l5 5 9-9" fill="none" stroke="#8f5f10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="96" y="250" class="note">Lists holding things like client account logins are marked sensitive.</text>
+  <text x="96" y="269" class="note">Nothing in them is ever sent to the AI.</text>
+</svg>

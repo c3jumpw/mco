@@ -514,3 +514,59 @@
 .p-shot--tall { display: flex; flex-direction: column; align-items: center; }
 .p-shot--tall .shot-frame { max-width: 300px; }
 .p-shot--tall .shot-cap { text-align: center; max-width: 46ch; }
+
+/* ---------- Expandable captures ----------
+   The frame itself is the control, so the whole picture is the target rather
+   than a small icon in a corner. */
+.shot-frame.is-zoomable { cursor: zoom-in; }
+.shot-frame.is-zoomable:hover { border-color: #c8c3b9; }
+.shot-frame.is-zoomable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lb {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: rgba(10, 12, 13, 0.88);
+  backdrop-filter: blur(3px);
+}
+.lb[hidden] { display: none; }
+.lb-fig {
+  margin: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
+  max-width: 100%; max-height: 100%;
+}
+.lb-fig img {
+  display: block;
+  max-width: 100%;
+  /* leave room for the caption under it */
+  max-height: calc(100vh - 9rem);
+  width: auto; height: auto;
+  border-radius: 3px;
+  background: var(--white);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+.lb-cap {
+  max-width: 68ch;
+  font-size: 0.88rem; line-height: 1.55; text-align: center;
+  color: rgba(242, 239, 233, 0.82);
+}
+.lb-cap[hidden] { display: none; }
+.lb-close {
+  position: absolute; top: clamp(0.75rem, 2.5vw, 1.5rem); right: clamp(0.75rem, 2.5vw, 1.5rem);
+  width: 44px; height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(242, 239, 233, 0.1);
+  color: var(--on-dark);
+  border: 1px solid rgba(242, 239, 233, 0.25);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+.lb-close:hover { background: rgba(242, 239, 233, 0.2); border-color: rgba(242, 239, 233, 0.5); }
+.lb-close svg { width: 19px; height: 19px; }
+
+/* Stop the page behind from scrolling while a picture is open. */
+.lb-open, .lb-open body { overflow: hidden; }
