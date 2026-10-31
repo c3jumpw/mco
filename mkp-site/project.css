@@ -446,3 +446,66 @@
     color: var(--accent-deep);
   }
 }
+
+/* ---------- Project screenshots ----------
+   One frame style for every capture so ten different apps still read as one
+   portfolio. The frame is the paper the screen sits on, never a device mock. */
+.shot-frame {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 6px;
+  box-shadow: 0 1px 2px rgba(22,25,26,0.06), 0 14px 34px rgba(22,25,26,0.07);
+  overflow: hidden;
+}
+.shot-frame img { width: 100%; height: auto; border-radius: 2px; display: block; }
+.shot-cap {
+  margin: 0.8rem 0 0;
+  font-size: 0.85rem; line-height: 1.5; color: var(--text-soft);
+}
+
+/* The lead capture, directly under the hero. */
+.p-shot { margin-top: clamp(2.25rem, 4vw, 3.25rem); }
+.p-shot .shot-cap { max-width: 60ch; }
+
+/* Alternating capture and copy. */
+.walk { display: grid; gap: clamp(3rem, 6vw, 5rem); }
+.walk-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(2rem, 4.5vw, 3.5rem);
+  align-items: center;
+}
+.walk-row:nth-child(even) .walk-media { order: 2; }
+.walk-body h3 {
+  font-size: clamp(1.2rem, 1.9vw, 1.5rem);
+  margin-bottom: 0.7rem;
+}
+.walk-body p { font-size: 0.99rem; }
+.walk-body p:last-child { margin-bottom: 0; }
+.walk-tag {
+  display: inline-block; margin-bottom: 0.85rem;
+  font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent);
+}
+
+/* A tall phone capture is capped so it does not tower over its own copy. */
+.walk-media--tall { display: flex; justify-content: center; }
+.walk-media--tall .shot-frame { max-width: 310px; }
+
+/* A row of phone captures. */
+.shot-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: start;
+}
+.shot-row .shot-frame { max-width: 280px; margin-inline: auto; }
+.shot-row figure { margin: 0; }
+.shot-row .shot-cap { text-align: center; max-width: 30ch; margin-inline: auto; }
+
+@media (max-width: 860px) {
+  .walk-row { grid-template-columns: 1fr; }
+  .walk-row:nth-child(even) .walk-media { order: 0; }
+  .walk-media--tall .shot-frame { max-width: 280px; }
+}

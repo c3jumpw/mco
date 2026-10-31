@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="HatRack">
+  <rect width="48" height="48" rx="11" fill="#13243a"/>
+  <path d="M9 19h30" fill="none" stroke="#d99447" stroke-width="2.8" stroke-linecap="round"/>
+  <g fill="none" stroke="#d99447" stroke-width="2.5" stroke-linecap="round">
+    <path d="M14 19v6c0 2.2 1.8 4 4 4"/>
+    <path d="M24 19v11"/>
+    <path d="M34 19v6c0 2.2-1.8 4-4 4"/>
+  </g>
+  <circle cx="18" cy="31.5" r="2.4" fill="#d99447"/>
+  <circle cx="24" cy="32.5" r="2.4" fill="#d99447"/>
+  <circle cx="30" cy="31.5" r="2.4" fill="#d99447"/>
+</svg>

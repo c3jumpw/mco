@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Vault Leaf">
+  <rect width="48" height="48" rx="11" fill="#16261f"/>
+  <path d="M34 12c0 12-6.5 20-14.5 20C15 32 13 29 13 25.5 13 18 20 12.5 34 12z" fill="#b8903a"/>
+  <path d="M30 16c-7 4.5-11.5 10.5-13.5 20" fill="none" stroke="#16261f" stroke-width="2.1" stroke-linecap="round"/>
+  <circle cx="24" cy="23" r="3.1" fill="#16261f"/>
+  <path d="M24 25.6v3.1" fill="none" stroke="#16261f" stroke-width="2.1" stroke-linecap="round"/>
+</svg>
