@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/instrument-serif";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource-variable/jetbrains-mono";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+
+  --color-paper: #f5f3ee;
+  --color-paper-2: #ece9e1;
+  --color-card: #ffffff;
+  --color-ink: #16151a;
+  --color-ink-2: #3a3940;
+  --color-muted: #6e6c73;
+  --color-line: #e2ded4;
+  --color-accent: #ff5a1f;
+  --color-accent-soft: #ffe7dc;
+  --color-good: #17804f;
+  --color-good-soft: #dff3e8;
+  --color-warn: #a86411;
+  --color-warn-soft: #fbefd9;
+  --color-bad: #c0352b;
+  --color-bad-soft: #fbe3e0;
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  @apply bg-paper text-ink font-sans antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection { background: var(--color-accent); color: white; }
+
+.prose-posting h1 { @apply font-display text-4xl leading-tight mt-2 mb-4; }
+.prose-posting h2 { @apply font-display text-2xl leading-tight mt-8 mb-3; }
+.prose-posting h3 { @apply font-semibold text-lg mt-6 mb-2; }
+.prose-posting p { @apply my-3 leading-relaxed text-ink-2; }
+.prose-posting ul { @apply my-3 pl-5 list-disc text-ink-2 space-y-1; }
+.prose-posting ol { @apply my-3 pl-5 list-decimal text-ink-2 space-y-1; }
+.prose-posting a { @apply underline decoration-accent underline-offset-2; }
+.prose-posting strong { @apply text-ink font-semibold; }
+.prose-posting .hint { @apply font-mono text-[0.92em] bg-paper-2 px-1.5 py-0.5 rounded; }
+
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; }
