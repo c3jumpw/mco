@@ -126,10 +126,10 @@ export default function Activity({ jobId, title, activity, questions, source }:
       still = (p.answers[qid]?.url || '').trim() === u;
       return still ? { answers: { ...p.answers, [qid]: { ...p.answers[qid], info, checking: false } } } : {};
     });
-    if (info.ok && knownDuration(info) === null && attempt < 8) {
+    if (info.ok && knownDuration(info) === null && attempt < 2) {
       retries.current[qid] = setTimeout(() => {
         if ((dRef.current.answers[qid]?.url || '').trim() === u) checkLinkRef.current(qid, u, attempt + 1);
-      }, 6000 + attempt * 3000);
+      }, 15000 + attempt * 15000);
     }
     if (attempt > 0) return;
     if (info.ok) track('link_added', { question_id: qid, duration: knownDuration(info) });
@@ -457,10 +457,7 @@ function LinkStatus({ a, min, max, range }: { a: AnswerDraft; min?: number | nul
     return (
       <div className="mt-2 text-sm">
         <p className="text-good">✓ {info.title ? `“${info.title}”` : 'Loom video found'}{d != null ? ` · ${fmtDuration(d)}` : ''}</p>
-        {d == null && (
-          <p className="text-muted mt-1 flex items-center gap-2"><Spinner className="h-3 w-3" /> Loom is still processing this video. We'll check its length again in a moment. You can keep going.</p>
-        )}
-        {out && <p className="text-warn mt-1">This video is {fmtDuration(d)}. The requested length is {range}. You can still submit it.</p>}
+        {out && <p className="text-muted mt-1">Loom says this video is {fmtDuration(d)}. The suggested length is {range}, but that's only a guide.</p>}
       </div>
     );
   }

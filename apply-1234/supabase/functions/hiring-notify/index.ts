@@ -6,7 +6,8 @@
 // each record can trigger emails only once, only within 2 hours, and only from the same
 // browser (visitor id) that created it. Admin addresses never leave the server.
 //
-// Secret needed: RESEND_API_KEY (Supabase → Edge Functions → Secrets).
+// Secret needed: APPLY1234_RESEND_API_KEY (Supabase → Edge Functions → Secrets).
+// RESEND_API_KEY is still read as a fallback, so older setups keep working.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SITE = 'https://www.apply1234.com';
@@ -69,7 +70,7 @@ Deno.serve(async (req) => {
   const visitor = String(body?.visitor_id || '').slice(0, 64);
   if (!visitor) return json({ ok: false, error: 'visitor' }, 400);
 
-  const key = Deno.env.get('RESEND_API_KEY');
+  const key = Deno.env.get('APPLY1234_RESEND_API_KEY') || Deno.env.get('RESEND_API_KEY');
   if (!key) return json({ ok: false, error: 'not_configured' });
 
   const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
@@ -132,7 +133,7 @@ Deno.serve(async (req) => {
           ${row('Email', `<a href="mailto:${esc(app.email)}" style="color:#16151a">${esc(app.email)}</a>`)}
           ${row('Answers', `${answered} video${answered === 1 ? '' : 's'}`)}
           ${row('Code word', mark(f.hidden_code_ok, 'In video titles', 'Missing from titles', 'Not used'))}
-          ${row('Video lengths', mark(f.lengths_in_range, 'In range', 'Outside the range', 'Not known yet'))}
+          ${row('Video lengths', mark(f.lengths_in_range, 'In range', 'Outside the suggested range', 'Not shared by Loom'))}
           ${row('Transcripts', mark(f.transcripts_ok, 'Included', 'Missing'))}
           ${f.duplicate_email ? row('Note', '<span style="color:#b26a00">Applied before with this email</span>') : ''}
           ${row('Résumé / letter', files.length || app.cover_letter ? [files.length ? `${files.length} file${files.length === 1 ? '' : 's'}` : '', app.cover_letter ? 'cover letter' : ''].filter(Boolean).join(' + ') : 'None')}

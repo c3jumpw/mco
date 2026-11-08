@@ -296,7 +296,7 @@ function AnswerCard({ n, ans, job, score, onScore }:
           <Pill tone={dur == null ? 'neutral' : out ? 'warn' : 'good'}>{fmtDuration(dur)}{rangeLabel(a.answer_min, a.answer_max) ? ` · asked ${rangeLabel(a.answer_min, a.answer_max)}` : ''}</Pill>
           {(live?.title || ans.title) && <Pill tone="neutral">“{live?.title || ans.title}”</Pill>}
           {live && !live.ok && live.reason !== 'not_loom' && <Pill tone="bad">Video is private or removed</Pill>}
-          {live?.ok && dur == null && <Pill tone="neutral">Length not available yet</Pill>}
+          {live?.ok && dur == null && <Pill tone="neutral">Loom didn't share the length</Pill>}
           {a.hidden_code && (live?.title || ans.title) && (
             (live?.title || ans.title || '').toLowerCase().includes(a.hidden_code.toLowerCase())
               ? <Pill tone="good">Code word ✓</Pill> : <Pill tone="bad">No code word</Pill>
