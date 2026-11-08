@@ -4,7 +4,10 @@ const APP = 'vaultleaf', VER = 1;
 const WEB = /*__WEB__*/false;
 const GUIDE_URL = WEB ? '/guide/' : 'https://mco-vault-leaf.vercel.app/guide/';
 const KDF_ITER = 600000, RK_ITER = 150000;
-const K = {header:'vaultleaf.header', body:'vaultleaf.body', guard:'vaultleaf.guard', device:'vaultleaf.device', ui:'vaultleaf.ui'};
+const K = {header:'vaultleaf.header', body:'vaultleaf.body', guard:'vaultleaf.guard', device:'vaultleaf.device', ui:'vaultleaf.ui', sync:'vaultleaf.sync', bio:'vaultleaf.bio'};
+const SUPA_URL = 'https://symbmscaajjmgywbifhv.supabase.co';
+const SUPA_KEY = 'sb_publishable_IUie6Hv_qAJs2pBkYEqbzw_gUAxoSgz'; /* public browser key: it can only call the vaultleaf_* functions */
+const FILE_MAX = 5 * 1024 * 1024, BIO_MAX_DAYS = 14;
 const EFF = '__EFF_WORDS__'.split(' ');
 const COLORS = ['#1D5B44','#2F5D8A','#7A4A8C','#9C4434','#7A6A12','#2D6E73','#5A5F6B','#A0561C'];
 
@@ -99,8 +102,11 @@ const guard = {
   wait(){ return Math.max(0, Math.ceil((this.get().until - now()) / 1000)); }
 };
 
-/* ---------- cloud sync (encrypted blobs only, in the viewer's private space) ---------- */
-const Cloud = {
+/* ---------- sync backends ----------
+   Both expose: init, head, pull, push, drop, watch (+ file methods when files:true).
+   ClaudeSync: the Claude artifact's private per-viewer store. SupaSync: the website's sync-code store. */
+const ClaudeSync = {
+  kind:'claude', files:false,
   ready:false, db:null, uid:null, status:'off', lastAt:0, err:'', pushing:false, again:false, unsub:null, lastRev:null, lastHdr:'',
   async init(){
     try{
@@ -150,8 +156,131 @@ const Cloud = {
     try{ await this.ref('vl-header').delete(); }catch(e){}
     try{ await this.ref('vl-meta').set({off:true, at:now(), dev:DEVICE}); }catch(e){}
     this.lastHdr = ''; this.lastRev = null;
-  }
+  },
+  async head(){ const [meta, header] = await Promise.all([this.getMeta(), this.getHeader()]); return meta || header ? {meta:meta || {}, header} : null; },
+  pull(meta){ return this.getBody(meta); },
+  async push(header, body){ await this.putHeader(header); await this.putBody(body); return {ok:true}; },
+  drop(){ return this.wipe(); },
+  forget(){},
+  watch(cb){ try{ return this.ref('vl-meta').onSnapshot(s => { if(s.exists) cb(clone(s.data())); }, () => { this.unsub = null; }); }catch(e){ return null; } }
 };
+
+const hexOf = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+function newSyncCode(){ return b32enc(rand(20)).match(/.{4}/g).join('-'); }
+async function syncIds(code){
+  const c = normRK(code);
+  const h = async tag => hexOf(await crypto.subtle.digest('SHA-256', te.encode(tag + ':' + c)));
+  return {id:(await h('vaultleaf-sync-id')).slice(0, 32), token:await h('vaultleaf-sync-token')};
+}
+const SupaSync = {
+  kind:'supa', files:true, ready:false, status:'off', lastAt:0, err:'', pushing:false, again:false, unsub:null, lastRev:null, lastHdr:'', ids:null, code:null,
+  async init(){ const s = LS.get(K.sync); if(s && s.code){ try{ await this.use(s.code); }catch(e){} } return this.ready; },
+  async use(code){ this.code = String(code).trim().toUpperCase(); this.ids = await syncIds(code); this.ready = true; this.lastRev = null; LS.set(K.sync, {code:this.code}); },
+  forget(){ this.code = null; this.ids = null; this.ready = false; this.lastRev = null; if(this.unsub){ try{ this.unsub(); }catch(e){} this.unsub = null; } LS.del(K.sync); },
+  async rpc(fn, args){
+    let r;
+    try{ r = await fetch(SUPA_URL + '/rest/v1/rpc/' + fn, {method:'POST', headers:{apikey:SUPA_KEY, 'Content-Type':'application/json', Accept:'application/json'}, body:JSON.stringify({p_id:this.ids.id, p_token:this.ids.token, ...args}), cache:'no-store', credentials:'omit', referrerPolicy:'no-referrer'}); }
+    catch(e){ const err = new Error('You\'re offline, so sync is waiting. Changes are saved on this device.'); err.code = 'unavailable'; throw err; }
+    const txt = await r.text();
+    if(!r.ok){ let m = txt; try{ m = JSON.parse(txt).message || txt; }catch(e){} const err = new Error(/storage limit/.test(m) ? 'Sync storage is full (60 MB). Remove some attached files.' : 'Sync failed (' + r.status + '). It will try again.'); err.code = 'http'; throw err; }
+    return txt ? JSON.parse(txt) : null;
+  },
+  async head(){ return (await this.rpc('vaultleaf_head', {})) || null; },
+  async getHeader(){ const h = await this.head(); return h ? h.header : null; },
+  async getMeta(){ const h = await this.head(); return h ? h.meta : null; },
+  async pull(meta){
+    const ct = await this.rpc('vaultleaf_blob_get', {p_name:'b-' + meta.rev});
+    if(ct == null) throw new Error('The synced copy is still uploading. Try again in a moment.');
+    return {iv:meta.iv, ct, z:meta.z, at:meta.at, rev:meta.rev, dev:meta.dev};
+  },
+  async putBlob(name, data){ const CH = 1000000, n = Math.max(1, Math.ceil(data.length / CH)); for(let i = 0; i < n; i++) await this.rpc('vaultleaf_blob_put', {p_name:name, p_part:i, p_data:data.slice(i * CH, (i + 1) * CH)}); return n; },
+  async push(header, body){
+    const meta = {rev:body.rev, iv:body.iv, z:body.z, at:body.at, dev:DEVICE};
+    if(this.lastRev == null){
+      const r = await this.rpc('vaultleaf_commit', {p_header:header, p_meta:meta, p_base_rev:null, p_create:true});
+      if(r && r.error === 'busy') throw new Error('Sync is busy right now. It will try again later.');
+      if(r && r.conflict) return {conflict:true, meta:r.meta};
+      if(r && r.error) return {gone:true};
+      await this.putBlob('b-' + body.rev, body.ct); this.lastRev = body.rev; return {ok:true};
+    }
+    await this.putBlob('b-' + body.rev, body.ct);
+    const r = await this.rpc('vaultleaf_commit', {p_header:header, p_meta:meta, p_base_rev:this.lastRev, p_create:false});
+    if(r && r.conflict) return {conflict:true, meta:r.meta};
+    if(r && r.error) return {gone:true};
+    this.lastRev = body.rev; return {ok:true};
+  },
+  async drop(){ try{ await this.rpc('vaultleaf_drop', {}); }catch(e){} },
+  watch(cb){
+    let alive = true;
+    const tick = async () => { if(!alive) return; if(!document.hidden && this.ready){ try{ const h = await this.head(); cb(h ? {...h.meta, _files:h.files, _header:h.header} : {gone:true}); }catch(e){} } setTimeout(tick, 30000); };
+    setTimeout(tick, 30000);
+    return () => { alive = false; };
+  },
+  putFile(id, data){ return this.putBlob('f-' + id, data); },
+  getFile(id){ return this.rpc('vaultleaf_blob_get', {p_name:'f-' + id}); },
+  delFile(id){ return this.rpc('vaultleaf_blob_delete', {p_name:'f-' + id}); }
+};
+const Cloud = WEB ? SupaSync : ClaudeSync;
+
+/* ---------- attached files: each encrypted on its own, kept in IndexedDB ---------- */
+const idbReq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const Files = {
+  _db:null,
+  db(){ return this._db || (this._db = new Promise((res, rej) => { const r = indexedDB.open('vaultleaf', 1); r.onupgradeneeded = () => { r.result.createObjectStore('files'); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); },
+  async os(mode){ return (await this.db()).transaction('files', mode).objectStore('files'); },
+  async getRaw(id){ try{ return await idbReq((await this.os('readonly')).get(id)); }catch(e){ return null; } },
+  async putRaw(id, box){ return idbReq((await this.os('readwrite')).put(box, id)); },
+  async has(id){ try{ return (await idbReq((await this.os('readonly')).count(id))) > 0; }catch(e){ return false; } },
+  async del(id){ try{ await idbReq((await this.os('readwrite')).delete(id)); }catch(e){} },
+  async clear(){ try{ await idbReq((await this.os('readwrite')).clear()); }catch(e){} },
+  async encrypt(key, id, bytes){ return seal(key, bytes, 'vl-file:' + id); },
+  async decrypt(key, id, box){ return unseal(key, box, 'vl-file:' + id); }
+};
+const fileParts = f => Math.max(1, Math.ceil((f.blen || 0) / 1000000));
+const fmtSize = n => n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1).replace(/\.0$/, '') + ' MB';
+
+/* ---------- Face ID / fingerprint: a passkey's PRF secret wraps the vault key on this device only ---------- */
+const Bio = {
+  rec(){ return LS.get(K.bio); },
+  supported(){ return WEB && !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext); },
+  async available(){ if(!this.supported()) return false; try{ return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }catch(e){ return false; } },
+  async kek(secret, salt){ const base = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']); return crypto.subtle.deriveKey({name:'HKDF', hash:'SHA-256', salt, info:te.encode('vaultleaf-bio-v1')}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']); },
+  async prf(credId, salt){
+    const a = await navigator.credentials.get({publicKey:{challenge:rand(32), rpId:location.hostname, allowCredentials:[{type:'public-key', id:credId}], userVerification:'required', timeout:60000, extensions:{prf:{eval:{first:salt}}}}});
+    const ext = a.getClientExtensionResults ? a.getClientExtensionResults() : {};
+    if(!ext.prf || !ext.prf.results || !ext.prf.results.first) throw new Error('This device didn\'t return the key Vaultleaf needs. Use your password and passcode.');
+    return ext.prf.results.first;
+  },
+  async enroll(dekRaw, label){
+    const salt = rand(32);
+    const cred = await navigator.credentials.create({publicKey:{rp:{name:'Vaultleaf', id:location.hostname}, user:{id:rand(16), name:label || 'Vaultleaf', displayName:label || 'Vaultleaf'}, challenge:rand(32),
+      pubKeyCredParams:[{type:'public-key', alg:-7}, {type:'public-key', alg:-257}], authenticatorSelection:{authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred'}, timeout:60000, extensions:{prf:{eval:{first:salt}}}}});
+    const ext = cred.getClientExtensionResults ? cred.getClientExtensionResults() : {};
+    if(!ext.prf || ext.prf.enabled === false) throw new Error('This device can\'t unlock Vaultleaf with Face ID or fingerprint yet. Keep using your password and passcode.');
+    const credId = new Uint8Array(cred.rawId);
+    const secret = (ext.prf.results && ext.prf.results.first) || await this.prf(credId, salt);
+    const wrap = await seal(await this.kek(secret, salt), dekRaw, 'vl-bio');
+    LS.set(K.bio, {credId:b64e(credId), salt:b64e(salt), wrap, at:now(), fullAt:now()});
+  },
+  async unlock(){ const r = this.rec(); const salt = b64d(r.salt); return unseal(await this.kek(await this.prf(b64d(r.credId), salt), salt), r.wrap, 'vl-bio'); },
+  due(){ const r = this.rec(); return !r || now() - (r.fullAt || 0) > BIO_MAX_DAYS * DAY; },
+  touch(){ const r = this.rec(); if(r){ r.fullAt = now(); LS.set(K.bio, r); } },
+  remove(){ LS.del(K.bio); }
+};
+
+/* ---------- leaked password check (Have I Been Pwned, k-anonymity: only 5 hex characters of a SHA-1 leave the device) ---------- */
+async function pwnedCount(pw, cache){
+  const h = hexOf(await crypto.subtle.digest('SHA-1', te.encode(pw))).toUpperCase();
+  const pre = h.slice(0, 5), suf = h.slice(5);
+  let txt = cache.get(pre);
+  if(txt == null){
+    const r = await fetch('https://api.pwnedpasswords.com/range/' + pre, {headers:{'Add-Padding':'true'}, cache:'no-store', credentials:'omit', referrerPolicy:'no-referrer'});
+    if(!r.ok) throw new Error('The breach service didn\'t answer (' + r.status + '). Try again later.');
+    txt = await r.text(); cache.set(pre, txt);
+  }
+  for(const line of txt.split('\n')){ const [s2, c] = line.trim().split(':'); if(s2 === suf) return parseInt(c, 10) || 0; }
+  return 0;
+}
 
 /* ---------- field types ---------- */
 const FT = {
@@ -175,7 +304,7 @@ function newVault(profile){
   const t = now();
   return {v:1, profile:{name:profile.name || '', email:profile.email || '', updatedAt:t},
     settings:{view:'modern', theme:'auto', autoLockMin:5, lockOnHide:true, revealSec:30, clipSec:30, sync:true, rotateDays:0, sort:'updated', updatedAt:t},
-    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0}};
+    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0, kits:[]}};
 }
 function upgradeVault(v){
   const d = newVault({});
@@ -189,14 +318,15 @@ function upgradeVault(v){
 }
 function blankAccount(){
   return {id:uid(), no:0, tool:'', accountName:'', url:'', username:'', email:'', password:'', fields:[], qa:[], admins:[], labels:[], fav:false, notes:'', rotateDays:0,
-    createdAt:0, updatedAt:0, pwChangedAt:0, history:[], secrets:[], copies:[], lastCopiedAt:0, trashedAt:0, example:false, order:[]};
+    createdAt:0, updatedAt:0, pwChangedAt:0, history:[], secrets:[], copies:[], lastCopiedAt:0, trashedAt:0, example:false, order:[], files:[]};
 }
 const byId = (p, q) => p.id < q.id ? -1 : p.id > q.id ? 1 : 0;
 function unionById(a = [], b = [], cap = 100){ const m = new Map(); for(const e of [...a, ...b]) if(e && e.id) m.set(e.id, e); return [...m.values()].sort((p, q) => q.at - p.at || byId(p, q)).slice(0, cap); }
 function mergeAccount(x, y){
   const base = (y.updatedAt || 0) > (x.updatedAt || 0) ? y : x, other = base === x ? y : x;
+  const files = new Map(); for(const f of [...(other.files || []), ...(base.files || [])]) if(f && f.id) files.set(f.id, f);
   return {...base, copies:unionById(base.copies, other.copies, 100), history:unionById(base.history, other.history, 200), secrets:unionById(base.secrets, other.secrets, 60),
-    lastCopiedAt:Math.max(base.lastCopiedAt || 0, other.lastCopiedAt || 0)};
+    files:[...files.values()].sort((p, q) => (p.addedAt || 0) - (q.addedAt || 0)), lastCopiedAt:Math.max(base.lastCopiedAt || 0, other.lastCopiedAt || 0)};
 }
 function restoreMerge(cur, bak){
   /* Bring back anything in the backup, even if it was deleted here since; keep this device's settings. */
@@ -216,11 +346,12 @@ function mergeVaults(a, b){
   const sNew = (a.settings.updatedAt || 0) >= (b.settings.updatedAt || 0) ? a.settings : b.settings;
   const pNew = (a.profile.updatedAt || 0) >= (b.profile.updatedAt || 0) ? a.profile : b.profile;
   const cutoff = now() - 180 * DAY;
+  const dropFiles = x => (x.files || []).some(f => tomb.has(f.id)) ? {...x, files:x.files.filter(f => !tomb.has(f.id))} : x;
   return {...a, settings:{...sNew}, profile:{...pNew},
-    accounts:[...acc.values()].filter(alive).sort(byId), labels:[...lab.values()].filter(alive).sort(byId),
+    accounts:[...acc.values()].filter(alive).map(dropFiles).sort(byId), labels:[...lab.values()].filter(alive).sort(byId),
     tombstones:[...tomb.values()].filter(t => t.at > cutoff).sort(byId),
     nextNo:Math.max(a.nextNo || 1, b.nextNo || 1), updatedAt:Math.max(a.updatedAt || 0, b.updatedAt || 0),
-    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0)}};
+    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0), kits:unionById(a.meta?.kits, b.meta?.kits, 50)}};
 }
 function stable(o){ return JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((r, kk) => (r[kk] = v[kk], r), {}) : v); }
 

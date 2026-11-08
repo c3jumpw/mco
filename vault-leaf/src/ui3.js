@@ -151,7 +151,7 @@ function pwPills(a){
   const s = strength(a.password);
   const cls = s.score <= 1 ? 'bad' : s.score === 2 ? 'warn' : 'good';
   const reused = V().accounts.filter(x => !x.trashedAt && x.id !== a.id && x.password && x.password === a.password).length;
-  return `<span class="pill ${cls}">${s.label}</span>${reused ? `<span class="pill bad">Used on ${reused + 1} accounts</span>` : ''}${isOld(a) ? `<span class="pill warn">${ic('clock','s')}Set ${ago(a.pwChangedAt || a.createdAt)}</span>` : ''}`;
+  return `${isLeaked(a) ? `<span class="pill bad">${ic('warn','s')}Found in breaches</span>` : ''}<span class="pill ${cls}">${s.label}</span>${reused ? `<span class="pill bad">Used on ${reused + 1} accounts</span>` : ''}${isOld(a) ? `<span class="pill warn">${ic('clock','s')}Set ${ago(a.pwChangedAt || a.createdAt)}</span>` : ''}`;
 }
 function detailHTML(a){
   const signin = [], secrets = [], other = [];
@@ -172,7 +172,8 @@ function detailHTML(a){
       ${a.labels.length ? `<div class="d-tags">${a.labels.map(tagHTML).join('')}</div>` : ''}</div></div>
     ${sec('Sign-in', signin)}${sec('Keys and secrets', secrets)}${sec('Other details', other)}${sec('Security questions', qa)}${sec('Admins', admins)}
     ${a.notes ? `<div class="sec-wrap"><div class="sec-h"><h3>Notes</h3></div><div class="sec"><div class="notes-box">${esc(a.notes)}</div></div></div>` : ''}
-    ${!signin.length && !secrets.length && !other.length && !qa.length && !a.notes ? `<div class="empty" style="padding:24px"><p>No details yet.</p><button class="btn" data-act="edit" data-id="${a.id}">Add details</button></div>` : ''}
+    ${filesSectionHTML(a)}
+    ${!signin.length && !secrets.length && !other.length && !qa.length && !a.notes && !(a.files || []).length ? `<div class="empty" style="padding:24px"><p>No details yet.</p><button class="btn" data-act="edit" data-id="${a.id}">Add details</button></div>` : ''}
     <div class="sec-wrap"><div class="sec-h"><h3>Record</h3></div><div class="sec"><div class="meta-grid">
       <div><span>Leaf</span><b class="tnum">No. ${String(a.no || 0).padStart(3, '0')}</b></div>
       <div><span>Stored</span><b title="${esc(fmtDT(a.createdAt))}">${fmtDate(a.createdAt)}</b></div>
@@ -214,6 +215,7 @@ function classicDetailHTML(a){
     <p class="when">${a.trashedAt ? 'Deleted ' + fmtDT(a.trashedAt) : 'Stored ' + fmtDT(a.createdAt)}${a.updatedAt - a.createdAt > 60000 ? `<br>Edited ${fmtDT(a.updatedAt)}` : ''}</p>
     <h2>${esc(a.tool)}</h2>
     ${lines}
+    ${classicFilesHTML(a)}
     ${a.notes ? `<div class="nline gap"></div><div class="nline"><span class="k">Notes:</span></div><div class="nline free">${esc(a.notes)}</div>` : ''}
     <div class="nline gap"></div>
     <p class="hint" style="line-height:32px;margin:0">Tap a hidden value to show it. Copied ${a.copies.length} time${a.copies.length === 1 ? '' : 's'}${a.lastCopiedAt ? ', last ' + ago(a.lastCopiedAt) : ''}. <button class="btn ghost small" data-act="view" data-v="modern" style="display:inline-flex">See full history</button></p>

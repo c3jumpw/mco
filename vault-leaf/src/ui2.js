@@ -41,10 +41,12 @@ function renderSetup(){
       <div class="field"><label for="s-name">Your name</label><input id="s-name" class="input" data-sf="name" value="${esc(st.name)}" autocomplete="name" placeholder="Optional"></div>
       <div class="field"><label for="s-email">Email</label><input id="s-email" class="input" type="email" data-sf="email" value="${esc(st.email)}" autocomplete="email" placeholder="Optional, shown on your backups"></div>
       <button class="btn primary block" data-act="s-next">Continue</button>
-      <button class="btn ghost block" data-act="s-restore">${ic('restore')}Restore from a backup file</button>
-      ${S.hasClaude && !Cloud.ready ? '' : ''}`;
+      ${st.importVault ? `<div class="banner" style="margin:0">${ic('shield','s')}<b>Opening an emergency kit with ${st.importVault.accounts.length} account${st.importVault.accounts.length === 1 ? '' : 's'}. Choose your own password and passcode to keep them in your vault.</b></div>` : `
+      ${WEB ? `<button class="btn ghost block" data-act="s-link">${ic('cloud')}Use my vault from another device</button>` : ''}
+      <button class="btn ghost block" data-act="s-restore">${ic('restore')}Restore a backup or emergency kit</button>`}`;
   } else if(st.step === 2){
     h = `${stepsBar(n, total)}<h1>${reset ? 'Choose a new master password' : 'Choose a master password'}</h1>
+      ${st.importVault ? `<div class="banner" style="margin:0">${ic('shield','s')}<b>The emergency kit opened: ${st.importVault.accounts.length} account${st.importVault.accounts.length === 1 ? '' : 's'}${st.importVault.profile.name ? ' from ' + esc(st.importVault.profile.name) : ''}. Now choose your own password and passcode to keep them safe in your vault.</b></div>` : ''}
       <p class="muted">This is the main key to your vault. A few random words is easy to type and hard to guess.</p>
       <div class="field"><label for="s-pw">Master password</label><div class="input-wrap"><input id="s-pw" class="input" type="${st.peek ? 'text' : 'password'}" data-sf="pw" value="${esc(st.pw)}" autocomplete="new-password" spellcheck="false" autocapitalize="off"><button class="icon-btn" data-act="s-peek" aria-label="${st.peek ? 'Hide' : 'Show'} password">${ic(st.peek ? 'eyeoff' : 'eye')}</button></div>${meterHTML('s-meter')}</div>
       <div class="field"><label for="s-pw2">Type it again</label><input id="s-pw2" class="input" type="${st.peek ? 'text' : 'password'}" data-sf="pw2" value="${esc(st.pw2)}" autocomplete="new-password" spellcheck="false" autocapitalize="off"></div>
@@ -66,8 +68,8 @@ function renderSetup(){
       <div class="rk" id="rk">${rkHTML(st.rk)}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" style="flex:1" data-act="s-rkcopy">${ic('copy','s')}Copy key</button>${canDownload() ? `<button class="btn" style="flex:1" data-act="s-rkdl">${ic('download','s')}Download kit</button>` : ''}</div>
       <label class="check"><input type="checkbox" id="s-saved" data-sf="saved" ${st.saved ? 'checked' : ''}><span>I saved my recovery key somewhere safe, away from this device.</span></label>
-      ${Cloud.ready ? `<label class="check"><input type="checkbox" data-sf="sync" ${st.sync ? 'checked' : ''}><span>Sync this vault to my other devices<br><small class="muted">Only encrypted data leaves this device. Your password and passcode never do.</small></span></label>` : `<p class="hint">${ic('warn','s')} This vault will live in this browser only. Keep the backup file safe: you'll find it in Settings.</p>`}
-      <label class="check"><input type="checkbox" data-sf="examples" ${st.examples ? 'checked' : ''}><span>Add 4 example accounts to explore<br><small class="muted">Labeled Examples. Remove them in one tap.</small></span></label>
+      ${WEB || Cloud.ready ? `<label class="check"><input type="checkbox" data-sf="sync" ${st.sync ? 'checked' : ''}><span>Sync this vault to my other devices<br><small class="muted">Only encrypted data leaves this device. Your password and passcode never do.</small></span></label>` : `<p class="hint">${ic('warn','s')} This vault will live in this browser only. Keep the backup file safe: you'll find it in Settings.</p>`}
+      ${st.importVault ? '' : `<label class="check"><input type="checkbox" data-sf="examples" ${st.examples ? 'checked' : ''}><span>Add 4 example accounts to explore<br><small class="muted">Labeled Examples. Remove them in one tap.</small></span></label>`}
       <button class="btn primary block" data-act="s-finish" ${st.saved && !st.busy ? '' : 'disabled'}>${st.busy ? 'Opening…' : 'Open my vault'}</button>`;
   }
   root.innerHTML = authShell(h);
@@ -90,8 +92,9 @@ function renderLogin(){
         ${wait ? `<p class="err" role="alert" id="waitline">Too many tries. Wait ${wait}s, then try again.</p>` : ''}
         <button class="btn primary block" type="submit">Continue</button>
       </form>
+      ${Bio.rec() && Bio.supported() ? (Bio.due() ? `<p class="hint">${ic('lock','s')} Face ID and fingerprint unlock needs your password and passcode at least every ${BIO_MAX_DAYS} days.</p>` : `<button class="btn block" data-act="l-bio" ${wait ? 'disabled' : ''}>${ic('user')}Unlock with Face ID or fingerprint</button>`) : ''}
       <button class="btn ghost" data-act="go-recover">Forgot your password or passcode?</button>
-      ${S.cloudHeader && !LS.get(K.header) ? `<p class="hint">${ic('cloud','s')} Found your synced vault. Unlock it to use it on this device.</p>` : ''}`;
+      ${S.cloudHeader && !LS.get(K.header) ? `<p class="hint">${ic('cloud','s')} Found your synced vault. Unlock it with the password and passcode you use on your other device.</p>` : ''}`;
   } else {
     h = `<h1>Enter your passcode</h1>
       <p class="muted">${len} digits</p>
@@ -138,8 +141,25 @@ async function unlock(pw, pc){
     if(S.auth.step === 1) S.auth.pw = '';
     render(); startWaitTicker(); return;
   }
-  guard.reset();
+  guard.reset(); Bio.touch();
   try{ await openWith(raw, used); }
+  catch(e){ console.error(e); S.auth = {step:1, pw:'', pc:'', busy:false, err:e.message || 'Could not open the vault.'}; render(); }
+}
+async function bioUnlock(){
+  if(guard.wait() || S.auth.busy) return;
+  S.auth.busy = true;
+  let raw;
+  try{ raw = await Bio.unlock(); }
+  catch(e){
+    S.auth.busy = false;
+    if(e && e.name === 'NotAllowedError'){ toast('Face ID or fingerprint was cancelled. You can use your password and passcode.', 'lock'); return; }
+    if(e && e.name === 'OperationError'){ Bio.remove(); S.auth.err = 'Face ID or fingerprint no longer matches this vault, so it was turned off. Use your password and passcode.'; render(); return; }
+    S.auth.err = e.message || 'Face ID or fingerprint didn\'t work. Use your password and passcode.'; render(); return;
+  }
+  S.auth.step = 1; render();
+  await Promise.race([S.cloudP, sleep(3000)]);
+  const header = [LS.get(K.header), S.cloudHeader].filter(Boolean).sort((a, b) => (b.hdrAt || 0) - (a.hdrAt || 0))[0];
+  try{ await openWith(raw, header); }
   catch(e){ console.error(e); S.auth = {step:1, pw:'', pc:'', busy:false, err:e.message || 'Could not open the vault.'}; render(); }
 }
 let waitTicker = null;
@@ -151,21 +171,30 @@ async function openWith(raw, header, opts = {}){
   if(lb){ try{ vault = await openVault(S.dek, lb); S.body = lb; }catch(e){ console.warn('local copy unreadable', e); } }
   if(Cloud.ready && !opts.vault){
     try{
-      let meta = await Cloud.getMeta();
+      const h = await Cloud.head();
+      let meta = h ? h.meta : null;
+      if(!h && Cloud.kind === 'supa' && lb) S.remoteGone = true;
       if(meta && meta.off){ S.remoteOff = meta; meta = null; }
-      if(meta && (!lb || meta.rev !== lb.rev)){
-        const cb = await Cloud.getBody(meta);
+      if(meta && meta.rev && (!lb || meta.rev !== lb.rev)){
+        const cb = await Cloud.pull(meta);
         const rv = await openVault(S.dek, cb);
         vault = vault ? mergeVaults(upgradeVault(vault), upgradeVault(rv)) : rv;
-        Cloud.lastRev = cb.rev; if(!S.body) S.body = cb;
+        if(!S.body) S.body = cb;
       }
+      if(meta && meta.rev) Cloud.lastRev = meta.rev;
       if(meta) Cloud.lastAt = now();
+      if(h && h.header && (h.header.hdrAt || 0) > (header.hdrAt || 0)){ S.header = h.header; LS.set(K.header, h.header); }
     }catch(e){ console.warn('cloud read', e); }
   }
   if(!vault) throw new Error('Your vault data could not be read on this device. If you have a backup file, restore it from the first screen.');
   S.vault = upgradeVault(vault); hayCache = new WeakMap();
   if(S.remoteOff && S.vault.settings.sync && S.remoteOff.at > (S.vault.settings.updatedAt || 0)){ S.vault.settings.sync = false; S.vault.settings.updatedAt = S.remoteOff.at; }
-  S.remoteOff = null;
+  if(Cloud.kind === 'supa'){
+    if(S.remoteGone && S.vault.settings.sync){ S.vault.settings.sync = false; Cloud.forget(); S.syncGoneNote = true; }
+    else if(Cloud.ready && !S.vault.settings.sync){ S.vault.settings.sync = true; }
+    else if(!Cloud.ready && S.vault.settings.sync && S.vault.settings.syncCode){ await Cloud.use(S.vault.settings.syncCode); Cloud.lastRev = null; }
+  }
+  S.remoteOff = null; S.remoteGone = false;
   const purged = autoPurge();
   S.phase = 'app'; S.tab = 'vault'; S.filter = 'all'; S.q = ''; S.selId = null; S.mode = 'view';
   if(WEB && navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
@@ -174,7 +203,9 @@ async function openWith(raw, header, opts = {}){
   root.innerHTML = '';
   render();
   await persist();
-  if(syncOn()){ await pushNow(); watchCloud(); }
+  if(syncOn()){ await pushNow(); watchCloud(); syncFiles(); }
+  if(S.syncGoneNote){ S.syncGoneNote = false; toast('This vault stopped syncing: sync was turned off or given a new code on another device', 'cloud'); }
+  if(opts.after) opts.after();
   if(purged) toast(`Cleared ${purged} account${purged === 1 ? '' : 's'} deleted over 30 days ago`, 'trash');
   if(opts.toast) toast(opts.toast);
 }
@@ -182,15 +213,22 @@ async function openWith(raw, header, opts = {}){
 /* ---------- setup finish ---------- */
 async function finishSetup(){
   const st = S.setup; st.busy = true; render();
-  const v = newVault({name:st.name.trim(), email:st.email.trim()});
-  v.settings.sync = !!(st.sync && Cloud.ready);
-  S.vault = v; S.dek = await dekKey(st.dekRaw);
-  if(st.examples) addExamples();
+  let v = newVault({name:st.name.trim(), email:st.email.trim()});
+  S.dek = await dekKey(st.dekRaw);
+  if(st.importVault){
+    v = upgradeVault({...st.importVault, settings:{...v.settings}, profile:{...v.profile}, meta:{lastBackupAt:0, kits:[]}, tombstones:[]});
+    for(const [id, bytes] of Object.entries(st.importFiles || {})) await Files.putRaw(id, await Files.encrypt(S.dek, id, bytes));
+  }
+  const wantSync = !!(st.sync && (WEB || Cloud.ready));
+  if(wantSync && WEB){ const code = newSyncCode(); await Cloud.use(code); v.settings.syncCode = code; }
+  v.settings.sync = wantSync;
+  S.vault = v;
+  if(st.examples && !st.importVault) addExamples();
   LS.set(K.header, st.header);
   guard.reset();
   const dekRaw = st.dekRaw, header = st.header, vault = S.vault;
   S.setup = null;
-  await openWith(dekRaw, header, {vault, toast:'Your vault is ready'});
+  await openWith(dekRaw, header, {vault, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
 }
 async function finishReset(){
   const st = S.setup; st.busy = true; render();
@@ -237,7 +275,7 @@ async function saveFile(name, text){
     catch(e){ if(e && e.code === 'declined') return 'declined'; toast('Download is not available here. Use Copy instead.', 'warn'); return 'failed'; }
   }
   if(!S.hasClaude){
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type:'application/octet-stream'})); a.download = name;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(text instanceof Blob ? text : new Blob([text], {type:'application/octet-stream'})); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); return 'saved';
   }
   return 'failed';

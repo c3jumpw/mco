@@ -2,8 +2,10 @@
 import asyncio, json, io, pathlib
 from playwright.async_api import async_playwright
 from PIL import Image
+import sys; sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from mocks import add_mocks, add_authenticator
 
-U = 'http://127.0.0.1:8765/'
+U = 'http://localhost:8765/'  # localhost, not an IP, so passkeys work
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / 'guide' / 'img'; OUT.mkdir(parents=True, exist_ok=True)
 META = {}
@@ -57,7 +59,9 @@ async def setup(pg, name='Alex Morgan', email='alex@example.com', snap=None):
     await pg.check('#s-saved')
     if snap: await shot(pg, snap + '_4', [('#rk', 1, 'Key'), ('[data-act="s-rkcopy"]', 2, 'Copy'), ('#s-saved', 3, 'Confirm', 8), ('[data-act="s-finish"]', 4, 'Open')])
     await pg.click('[data-act="s-finish"]'); await pg.wait_for_selector('#shell', timeout=20000)
-    await pg.wait_for_timeout(400)
+    await pg.wait_for_selector('.modal .rk', timeout=15000); await pg.wait_for_timeout(400)
+    if not snap: await shot(pg, 'd_synccode', [('.modal .rk', 1, 'Code'), ('[data-act="sync-copy"]', 2, 'Copy', 2)], clip='.modal')
+    await pg.click('.modal [data-act="mclose"]'); await pg.wait_for_timeout(1500)
 
 async def stage(pg):
     """Add realistic accounts and history, then clear the example flags so the banner doesn't show."""
@@ -80,8 +84,10 @@ async def stage(pg):
 
 async def desktop(b):
     ctx = await b.new_context(viewport={'width': 1280, 'height': 800}, device_scale_factor=1.5)
-    await ctx.grant_permissions(['clipboard-read', 'clipboard-write'])
+    await ctx.grant_permissions(['clipboard-read', 'clipboard-write'], origin='http://localhost:8765')
+    await add_mocks(ctx)
     pg = await ctx.new_page()
+    await add_authenticator(ctx, pg)
     await setup(pg)
     await stage(pg)
     # main tour
@@ -97,6 +103,13 @@ async def desktop(b):
     await pg.click('[data-act="dtab"][data-v="secrets"]'); await pg.wait_for_timeout(200)
     await pg.evaluate("document.getElementById('detail').scrollTop = 99999"); await pg.wait_for_timeout(200)
     await shot(pg, 'd_history', [('.meta-grid', 1, 'Record'), ('[data-act="dtab"][data-v="changes"]', 2, 'Changes', 2), ('[data-act="dtab"][data-v="secrets"]', 3, 'Old values', 2), ('[data-act="dtab"][data-v="copies"]', 4, 'Copies', 2)], clip='#detail')
+    await pg.click('.card:has-text("Chase bank")'); await pg.wait_for_timeout(400)
+    await pg.set_input_files('input[data-acc]', ['/tmp/vl-guide/drivers-license.png', '/tmp/vl-guide/account-agreement.pdf']); await pg.wait_for_timeout(1500)
+    await pg.evaluate("document.getElementById('detail').scrollTop = [...document.querySelectorAll('.sec-wrap h3')].find(h => h.textContent === 'Files').closest('.sec-wrap').offsetTop - 260"); await pg.wait_for_timeout(250)
+    await shot(pg, 'd_files', [('label[for^="file-add-"]', 1, 'Add files', 2), ('[data-act="file-open"]', 2, 'File'), ('[data-act="file-dl"]', 3, 'Download', 2), ('[data-act="file-rm"]', 4, 'Remove', 2)], clip='#detail')
+    await pg.click('[data-act="file-open"]'); await pg.wait_for_selector('.file-img'); await pg.wait_for_timeout(300)
+    await shot(pg, 'd_fileview', [('.file-img', 1, 'Preview', 0), ('.modal [data-act="file-dl"]', 2, 'Download', 2)], clip='.modal')
+    await pg.click('.modal [data-act="mclose"]')
     # classic
     await pg.click('#ltActs [data-v="classic"]'); await pg.wait_for_timeout(300)
     await pg.click('.note-row:has-text("Chase bank")'); await pg.wait_for_timeout(300)
@@ -136,7 +149,8 @@ async def desktop(b):
     await pg.click('.side-nav [data-v="generator"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'd_generator', [('#gen-out', 1, 'Result'), ('#gen-meta', 2, 'Strength'), ('[data-act="gen-new"]', 3, 'New', 2), ('[data-act="gen-copy"]', 4, 'Copy', 2), ('[data-act="gen-use"]', 5, 'Use', 2), ('.page .seg', 6, 'Kind'), ('#g-len', 7, 'Length', 8)])
     await pg.click('.side-nav [data-v="health"]'); await pg.wait_for_timeout(300)
-    await shot(pg, 'd_health', [('.score-dial', 1, 'Score'), ('.stat-row', 2, 'Counts'), ('.page .hrow', 3, 'Fix this')])
+    await pg.click('[data-act="leak-check"]'); await pg.wait_for_timeout(1500)
+    await shot(pg, 'd_health', [('.score-dial', 1, 'Score'), ('.stat-row', 2, 'Counts'), ('[data-act="leak-check"]', 3, 'Leak check', 2), ('.page .panel:has([data-act="leak-check"]) .hrow', 4, 'Leaked')])
     await pg.click('.side-nav [data-v="activity"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'd_activity', [('.page .seg', 1, 'Filter'), ('.page .log li', 2, 'Event'), ('.page .log li .when', 3, 'Time', 2)])
     await pg.click('.side-nav [data-v="settings"]'); await pg.wait_for_timeout(300)
@@ -153,6 +167,17 @@ async def desktop(b):
     await pg.click('[data-act="mclose"]')
     await pg.click('[data-act="m-restore"]'); await pg.wait_for_selector('#rs-file')
     await shot(pg, 'd_restore', [('#rs-file', 1, 'File'), ('#rs-text', 2, 'Or paste'), ('.modal .seg', 3, 'Unlock with'), ('#rs-creds', 4, 'Credentials')], clip='.modal')
+    await pg.click('[data-act="mclose"]')
+    await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('[data-act=\"sync-show\"]').closest('.panel').offsetTop - 80"); await pg.wait_for_timeout(250)
+    await shot(pg, 'd_sync', [('[data-act="sync-show"]', 1, 'Show code', 2), ('[data-act="sync-now"]', 2, 'Sync now', 2), ('[data-act="sync-rotate"]', 3, 'New code', 2), ('[data-act="sync-off"]', 4, 'Turn off', 2)], clip='.page .panel:has([data-act="sync-show"])')
+    await pg.click('#s-bio'); await pg.wait_for_timeout(2500)
+    await pg.evaluate("document.getElementById('page').scrollTop = document.getElementById('s-bio').closest('.panel').offsetTop - 80"); await pg.wait_for_timeout(250)
+    await shot(pg, 'd_security', [('.set-row:has(#s-bio)', 1, 'Face ID'), ('#set-settings-autoLockMin', 2, 'Auto-lock', 2), ('.set-row:has(#s-hide)', 3, 'Background')], clip='.page .panel:has(#s-bio)')
+    await pg.click('[data-act="kit-new"]'); await pg.wait_for_selector('[data-act="kit-scope"]')
+    await pg.click('[data-act="kit-scope"][data-v="labels"]'); await pg.click('#kit-labels .chip:has-text("Finance")'); await pg.fill('#kit-note', 'Start with the bank and the wallet. The fire safe key is in the kitchen drawer.')
+    await shot(pg, 'd_kit_builder', [('.modal .seg', 1, 'What to include'), ('#kit-labels', 2, 'Labels'), ('.modal .check', 3, 'Files', 2), ('#kit-note', 4, 'Note')], clip='.modal')
+    await pg.click('[data-act="kit-make"]'); await pg.wait_for_selector('.modal .rk', timeout=20000); await pg.wait_for_timeout(300)
+    await shot(pg, 'd_kit_made', [('.modal .rk', 1, 'Code'), ('[data-act="kit-dl"]', 2, 'Download', 2), ('[data-act="kit-copycode"]', 3, 'Copy code', 2)], clip='.modal')
     await pg.click('[data-act="mclose"]')
     # trash
     await pg.click('.side-nav [data-v="vault"]'); await pg.click('.card:has-text("Outlook")'); await pg.wait_for_timeout(200)
@@ -172,7 +197,13 @@ async def desktop(b):
 
 async def phone(b):
     ctx = await b.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True, has_touch=True)
+    await add_mocks(ctx)
     pg = await ctx.new_page()
+    await add_authenticator(ctx, pg)
+    await pg.goto(U); await pg.wait_for_selector('[data-act="s-link"]', timeout=20000)
+    await pg.tap('[data-act="s-link"]'); await pg.fill('#lk-code', 'NI2X-45DK-IFQS-3UEO-6YRO-2433-JCG5-R3FS'); await pg.wait_for_timeout(300)
+    await shot(pg, 'p_link', [('#lk-code', 1, 'Code'), ('[data-act="lk-go"]', 2, 'Find', 2)])
+    await pg.tap('.modal [data-act="mclose"]')
     await setup(pg, snap='p_setup')
     await stage(pg)
     await shot(pg, 'p_list', [('.search', 1, 'Search'), ('#chips', 2, 'Labels'), ('#ltActs .seg', 3, 'View', 2), ('#ltActs [data-act="lock"]', 4, 'Lock', 2), ('.card .quick', 5, 'Quick copy', 2), ('.fab', 6, 'Add', 2), ('#bnav', 7, 'Sections', 0)])
@@ -188,10 +219,11 @@ async def phone(b):
     await pg.tap('#bnav [data-v="health"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'p_health')
     await pg.tap('#bnav [data-v="settings"]'); await pg.wait_for_timeout(300)
+    await pg.tap('#s-bio'); await pg.wait_for_timeout(2500); await pg.evaluate("document.getElementById('page').scrollTop = 0"); await pg.wait_for_timeout(200)
     await shot(pg, 'p_settings', [('.page [data-act="lock"]', 1, 'Lock', 2), ('.page > .banner', 2, 'Guide')])
     await pg.tap('.page [data-act="lock"]')
     await pg.wait_for_selector('#l-pw'); await pg.fill('#l-pw', PW)
-    await shot(pg, 'p_login1', [('#l-pw', 1, 'Password'), ('[data-act="go-recover"]', 2, 'Forgot', 2)])
+    await shot(pg, 'p_login1', [('#l-pw', 1, 'Password'), ('[data-act="l-bio"]', 2, 'Face ID', 2), ('[data-act="go-recover"]', 3, 'Forgot', 2)])
     await pg.press('#l-pw', 'Enter'); await pg.wait_for_selector('.keypad')
     for d in PC[:2]: await pg.tap(f'.keypad [data-d="{d}"]')
     await shot(pg, 'p_login2', [('.pins', 1, 'Digits'), ('.keypad', 2, 'Keypad'), ('[data-act="l-back"]', 3, 'Back', 2)])

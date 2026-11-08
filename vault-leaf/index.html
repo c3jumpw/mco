@@ -359,6 +359,7 @@ mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
 .score-dial b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:30px}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
 .stat-row div{background:var(--surface);padding:12px 14px}
+.stat-row.four{grid-template-columns:repeat(4,1fr)}
 .stat-row b{font-family:var(--font-display);font-size:24px;display:block}
 .stat-row span{font-size:13px;color:var(--muted);font-weight:700}
 .hrow{display:grid;grid-template-columns:36px 1fr auto;gap:12px;align-items:center;padding:10px 16px;cursor:pointer}
@@ -369,6 +370,7 @@ mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
 .set-row+.set-row{border-top:1px solid var(--line)}
 .set-row .ol{display:grid;min-width:0}
 .set-row .ol small{color:var(--muted);font-size:14px}
+.set-row>.btn,.set-row>a.btn{flex:none;white-space:nowrap}
 .set-row select.input{width:auto;min-height:40px;padding:6px 10px}
 .labels-tree{display:grid}
 .lt-row{display:flex;align-items:center;gap:8px;padding:8px 16px;min-height:48px}
@@ -432,6 +434,8 @@ a.btn{text-decoration:none;color:inherit}
   .main .chips.always{display:flex}
 }
 
+.file-img{display:block;max-width:100%;max-height:70vh;margin:0 auto;border-radius:12px;border:1px solid var(--line)}
+.howto-m{margin:0;padding-left:22px;display:grid;gap:6px;font-size:15px}
 /* ---------- Modal & toast ---------- */
 .scrim{position:fixed;inset:0;background:rgba(8,14,11,.48);display:grid;place-items:end center;z-index:50;animation:fade .15s}
 @media (min-width:640px){.scrim{place-items:center}}
@@ -473,7 +477,10 @@ const APP = 'vaultleaf', VER = 1;
 const WEB = true;
 const GUIDE_URL = WEB ? '/guide/' : 'https://mco-vault-leaf.vercel.app/guide/';
 const KDF_ITER = 600000, RK_ITER = 150000;
-const K = {header:'vaultleaf.header', body:'vaultleaf.body', guard:'vaultleaf.guard', device:'vaultleaf.device', ui:'vaultleaf.ui'};
+const K = {header:'vaultleaf.header', body:'vaultleaf.body', guard:'vaultleaf.guard', device:'vaultleaf.device', ui:'vaultleaf.ui', sync:'vaultleaf.sync', bio:'vaultleaf.bio'};
+const SUPA_URL = 'https://symbmscaajjmgywbifhv.supabase.co';
+const SUPA_KEY = 'sb_publishable_IUie6Hv_qAJs2pBkYEqbzw_gUAxoSgz'; /* public browser key: it can only call the vaultleaf_* functions */
+const FILE_MAX = 5 * 1024 * 1024, BIO_MAX_DAYS = 14;
 const EFF = 'abacus abdomen abdominal abide abiding ability ablaze able abnormal abrasion abrasive abreast abridge abroad abruptly absence absentee absently absinthe absolute absolve abstain abstract absurd accent acclaim acclimate accompany account accuracy accurate accustom acetone achiness aching acid acorn acquaint acquire acre acrobat acronym acting action activate activator active activism activist activity actress acts acutely acuteness aeration aerobics aerosol aerospace afar affair affected affecting affection affidavit affiliate affirm affix afflicted affluent afford affront aflame afloat aflutter afoot afraid afterglow afterlife aftermath aftermost afternoon aged ageless agency agenda agent aggregate aghast agile agility aging agnostic agonize agonizing agony agreeable agreeably agreed agreeing agreement aground ahead ahoy aide aids aim ajar alabaster alarm albatross album alfalfa algebra algorithm alias alibi alienable alienate aliens alike alive alkaline alkalize almanac almighty almost aloe aloft aloha alone alongside aloof alphabet alright although altitude alto aluminum alumni always amaretto amaze amazingly amber ambiance ambiguity ambiguous ambition ambitious ambulance ambush amendable amendment amends amenity amiable amicably amid amigo amino amiss ammonia ammonium amnesty amniotic among amount amperage ample amplifier amplify amply amuck amulet amusable amused amusement amuser amusing anaconda anaerobic anagram anatomist anatomy anchor anchovy ancient android anemia anemic aneurism anew angelfish angelic anger angled angler angles angling angrily angriness anguished angular animal animate animating animation animator anime animosity ankle annex annotate announcer annoying annually annuity anointer another answering antacid antarctic anteater antelope antennae anthem anthill anthology antibody antics antidote antihero antiquely antiques antiquity antirust antitoxic antitrust antiviral antivirus antler antonym antsy anvil anybody anyhow anymore anyone anyplace anything anytime anyway anywhere aorta apache apostle appealing appear appease appeasing appendage appendix appetite appetizer applaud applause apple appliance applicant applied apply appointee appraisal appraiser apprehend approach approval approve apricot april apron aptitude aptly aqua aqueduct arbitrary arbitrate ardently area arena arguable arguably argue arise armadillo armband armchair armed armful armhole arming armless armoire armored armory armrest army aroma arose around arousal arrange array arrest arrival arrive arrogance arrogant arson art ascend ascension ascent ascertain ashamed ashen ashes ashy aside askew asleep asparagus aspect aspirate aspire aspirin astonish astound astride astrology astronaut astronomy astute atlantic atlas atom atonable atop atrium atrocious atrophy attach attain attempt attendant attendee attention attentive attest attic attire attitude attractor attribute atypical auction audacious audacity audible audibly audience audio audition augmented august authentic author autism autistic autograph automaker automated automatic autopilot available avalanche avatar avenge avenging avenue average aversion avert aviation aviator avid avoid await awaken award aware awhile awkward awning awoke awry axis babble babbling babied baboon backache backboard backboned backdrop backed backer backfield backfire backhand backing backlands backlash backless backlight backlit backlog backpack backpedal backrest backroom backshift backside backslid backspace backspin backstab backstage backtalk backtrack backup backward backwash backwater backyard bacon bacteria bacterium badass badge badland badly badness baffle baffling bagel bagful baggage bagged baggie bagginess bagging baggy bagpipe baguette baked bakery bakeshop baking balance balancing balcony balmy balsamic bamboo banana banish banister banjo bankable bankbook banked banker banking banknote bankroll banner bannister banshee banter barbecue barbed barbell barber barcode barge bargraph barista baritone barley barmaid barman barn barometer barrack barracuda barrel barrette barricade barrier barstool bartender barterer bash basically basics basil basin basis basket batboy batch bath baton bats battalion battered battering battery batting battle bauble bazooka blabber bladder blade blah blame blaming blanching blandness blank blaspheme blasphemy blast blatancy blatantly blazer blazing bleach bleak bleep blemish blend bless blighted blimp bling blinked blinker blinking blinks blip blissful blitz blizzard bloated bloating blob blog bloomers blooming blooper blot blouse blubber bluff bluish blunderer blunt blurb blurred blurry blurt blush blustery boaster boastful boasting boat bobbed bobbing bobble bobcat bobsled bobtail bodacious body bogged boggle bogus boil bok bolster bolt bonanza bonded bonding bondless boned bonehead boneless bonelike boney bonfire bonnet bonsai bonus bony boogeyman boogieman book boondocks booted booth bootie booting bootlace bootleg boots boozy borax boring borough borrower borrowing boss botanical botanist botany botch both bottle bottling bottom bounce bouncing bouncy bounding boundless bountiful bovine boxcar boxer boxing boxlike boxy breach breath breeches breeching breeder breeding breeze breezy brethren brewery brewing briar bribe brick bride bridged brigade bright brilliant brim bring brink brisket briskly briskness bristle brittle broadband broadcast broaden broadly broadness broadside broadways broiler broiling broken broker bronchial bronco bronze bronzing brook broom brought browbeat brownnose browse browsing bruising brunch brunette brunt brush brussels brute brutishly bubble bubbling bubbly buccaneer bucked bucket buckle buckshot buckskin bucktooth buckwheat buddhism buddhist budding buddy budget buffalo buffed buffer buffing buffoon buggy bulb bulge bulginess bulgur bulk bulldog bulldozer bullfight bullfrog bullhorn bullion bullish bullpen bullring bullseye bullwhip bully bunch bundle bungee bunion bunkbed bunkhouse bunkmate bunny bunt busboy bush busily busload bust busybody buzz cabana cabbage cabbie cabdriver cable caboose cache cackle cacti cactus caddie caddy cadet cadillac cadmium cage cahoots cake calamari calamity calcium calculate calculus caliber calibrate calm caloric calorie calzone camcorder cameo camera camisole camper campfire camping campsite campus canal canary cancel candied candle candy cane canine canister cannabis canned canning cannon cannot canola canon canopener canopy canteen canyon capable capably capacity cape capillary capital capitol capped capricorn capsize capsule caption captivate captive captivity capture caramel carat caravan carbon cardboard carded cardiac cardigan cardinal cardstock carefully caregiver careless caress caretaker cargo caring carless carload carmaker carnage carnation carnival carnivore carol carpenter carpentry carpool carport carried carrot carrousel carry cartel cartload carton cartoon cartridge cartwheel carve carving carwash cascade case cash casing casino casket cassette casually casualty catacomb catalog catalyst catalyze catapult cataract catatonic catcall catchable catcher catching catchy caterer catering catfight catfish cathedral cathouse catlike catnap catnip catsup cattail cattishly cattle catty catwalk caucasian caucus causal causation cause causing cauterize caution cautious cavalier cavalry caviar cavity cedar celery celestial celibacy celibate celtic cement census ceramics ceremony certainly certainty certified certify cesarean cesspool chafe chaffing chain chair chalice challenge chamber chamomile champion chance change channel chant chaos chaperone chaplain chapped chaps chapter character charbroil charcoal charger charging chariot charity charm charred charter charting chase chasing chaste chastise chastity chatroom chatter chatting chatty cheating cheddar cheek cheer cheese cheesy chef chemicals chemist chemo cherisher cherub chess chest chevron chevy chewable chewer chewing chewy chief chihuahua childcare childhood childish childless childlike chili chill chimp chip chirping chirpy chitchat chivalry chive chloride chlorine choice chokehold choking chomp chooser choosing choosy chop chosen chowder chowtime chrome chubby chuck chug chummy chump chunk churn chute cider cilantro cinch cinema cinnamon circle circling circular circulate circus citable citadel citation citizen citric citrus city civic civil clad claim clambake clammy clamor clamp clamshell clang clanking clapped clapper clapping clarify clarinet clarity clash clasp class clatter clause clavicle claw clay clean clear cleat cleaver cleft clench clergyman clerical clerk clever clicker client climate climatic cling clinic clinking clip clique cloak clobber clock clone cloning closable closure clothes clothing cloud clover clubbed clubbing clubhouse clump clumsily clumsy clunky clustered clutch clutter coach coagulant coastal coaster coasting coastland coastline coat coauthor cobalt cobbler cobweb cocoa coconut cod coeditor coerce coexist coffee cofounder cognition cognitive cogwheel coherence coherent cohesive coil coke cola cold coleslaw coliseum collage collapse collar collected collector collide collie collision colonial colonist colonize colony colossal colt coma come comfort comfy comic coming comma commence commend comment commerce commode commodity commodore common commotion commute commuting compacted compacter compactly compactor companion company compare compel compile comply component composed composer composite compost composure compound compress comprised computer computing comrade concave conceal conceded concept concerned concert conch concierge concise conclude concrete concur condense condiment condition condone conducive conductor conduit cone confess confetti confidant confident confider confiding configure confined confining confirm conflict conform confound confront confused confusing confusion congenial congested congrats congress conical conjoined conjure conjuror connected connector consensus consent console consoling consonant constable constant constrain constrict construct consult consumer consuming contact container contempt contend contented contently contents contest context contort contour contrite control contusion convene convent copartner cope copied copier copilot coping copious copper copy coral cork cornball cornbread corncob cornea corned corner cornfield cornflake cornhusk cornmeal cornstalk corny coronary coroner corporal corporate corral correct corridor corrode corroding corrosive corsage corset cortex cosigner cosmetics cosmic cosmos cosponsor cost cottage cotton couch cough could countable countdown counting countless country county courier covenant cover coveted coveting coyness cozily coziness cozy crabbing crabgrass crablike crabmeat cradle cradling crafter craftily craftsman craftwork crafty cramp cranberry crane cranial cranium crank crate crave craving crawfish crawlers crawling crayfish crayon crazed crazily craziness crazy creamed creamer creamlike crease creasing creatable create creation creative creature credible credibly credit creed creme creole crepe crept crescent crested cresting crestless crevice crewless crewman crewmate crib cricket cried crier crimp crimson cringe cringing crinkle crinkly crisped crisping crisply crispness crispy criteria critter croak crock crook croon crop cross crouch crouton crowbar crowd crown crucial crudely crudeness cruelly cruelness cruelty crumb crummiest crummy crumpet crumpled cruncher crunching crunchy crusader crushable crushed crusher crushing crust crux crying cryptic crystal cubbyhole cube cubical cubicle cucumber cuddle cuddly cufflink culinary culminate culpable culprit cultivate cultural culture cupbearer cupcake cupid cupped cupping curable curator curdle cure curfew curing curled curler curliness curling curly curry curse cursive cursor curtain curtly curtsy curvature curve curvy cushy cusp cussed custard custodian custody customary customer customize customs cut cycle cyclic cycling cyclist cylinder cymbal cytoplasm cytoplast dab dad daffodil dagger daily daintily dainty dairy daisy dallying dance dancing dandelion dander dandruff dandy danger dangle dangling daredevil dares daringly darkened darkening darkish darkness darkroom darling darn dart darwinism dash dastardly data datebook dating daughter daunting dawdler dawn daybed daybreak daycare daydream daylight daylong dayroom daytime dazzler dazzling deacon deafening deafness dealer dealing dealmaker dealt dean debatable debate debating debit debrief debtless debtor debug debunk decade decaf decal decathlon decay deceased deceit deceiver deceiving december decency decent deception deceptive decibel decidable decimal decimeter decipher deck declared decline decode decompose decorated decorator decoy decrease decree dedicate dedicator deduce deduct deed deem deepen deeply deepness deface defacing defame default defeat defection defective defendant defender defense defensive deferral deferred defiance defiant defile defiling define definite deflate deflation deflator deflected deflector defog deforest defraud defrost deftly defuse defy degraded degrading degrease degree dehydrate deity dejected delay delegate delegator delete deletion delicacy delicate delicious delighted delirious delirium deliverer delivery delouse delta deluge delusion deluxe demanding demeaning demeanor demise democracy democrat demote demotion demystify denatured deniable denial denim denote dense density dental dentist denture deny deodorant deodorize departed departure depict deplete depletion deplored deploy deport depose depraved depravity deprecate depress deprive depth deputize deputy derail deranged derby derived desecrate deserve deserving designate designed designer designing deskbound desktop deskwork desolate despair despise despite destiny destitute destruct detached detail detection detective detector detention detergent detest detonate detonator detoxify detract deuce devalue deviancy deviant deviate deviation deviator device devious devotedly devotee devotion devourer devouring devoutly dexterity dexterous diabetes diabetic diabolic diagnoses diagnosis diagram dial diameter diaper diaphragm diary dice dicing dictate dictation dictator difficult diffused diffuser diffusion diffusive dig dilation diligence diligent dill dilute dime diminish dimly dimmed dimmer dimness dimple diner dingbat dinghy dinginess dingo dingy dining dinner diocese dioxide diploma dipped dipper dipping directed direction directive directly directory direness dirtiness disabled disagree disallow disarm disarray disaster disband disbelief disburse discard discern discharge disclose discolor discount discourse discover discuss disdain disengage disfigure disgrace dish disinfect disjoin disk dislike disliking dislocate dislodge disloyal dismantle dismay dismiss dismount disobey disorder disown disparate disparity dispatch dispense dispersal dispersed disperser displace display displease disposal dispose disprove dispute disregard disrupt dissuade distance distant distaste distill distinct distort distract distress district distrust ditch ditto ditzy dividable divided dividend dividers dividing divinely diving divinity divisible divisibly division divisive divorcee dizziness dizzy doable docile dock doctrine document dodge dodgy doily doing dole dollar dollhouse dollop dolly dolphin domain domelike domestic dominion dominoes donated donation donator donor donut doodle doorbell doorframe doorknob doorman doormat doornail doorpost doorstep doorstop doorway doozy dork dormitory dorsal dosage dose dotted doubling douche dove down dowry doze drab dragging dragonfly dragonish dragster drainable drainage drained drainer drainpipe dramatic dramatize drank drapery drastic draw dreaded dreadful dreadlock dreamboat dreamily dreamland dreamless dreamlike dreamt dreamy drearily dreary drench dress drew dribble dried drier drift driller drilling drinkable drinking dripping drippy drivable driven driver driveway driving drizzle drizzly drone drool droop drop-down dropbox dropkick droplet dropout dropper drove drown drowsily drudge drum dry dubbed dubiously duchess duckbill ducking duckling ducktail ducky duct dude duffel dugout duh duke duller dullness duly dumping dumpling dumpster duo dupe duplex duplicate duplicity durable durably duration duress during dusk dust dutiful duty duvet dwarf dweeb dwelled dweller dwelling dwindle dwindling dynamic dynamite dynasty dyslexia dyslexic each eagle earache eardrum earflap earful earlobe early earmark earmuff earphone earpiece earplugs earring earshot earthen earthlike earthling earthly earthworm earthy earwig easeful easel easiest easily easiness easing eastbound eastcoast easter eastward eatable eaten eatery eating eats ebay ebony ebook ecard eccentric echo eclair eclipse ecologist ecology economic economist economy ecosphere ecosystem edge edginess edging edgy edition editor educated education educator eel effective effects efficient effort eggbeater egging eggnog eggplant eggshell egomaniac egotism egotistic either eject elaborate elastic elated elbow eldercare elderly eldest electable election elective elephant elevate elevating elevation elevator eleven elf eligible eligibly eliminate elite elitism elixir elk ellipse elliptic elm elongated elope eloquence eloquent elsewhere elude elusive elves email embargo embark embassy embattled embellish ember embezzle emblaze emblem embody embolism emboss embroider emcee emerald emergency emission emit emote emoticon emotion empathic empathy emperor emphases emphasis emphasize emphatic empirical employed employee employer emporium empower emptier emptiness empty emu enable enactment enamel enchanted enchilada encircle enclose enclosure encode encore encounter encourage encroach encrust encrypt endanger endeared endearing ended ending endless endnote endocrine endorphin endorse endowment endpoint endurable endurance enduring energetic energize energy enforced enforcer engaged engaging engine engorge engraved engraver engraving engross engulf enhance enigmatic enjoyable enjoyably enjoyer enjoying enjoyment enlarged enlarging enlighten enlisted enquirer enrage enrich enroll enslave ensnare ensure entail entangled entering entertain enticing entire entitle entity entomb entourage entrap entree entrench entrust entryway entwine enunciate envelope enviable enviably envious envision envoy envy enzyme epic epidemic epidermal epidermis epidural epilepsy epileptic epilogue epiphany episode equal equate equation equator equinox equipment equity equivocal eradicate erasable erased eraser erasure ergonomic errand errant erratic error erupt escalate escalator escapable escapade escapist escargot eskimo esophagus espionage espresso esquire essay essence essential establish estate esteemed estimate estimator estranged estrogen etching eternal eternity ethanol ether ethically ethics euphemism evacuate evacuee evade evaluate evaluator evaporate evasion evasive even everglade evergreen everybody everyday everyone evict evidence evident evil evoke evolution evolve exact exalted example excavate excavator exceeding exception excess exchange excitable exciting exclaim exclude excluding exclusion exclusive excretion excretory excursion excusable excusably excuse exemplary exemplify exemption exerciser exert exes exfoliate exhale exhaust exhume exile existing exit exodus exonerate exorcism exorcist expand expanse expansion expansive expectant expedited expediter expel expend expenses expensive expert expire expiring explain expletive explicit explode exploit explore exploring exponent exporter exposable expose exposure express expulsion exquisite extended extending extent extenuate exterior external extinct extortion extradite extras extrovert extrude extruding exuberant fable fabric fabulous facebook facecloth facedown faceless facelift faceplate faceted facial facility facing facsimile faction factoid factor factsheet factual faculty fade fading failing falcon fall false falsify fame familiar family famine famished fanatic fancied fanciness fancy fanfare fang fanning fantasize fantastic fantasy fascism fastball faster fasting fastness faucet favorable favorably favored favoring favorite fax feast federal fedora feeble feed feel feisty feline felt-tip feminine feminism feminist feminize femur fence fencing fender ferment fernlike ferocious ferocity ferret ferris ferry fervor fester festival festive festivity fetal fetch fever fiber fiction fiddle fiddling fidelity fidgeting fidgety fifteen fifth fiftieth fifty figment figure figurine filing filled filler filling film filter filth filtrate finale finalist finalize finally finance financial finch fineness finer finicky finished finisher finishing finite finless finlike fiscally fit five flaccid flagman flagpole flagship flagstick flagstone flail flakily flaky flame flammable flanked flanking flannels flap flaring flashback flashbulb flashcard flashily flashing flashy flask flatbed flatfoot flatly flatness flatten flattered flatterer flattery flattop flatware flatworm flavored flavorful flavoring flaxseed fled fleshed fleshy flick flier flight flinch fling flint flip flirt float flock flogging flop floral florist floss flounder flyable flyaway flyer flying flyover flypaper foam foe fog foil folic folk follicle follow fondling fondly fondness fondue font food fool footage football footbath footboard footer footgear foothill foothold footing footless footman footnote footpad footpath footprint footrest footsie footsore footwear footwork fossil foster founder founding fountain fox foyer fraction fracture fragile fragility fragment fragrance fragrant frail frame framing frantic fraternal frayed fraying frays freckled freckles freebase freebee freebie freedom freefall freehand freeing freeload freely freemason freeness freestyle freeware freeway freewill freezable freezing freight french frenzied frenzy frequency frequent fresh fretful fretted friction friday fridge fried friend frighten frightful frigidity frigidly frill fringe frisbee frisk fritter frivolous frolic from front frostbite frosted frostily frosting frostlike frosty froth frown frozen fructose frugality frugally fruit frustrate frying gab gaffe gag gainfully gaining gains gala gallantly galleria gallery galley gallon gallows gallstone galore galvanize gambling game gaming gamma gander gangly gangrene gangway gap garage garbage garden gargle garland garlic garment garnet garnish garter gas gatherer gathering gating gauging gauntlet gauze gave gawk gazing gear gecko geek geiger gem gender generic generous genetics genre gentile gentleman gently gents geography geologic geologist geology geometric geometry geranium gerbil geriatric germicide germinate germless germproof gestate gestation gesture getaway getting getup giant gibberish giblet giddily giddiness giddy gift gigabyte gigahertz gigantic giggle giggling giggly gigolo gilled gills gimmick girdle giveaway given giver giving gizmo gizzard glacial glacier glade gladiator gladly glamorous glamour glance glancing glandular glare glaring glass glaucoma glazing gleaming gleeful glider gliding glimmer glimpse glisten glitch glitter glitzy gloater gloating gloomily gloomy glorified glorifier glorify glorious glory gloss glove glowing glowworm glucose glue gluten glutinous glutton gnarly gnat goal goatskin goes goggles going goldfish goldmine goldsmith golf goliath gonad gondola gone gong good gooey goofball goofiness goofy google goon gopher gore gorged gorgeous gory gosling gossip gothic gotten gout gown grab graceful graceless gracious gradation graded grader gradient grading gradually graduate graffiti grafted grafting grain granddad grandkid grandly grandma grandpa grandson granite granny granola grant granular grape graph grapple grappling grasp grass gratified gratify grating gratitude gratuity gravel graveness graves graveyard gravitate gravity gravy gray grazing greasily greedily greedless greedy green greeter greeting grew greyhound grid grief grievance grieving grievous grill grimace grimacing grime griminess grimy grinch grinning grip gristle grit groggily groggy groin groom groove grooving groovy grope ground grouped grout grove grower growing growl grub grudge grudging grueling gruffly grumble grumbling grumbly grumpily grunge grunt guacamole guidable guidance guide guiding guileless guise gulf gullible gully gulp gumball gumdrop gumminess gumming gummy gurgle gurgling guru gush gusto gusty gutless guts gutter guy guzzler gyration habitable habitant habitat habitual hacked hacker hacking hacksaw had haggler haiku half halogen halt halved halves hamburger hamlet hammock hamper hamster hamstring handbag handball handbook handbrake handcart handclap handclasp handcraft handcuff handed handful handgrip handgun handheld handiness handiwork handlebar handled handler handling handmade handoff handpick handprint handrail handsaw handset handsfree handshake handstand handwash handwork handwoven handwrite handyman hangnail hangout hangover hangup hankering hankie hanky haphazard happening happier happiest happily happiness happy harbor hardcopy hardcore hardcover harddisk hardened hardener hardening hardhat hardhead hardiness hardly hardness hardship hardware hardwired hardwood hardy harmful harmless harmonica harmonics harmonize harmony harness harpist harsh harvest hash hassle haste hastily hastiness hasty hatbox hatchback hatchery hatchet hatching hatchling hate hatless hatred haunt haven hazard hazelnut hazily haziness hazing hazy headache headband headboard headcount headdress headed header headfirst headgear heading headlamp headless headlock headphone headpiece headrest headroom headscarf headset headsman headstand headstone headway headwear heap heat heave heavily heaviness heaving hedge hedging heftiness hefty helium helmet helper helpful helping helpless helpline hemlock hemstitch hence henchman henna herald herbal herbicide herbs heritage hermit heroics heroism herring herself hertz hesitancy hesitant hesitate hexagon hexagram hubcap huddle huddling huff hug hula hulk hull human humble humbling humbly humid humiliate humility humming hummus humongous humorist humorless humorous humpback humped humvee hunchback hundredth hunger hungrily hungry hunk hunter hunting huntress huntsman hurdle hurled hurler hurling hurray hurricane hurried hurry hurt husband hush husked huskiness hut hybrid hydrant hydrated hydration hydrogen hydroxide hyperlink hypertext hyphen hypnoses hypnosis hypnotic hypnotism hypnotist hypnotize hypocrisy hypocrite ibuprofen ice iciness icing icky icon icy idealism idealist idealize ideally idealness identical identify identity ideology idiocy idiom idly igloo ignition ignore iguana illicitly illusion illusive image imaginary imagines imaging imbecile imitate imitation immature immerse immersion imminent immobile immodest immorally immortal immovable immovably immunity immunize impaired impale impart impatient impeach impeding impending imperfect imperial impish implant implement implicate implicit implode implosion implosive imply impolite important importer impose imposing impotence impotency impotent impound imprecise imprint imprison impromptu improper improve improving improvise imprudent impulse impulsive impure impurity iodine iodize ion ipad iphone ipod irate irk iron irregular irrigate irritable irritably irritant irritate islamic islamist isolated isolating isolation isotope issue issuing italicize italics item itinerary itunes ivory ivy jab jackal jacket jackknife jackpot jailbird jailbreak jailer jailhouse jalapeno jam janitor january jargon jarring jasmine jaundice jaunt java jawed jawless jawline jaws jaybird jaywalker jazz jeep jeeringly jellied jelly jersey jester jet jiffy jigsaw jimmy jingle jingling jinx jitters jittery job jockey jockstrap jogger jogging john joining jokester jokingly jolliness jolly jolt jot jovial joyfully joylessly joyous joyride joystick jubilance jubilant judge judgingly judicial judiciary judo juggle juggling jugular juice juiciness juicy jujitsu jukebox july jumble jumbo jump junction juncture june junior juniper junkie junkman junkyard jurist juror jury justice justifier justify justly justness juvenile kabob kangaroo karaoke karate karma kebab keenly keenness keep keg kelp kennel kept kerchief kerosene kettle kick kiln kilobyte kilogram kilometer kilowatt kilt kimono kindle kindling kindly kindness kindred kinetic kinfolk king kinship kinsman kinswoman kissable kisser kissing kitchen kite kitten kitty kiwi kleenex knapsack knee knelt knickers knoll koala kooky kosher krypton kudos kung labored laborer laboring laborious labrador ladder ladies ladle ladybug ladylike lagged lagging lagoon lair lake lance landed landfall landfill landing landlady landless landline landlord landmark landmass landmine landowner landscape landside landslide language lankiness lanky lantern lapdog lapel lapped lapping laptop lard large lark lash lasso last latch late lather latitude latrine latter latticed launch launder laundry laurel lavender lavish laxative lazily laziness lazy lecturer left legacy legal legend legged leggings legible legibly legislate lego legroom legume legwarmer legwork lemon lend length lens lent leotard lesser letdown lethargic lethargy letter lettuce level leverage levers levitate levitator liability liable liberty librarian library licking licorice lid life lifter lifting liftoff ligament likely likeness likewise liking lilac lilly lily limb limeade limelight limes limit limping limpness line lingo linguini linguist lining linked linoleum linseed lint lion lip liquefy liqueur liquid lisp list litigate litigator litmus litter little livable lived lively liver livestock lividly living lizard lubricant lubricate lucid luckily luckiness luckless lucrative ludicrous lugged lukewarm lullaby lumber luminance luminous lumpiness lumping lumpish lunacy lunar lunchbox luncheon lunchroom lunchtime lung lurch lure luridness lurk lushly lushness luster lustfully lustily lustiness lustrous lusty luxurious luxury lying lyrically lyricism lyricist lyrics macarena macaroni macaw mace machine machinist magazine magenta maggot magical magician magma magnesium magnetic magnetism magnetize magnifier magnify magnitude magnolia mahogany maimed majestic majesty majorette majority makeover maker makeshift making malformed malt mama mammal mammary mammogram manager managing manatee mandarin mandate mandatory mandolin manger mangle mango mangy manhandle manhole manhood manhunt manicotti manicure manifesto manila mankind manlike manliness manly manmade manned mannish manor manpower mantis mantra manual many map marathon marauding marbled marbles marbling march mardi margarine margarita margin marigold marina marine marital maritime marlin marmalade maroon married marrow marry marshland marshy marsupial marvelous marxism mascot masculine mashed mashing massager masses massive mastiff matador matchbook matchbox matcher matching matchless material maternal maternity math mating matriarch matrimony matrix matron matted matter maturely maturing maturity mauve maverick maximize maximum maybe mayday mayflower moaner moaning mobile mobility mobilize mobster mocha mocker mockup modified modify modular modulator module moisten moistness moisture molar molasses mold molecular molecule molehill mollusk mom monastery monday monetary monetize moneybags moneyless moneywise mongoose mongrel monitor monkhood monogamy monogram monologue monopoly monorail monotone monotype monoxide monsieur monsoon monstrous monthly monument moocher moodiness moody mooing moonbeam mooned moonlight moonlike moonlit moonrise moonscape moonshine moonstone moonwalk mop morale morality morally morbidity morbidly morphine morphing morse mortality mortally mortician mortified mortify mortuary mosaic mossy most mothball mothproof motion motivate motivator motive motocross motor motto mountable mountain mounted mounting mourner mournful mouse mousiness moustache mousy mouth movable move movie moving mower mowing much muck mud mug mulberry mulch mule mulled mullets multiple multiply multitask multitude mumble mumbling mumbo mummified mummify mummy mumps munchkin mundane municipal muppet mural murkiness murky murmuring muscular museum mushily mushiness mushroom mushy music musket muskiness musky mustang mustard muster mustiness musty mutable mutate mutation mute mutilated mutilator mutiny mutt mutual muzzle myself myspace mystified mystify myth nacho nag nail name naming nanny nanometer nape napkin napped napping nappy narrow nastily nastiness national native nativity natural nature naturist nautical navigate navigator navy nearby nearest nearly nearness neatly neatness nebula nebulizer nectar negate negation negative neglector negligee negligent negotiate nemeses nemesis neon nephew nerd nervous nervy nest net neurology neuron neurosis neurotic neuter neutron never next nibble nickname nicotine niece nifty nimble nimbly nineteen ninetieth ninja nintendo ninth nuclear nuclei nucleus nugget nullify number numbing numbly numbness numeral numerate numerator numeric numerous nuptials nursery nursing nurture nutcase nutlike nutmeg nutrient nutshell nuttiness nutty nuzzle nylon oaf oak oasis oat obedience obedient obituary object obligate obliged oblivion oblivious oblong obnoxious oboe obscure obscurity observant observer observing obsessed obsession obsessive obsolete obstacle obstinate obstruct obtain obtrusive obtuse obvious occultist occupancy occupant occupier occupy ocean ocelot octagon octane october octopus ogle oil oink ointment okay old olive olympics omega omen ominous omission omit omnivore onboard oncoming ongoing onion online onlooker only onscreen onset onshore onslaught onstage onto onward onyx oops ooze oozy opacity opal open operable operate operating operation operative operator opium opossum opponent oppose opposing opposite oppressed oppressor opt opulently osmosis other otter ouch ought ounce outage outback outbid outboard outbound outbreak outburst outcast outclass outcome outdated outdoors outer outfield outfit outflank outgoing outgrow outhouse outing outlast outlet outline outlook outlying outmatch outmost outnumber outplayed outpost outpour output outrage outrank outreach outright outscore outsell outshine outshoot outsider outskirts outsmart outsource outspoken outtakes outthink outward outweigh outwit oval ovary oven overact overall overarch overbid overbill overbite overblown overboard overbook overbuilt overcast overcoat overcome overcook overcrowd overdraft overdrawn overdress overdrive overdue overeager overeater overexert overfed overfeed overfill overflow overfull overgrown overhand overhang overhaul overhead overhear overheat overhung overjoyed overkill overlabor overlaid overlap overlay overload overlook overlord overlying overnight overpass overpay overplant overplay overpower overprice overrate overreach overreact override overripe overrule overrun overshoot overshot oversight oversized oversleep oversold overspend overstate overstay overstep overstock overstuff oversweet overtake overthrow overtime overtly overtone overture overturn overuse overvalue overview overwrite owl oxford oxidant oxidation oxidize oxidizing oxygen oxymoron oyster ozone paced pacemaker pacific pacifier pacifism pacifist pacify padded padding paddle paddling padlock pagan pager paging pajamas palace palatable palm palpable palpitate paltry pampered pamperer pampers pamphlet panama pancake pancreas panda pandemic pang panhandle panic panning panorama panoramic panther pantomime pantry pants pantyhose paparazzi papaya paper paprika papyrus parabola parachute parade paradox paragraph parakeet paralegal paralyses paralysis paralyze paramedic parameter paramount parasail parasite parasitic parcel parched parchment pardon parish parka parking parkway parlor parmesan parole parrot parsley parsnip partake parted parting partition partly partner partridge party passable passably passage passcode passenger passerby passing passion passive passivism passover passport password pasta pasted pastel pastime pastor pastrami pasture pasty patchwork patchy paternal paternity path patience patient patio patriarch patriot patrol patronage patronize pauper pavement paver pavestone pavilion paving pawing payable payback paycheck payday payee payer paying payment payphone payroll pebble pebbly pecan pectin peculiar peddling pediatric pedicure pedigree pedometer pegboard pelican pellet pelt pelvis penalize penalty pencil pendant pending penholder penknife pennant penniless penny penpal pension pentagon pentagram pep perceive percent perch percolate perennial perfected perfectly perfume periscope perish perjurer perjury perkiness perky perm peroxide perpetual perplexed persecute persevere persuaded persuader pesky peso pessimism pessimist pester pesticide petal petite petition petri petroleum petted petticoat pettiness petty petunia phantom phobia phoenix phonebook phoney phonics phoniness phony phosphate photo phrase phrasing placard placate placidly plank planner plant plasma plaster plastic plated platform plating platinum platonic platter platypus plausible plausibly playable playback player playful playgroup playhouse playing playlist playmaker playmate playoff playpen playroom playset plaything playtime plaza pleading pleat pledge plentiful plenty plethora plexiglas pliable plod plop plot plow ploy pluck plug plunder plunging plural plus plutonium plywood poach pod poem poet pogo pointed pointer pointing pointless pointy poise poison poker poking polar police policy polio polish politely polka polo polyester polygon polygraph polymer poncho pond pony popcorn pope poplar popper poppy popsicle populace popular populate porcupine pork porous porridge portable portal portfolio porthole portion portly portside poser posh posing possible possibly possum postage postal postbox postcard posted poster posting postnasal posture postwar pouch pounce pouncing pound pouring pout powdered powdering powdery power powwow pox praising prance prancing pranker prankish prankster prayer praying preacher preaching preachy preamble precinct precise precision precook precut predator predefine predict preface prefix preflight preformed pregame pregnancy pregnant preheated prelaunch prelaw prelude premiere premises premium prenatal preoccupy preorder prepaid prepay preplan preppy preschool prescribe preseason preset preshow president presoak press presume presuming preteen pretended pretender pretense pretext pretty pretzel prevail prevalent prevent preview previous prewar prewashed prideful pried primal primarily primary primate primer primp princess print prior prism prison prissy pristine privacy private privatize prize proactive probable probably probation probe probing probiotic problem procedure process proclaim procreate procurer prodigal prodigy produce product profane profanity professed professor profile profound profusely progeny prognosis program progress projector prologue prolonged promenade prominent promoter promotion prompter promptly prone prong pronounce pronto proofing proofread proofs propeller properly property proponent proposal propose props prorate protector protegee proton prototype protozoan protract protrude proud provable proved proven provided provider providing province proving provoke provoking provolone prowess prowler prowling proximity proxy prozac prude prudishly prune pruning pry psychic public publisher pucker pueblo pug pull pulmonary pulp pulsate pulse pulverize puma pumice pummel punch punctual punctuate punctured pungent punisher punk pupil puppet puppy purchase pureblood purebred purely pureness purgatory purge purging purifier purify purist puritan purity purple purplish purposely purr purse pursuable pursuant pursuit purveyor pushcart pushchair pusher pushiness pushing pushover pushpin pushup pushy putdown putt puzzle puzzling pyramid pyromania python quack quadrant quail quaintly quake quaking qualified qualifier qualify quality qualm quantum quarrel quarry quartered quarterly quarters quartet quench query quicken quickly quickness quicksand quickstep quiet quill quilt quintet quintuple quirk quit quiver quizzical quotable quotation quote rabid race racing racism rack racoon radar radial radiance radiantly radiated radiation radiator radio radish raffle raft rage ragged raging ragweed raider railcar railing railroad railway raisin rake raking rally ramble rambling ramp ramrod ranch rancidity random ranged ranger ranging ranked ranking ransack ranting rants rare rarity rascal rash rasping ravage raven ravine raving ravioli ravishing reabsorb reach reacquire reaction reactive reactor reaffirm ream reanalyze reappear reapply reappoint reapprove rearrange rearview reason reassign reassure reattach reawake rebalance rebate rebel rebirth reboot reborn rebound rebuff rebuild rebuilt reburial rebuttal recall recant recapture recast recede recent recess recharger recipient recital recite reckless reclaim recliner reclining recluse reclusive recognize recoil recollect recolor reconcile reconfirm reconvene recopy record recount recoup recovery recreate rectal rectangle rectified rectify recycled recycler recycling reemerge reenact reenter reentry reexamine referable referee reference refill refinance refined refinery refining refinish reflected reflector reflex reflux refocus refold reforest reformat reformed reformer reformist refract refrain refreeze refresh refried refueling refund refurbish refurnish refusal refuse refusing refutable refute regain regalia regally reggae regime region register registrar registry regress regretful regroup regular regulate regulator rehab reheat rehire rehydrate reimburse reissue reiterate rejoice rejoicing rejoin rekindle relapse relapsing relatable related relation relative relax relay relearn release relenting reliable reliably reliance reliant relic relieve relieving relight relish relive reload relocate relock reluctant rely remake remark remarry rematch remedial remedy remember reminder remindful remission remix remnant remodeler remold remorse remote removable removal removed remover removing rename renderer rendering rendition renegade renewable renewably renewal renewed renounce renovate renovator rentable rental rented renter reoccupy reoccur reopen reorder repackage repacking repaint repair repave repaying repayment repeal repeated repeater repent rephrase replace replay replica reply reporter repose repossess repost repressed reprimand reprint reprise reproach reprocess reproduce reprogram reps reptile reptilian repugnant repulsion repulsive repurpose reputable reputably request require requisite reroute rerun resale resample rescuer reseal research reselect reseller resemble resend resent reset reshape reshoot reshuffle residence residency resident residual residue resigned resilient resistant resisting resize resolute resolved resonant resonate resort resource respect resubmit result resume resupply resurface resurrect retail retainer retaining retake retaliate retention rethink retinal retired retiree retiring retold retool retorted retouch retrace retract retrain retread retreat retrial retrieval retriever retry return retying retype reunion reunite reusable reuse reveal reveler revenge revenue reverb revered reverence reverend reversal reverse reversing reversion revert revisable revise revision revisit revivable revival reviver reviving revocable revoke revolt revolver revolving reward rewash rewind rewire reword rework rewrap rewrite rhyme ribbon ribcage rice riches richly richness rickety ricotta riddance ridden ride riding rifling rift rigging rigid rigor rimless rimmed rind rink rinse rinsing riot ripcord ripeness ripening ripping ripple rippling riptide rise rising risk risotto ritalin ritzy rival riverbank riverbed riverboat riverside riveter riveting roamer roaming roast robbing robe robin robotics robust rockband rocker rocket rockfish rockiness rocking rocklike rockslide rockstar rocky rogue roman romp rope roping roster rosy rotten rotting rotunda roulette rounding roundish roundness roundup roundworm routine routing rover roving royal rubbed rubber rubbing rubble rubdown ruby ruckus rudder rug ruined rule rumble rumbling rummage rumor runaround rundown runner running runny runt runway rupture rural ruse rush rust rut sabbath sabotage sacrament sacred sacrifice sadden saddlebag saddled saddling sadly sadness safari safeguard safehouse safely safeness saffron saga sage sagging saggy said saint sake salad salami salaried salary saline salon saloon salsa salt salutary salute salvage salvaging salvation same sample sampling sanction sanctity sanctuary sandal sandbag sandbank sandbar sandblast sandbox sanded sandfish sanding sandlot sandpaper sandpit sandstone sandstorm sandworm sandy sanitary sanitizer sank santa sapling sappiness sappy sarcasm sarcastic sardine sash sasquatch sassy satchel satiable satin satirical satisfied satisfy saturate saturday sauciness saucy sauna savage savanna saved savings savior savor saxophone say scabbed scabby scalded scalding scale scaling scallion scallop scalping scam scandal scanner scanning scant scapegoat scarce scarcity scarecrow scared scarf scarily scariness scarring scary scavenger scenic schedule schematic scheme scheming schilling schnapps scholar science scientist scion scoff scolding scone scoop scooter scope scorch scorebook scorecard scored scoreless scorer scoring scorn scorpion scotch scoundrel scoured scouring scouting scouts scowling scrabble scraggly scrambled scrambler scrap scratch scrawny screen scribble scribe scribing scrimmage script scroll scrooge scrounger scrubbed scrubber scruffy scrunch scrutiny scuba scuff sculptor sculpture scurvy scuttle secluded secluding seclusion second secrecy secret sectional sector secular securely security sedan sedate sedation sedative sediment seduce seducing segment seismic seizing seldom selected selection selective selector self seltzer semantic semester semicolon semifinal seminar semisoft semisweet senate senator send senior senorita sensation sensitive sensitize sensually sensuous sepia september septic septum sequel sequence sequester series sermon serotonin serpent serrated serve service serving sesame sessions setback setting settle settling setup sevenfold seventeen seventh seventy severity shabby shack shaded shadily shadiness shading shadow shady shaft shakable shakily shakiness shaking shaky shale shallot shallow shame shampoo shamrock shank shanty shape shaping share sharpener sharper sharpie sharply sharpness shawl sheath shed sheep sheet shelf shell shelter shelve shelving sherry shield shifter shifting shiftless shifty shimmer shimmy shindig shine shingle shininess shining shiny ship shirt shivering shock shone shoplift shopper shopping shoptalk shore shortage shortcake shortcut shorten shorter shorthand shortlist shortly shortness shorts shortwave shorty shout shove showbiz showcase showdown shower showgirl showing showman shown showoff showpiece showplace showroom showy shrank shrapnel shredder shredding shrewdly shriek shrill shrimp shrine shrink shrivel shrouded shrubbery shrubs shrug shrunk shucking shudder shuffle shuffling shun shush shut shy siamese siberian sibling siding sierra siesta sift sighing silenced silencer silent silica silicon silk silliness silly silo silt silver similarly simile simmering simple simplify simply sincere sincerity singer singing single singular sinister sinless sinner sinuous sip siren sister sitcom sitter sitting situated situation sixfold sixteen sixth sixties sixtieth sixtyfold sizable sizably size sizing sizzle sizzling skater skating skedaddle skeletal skeleton skeptic sketch skewed skewer skid skied skier skies skiing skilled skillet skillful skimmed skimmer skimming skimpily skincare skinhead skinless skinning skinny skintight skipper skipping skirmish skirt skittle skydiver skylight skyline skype skyrocket skyward slab slacked slacker slacking slackness slacks slain slam slander slang slapping slapstick slashed slashing slate slather slaw sled sleek sleep sleet sleeve slept sliceable sliced slicer slicing slick slider slideshow sliding slighted slighting slightly slimness slimy slinging slingshot slinky slip slit sliver slobbery slogan sloped sloping sloppily sloppy slot slouching slouchy sludge slug slum slurp slush sly small smartly smartness smasher smashing smashup smell smelting smile smilingly smirk smite smith smitten smock smog smoked smokeless smokiness smoking smoky smolder smooth smother smudge smudgy smuggler smuggling smugly smugness snack snagged snaking snap snare snarl snazzy sneak sneer sneeze sneezing snide sniff snippet snipping snitch snooper snooze snore snoring snorkel snort snout snowbird snowboard snowbound snowcap snowdrift snowdrop snowfall snowfield snowflake snowiness snowless snowman snowplow snowshoe snowstorm snowsuit snowy snub snuff snuggle snugly snugness speak spearfish spearhead spearman spearmint species specimen specked speckled specks spectacle spectator spectrum speculate speech speed spellbind speller spelling spendable spender spending spent spew sphere spherical sphinx spider spied spiffy spill spilt spinach spinal spindle spinner spinning spinout spinster spiny spiral spirited spiritism spirits spiritual splashed splashing splashy splatter spleen splendid splendor splice splicing splinter splotchy splurge spoilage spoiled spoiler spoiling spoils spoken spokesman sponge spongy sponsor spoof spookily spooky spool spoon spore sporting sports sporty spotless spotlight spotted spotter spotting spotty spousal spouse spout sprain sprang sprawl spray spree sprig spring sprinkled sprinkler sprint sprite sprout spruce sprung spry spud spur sputter spyglass squabble squad squall squander squash squatted squatter squatting squeak squealer squealing squeamish squeegee squeeze squeezing squid squiggle squiggly squint squire squirt squishier squishy stability stabilize stable stack stadium staff stage staging stagnant stagnate stainable stained staining stainless stalemate staleness stalling stallion stamina stammer stamp stand stank staple stapling starboard starch stardom stardust starfish stargazer staring stark starless starlet starlight starlit starring starry starship starter starting startle startling startup starved starving stash state static statistic statue stature status statute statutory staunch stays steadfast steadier steadily steadying steam steed steep steerable steering steersman stegosaur stellar stem stench stencil step stereo sterile sterility sterilize sterling sternness sternum stew stick stiffen stiffly stiffness stifle stifling stillness stilt stimulant stimulate stimuli stimulus stinger stingily stinging stingray stingy stinking stinky stipend stipulate stir stitch stock stoic stoke stole stomp stonewall stoneware stonework stoning stony stood stooge stool stoop stoplight stoppable stoppage stopped stopper stopping stopwatch storable storage storeroom storewide storm stout stove stowaway stowing straddle straggler strained strainer straining strangely stranger strangle strategic strategy stratus straw stray streak stream street strength strenuous strep stress stretch strewn stricken strict stride strife strike striking strive striving strobe strode stroller strongbox strongly strongman struck structure strudel struggle strum strung strut stubbed stubble stubbly stubborn stucco stuck student studied studio study stuffed stuffing stuffy stumble stumbling stump stung stunned stunner stunning stunt stupor sturdily sturdy styling stylishly stylist stylized stylus suave subarctic subatomic subdivide subdued subduing subfloor subgroup subheader subject sublease sublet sublevel sublime submarine submerge submersed submitter subpanel subpar subplot subprime subscribe subscript subsector subside subsiding subsidize subsidy subsoil subsonic substance subsystem subtext subtitle subtly subtotal subtract subtype suburb subway subwoofer subzero succulent such suction sudden sudoku suds sufferer suffering suffice suffix suffocate suffrage sugar suggest suing suitable suitably suitcase suitor sulfate sulfide sulfite sulfur sulk sullen sulphate sulphuric sultry superbowl superglue superhero superior superjet superman supermom supernova supervise supper supplier supply support supremacy supreme surcharge surely sureness surface surfacing surfboard surfer surgery surgical surging surname surpass surplus surprise surreal surrender surrogate surround survey survival survive surviving survivor sushi suspect suspend suspense sustained sustainer swab swaddling swagger swampland swan swapping swarm sway swear sweat sweep swell swept swerve swifter swiftly swiftness swimmable swimmer swimming swimsuit swimwear swinger swinging swipe swirl switch swivel swizzle swooned swoop swoosh swore sworn swung sycamore sympathy symphonic symphony symptom synapse syndrome synergy synopses synopsis synthesis synthetic syrup system t-shirt tabasco tabby tableful tables tablet tableware tabloid tackiness tacking tackle tackling tacky taco tactful tactical tactics tactile tactless tadpole taekwondo tag tainted take taking talcum talisman tall talon tamale tameness tamer tamper tank tanned tannery tanning tantrum tapeless tapered tapering tapestry tapioca tapping taps tarantula target tarmac tarnish tarot tartar tartly tartness task tassel taste tastiness tasting tasty tattered tattle tattling tattoo taunt tavern thank that thaw theater theatrics thee theft theme theology theorize thermal thermos thesaurus these thesis thespian thicken thicket thickness thieving thievish thigh thimble thing think thinly thinner thinness thinning thirstily thirsting thirsty thirteen thirty thong thorn those thousand thrash thread threaten threefold thrift thrill thrive thriving throat throbbing throng throttle throwaway throwback thrower throwing thud thumb thumping thursday thus thwarting thyself tiara tibia tidal tidbit tidiness tidings tidy tiger tighten tightly tightness tightrope tightwad tigress tile tiling till tilt timid timing timothy tinderbox tinfoil tingle tingling tingly tinker tinkling tinsel tinsmith tint tinwork tiny tipoff tipped tipper tipping tiptoeing tiptop tiring tissue trace tracing track traction tractor trade trading tradition traffic tragedy trailing trailside train traitor trance tranquil transfer transform translate transpire transport transpose trapdoor trapeze trapezoid trapped trapper trapping traps trash travel traverse travesty tray treachery treading treadmill treason treat treble tree trekker tremble trembling tremor trench trend trespass triage trial triangle tribesman tribunal tribune tributary tribute triceps trickery trickily tricking trickle trickster tricky tricolor tricycle trident tried trifle trifocals trillion trilogy trimester trimmer trimming trimness trinity trio tripod tripping triumph trivial trodden trolling trombone trophy tropical tropics trouble troubling trough trousers trout trowel truce truck truffle trump trunks trustable trustee trustful trusting trustless truth try tubby tubeless tubular tucking tuesday tug tuition tulip tumble tumbling tummy turban turbine turbofan turbojet turbulent turf turkey turmoil turret turtle tusk tutor tutu tux tweak tweed tweet tweezers twelve twentieth twenty twerp twice twiddle twiddling twig twilight twine twins twirl twistable twisted twister twisting twisty twitch twitter tycoon tying tyke udder ultimate ultimatum ultra umbilical umbrella umpire unabashed unable unadorned unadvised unafraid unaired unaligned unaltered unarmored unashamed unaudited unawake unaware unbaked unbalance unbeaten unbend unbent unbiased unbitten unblended unblessed unblock unbolted unbounded unboxed unbraided unbridle unbroken unbuckled unbundle unburned unbutton uncanny uncapped uncaring uncertain unchain unchanged uncharted uncheck uncivil unclad unclaimed unclamped unclasp uncle unclip uncloak unclog unclothed uncoated uncoiled uncolored uncombed uncommon uncooked uncork uncorrupt uncounted uncouple uncouth uncover uncross uncrown uncrushed uncured uncurious uncurled uncut undamaged undated undaunted undead undecided undefined underage underarm undercoat undercook undercut underdog underdone underfed underfeed underfoot undergo undergrad underhand underline underling undermine undermost underpaid underpass underpay underrate undertake undertone undertook undertow underuse underwear underwent underwire undesired undiluted undivided undocked undoing undone undrafted undress undrilled undusted undying unearned unearth unease uneasily uneasy uneatable uneaten unedited unelected unending unengaged unenvied unequal unethical uneven unexpired unexposed unfailing unfair unfasten unfazed unfeeling unfiled unfilled unfitted unfitting unfixable unfixed unflawed unfocused unfold unfounded unframed unfreeze unfrosted unfrozen unfunded unglazed ungloved unglue ungodly ungraded ungreased unguarded unguided unhappily unhappy unharmed unhealthy unheard unhearing unheated unhelpful unhidden unhinge unhitched unholy unhook unicorn unicycle unified unifier uniformed uniformly unify unimpeded uninjured uninstall uninsured uninvited union uniquely unisexual unison unissued unit universal universe unjustly unkempt unkind unknotted unknowing unknown unlaced unlatch unlawful unleaded unlearned unleash unless unleveled unlighted unlikable unlimited unlined unlinked unlisted unlit unlivable unloaded unloader unlocked unlocking unlovable unloved unlovely unloving unluckily unlucky unmade unmanaged unmanned unmapped unmarked unmasked unmasking unmatched unmindful unmixable unmixed unmolded unmoral unmovable unmoved unmoving unnamable unnamed unnatural unneeded unnerve unnerving unnoticed unopened unopposed unpack unpadded unpaid unpainted unpaired unpaved unpeeled unpicked unpiloted unpinned unplanned unplanted unpleased unpledged unplowed unplug unpopular unproven unquote unranked unrated unraveled unreached unread unreal unreeling unrefined unrelated unrented unrest unretired unrevised unrigged unripe unrivaled unroasted unrobed unroll unruffled unruly unrushed unsaddle unsafe unsaid unsalted unsaved unsavory unscathed unscented unscrew unsealed unseated unsecured unseeing unseemly unseen unselect unselfish unsent unsettled unshackle unshaken unshaved unshaven unsheathe unshipped unsightly unsigned unskilled unsliced unsmooth unsnap unsocial unsoiled unsold unsolved unsorted unspoiled unspoken unstable unstaffed unstamped unsteady unsterile unstirred unstitch unstopped unstuck unstuffed unstylish unsubtle unsubtly unsuited unsure unsworn untagged untainted untaken untamed untangled untapped untaxed unthawed unthread untidy untie until untimed untimely untitled untoasted untold untouched untracked untrained untreated untried untrimmed untrue untruth unturned untwist untying unusable unused unusual unvalued unvaried unvarying unveiled unveiling unvented unviable unvisited unvocal unwanted unwarlike unwary unwashed unwatched unweave unwed unwelcome unwell unwieldy unwilling unwind unwired unwitting unwomanly unworldly unworn unworried unworthy unwound unwoven unwrapped unwritten unzip upbeat upchuck upcoming upcountry update upfront upgrade upheaval upheld uphill uphold uplifted uplifting upload upon upper upright uprising upriver uproar uproot upscale upside upstage upstairs upstart upstate upstream upstroke upswing uptake uptight uptown upturned upward upwind uranium urban urchin urethane urgency urgent urging urologist urology usable usage useable used uselessly user usher usual utensil utility utilize utmost utopia utter vacancy vacant vacate vacation vagabond vagrancy vagrantly vaguely vagueness valiant valid valium valley valuables value vanilla vanish vanity vanquish vantage vaporizer variable variably varied variety various varmint varnish varsity varying vascular vaseline vastly vastness veal vegan veggie vehicular velcro velocity velvet vendetta vending vendor veneering vengeful venomous ventricle venture venue venus verbalize verbally verbose verdict verify verse version versus vertebrae vertical vertigo very vessel vest veteran veto vexingly viability viable vibes vice vicinity victory video viewable viewer viewing viewless viewpoint vigorous village villain vindicate vineyard vintage violate violation violator violet violin viper viral virtual virtuous virus visa viscosity viscous viselike visible visibly vision visiting visitor visor vista vitality vitalize vitally vitamins vivacious vividly vividness vixen vocalist vocalize vocally vocation voice voicing void volatile volley voltage volumes voter voting voucher vowed vowel voyage wackiness wad wafer waffle waged wager wages waggle wagon wake waking walk walmart walnut walrus waltz wand wannabe wanted wanting wasabi washable washbasin washboard washbowl washcloth washday washed washer washhouse washing washout washroom washstand washtub wasp wasting watch water waviness waving wavy whacking whacky wham wharf wheat whenever whiff whimsical whinny whiny whisking whoever whole whomever whoopee whooping whoops why wick widely widen widget widow width wieldable wielder wife wifi wikipedia wildcard wildcat wilder wildfire wildfowl wildland wildlife wildly wildness willed willfully willing willow willpower wilt wimp wince wincing wind wing winking winner winnings winter wipe wired wireless wiring wiry wisdom wise wish wisplike wispy wistful wizard wobble wobbling wobbly wok wolf wolverine womanhood womankind womanless womanlike womanly womb woof wooing wool woozy word work worried worrier worrisome worry worsening worshiper worst wound woven wow wrangle wrath wreath wreckage wrecker wrecking wrench wriggle wriggly wrinkle wrinkly wrist writing written wrongdoer wronged wrongful wrongly wrongness wrought xbox xerox yahoo yam yanking yapping yard yarn yeah yearbook yearling yearly yearning yeast yelling yelp yen yesterday yiddish yield yin yippee yo-yo yodel yoga yogurt yonder yoyo yummy zap zealous zebra zen zeppelin zero zestfully zesty zigzagged zipfile zipping zippy zips zit zodiac zombie zone zoning zookeeper zoologist zoology zoom'.split(' ');
 const COLORS = ['#1D5B44','#2F5D8A','#7A4A8C','#9C4434','#7A6A12','#2D6E73','#5A5F6B','#A0561C'];
 
@@ -568,8 +575,11 @@ const guard = {
   wait(){ return Math.max(0, Math.ceil((this.get().until - now()) / 1000)); }
 };
 
-/* ---------- cloud sync (encrypted blobs only, in the viewer's private space) ---------- */
-const Cloud = {
+/* ---------- sync backends ----------
+   Both expose: init, head, pull, push, drop, watch (+ file methods when files:true).
+   ClaudeSync: the Claude artifact's private per-viewer store. SupaSync: the website's sync-code store. */
+const ClaudeSync = {
+  kind:'claude', files:false,
   ready:false, db:null, uid:null, status:'off', lastAt:0, err:'', pushing:false, again:false, unsub:null, lastRev:null, lastHdr:'',
   async init(){
     try{
@@ -619,8 +629,131 @@ const Cloud = {
     try{ await this.ref('vl-header').delete(); }catch(e){}
     try{ await this.ref('vl-meta').set({off:true, at:now(), dev:DEVICE}); }catch(e){}
     this.lastHdr = ''; this.lastRev = null;
-  }
+  },
+  async head(){ const [meta, header] = await Promise.all([this.getMeta(), this.getHeader()]); return meta || header ? {meta:meta || {}, header} : null; },
+  pull(meta){ return this.getBody(meta); },
+  async push(header, body){ await this.putHeader(header); await this.putBody(body); return {ok:true}; },
+  drop(){ return this.wipe(); },
+  forget(){},
+  watch(cb){ try{ return this.ref('vl-meta').onSnapshot(s => { if(s.exists) cb(clone(s.data())); }, () => { this.unsub = null; }); }catch(e){ return null; } }
 };
+
+const hexOf = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+function newSyncCode(){ return b32enc(rand(20)).match(/.{4}/g).join('-'); }
+async function syncIds(code){
+  const c = normRK(code);
+  const h = async tag => hexOf(await crypto.subtle.digest('SHA-256', te.encode(tag + ':' + c)));
+  return {id:(await h('vaultleaf-sync-id')).slice(0, 32), token:await h('vaultleaf-sync-token')};
+}
+const SupaSync = {
+  kind:'supa', files:true, ready:false, status:'off', lastAt:0, err:'', pushing:false, again:false, unsub:null, lastRev:null, lastHdr:'', ids:null, code:null,
+  async init(){ const s = LS.get(K.sync); if(s && s.code){ try{ await this.use(s.code); }catch(e){} } return this.ready; },
+  async use(code){ this.code = String(code).trim().toUpperCase(); this.ids = await syncIds(code); this.ready = true; this.lastRev = null; LS.set(K.sync, {code:this.code}); },
+  forget(){ this.code = null; this.ids = null; this.ready = false; this.lastRev = null; if(this.unsub){ try{ this.unsub(); }catch(e){} this.unsub = null; } LS.del(K.sync); },
+  async rpc(fn, args){
+    let r;
+    try{ r = await fetch(SUPA_URL + '/rest/v1/rpc/' + fn, {method:'POST', headers:{apikey:SUPA_KEY, 'Content-Type':'application/json', Accept:'application/json'}, body:JSON.stringify({p_id:this.ids.id, p_token:this.ids.token, ...args}), cache:'no-store', credentials:'omit', referrerPolicy:'no-referrer'}); }
+    catch(e){ const err = new Error('You\'re offline, so sync is waiting. Changes are saved on this device.'); err.code = 'unavailable'; throw err; }
+    const txt = await r.text();
+    if(!r.ok){ let m = txt; try{ m = JSON.parse(txt).message || txt; }catch(e){} const err = new Error(/storage limit/.test(m) ? 'Sync storage is full (60 MB). Remove some attached files.' : 'Sync failed (' + r.status + '). It will try again.'); err.code = 'http'; throw err; }
+    return txt ? JSON.parse(txt) : null;
+  },
+  async head(){ return (await this.rpc('vaultleaf_head', {})) || null; },
+  async getHeader(){ const h = await this.head(); return h ? h.header : null; },
+  async getMeta(){ const h = await this.head(); return h ? h.meta : null; },
+  async pull(meta){
+    const ct = await this.rpc('vaultleaf_blob_get', {p_name:'b-' + meta.rev});
+    if(ct == null) throw new Error('The synced copy is still uploading. Try again in a moment.');
+    return {iv:meta.iv, ct, z:meta.z, at:meta.at, rev:meta.rev, dev:meta.dev};
+  },
+  async putBlob(name, data){ const CH = 1000000, n = Math.max(1, Math.ceil(data.length / CH)); for(let i = 0; i < n; i++) await this.rpc('vaultleaf_blob_put', {p_name:name, p_part:i, p_data:data.slice(i * CH, (i + 1) * CH)}); return n; },
+  async push(header, body){
+    const meta = {rev:body.rev, iv:body.iv, z:body.z, at:body.at, dev:DEVICE};
+    if(this.lastRev == null){
+      const r = await this.rpc('vaultleaf_commit', {p_header:header, p_meta:meta, p_base_rev:null, p_create:true});
+      if(r && r.error === 'busy') throw new Error('Sync is busy right now. It will try again later.');
+      if(r && r.conflict) return {conflict:true, meta:r.meta};
+      if(r && r.error) return {gone:true};
+      await this.putBlob('b-' + body.rev, body.ct); this.lastRev = body.rev; return {ok:true};
+    }
+    await this.putBlob('b-' + body.rev, body.ct);
+    const r = await this.rpc('vaultleaf_commit', {p_header:header, p_meta:meta, p_base_rev:this.lastRev, p_create:false});
+    if(r && r.conflict) return {conflict:true, meta:r.meta};
+    if(r && r.error) return {gone:true};
+    this.lastRev = body.rev; return {ok:true};
+  },
+  async drop(){ try{ await this.rpc('vaultleaf_drop', {}); }catch(e){} },
+  watch(cb){
+    let alive = true;
+    const tick = async () => { if(!alive) return; if(!document.hidden && this.ready){ try{ const h = await this.head(); cb(h ? {...h.meta, _files:h.files, _header:h.header} : {gone:true}); }catch(e){} } setTimeout(tick, 30000); };
+    setTimeout(tick, 30000);
+    return () => { alive = false; };
+  },
+  putFile(id, data){ return this.putBlob('f-' + id, data); },
+  getFile(id){ return this.rpc('vaultleaf_blob_get', {p_name:'f-' + id}); },
+  delFile(id){ return this.rpc('vaultleaf_blob_delete', {p_name:'f-' + id}); }
+};
+const Cloud = WEB ? SupaSync : ClaudeSync;
+
+/* ---------- attached files: each encrypted on its own, kept in IndexedDB ---------- */
+const idbReq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const Files = {
+  _db:null,
+  db(){ return this._db || (this._db = new Promise((res, rej) => { const r = indexedDB.open('vaultleaf', 1); r.onupgradeneeded = () => { r.result.createObjectStore('files'); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); },
+  async os(mode){ return (await this.db()).transaction('files', mode).objectStore('files'); },
+  async getRaw(id){ try{ return await idbReq((await this.os('readonly')).get(id)); }catch(e){ return null; } },
+  async putRaw(id, box){ return idbReq((await this.os('readwrite')).put(box, id)); },
+  async has(id){ try{ return (await idbReq((await this.os('readonly')).count(id))) > 0; }catch(e){ return false; } },
+  async del(id){ try{ await idbReq((await this.os('readwrite')).delete(id)); }catch(e){} },
+  async clear(){ try{ await idbReq((await this.os('readwrite')).clear()); }catch(e){} },
+  async encrypt(key, id, bytes){ return seal(key, bytes, 'vl-file:' + id); },
+  async decrypt(key, id, box){ return unseal(key, box, 'vl-file:' + id); }
+};
+const fileParts = f => Math.max(1, Math.ceil((f.blen || 0) / 1000000));
+const fmtSize = n => n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1).replace(/\.0$/, '') + ' MB';
+
+/* ---------- Face ID / fingerprint: a passkey's PRF secret wraps the vault key on this device only ---------- */
+const Bio = {
+  rec(){ return LS.get(K.bio); },
+  supported(){ return WEB && !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext); },
+  async available(){ if(!this.supported()) return false; try{ return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }catch(e){ return false; } },
+  async kek(secret, salt){ const base = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']); return crypto.subtle.deriveKey({name:'HKDF', hash:'SHA-256', salt, info:te.encode('vaultleaf-bio-v1')}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']); },
+  async prf(credId, salt){
+    const a = await navigator.credentials.get({publicKey:{challenge:rand(32), rpId:location.hostname, allowCredentials:[{type:'public-key', id:credId}], userVerification:'required', timeout:60000, extensions:{prf:{eval:{first:salt}}}}});
+    const ext = a.getClientExtensionResults ? a.getClientExtensionResults() : {};
+    if(!ext.prf || !ext.prf.results || !ext.prf.results.first) throw new Error('This device didn\'t return the key Vaultleaf needs. Use your password and passcode.');
+    return ext.prf.results.first;
+  },
+  async enroll(dekRaw, label){
+    const salt = rand(32);
+    const cred = await navigator.credentials.create({publicKey:{rp:{name:'Vaultleaf', id:location.hostname}, user:{id:rand(16), name:label || 'Vaultleaf', displayName:label || 'Vaultleaf'}, challenge:rand(32),
+      pubKeyCredParams:[{type:'public-key', alg:-7}, {type:'public-key', alg:-257}], authenticatorSelection:{authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred'}, timeout:60000, extensions:{prf:{eval:{first:salt}}}}});
+    const ext = cred.getClientExtensionResults ? cred.getClientExtensionResults() : {};
+    if(!ext.prf || ext.prf.enabled === false) throw new Error('This device can\'t unlock Vaultleaf with Face ID or fingerprint yet. Keep using your password and passcode.');
+    const credId = new Uint8Array(cred.rawId);
+    const secret = (ext.prf.results && ext.prf.results.first) || await this.prf(credId, salt);
+    const wrap = await seal(await this.kek(secret, salt), dekRaw, 'vl-bio');
+    LS.set(K.bio, {credId:b64e(credId), salt:b64e(salt), wrap, at:now(), fullAt:now()});
+  },
+  async unlock(){ const r = this.rec(); const salt = b64d(r.salt); return unseal(await this.kek(await this.prf(b64d(r.credId), salt), salt), r.wrap, 'vl-bio'); },
+  due(){ const r = this.rec(); return !r || now() - (r.fullAt || 0) > BIO_MAX_DAYS * DAY; },
+  touch(){ const r = this.rec(); if(r){ r.fullAt = now(); LS.set(K.bio, r); } },
+  remove(){ LS.del(K.bio); }
+};
+
+/* ---------- leaked password check (Have I Been Pwned, k-anonymity: only 5 hex characters of a SHA-1 leave the device) ---------- */
+async function pwnedCount(pw, cache){
+  const h = hexOf(await crypto.subtle.digest('SHA-1', te.encode(pw))).toUpperCase();
+  const pre = h.slice(0, 5), suf = h.slice(5);
+  let txt = cache.get(pre);
+  if(txt == null){
+    const r = await fetch('https://api.pwnedpasswords.com/range/' + pre, {headers:{'Add-Padding':'true'}, cache:'no-store', credentials:'omit', referrerPolicy:'no-referrer'});
+    if(!r.ok) throw new Error('The breach service didn\'t answer (' + r.status + '). Try again later.');
+    txt = await r.text(); cache.set(pre, txt);
+  }
+  for(const line of txt.split('\n')){ const [s2, c] = line.trim().split(':'); if(s2 === suf) return parseInt(c, 10) || 0; }
+  return 0;
+}
 
 /* ---------- field types ---------- */
 const FT = {
@@ -644,7 +777,7 @@ function newVault(profile){
   const t = now();
   return {v:1, profile:{name:profile.name || '', email:profile.email || '', updatedAt:t},
     settings:{view:'modern', theme:'auto', autoLockMin:5, lockOnHide:true, revealSec:30, clipSec:30, sync:true, rotateDays:0, sort:'updated', updatedAt:t},
-    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0}};
+    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0, kits:[]}};
 }
 function upgradeVault(v){
   const d = newVault({});
@@ -658,14 +791,15 @@ function upgradeVault(v){
 }
 function blankAccount(){
   return {id:uid(), no:0, tool:'', accountName:'', url:'', username:'', email:'', password:'', fields:[], qa:[], admins:[], labels:[], fav:false, notes:'', rotateDays:0,
-    createdAt:0, updatedAt:0, pwChangedAt:0, history:[], secrets:[], copies:[], lastCopiedAt:0, trashedAt:0, example:false, order:[]};
+    createdAt:0, updatedAt:0, pwChangedAt:0, history:[], secrets:[], copies:[], lastCopiedAt:0, trashedAt:0, example:false, order:[], files:[]};
 }
 const byId = (p, q) => p.id < q.id ? -1 : p.id > q.id ? 1 : 0;
 function unionById(a = [], b = [], cap = 100){ const m = new Map(); for(const e of [...a, ...b]) if(e && e.id) m.set(e.id, e); return [...m.values()].sort((p, q) => q.at - p.at || byId(p, q)).slice(0, cap); }
 function mergeAccount(x, y){
   const base = (y.updatedAt || 0) > (x.updatedAt || 0) ? y : x, other = base === x ? y : x;
+  const files = new Map(); for(const f of [...(other.files || []), ...(base.files || [])]) if(f && f.id) files.set(f.id, f);
   return {...base, copies:unionById(base.copies, other.copies, 100), history:unionById(base.history, other.history, 200), secrets:unionById(base.secrets, other.secrets, 60),
-    lastCopiedAt:Math.max(base.lastCopiedAt || 0, other.lastCopiedAt || 0)};
+    files:[...files.values()].sort((p, q) => (p.addedAt || 0) - (q.addedAt || 0)), lastCopiedAt:Math.max(base.lastCopiedAt || 0, other.lastCopiedAt || 0)};
 }
 function restoreMerge(cur, bak){
   /* Bring back anything in the backup, even if it was deleted here since; keep this device's settings. */
@@ -685,11 +819,12 @@ function mergeVaults(a, b){
   const sNew = (a.settings.updatedAt || 0) >= (b.settings.updatedAt || 0) ? a.settings : b.settings;
   const pNew = (a.profile.updatedAt || 0) >= (b.profile.updatedAt || 0) ? a.profile : b.profile;
   const cutoff = now() - 180 * DAY;
+  const dropFiles = x => (x.files || []).some(f => tomb.has(f.id)) ? {...x, files:x.files.filter(f => !tomb.has(f.id))} : x;
   return {...a, settings:{...sNew}, profile:{...pNew},
-    accounts:[...acc.values()].filter(alive).sort(byId), labels:[...lab.values()].filter(alive).sort(byId),
+    accounts:[...acc.values()].filter(alive).map(dropFiles).sort(byId), labels:[...lab.values()].filter(alive).sort(byId),
     tombstones:[...tomb.values()].filter(t => t.at > cutoff).sort(byId),
     nextNo:Math.max(a.nextNo || 1, b.nextNo || 1), updatedAt:Math.max(a.updatedAt || 0, b.updatedAt || 0),
-    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0)}};
+    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0), kits:unionById(a.meta?.kits, b.meta?.kits, 50)}};
 }
 function stable(o){ return JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((r, kk) => (r[kk] = v[kk], r), {}) : v); }
 
@@ -1144,23 +1279,31 @@ let pushTimer = null;
 const syncOn = () => Cloud.ready && S.vault && S.vault.settings.sync;
 function schedulePush(){ if(!syncOn()) return; clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 1200); }
 async function pushNow(){
-  if(!Cloud.ready || !S.body || !S.header) return;
+  if(!syncOn() || !S.body || !S.header) return;
   if(Cloud.pushing){ Cloud.again = true; return; }
   Cloud.pushing = true; setSync('busy');
+  let conflict = null;
   try{
-    const m = await Cloud.getMeta().catch(() => null);
-    if(m && m.off && (!S.vault || m.at > (S.vault.settings.updatedAt || 0))){ if(S.vault) syncTurnedOffElsewhere(m); Cloud.pushing = false; Cloud.again = false; return; }
-    await Cloud.putHeader(S.header); await Cloud.putBody(S.body); setSync('ok');
+    if(Cloud.kind === 'claude'){
+      const m = await Cloud.getMeta().catch(() => null);
+      if(m && m.off && m.at > (S.vault.settings.updatedAt || 0)){ syncTurnedOffElsewhere(m); return; }
+    }
+    const res = await Cloud.push(S.header, S.body);
+    if(res.gone){ syncTurnedOffElsewhere({at:now()}); return; }
+    if(res.conflict) conflict = res.meta;
+    else { Cloud.lastHdr = JSON.stringify(S.header); await syncFiles(); setSync('ok'); }
   }
   catch(e){ console.warn('sync push', e); setSync('err', e); }
-  finally{ Cloud.pushing = false; if(Cloud.again){ Cloud.again = false; pushNow(); } }
+  finally{ Cloud.pushing = false; }
+  if(conflict){ await pullMerge(conflict); return; }
+  if(Cloud.again){ Cloud.again = false; pushNow(); }
 }
 function syncTurnedOffElsewhere(m){
   if(!S.vault || !S.vault.settings.sync) return;
-  S.vault.settings.sync = false; S.vault.settings.updatedAt = m.at;
-  clearTimeout(pushTimer); persist(); setSync('ok');
+  S.vault.settings.sync = false; S.vault.settings.updatedAt = Math.max(m.at || 0, S.vault.settings.updatedAt || 0);
+  clearTimeout(pushTimer); Cloud.forget(); persist(); setSync('ok');
   if(S.phase === 'app'){ renderSide(); if(S.tab === 'settings') renderPage(); }
-  toast('Sync was turned off on another device', 'cloud');
+  toast(Cloud.kind === 'supa' ? 'This vault stopped syncing: sync was turned off or given a new code on another device' : 'Sync was turned off on another device', 'cloud');
 }
 function setSync(st, e){
   Cloud.status = st; if(st === 'ok') Cloud.lastAt = now();
@@ -1169,48 +1312,80 @@ function setSync(st, e){
   const el2 = document.getElementById('syncstate'); if(el2) el2.innerHTML = syncLine();
 }
 function syncLine(){
-  if(!Cloud.ready) return `<span class="sync-dot"></span> Saved on this device only`;
-  if(!S.vault || !S.vault.settings.sync) return `<span class="sync-dot"></span> Sync is off`;
+  if(!Cloud.ready || !S.vault || !S.vault.settings.sync) return WEB ? `<span class="sync-dot"></span> This device only` : `<span class="sync-dot"></span> ${Cloud.ready ? 'Sync is off' : 'Saved on this device only'}`;
   if(Cloud.status === 'busy') return `<span class="sync-dot busy"></span> Syncing…`;
   if(Cloud.status === 'err') return `<span class="sync-dot err"></span> ${esc(Cloud.err || 'Sync failed')}`;
   if(Cloud.lastAt) return `<span class="sync-dot ok"></span> Synced ${ago(Cloud.lastAt)}`;
   return `<span class="sync-dot ok"></span> Sync on`;
 }
+async function adoptHeader(h){
+  if(h && (h.hdrAt || 0) > (S.header.hdrAt || 0)){ S.header = h; LS.set(K.header, h); Cloud.lastHdr = JSON.stringify(h); }
+}
 async function pullMerge(meta){
   if(S.pulling || !S.dek) return; S.pulling = true; setSync('busy');
+  let again = false;
   try{
-    const body = await Cloud.getBody(meta);
+    const body = await Cloud.pull(meta);
     if(!body){ S.pulling = false; await pushNow(); return; }
     const remote = upgradeVault(await openVault(S.dek, body));
-    const h = await Cloud.getHeader().catch(() => null);
-    if(h && (h.hdrAt || 0) > (S.header.hdrAt || 0)){ S.header = h; LS.set(K.header, h); Cloud.lastHdr = JSON.stringify(h); }
+    await adoptHeader(meta._header || await Cloud.getHeader().catch(() => null));
     Cloud.lastRev = body.rev;
     const merged = mergeVaults(S.vault, remote);
     const same = stable(merged) === stable(remote);
     S.vault = merged; hayCache = new WeakMap();
     if(same){ S.body = body; LS.set(K.body, body); setSync('ok'); }
-    else { await persist(); }
+    else { await persist(); again = true; }
+    await syncFiles();
     if(S.phase === 'app' && S.mode === 'view' && !S.m) renderApp();
     else if(S.phase === 'app'){ renderSide(); renderList(); }
+    if(!again) setSync('ok');
   }catch(e){ console.warn('pull', e); setSync('err', e); }
   S.pulling = false;
 }
+/* Files: upload what the other devices don't have, fetch what this one is missing, delete what was removed. */
+let filesBusy = false;
+async function syncFiles(){
+  if(!Cloud.files || !syncOn() || !S.dek || filesBusy) return;
+  filesBusy = true;
+  try{
+    const h = await Cloud.head(); if(!h) return;
+    const remote = h.files || {}, want = new Map(), key = S.dek;
+    for(const a of V().accounts) for(const f of a.files || []) want.set(f.id, f);
+    for(const [id, f] of want){
+      if((remote[id] || 0) >= fileParts(f)) continue;
+      const box = await Files.getRaw(id); if(box) await Cloud.putFile(id, JSON.stringify(box));
+    }
+    let got = 0;
+    for(const [id, f] of want){
+      if((remote[id] || 0) < fileParts(f) || await Files.has(id)) continue;
+      const txt = await Cloud.getFile(id); if(!txt) continue;
+      const box = JSON.parse(txt);
+      try{ await Files.decrypt(key, id, box); await Files.putRaw(id, box); got++; }catch(e){ console.warn('file from sync unreadable', id); }
+    }
+    const gone = new Set((V().tombstones || []).map(t => t.id));
+    for(const id of Object.keys(remote)) if(gone.has(id) && !want.has(id)) await Cloud.delFile(id).catch(() => {});
+    if(got && S.phase === 'app' && S.selId && S.mode === 'view') refreshDetailKeepScroll();
+  }catch(e){ console.warn('file sync', e); }
+  finally{ filesBusy = false; }
+}
 function watchCloud(){
   if(!Cloud.ready || Cloud.unsub) return;
-  try{
-    Cloud.unsub = Cloud.ref('vl-meta').onSnapshot(snap => {
-      if(!snap.exists || !S.vault || !S.vault.settings.sync) return;
-      const m = snap.data();
-      if(m.off){ if(m.at > (S.vault.settings.updatedAt || 0)) syncTurnedOffElsewhere(m); return; }
-      if(m.rev && m.rev !== (S.body && S.body.rev) && m.rev !== Cloud.lastRev && m.dev !== DEVICE) pullMerge(clone(m));
-    }, () => { Cloud.unsub = null; });
-  }catch(e){ Cloud.unsub = null; }
+  Cloud.unsub = Cloud.watch(m => {
+    if(!S.vault || !S.vault.settings.sync) return;
+    if(m.gone){ syncTurnedOffElsewhere({at:now()}); return; }
+    if(m.off){ if(m.at > (S.vault.settings.updatedAt || 0)) syncTurnedOffElsewhere(m); return; }
+    if(m.rev && m.rev !== (S.body && S.body.rev) && m.rev !== Cloud.lastRev && m.dev !== DEVICE) pullMerge(m);
+    else if(Cloud.files && m._files) syncFiles();
+  });
 }
 async function syncNow(){
-  if(!Cloud.ready) return;
-  const meta = await Cloud.getMeta().catch(() => null);
-  if(meta && meta.off){ if(meta.at > (V().settings.updatedAt || 0)) syncTurnedOffElsewhere(meta); else await pushNow(); return; }
-  if(meta && meta.rev !== (S.body && S.body.rev)) await pullMerge(meta); else await pushNow();
+  if(!syncOn()) return;
+  let h;
+  try{ h = await Cloud.head(); }catch(e){ setSync('err', e); return; }
+  if(!h){ if(Cloud.kind === 'supa' && Cloud.lastRev){ syncTurnedOffElsewhere({at:now()}); return; } await pushNow(); return; }
+  const meta = h.meta || {};
+  if(meta.off){ if(meta.at > (V().settings.updatedAt || 0)) syncTurnedOffElsewhere(meta); else await pushNow(); return; }
+  if(meta.rev && meta.rev !== (S.body && S.body.rev)) await pullMerge({...meta, _header:h.header}); else await pushNow();
 }
 
 /* ---------- theme ---------- */
@@ -1301,8 +1476,8 @@ function commitAccount(draft, isNew, noPersist){
 function listJoin(arr){ if(arr.length <= 1) return arr.join(''); if(arr.length === 2) return arr.join(' and '); return arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1]; }
 function trashAccount(a){ a.trashedAt = now(); a.updatedAt = now(); a.history.unshift({id:uid(), at:now(), kind:'trash', text:'Moved to Recently deleted'}); persist(); }
 function restoreAccount(a){ a.trashedAt = 0; a.updatedAt = now(); a.history.unshift({id:uid(), at:now(), kind:'restore', text:'Restored from Recently deleted'}); persist(); }
-function purgeAccount(a){ V().accounts = V().accounts.filter(x => x.id !== a.id); V().tombstones.push({id:a.id, at:now()}); persist(); }
-function autoPurge(){ const cut = now() - 30 * DAY; let n = 0; for(const a of [...V().accounts]) if(a.trashedAt && a.trashedAt < cut){ V().accounts = V().accounts.filter(x => x !== a); V().tombstones.push({id:a.id, at:now()}); n++; } return n; }
+function purgeAccount(a){ dropAccountFiles(a); V().accounts = V().accounts.filter(x => x.id !== a.id); V().tombstones.push({id:a.id, at:now()}); persist(); }
+function autoPurge(){ const cut = now() - 30 * DAY; let n = 0; for(const a of [...V().accounts]) if(a.trashedAt && a.trashedAt < cut){ dropAccountFiles(a); V().accounts = V().accounts.filter(x => x !== a); V().tombstones.push({id:a.id, at:now()}); n++; } return n; }
 
 /* ---------- filtering ---------- */
 function hay(a){
@@ -1388,10 +1563,12 @@ function renderSetup(){
       <div class="field"><label for="s-name">Your name</label><input id="s-name" class="input" data-sf="name" value="${esc(st.name)}" autocomplete="name" placeholder="Optional"></div>
       <div class="field"><label for="s-email">Email</label><input id="s-email" class="input" type="email" data-sf="email" value="${esc(st.email)}" autocomplete="email" placeholder="Optional, shown on your backups"></div>
       <button class="btn primary block" data-act="s-next">Continue</button>
-      <button class="btn ghost block" data-act="s-restore">${ic('restore')}Restore from a backup file</button>
-      ${S.hasClaude && !Cloud.ready ? '' : ''}`;
+      ${st.importVault ? `<div class="banner" style="margin:0">${ic('shield','s')}<b>Opening an emergency kit with ${st.importVault.accounts.length} account${st.importVault.accounts.length === 1 ? '' : 's'}. Choose your own password and passcode to keep them in your vault.</b></div>` : `
+      ${WEB ? `<button class="btn ghost block" data-act="s-link">${ic('cloud')}Use my vault from another device</button>` : ''}
+      <button class="btn ghost block" data-act="s-restore">${ic('restore')}Restore a backup or emergency kit</button>`}`;
   } else if(st.step === 2){
     h = `${stepsBar(n, total)}<h1>${reset ? 'Choose a new master password' : 'Choose a master password'}</h1>
+      ${st.importVault ? `<div class="banner" style="margin:0">${ic('shield','s')}<b>The emergency kit opened: ${st.importVault.accounts.length} account${st.importVault.accounts.length === 1 ? '' : 's'}${st.importVault.profile.name ? ' from ' + esc(st.importVault.profile.name) : ''}. Now choose your own password and passcode to keep them safe in your vault.</b></div>` : ''}
       <p class="muted">This is the main key to your vault. A few random words is easy to type and hard to guess.</p>
       <div class="field"><label for="s-pw">Master password</label><div class="input-wrap"><input id="s-pw" class="input" type="${st.peek ? 'text' : 'password'}" data-sf="pw" value="${esc(st.pw)}" autocomplete="new-password" spellcheck="false" autocapitalize="off"><button class="icon-btn" data-act="s-peek" aria-label="${st.peek ? 'Hide' : 'Show'} password">${ic(st.peek ? 'eyeoff' : 'eye')}</button></div>${meterHTML('s-meter')}</div>
       <div class="field"><label for="s-pw2">Type it again</label><input id="s-pw2" class="input" type="${st.peek ? 'text' : 'password'}" data-sf="pw2" value="${esc(st.pw2)}" autocomplete="new-password" spellcheck="false" autocapitalize="off"></div>
@@ -1413,8 +1590,8 @@ function renderSetup(){
       <div class="rk" id="rk">${rkHTML(st.rk)}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" style="flex:1" data-act="s-rkcopy">${ic('copy','s')}Copy key</button>${canDownload() ? `<button class="btn" style="flex:1" data-act="s-rkdl">${ic('download','s')}Download kit</button>` : ''}</div>
       <label class="check"><input type="checkbox" id="s-saved" data-sf="saved" ${st.saved ? 'checked' : ''}><span>I saved my recovery key somewhere safe, away from this device.</span></label>
-      ${Cloud.ready ? `<label class="check"><input type="checkbox" data-sf="sync" ${st.sync ? 'checked' : ''}><span>Sync this vault to my other devices<br><small class="muted">Only encrypted data leaves this device. Your password and passcode never do.</small></span></label>` : `<p class="hint">${ic('warn','s')} This vault will live in this browser only. Keep the backup file safe: you'll find it in Settings.</p>`}
-      <label class="check"><input type="checkbox" data-sf="examples" ${st.examples ? 'checked' : ''}><span>Add 4 example accounts to explore<br><small class="muted">Labeled Examples. Remove them in one tap.</small></span></label>
+      ${WEB || Cloud.ready ? `<label class="check"><input type="checkbox" data-sf="sync" ${st.sync ? 'checked' : ''}><span>Sync this vault to my other devices<br><small class="muted">Only encrypted data leaves this device. Your password and passcode never do.</small></span></label>` : `<p class="hint">${ic('warn','s')} This vault will live in this browser only. Keep the backup file safe: you'll find it in Settings.</p>`}
+      ${st.importVault ? '' : `<label class="check"><input type="checkbox" data-sf="examples" ${st.examples ? 'checked' : ''}><span>Add 4 example accounts to explore<br><small class="muted">Labeled Examples. Remove them in one tap.</small></span></label>`}
       <button class="btn primary block" data-act="s-finish" ${st.saved && !st.busy ? '' : 'disabled'}>${st.busy ? 'Opening…' : 'Open my vault'}</button>`;
   }
   root.innerHTML = authShell(h);
@@ -1437,8 +1614,9 @@ function renderLogin(){
         ${wait ? `<p class="err" role="alert" id="waitline">Too many tries. Wait ${wait}s, then try again.</p>` : ''}
         <button class="btn primary block" type="submit">Continue</button>
       </form>
+      ${Bio.rec() && Bio.supported() ? (Bio.due() ? `<p class="hint">${ic('lock','s')} Face ID and fingerprint unlock needs your password and passcode at least every ${BIO_MAX_DAYS} days.</p>` : `<button class="btn block" data-act="l-bio" ${wait ? 'disabled' : ''}>${ic('user')}Unlock with Face ID or fingerprint</button>`) : ''}
       <button class="btn ghost" data-act="go-recover">Forgot your password or passcode?</button>
-      ${S.cloudHeader && !LS.get(K.header) ? `<p class="hint">${ic('cloud','s')} Found your synced vault. Unlock it to use it on this device.</p>` : ''}`;
+      ${S.cloudHeader && !LS.get(K.header) ? `<p class="hint">${ic('cloud','s')} Found your synced vault. Unlock it with the password and passcode you use on your other device.</p>` : ''}`;
   } else {
     h = `<h1>Enter your passcode</h1>
       <p class="muted">${len} digits</p>
@@ -1485,8 +1663,25 @@ async function unlock(pw, pc){
     if(S.auth.step === 1) S.auth.pw = '';
     render(); startWaitTicker(); return;
   }
-  guard.reset();
+  guard.reset(); Bio.touch();
   try{ await openWith(raw, used); }
+  catch(e){ console.error(e); S.auth = {step:1, pw:'', pc:'', busy:false, err:e.message || 'Could not open the vault.'}; render(); }
+}
+async function bioUnlock(){
+  if(guard.wait() || S.auth.busy) return;
+  S.auth.busy = true;
+  let raw;
+  try{ raw = await Bio.unlock(); }
+  catch(e){
+    S.auth.busy = false;
+    if(e && e.name === 'NotAllowedError'){ toast('Face ID or fingerprint was cancelled. You can use your password and passcode.', 'lock'); return; }
+    if(e && e.name === 'OperationError'){ Bio.remove(); S.auth.err = 'Face ID or fingerprint no longer matches this vault, so it was turned off. Use your password and passcode.'; render(); return; }
+    S.auth.err = e.message || 'Face ID or fingerprint didn\'t work. Use your password and passcode.'; render(); return;
+  }
+  S.auth.step = 1; render();
+  await Promise.race([S.cloudP, sleep(3000)]);
+  const header = [LS.get(K.header), S.cloudHeader].filter(Boolean).sort((a, b) => (b.hdrAt || 0) - (a.hdrAt || 0))[0];
+  try{ await openWith(raw, header); }
   catch(e){ console.error(e); S.auth = {step:1, pw:'', pc:'', busy:false, err:e.message || 'Could not open the vault.'}; render(); }
 }
 let waitTicker = null;
@@ -1498,21 +1693,30 @@ async function openWith(raw, header, opts = {}){
   if(lb){ try{ vault = await openVault(S.dek, lb); S.body = lb; }catch(e){ console.warn('local copy unreadable', e); } }
   if(Cloud.ready && !opts.vault){
     try{
-      let meta = await Cloud.getMeta();
+      const h = await Cloud.head();
+      let meta = h ? h.meta : null;
+      if(!h && Cloud.kind === 'supa' && lb) S.remoteGone = true;
       if(meta && meta.off){ S.remoteOff = meta; meta = null; }
-      if(meta && (!lb || meta.rev !== lb.rev)){
-        const cb = await Cloud.getBody(meta);
+      if(meta && meta.rev && (!lb || meta.rev !== lb.rev)){
+        const cb = await Cloud.pull(meta);
         const rv = await openVault(S.dek, cb);
         vault = vault ? mergeVaults(upgradeVault(vault), upgradeVault(rv)) : rv;
-        Cloud.lastRev = cb.rev; if(!S.body) S.body = cb;
+        if(!S.body) S.body = cb;
       }
+      if(meta && meta.rev) Cloud.lastRev = meta.rev;
       if(meta) Cloud.lastAt = now();
+      if(h && h.header && (h.header.hdrAt || 0) > (header.hdrAt || 0)){ S.header = h.header; LS.set(K.header, h.header); }
     }catch(e){ console.warn('cloud read', e); }
   }
   if(!vault) throw new Error('Your vault data could not be read on this device. If you have a backup file, restore it from the first screen.');
   S.vault = upgradeVault(vault); hayCache = new WeakMap();
   if(S.remoteOff && S.vault.settings.sync && S.remoteOff.at > (S.vault.settings.updatedAt || 0)){ S.vault.settings.sync = false; S.vault.settings.updatedAt = S.remoteOff.at; }
-  S.remoteOff = null;
+  if(Cloud.kind === 'supa'){
+    if(S.remoteGone && S.vault.settings.sync){ S.vault.settings.sync = false; Cloud.forget(); S.syncGoneNote = true; }
+    else if(Cloud.ready && !S.vault.settings.sync){ S.vault.settings.sync = true; }
+    else if(!Cloud.ready && S.vault.settings.sync && S.vault.settings.syncCode){ await Cloud.use(S.vault.settings.syncCode); Cloud.lastRev = null; }
+  }
+  S.remoteOff = null; S.remoteGone = false;
   const purged = autoPurge();
   S.phase = 'app'; S.tab = 'vault'; S.filter = 'all'; S.q = ''; S.selId = null; S.mode = 'view';
   if(WEB && navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
@@ -1521,7 +1725,9 @@ async function openWith(raw, header, opts = {}){
   root.innerHTML = '';
   render();
   await persist();
-  if(syncOn()){ await pushNow(); watchCloud(); }
+  if(syncOn()){ await pushNow(); watchCloud(); syncFiles(); }
+  if(S.syncGoneNote){ S.syncGoneNote = false; toast('This vault stopped syncing: sync was turned off or given a new code on another device', 'cloud'); }
+  if(opts.after) opts.after();
   if(purged) toast(`Cleared ${purged} account${purged === 1 ? '' : 's'} deleted over 30 days ago`, 'trash');
   if(opts.toast) toast(opts.toast);
 }
@@ -1529,15 +1735,22 @@ async function openWith(raw, header, opts = {}){
 /* ---------- setup finish ---------- */
 async function finishSetup(){
   const st = S.setup; st.busy = true; render();
-  const v = newVault({name:st.name.trim(), email:st.email.trim()});
-  v.settings.sync = !!(st.sync && Cloud.ready);
-  S.vault = v; S.dek = await dekKey(st.dekRaw);
-  if(st.examples) addExamples();
+  let v = newVault({name:st.name.trim(), email:st.email.trim()});
+  S.dek = await dekKey(st.dekRaw);
+  if(st.importVault){
+    v = upgradeVault({...st.importVault, settings:{...v.settings}, profile:{...v.profile}, meta:{lastBackupAt:0, kits:[]}, tombstones:[]});
+    for(const [id, bytes] of Object.entries(st.importFiles || {})) await Files.putRaw(id, await Files.encrypt(S.dek, id, bytes));
+  }
+  const wantSync = !!(st.sync && (WEB || Cloud.ready));
+  if(wantSync && WEB){ const code = newSyncCode(); await Cloud.use(code); v.settings.syncCode = code; }
+  v.settings.sync = wantSync;
+  S.vault = v;
+  if(st.examples && !st.importVault) addExamples();
   LS.set(K.header, st.header);
   guard.reset();
   const dekRaw = st.dekRaw, header = st.header, vault = S.vault;
   S.setup = null;
-  await openWith(dekRaw, header, {vault, toast:'Your vault is ready'});
+  await openWith(dekRaw, header, {vault, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
 }
 async function finishReset(){
   const st = S.setup; st.busy = true; render();
@@ -1584,7 +1797,7 @@ async function saveFile(name, text){
     catch(e){ if(e && e.code === 'declined') return 'declined'; toast('Download is not available here. Use Copy instead.', 'warn'); return 'failed'; }
   }
   if(!S.hasClaude){
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type:'application/octet-stream'})); a.download = name;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(text instanceof Blob ? text : new Blob([text], {type:'application/octet-stream'})); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); return 'saved';
   }
   return 'failed';
@@ -1746,7 +1959,7 @@ function pwPills(a){
   const s = strength(a.password);
   const cls = s.score <= 1 ? 'bad' : s.score === 2 ? 'warn' : 'good';
   const reused = V().accounts.filter(x => !x.trashedAt && x.id !== a.id && x.password && x.password === a.password).length;
-  return `<span class="pill ${cls}">${s.label}</span>${reused ? `<span class="pill bad">Used on ${reused + 1} accounts</span>` : ''}${isOld(a) ? `<span class="pill warn">${ic('clock','s')}Set ${ago(a.pwChangedAt || a.createdAt)}</span>` : ''}`;
+  return `${isLeaked(a) ? `<span class="pill bad">${ic('warn','s')}Found in breaches</span>` : ''}<span class="pill ${cls}">${s.label}</span>${reused ? `<span class="pill bad">Used on ${reused + 1} accounts</span>` : ''}${isOld(a) ? `<span class="pill warn">${ic('clock','s')}Set ${ago(a.pwChangedAt || a.createdAt)}</span>` : ''}`;
 }
 function detailHTML(a){
   const signin = [], secrets = [], other = [];
@@ -1767,7 +1980,8 @@ function detailHTML(a){
       ${a.labels.length ? `<div class="d-tags">${a.labels.map(tagHTML).join('')}</div>` : ''}</div></div>
     ${sec('Sign-in', signin)}${sec('Keys and secrets', secrets)}${sec('Other details', other)}${sec('Security questions', qa)}${sec('Admins', admins)}
     ${a.notes ? `<div class="sec-wrap"><div class="sec-h"><h3>Notes</h3></div><div class="sec"><div class="notes-box">${esc(a.notes)}</div></div></div>` : ''}
-    ${!signin.length && !secrets.length && !other.length && !qa.length && !a.notes ? `<div class="empty" style="padding:24px"><p>No details yet.</p><button class="btn" data-act="edit" data-id="${a.id}">Add details</button></div>` : ''}
+    ${filesSectionHTML(a)}
+    ${!signin.length && !secrets.length && !other.length && !qa.length && !a.notes && !(a.files || []).length ? `<div class="empty" style="padding:24px"><p>No details yet.</p><button class="btn" data-act="edit" data-id="${a.id}">Add details</button></div>` : ''}
     <div class="sec-wrap"><div class="sec-h"><h3>Record</h3></div><div class="sec"><div class="meta-grid">
       <div><span>Leaf</span><b class="tnum">No. ${String(a.no || 0).padStart(3, '0')}</b></div>
       <div><span>Stored</span><b title="${esc(fmtDT(a.createdAt))}">${fmtDate(a.createdAt)}</b></div>
@@ -1809,6 +2023,7 @@ function classicDetailHTML(a){
     <p class="when">${a.trashedAt ? 'Deleted ' + fmtDT(a.trashedAt) : 'Stored ' + fmtDT(a.createdAt)}${a.updatedAt - a.createdAt > 60000 ? `<br>Edited ${fmtDT(a.updatedAt)}` : ''}</p>
     <h2>${esc(a.tool)}</h2>
     ${lines}
+    ${classicFilesHTML(a)}
     ${a.notes ? `<div class="nline gap"></div><div class="nline"><span class="k">Notes:</span></div><div class="nline free">${esc(a.notes)}</div>` : ''}
     <div class="nline gap"></div>
     <p class="hint" style="line-height:32px;margin:0">Tap a hidden value to show it. Copied ${a.copies.length} time${a.copies.length === 1 ? '' : 's'}${a.lastCopiedAt ? ', last ' + ago(a.lastCopiedAt) : ''}. <button class="btn ghost small" data-act="view" data-v="modern" style="display:inline-flex">See full history</button></p>
@@ -1994,9 +2209,11 @@ function healthData(){
   const reused = new Set(reusedGroups.flat());
   const old = withPw.filter(isOld);
   const no2fa = withPw.filter(a => !a.fields.some(f => f.type === 'totp' && f.value));
-  const bad = new Set([...weak, ...reused, ...old]);
+  const leaked = withPw.filter(isLeaked);
+  const bad = new Set([...weak, ...reused, ...old, ...leaked]);
   const score = withPw.length ? Math.round(100 * (withPw.length - bad.size) / withPw.length) : 100;
-  return {accs, withPw, weak, reusedGroups, reused, old, no2fa, score};
+  const checked = withPw.filter(a => a.leak && a.leak.pwAt === (a.pwChangedAt || a.createdAt)).length;
+  return {accs, withPw, weak, reusedGroups, reused, old, no2fa, leaked, checked, bad, score};
 }
 function healthHTML(){
   const h = healthData();
@@ -2006,8 +2223,9 @@ function healthHTML(){
   const block = (title, sub, rows) => `<div class="panel"><div class="panel-h"><h2>${title}</h2><p>${sub}</p></div><div style="padding-top:8px">${rows || `<p class="hint" style="padding:0 16px 16px;margin:0">${ic('check','s')} Nothing to fix here.</p>`}</div></div>`;
   return `<div class="page">${pageHead('Password health')}
     <div class="panel"><div class="score"><div class="score-dial"><svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="40" stroke="var(--line)"/><circle cx="48" cy="48" r="40" stroke="${col}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - h.score / 100)}"/></svg><b class="tnum">${h.score}</b></div>
-      <div><h2 style="font-size:20px">${h.score >= 80 ? 'In good shape' : h.score >= 50 ? 'A few things to fix' : 'Needs attention'}</h2><p class="muted" style="margin:4px 0 0">${h.withPw.length - new Set([...h.weak, ...h.reused, ...h.old]).size} of ${h.withPw.length} saved passwords have no problems.</p></div></div>
-      <div class="stat-row"><div><b class="tnum">${h.weak.length}</b><span>Weak</span></div><div><b class="tnum">${h.reused.size}</b><span>Reused</span></div><div><b class="tnum">${h.old.length}</b><span>Overdue</span></div></div></div>
+      <div><h2 style="font-size:20px">${h.score >= 80 ? 'In good shape' : h.score >= 50 ? 'A few things to fix' : 'Needs attention'}</h2><p class="muted" style="margin:4px 0 0">${h.withPw.length - h.bad.size} of ${h.withPw.length} saved passwords have no problems.</p></div></div>
+      <div class="stat-row${WEB ? ' four' : ''}">${WEB ? `<div><b class="tnum">${h.leaked.length}</b><span>Leaked</span></div>` : ''}<div><b class="tnum">${h.weak.length}</b><span>Weak</span></div><div><b class="tnum">${h.reused.size}</b><span>Reused</span></div><div><b class="tnum">${h.old.length}</b><span>Overdue</span></div></div></div>
+    ${WEB ? leakPanelHTML(h, row, block) : ''}
     ${block('Weak passwords', 'Easy to guess. Generate a new one and update it on the site.', h.weak.map(a => row(a, 'Rated ' + strength(a.password).label.toLowerCase(), `<span class="pill bad">Weak</span>`)).join(''))}
     ${block('Reused passwords', 'If one site leaks, every account sharing the password is exposed.', h.reusedGroups.map(g => g.map(a => row(a, `Same password as ${listJoin(g.filter(x => x !== a).map(x => esc(x.tool)))}`, `<span class="pill bad">${g.length} accounts</span>`)).join('')).join(''))}
     ${block('Due for a change', 'Past your reminder, or not changed in over a year.', h.old.map(a => row(a, 'Password set ' + ago(a.pwChangedAt || a.createdAt), `<span class="pill warn">${ic('clock','s')}Overdue</span>`)).join(''))}
@@ -2048,6 +2266,7 @@ function settingsHTML(){
     </div></div>
     <div class="panel"><div class="panel-h"><h2>Security</h2></div><div>
       <div class="set-row"><label class="ol" for="set-settings-autoLockMin">Lock automatically<small>After this long without activity</small></label>${opt('settings.autoLockMin', s.autoLockMin, [[1,'1 minute'],[2,'2 minutes'],[5,'5 minutes'],[10,'10 minutes'],[15,'15 minutes'],[30,'30 minutes'],[0,'Never']])}</div>
+      ${WEB ? bioRowHTML() : ''}
       <div class="set-row"><label class="ol" for="s-hide">Lock when I leave the app<small>If it's in the background for over a minute</small></label>${sw('settings.lockOnHide', s.lockOnHide, 's-hide')}</div>
       <div class="set-row"><label class="ol" for="set-settings-revealSec">Hide shown secrets again<small>After you tap the eye</small></label>${opt('settings.revealSec', s.revealSec, [[10,'After 10 seconds'],[30,'After 30 seconds'],[60,'After 1 minute'],[300,'After 5 minutes']])}</div>
       <div class="set-row"><label class="ol" for="set-settings-clipSec">Clear copied secrets<small>Where your browser allows it</small></label>${opt('settings.clipSec', s.clipSec, [[0,'Off'],[20,'After 20 seconds'],[30,'After 30 seconds'],[60,'After 1 minute'],[120,'After 2 minutes']])}</div>
@@ -2059,12 +2278,14 @@ function settingsHTML(){
     </div></div>
     <div class="panel"><div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:10px"><h2>Labels</h2><button class="btn small" data-act="label-new">${ic('plus','s')}New label</button></div>
       <div class="labels-tree">${labelTree().map(({l, d}) => `<div class="lt-row"><span style="width:${d * 18}px;flex:none"></span><span class="dot" style="width:12px;height:12px;border-radius:50%;background:${l.color};flex:none"></span><span class="nm">${esc(l.name)}</span><span class="hint tnum">${V().accounts.filter(a => !a.trashedAt && a.labels.includes(l.id)).length}</span><button class="icon-btn" data-act="label-edit" data-id="${l.id}" aria-label="Edit ${esc(l.name)}">${ic('edit','s')}</button></div>`).join('') || '<p class="hint" style="padding:0 16px 14px;margin:0">No labels yet. Labels can hold sub-labels, like Work and Work / Cloud.</p>'}</div></div>
-    <div class="panel"><div class="panel-h"><h2>Sync and backup</h2><p id="syncstate">${syncLine()}</p></div><div>
-      ${Cloud.ready ? `<div class="set-row"><label class="ol" for="s-sync">Sync across my devices<small>Encrypted before upload. Open this same page on your phone or computer.</small></label>${sw('settings.sync', s.sync, 's-sync')}</div>
+    ${WEB ? syncPanelHTML() : ''}
+    <div class="panel"><div class="panel-h"><h2>${WEB ? 'Backup' : 'Sync and backup'}</h2>${WEB ? '' : `<p id="syncstate">${syncLine()}</p>`}</div><div>
+      ${WEB ? '' : Cloud.ready ? `<div class="set-row"><label class="ol" for="s-sync">Sync across my devices<small>Encrypted before upload. Open this same page on your phone or computer.</small></label>${sw('settings.sync', s.sync, 's-sync')}</div>
       ${s.sync ? `<div class="set-row"><span class="ol">Sync now<small>Pull changes from your other devices</small></span><button class="btn small" data-act="sync-now">${ic('refresh','s')}Sync</button></div>` : ''}` : `<div class="set-row"><span class="ol">Saved on this device only<small>To use another phone or computer, back up below and restore the file there.</small></span></div>`}
       <div class="set-row"><span class="ol">Encrypted backup<small>${lastB ? 'Last backup ' + fmtDT(lastB) : 'No backup yet. Keep one somewhere other than this device.'}</small></span><button class="btn small" data-act="m-backup">${ic('download','s')}Back up</button></div>
-      <div class="set-row"><span class="ol">Restore a backup<small>Add accounts back from a backup file</small></span><button class="btn small" data-act="m-restore">${ic('restore','s')}Restore</button></div>
+      <div class="set-row"><span class="ol">Restore a backup<small>Add accounts back from a backup file or emergency kit</small></span><button class="btn small" data-act="m-restore">${ic('restore','s')}Restore</button></div>
     </div></div>
+    ${emergencyPanelHTML()}
     <div class="panel"><div class="panel-h"><h2>Import and export</h2></div><div>
       <div class="set-row"><span class="ol">Import from Notes<small>Paste your notes. Each note becomes an account.</small></span><button class="btn small" data-act="import-notes">${ic('import','s')}Import</button></div>
       <div class="set-row"><span class="ol">Import a CSV file<small>From Chrome, Safari, Bitwarden, 1Password or LastPass</small></span><button class="btn small" data-act="import-csv">${ic('upload','s')}Import</button></div>
@@ -2176,14 +2397,20 @@ async function newRk(){
     `<button class="btn primary" data-act="mclose">I saved it</button>`);
   renderPage();
 }
+async function backupFiles(){
+  const files = {};
+  for(const a of V().accounts) for(const f of a.files || []){ const box = await Files.getRaw(f.id); if(box) files[f.id] = box; }
+  return files;
+}
 async function openBackup(){
   await saveChain;
   const p = V().profile;
-  const data = JSON.stringify({app:APP, kind:'backup', v:VER, exportedAt:now(), owner:p.name || '', count:V().accounts.filter(a => !a.trashedAt).length, header:S.header, body:S.body});
+  const files = await backupFiles();
+  const data = JSON.stringify({app:APP, kind:'backup', v:VER, exportedAt:now(), owner:p.name || '', count:V().accounts.filter(a => !a.trashedAt).length, header:S.header, body:S.body, files});
   const name = `vaultleaf-backup-${new Date().toISOString().slice(0, 10)}.json`;
   openModal({title:'Encrypted backup', backup:data, fname:name, body:`<p>The backup is encrypted. Opening it needs your current master password and passcode, or your recovery key.</p>
     <p class="muted">Keep it somewhere other than this device: a USB drive, a cloud drive, or emailed to yourself.</p>
-    <div class="banner" style="margin:0">${ic('layers','s')}<b>${V().accounts.filter(a => !a.trashedAt).length} accounts, ${(data.length / 1024).toFixed(0)} KB</b></div>`,
+    <div class="banner" style="margin:0">${ic('layers','s')}<b>${V().accounts.filter(a => !a.trashedAt).length} accounts${Object.keys(files).length ? ', ' + Object.keys(files).length + ' attached file' + (Object.keys(files).length === 1 ? '' : 's') : ''}, ${fmtSize(data.length)}</b></div>`,
     foot:`<button class="btn" data-act="bk-copy">${ic('copy','s')}Copy backup text</button>${canDownload() ? `<button class="btn primary" data-act="bk-dl">${ic('download','s')}Download file</button>` : ''}`});
 }
 function markBackup(){ V().meta.lastBackupAt = now(); persist(); renderPage(); }
@@ -2192,9 +2419,10 @@ function openRestore(fresh){
   openModal({title:'Restore from backup', fresh, body:`<p class="muted">Choose the backup file, or paste its text.</p>
     <div class="field"><label for="rs-file">Backup file</label><input id="rs-file" class="input" type="file" accept=".json,.txt,application/json,text/plain"></div>
     <div class="field"><label for="rs-text">Or paste backup text</label><textarea id="rs-text" class="input mono" rows="3" spellcheck="false" placeholder='{"app":"vaultleaf","kind":"backup",…}'></textarea></div>
-    <div class="field"><span class="lbl">Unlock the backup with</span><div class="seg" role="group"><button data-act="rs-mode" data-v="creds" aria-pressed="true">Password and passcode</button><button data-act="rs-mode" data-v="rk" aria-pressed="false">Recovery key</button></div></div>
+    <div class="field"><span class="lbl">Unlock it with</span><div class="seg" role="group" style="flex-wrap:wrap"><button data-act="rs-mode" data-v="creds" aria-pressed="true">Password and passcode</button><button data-act="rs-mode" data-v="rk" aria-pressed="false">Recovery key</button><button data-act="rs-mode" data-v="ec" aria-pressed="false">Emergency code</button></div></div>
     <div id="rs-creds">${credFields('rs')}</div>
-    <div id="rs-rk" hidden><div class="field"><label for="rs-key">Recovery key</label><input id="rs-key" class="input mono" spellcheck="false" autocomplete="off"></div></div>${ERR}`,
+    <div id="rs-rk" hidden><div class="field"><label for="rs-key">Recovery key</label><input id="rs-key" class="input mono" spellcheck="false" autocomplete="off"></div></div>
+    <div id="rs-ec" hidden><div class="field"><label for="rs-ec-in">Emergency code</label><input id="rs-ec-in" class="input mono" spellcheck="false" autocomplete="off" placeholder="The code that came with the emergency kit"></div></div>${ERR}`,
     foot:`<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`});
   S.m.rsMode = 'creds';
 }
@@ -2205,18 +2433,27 @@ async function restoreGo(){
   if(!text) return mErr('Choose a backup file or paste the backup text.');
   let bk; try{ bk = JSON.parse(text); }catch(e){ return mErr('That isn\'t a Vaultleaf backup. Check you picked the .json file it saved.'); }
   if(!bk || bk.app !== APP || !bk.header || !bk.body) return mErr('That isn\'t a Vaultleaf backup. Check you picked the .json file it saved.');
+  const kit = bk.kind === 'emergency';
+  if(kit && m.rsMode !== 'ec') return mErr('This file is an emergency kit. Choose Emergency code and enter the code that came with it.');
+  if(!kit && m.rsMode === 'ec') return mErr('This file is a regular backup. Open it with the password and passcode, or the recovery key.');
   mErr(''); setModal(undefined, '<div class="spinner"></div>');
+  const goBtns = `<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`;
   let raw;
-  try{ raw = m.rsMode === 'rk' ? await unwrapRecovery(bk.header, $('#rs-key').value) : await unwrapCreds(bk.header, $('#rs-pw').value, $('#rs-pc').value); }
-  catch(e){ setModal(undefined, `<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`); return mErr(m.rsMode === 'rk' ? 'That recovery key doesn\'t open this backup.' : 'That password and passcode don\'t open this backup. Use the ones you had when it was made.'); }
-  let vault;
-  try{ vault = upgradeVault(await openVault(await dekKey(raw), bk.body)); }catch(e){ return mErr('The backup file is damaged and can\'t be read.'); }
+  try{ raw = kit ? await openKitKey(bk.header, $('#rs-ec-in').value) : m.rsMode === 'rk' ? await unwrapRecovery(bk.header, $('#rs-key').value) : await unwrapCreds(bk.header, $('#rs-pw').value, $('#rs-pc').value); }
+  catch(e){ setModal(undefined, goBtns); return mErr(kit ? 'That emergency code doesn\'t open this kit. Check for typos.' : m.rsMode === 'rk' ? 'That recovery key doesn\'t open this backup.' : 'That password and passcode don\'t open this backup. Use the ones you had when it was made.'); }
+  let vault, key;
+  try{ key = await dekKey(raw); vault = upgradeVault(await openVault(key, bk.body)); }catch(e){ setModal(undefined, goBtns); return mErr('The backup file is damaged and can\'t be read.'); }
+  const fileBytes = {};
+  for(const [id, box] of Object.entries(bk.files || {})){ try{ fileBytes[id] = await Files.decrypt(key, id, box); }catch(e){ console.warn('backup file unreadable', id); } }
   if(m.fresh){
-    LS.set(K.header, bk.header); LS.set(K.body, bk.body); closeModal(); S.setup = null;
+    closeModal();
+    if(kit){ S.setup = Object.assign(newSetup(), {step:2, importVault:vault, importFiles:fileBytes, name:vault.profile.name || '', email:vault.profile.email || '', examples:false}); render(); return; }
+    LS.set(K.header, bk.header); LS.set(K.body, bk.body); S.setup = null;
+    for(const [id, box] of Object.entries(bk.files || {})) if(fileBytes[id]) await Files.putRaw(id, box);
     await openWith(raw, bk.header, {vault, toast:`Restored ${vault.accounts.length} accounts`});
     return;
   }
-  m.restored = vault;
+  m.restored = vault; m.restoredFiles = fileBytes;
   const n = vault.accounts.filter(a => !a.trashedAt).length, cur = new Set(V().accounts.map(a => a.id));
   const fresh = vault.accounts.filter(a => !cur.has(a.id)).length;
   setModal(`<p>The backup from ${fmtDT(bk.exportedAt)} holds <b>${n} accounts</b>. ${fresh} of them aren't in your vault right now.</p>
@@ -2284,7 +2521,8 @@ function openDelete(){
 }
 async function deleteVault(){
   if($('#dv-type').value.trim().toUpperCase() !== 'DELETE') return mErr('Type DELETE to confirm.');
-  if(Cloud.ready) await Cloud.wipe();
+  if(Cloud.ready && V().settings.sync) await Cloud.drop();
+  Cloud.forget(); await Files.clear(); Bio.remove();
   LS.del(K.header); LS.del(K.body); S.cloudHeader = null; S.body = null; S.header = null;
   lock(''); S.phase = 'setup'; S.setup = newSetup(); render(); toast('Vault deleted', 'trash');
 }
@@ -2454,13 +2692,14 @@ const ACT = {
   'bk-copy'(){ copyText(S.m.backup).then(ok => { if(ok){ toast('Backup copied. Paste it somewhere safe.', 'copy'); markBackup(); } else toast('Copy was blocked here.', 'warn'); }); },
   'bk-dl'(){ saveFile(S.m.fname, S.m.backup).then(r => { if(r === 'saved'){ toast('Backup saved', 'download'); markBackup(); closeModal(); } }); },
   'm-restore'(){ openRestore(false); },
-  'rs-mode'(el){ S.m.rsMode = el.dataset.v; modalsEl.querySelectorAll('[data-act="rs-mode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.m.rsMode)); $('#rs-creds').hidden = S.m.rsMode !== 'creds'; $('#rs-rk').hidden = S.m.rsMode !== 'rk'; },
+  'rs-mode'(el){ S.m.rsMode = el.dataset.v; modalsEl.querySelectorAll('[data-act="rs-mode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.m.rsMode)); $('#rs-creds').hidden = S.m.rsMode !== 'creds'; $('#rs-rk').hidden = S.m.rsMode !== 'rk'; $('#rs-ec').hidden = S.m.rsMode !== 'ec'; },
   'rs-go'(){ restoreGo(); },
-  'rs-merge'(){ const before = V().accounts.length; S.vault = upgradeVault(restoreMerge(V(), S.m.restored)); hayCache = new WeakMap(); persist(); closeModal(); renderApp(); const n = Math.max(0, V().accounts.length - before); toast(n ? `Added ${n} account${n === 1 ? '' : 's'} from the backup` : 'Everything in the backup is already here', 'restore'); },
-  'rs-replace'(){ const r = S.m.restored; confirmBox({title:'Replace your vault?', text:'Accounts that aren\'t in the backup will be deleted on every device.', ok:'Replace', danger:true, onOk:() => {
+  async 'rs-merge'(){ await storeRestoredFiles(S.m.restoredFiles); const before = V().accounts.length; S.vault = upgradeVault(restoreMerge(V(), S.m.restored)); hayCache = new WeakMap(); persist(); closeModal(); renderApp(); const n = Math.max(0, V().accounts.length - before); toast(n ? `Added ${n} account${n === 1 ? '' : 's'} from the backup` : 'Everything in the backup is already here', 'restore'); },
+  'rs-replace'(){ const r = S.m.restored, rf = S.m.restoredFiles; confirmBox({title:'Replace your vault?', text:'Accounts that aren\'t in the backup will be deleted on every device.', ok:'Replace', danger:true, onOk:() => {
     const keep = new Set(r.accounts.map(a => a.id)), t = now();
     const tomb = V().accounts.filter(a => !keep.has(a.id)).map(a => ({id:a.id, at:t}));
-    S.vault = upgradeVault({...r, settings:V().settings, profile:V().profile, tombstones:[...(r.tombstones || []), ...tomb], nextNo:Math.max(r.nextNo || 1, V().nextNo)});
+    storeRestoredFiles(rf);
+    S.vault = upgradeVault({...r, settings:V().settings, profile:V().profile, meta:V().meta, tombstones:[...(r.tombstones || []), ...tomb], nextNo:Math.max(r.nextNo || 1, V().nextNo)});
     for(const a of S.vault.accounts) a.updatedAt = Math.max(a.updatedAt, t);
     S.selId = null; hayCache = new WeakMap(); persist(); renderApp(); toast('Vault replaced with the backup', 'restore');
   }}); },
@@ -2592,6 +2831,286 @@ async function boot(){
   if(S.cloudHeader) S.phase = 'login'; else { S.phase = 'setup'; S.setup = newSetup(); }
   render();
 }
+
+/* ================= Vaultleaf: sync codes, Face ID, leak check, files, emergency kit ================= */
+
+/* ---------- sync (website) ---------- */
+function syncPanelHTML(){
+  const on = syncOn();
+  return `<div class="panel"><div class="panel-h"><h2>Sync between devices</h2><p id="syncstate">${syncLine()}</p></div><div>
+    ${on ? `
+      <div class="set-row"><span class="ol">Sync code<small>Enter it on your phone or computer to use this vault there.</small></span><button class="btn small" data-act="sync-show">${ic('key','s')}Show code</button></div>
+      <div class="set-row"><span class="ol">Sync now<small>Get changes from your other devices</small></span><button class="btn small" data-act="sync-now">${ic('refresh','s')}Sync</button></div>
+      <div class="set-row"><span class="ol">New sync code<small>If someone else may have seen the code. Other devices stop syncing until you enter the new one.</small></span><button class="btn small" data-act="sync-rotate">New code</button></div>
+      <div class="set-row"><span class="ol">Turn off sync<small>Removes the synced copy. Every device keeps what it has.</small></span><button class="btn small danger" data-act="sync-off">Turn off</button></div>` : `
+      <div class="set-row"><span class="ol">Use this vault on more than one device<small>Only encrypted data is uploaded. Your password and passcode never leave this device.</small></span><button class="btn small primary" data-act="sync-on">${ic('cloud','s')}Turn on</button></div>
+      <div class="set-row"><span class="ol">Already syncing on another device?<small>Enter its sync code to combine it with this vault.</small></span><button class="btn small" data-act="sync-link">Enter code</button></div>`}
+  </div></div>`;
+}
+function syncCodeHTML(code){ return `<div class="rk">${rkHTML(code)}</div>`; }
+function openSyncCode(first){
+  const code = V().settings.syncCode || Cloud.code;
+  openModal({title:first ? 'Sync is on' : 'Your sync code', code, body:`${first ? '<p>Your vault is uploading in encrypted form. To use it on another phone or computer, you\'ll need this sync code.</p>' : ''}
+    ${syncCodeHTML(code)}
+    <ol class="howto-m"><li>On the other device, open Vaultleaf.</li><li>Choose <b>Use my vault from another device</b> (or, if it already has a vault, Settings, then <b>Enter code</b>).</li><li>Paste this code, then unlock with your usual password and passcode.</li></ol>
+    <p class="hint" style="margin:0">The code only lets a device download your encrypted vault. It still needs your password and passcode to open it. Keep it private anyway.</p>`,
+    foot:`<button class="btn" data-act="sync-copy">${ic('copy','s')}Copy code</button><button class="btn primary" data-act="mclose">Done</button>`});
+}
+async function turnOnSync(){
+  const code = newSyncCode();
+  await Cloud.use(code);
+  V().settings.syncCode = code; V().settings.sync = true; V().settings.updatedAt = now();
+  await persist(); await pushNow(); watchCloud();
+  renderPage(); renderSide();
+  if(Cloud.status === 'err'){ toast(Cloud.err, 'warn'); return; }
+  openSyncCode(true);
+}
+async function turnOffSync(){
+  await Cloud.drop(); Cloud.forget();
+  V().settings.sync = false; V().settings.syncCode = ''; V().settings.updatedAt = now();
+  clearTimeout(pushTimer); await persist(); setSync('ok'); renderPage(); renderSide();
+  toast('Sync is off. This device keeps everything.', 'cloud');
+}
+async function rotateSync(){
+  await Cloud.drop(); Cloud.forget();
+  V().settings.sync = false; await turnOnSync();
+}
+function openLinkCode(fromSetup){
+  openModal({title:fromSetup ? 'Use my vault from another device' : 'Enter a sync code', fromSetup, body:`<p class="muted">On the device you already use, open <b>Settings</b>, then <b>Sync code</b>, and copy the code shown there.</p>
+    <div class="field"><label for="lk-code">Sync code</label><input id="lk-code" class="input mono" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" autofocus></div>${ERR}`,
+    foot:`<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="lk-go">Find my vault</button>`});
+}
+async function linkGo(){
+  const m = S.m, code = $('#lk-code').value.trim();
+  if(normRK(code).length < 30) return mErr('Paste the whole sync code: 8 groups of 4 letters and numbers.');
+  setModal(undefined, '<div class="spinner"></div>');
+  const back = `<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="lk-go">Find my vault</button>`;
+  const prev = Cloud.code;
+  let h = null;
+  try{ await Cloud.use(code); h = await Cloud.head(); }catch(e){ if(prev) await Cloud.use(prev); else Cloud.forget(); setModal(undefined, back); return mErr(e.message || 'Couldn\'t reach sync. Check your connection.'); }
+  if(!h || !h.header){ if(prev) await Cloud.use(prev); else Cloud.forget(); setModal(undefined, back); return mErr('No synced vault uses that code. Check it on your other device: it may have been changed.'); }
+  if(m.fromSetup){
+    S.cloudHeader = h.header; closeModal();
+    S.setup = null; S.phase = 'login'; S.auth = {step:1, pw:'', pc:'', err:'', info:'', busy:false}; render();
+    return;
+  }
+  /* existing vault: it must be the same vault (same vault key), then the two copies are combined */
+  try{
+    const body = await Cloud.pull(h.meta);
+    const remote = upgradeVault(await openVault(S.dek, body));
+    Cloud.lastRev = h.meta.rev;
+    await adoptHeader(h.header);
+    S.vault = mergeVaults(V(), remote); hayCache = new WeakMap();
+    V().settings.sync = true; V().settings.syncCode = Cloud.code; V().settings.updatedAt = now();
+    closeModal(); await persist(); await pushNow(); watchCloud(); syncFiles(); renderApp();
+    toast('Linked. This device now syncs with your other devices.', 'cloud');
+  }catch(e){
+    if(prev) await Cloud.use(prev); else Cloud.forget();
+    setModal(undefined, back);
+    mErr('That code belongs to a different vault. To switch to it, delete this vault in Settings, then choose Use my vault from another device.');
+  }
+}
+
+/* ---------- Face ID / fingerprint ---------- */
+function bioRowHTML(){
+  const on = !!Bio.rec();
+  return `<div class="set-row"><label class="ol" for="s-bio">Unlock with Face ID or fingerprint<small>${Bio.supported() ? `On this device only. Your password and passcode are still needed every ${BIO_MAX_DAYS} days.` : 'This browser can\'t do it. Try Safari on iPhone or Chrome on Android.'}</small></label>
+    <span class="switch"><input type="checkbox" id="s-bio" ${on ? 'checked' : ''} ${Bio.supported() ? '' : 'disabled'}><span></span></span></div>`;
+}
+async function toggleBio(el){
+  if(!el.checked){ Bio.remove(); toast('Face ID and fingerprint unlock is off on this device', 'lock'); return; }
+  el.checked = false;
+  if(!await Bio.available()){ toast('This device has no Face ID, fingerprint or device PIN set up.', 'warn'); return; }
+  try{ await Bio.enroll(S.dekRaw, V().profile.email || V().profile.name || 'Vaultleaf vault'); el.checked = true; toast('Face ID or fingerprint can now unlock Vaultleaf on this device', 'check'); }
+  catch(e){ if(e && e.name === 'NotAllowedError') toast('Setup was cancelled', 'warn'); else toast(e.message || 'That didn\'t work on this device.', 'warn'); }
+  renderPage();
+}
+
+/* ---------- leaked password check ---------- */
+const isLeaked = a => !!(a.password && a.leak && a.leak.n > 0 && a.leak.pwAt === (a.pwChangedAt || a.createdAt));
+function leakPanelHTML(h, row, block){
+  const last = V().accounts.reduce((m, a) => Math.max(m, (a.leak && a.leak.at) || 0), 0);
+  const top = `<div class="panel"><div class="panel-h"><h2>Leaked passwords</h2>
+      <p>Checks each password against Have I Been Pwned, a list of over 900 million passwords exposed in data breaches. Only the first 5 characters of a scrambled fingerprint of each password are sent, never the password.</p></div>
+    <div class="panel-b" style="padding-top:12px"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn primary" data-act="leak-check" ${S.leakBusy ? 'disabled' : ''}>${ic('shield','s')}${S.leakBusy ? 'Checking ' + S.leakBusy : last ? 'Check again' : 'Check my passwords'}</button>
+      <span class="hint">${last ? `Last checked ${ago(last)}. ${h.checked} of ${h.withPw.length} checked.` : 'Not checked yet.'}</span></div></div>
+    <div>${h.leaked.map(a => row(a, `Seen ${a.leak.n.toLocaleString()} time${a.leak.n === 1 ? '' : 's'} in breaches. Change it everywhere you use it.`, `<span class="pill bad">Leaked</span>`)).join('') || (last ? `<p class="hint" style="padding:0 16px 16px;margin:0">${ic('check','s')} None of the checked passwords appear in known breaches.</p>` : '')}</div></div>`;
+  return top;
+}
+async function runLeakCheck(){
+  const list = V().accounts.filter(a => !a.trashedAt && a.password);
+  if(!list.length){ toast('No saved passwords to check yet', 'warn'); return; }
+  const cache = new Map(); let done = 0, found = 0;
+  S.leakBusy = '0 of ' + list.length; renderPage();
+  try{
+    for(const a of list){
+      const n = await pwnedCount(a.password, cache);
+      a.leak = {n, at:now(), pwAt:a.pwChangedAt || a.createdAt};
+      if(n) found++;
+      done++; S.leakBusy = done + ' of ' + list.length;
+      const b = $('[data-act="leak-check"]'); if(b) b.lastChild.textContent = 'Checking ' + S.leakBusy;
+    }
+    persist();
+    toast(found ? `${found} password${found === 1 ? '' : 's'} found in known breaches` : 'No leaked passwords found', found ? 'warn' : 'check');
+  }catch(e){ toast(e.message && /breach service/.test(e.message) ? e.message : 'Couldn\'t reach the breach service. Check your connection and try again.', 'warn'); persist(); }
+  S.leakBusy = null; renderPage();
+}
+
+/* ---------- attached files ---------- */
+const fileIcon = t => /^image\//.test(t) ? 'layers' : /pdf/.test(t) ? 'notes' : 'import';
+function filesSectionHTML(a){
+  if(a.trashedAt && !(a.files || []).length) return '';
+  const rows = (a.files || []).map(f => `<div class="frow" role="button" tabindex="0" data-act="file-open" data-id="${a.id}" data-f="${f.id}" aria-label="Open ${esc(f.name)}">
+      <div class="fl">${ic(fileIcon(f.type), 's')}${esc(fmtSize(f.size))}, added ${fmtDate(f.addedAt)}</div><div class="fv">${esc(f.name)}</div>
+      <div class="fa"><button class="icon-btn" data-act="file-dl" data-id="${a.id}" data-f="${f.id}" aria-label="Download ${esc(f.name)}" title="Download">${ic('download')}</button>${a.trashedAt ? '' : `<button class="icon-btn" data-act="file-rm" data-id="${a.id}" data-f="${f.id}" aria-label="Remove ${esc(f.name)}" title="Remove">${ic('trash')}</button>`}</div></div>`).join('');
+  return `<div class="sec-wrap"><div class="sec-h"><h3>Files</h3>${a.trashedAt ? '' : `<label class="btn small" for="file-add-${a.id}">${ic('plus','s')}Add files<input id="file-add-${a.id}" class="sr" type="file" multiple data-acc="${a.id}"></label>`}</div>
+    ${rows ? `<div class="sec">${rows}</div>` : `<p class="hint" style="margin:0">Keep ID scans, recovery sheets or contracts with this account. Each file is encrypted, up to 5 MB.</p>`}</div>`;
+}
+function classicFilesHTML(a){
+  return (a.files || []).map(f => `<div class="nline"><span class="k">File:</span><span class="v">${esc(f.name)} <span class="muted">(${esc(fmtSize(f.size))})</span></span><span class="acts"><button class="icon-btn" data-act="file-open" data-id="${a.id}" data-f="${f.id}" aria-label="Open ${esc(f.name)}">${ic('ext','s')}</button></span></div>`).join('');
+}
+async function addFiles(a, list){
+  const files = [...(list || [])]; if(!files.length) return;
+  let added = 0;
+  for(const file of files){
+    if(file.size > FILE_MAX){ toast(`${file.name} is ${fmtSize(file.size)}. Files can be up to 5 MB.`, 'warn'); continue; }
+    const id = uid();
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const box = await Files.encrypt(S.dek, id, bytes);
+    await Files.putRaw(id, box);
+    a.files = a.files || [];
+    a.files.push({id, name:file.name || 'file', type:file.type || 'application/octet-stream', size:file.size, addedAt:now(), blen:JSON.stringify(box).length});
+    a.history.unshift({id:uid(), at:now(), kind:'edit', text:'Added file ' + (file.name || 'file')});
+    added++;
+  }
+  if(!added) return;
+  a.updatedAt = now(); persist(); refreshDetailKeepScroll();
+  toast(added === 1 ? 'File added and encrypted' : added + ' files added and encrypted', 'check');
+}
+async function fileBlob(a, fid){
+  const f = (a.files || []).find(x => x.id === fid); if(!f) return null;
+  let box = await Files.getRaw(fid);
+  if(!box && syncOn() && Cloud.files){ try{ const txt = await Cloud.getFile(fid); if(txt){ box = JSON.parse(txt); await Files.putRaw(fid, box); } }catch(e){} }
+  if(!box) return {f, missing:true};
+  try{ return {f, blob:new Blob([await Files.decrypt(S.dek, fid, box)], {type:f.type})}; }catch(e){ return {f, missing:true}; }
+}
+let fileUrl = null;
+function revokeFileUrl(){ if(fileUrl){ URL.revokeObjectURL(fileUrl); fileUrl = null; } }
+async function openFile(a, fid){
+  const r = await fileBlob(a, fid); if(!r) return;
+  if(r.missing){ toast(syncOn() ? 'This file hasn\'t finished syncing to this device yet. Try again in a moment.' : 'This file isn\'t on this device. Restore a backup that includes it.', 'warn'); return; }
+  revokeFileUrl(); fileUrl = URL.createObjectURL(r.blob);
+  const img = /^image\//.test(r.f.type);
+  openModal({title:r.f.name, wide:img, onClose:revokeFileUrl, body:`${img ? `<img class="file-img" src="${fileUrl}" alt="${esc(r.f.name)}">` : `<div class="empty" style="padding:20px">${ic(fileIcon(r.f.type), 'l')}<p>${esc(r.f.type || 'File')}, ${esc(fmtSize(r.f.size))}</p></div>`}
+    <p class="hint" style="margin:0">Added ${fmtDT(r.f.addedAt)}. Stored encrypted; it's only readable while your vault is unlocked.</p>`,
+    foot:`${WEB && !img ? `<a class="btn" href="${fileUrl}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a>` : ''}<button class="btn primary" data-act="file-dl" data-id="${a.id}" data-f="${fid}">${ic('download','s')}Download</button>`});
+}
+async function downloadFile(a, fid){
+  const r = await fileBlob(a, fid); if(!r) return;
+  if(r.missing){ toast('This file isn\'t on this device yet.', 'warn'); return; }
+  const res = await saveFile(r.f.name, r.blob);
+  if(res === 'saved') toast('Downloaded ' + r.f.name, 'download');
+}
+function removeFile(a, fid){
+  const f = (a.files || []).find(x => x.id === fid); if(!f) return;
+  confirmBox({title:`Remove ${f.name}?`, text:'It will be deleted from this account on every device. This can\'t be undone, unless a backup has it.', ok:'Remove file', danger:true, onOk:async () => {
+    a.files = a.files.filter(x => x.id !== fid);
+    V().tombstones.push({id:fid, at:now()});
+    a.history.unshift({id:uid(), at:now(), kind:'edit', text:'Removed file ' + f.name});
+    a.updatedAt = now();
+    await Files.del(fid); persist(); refreshDetailKeepScroll(); toast('File removed', 'trash');
+  }});
+}
+function dropAccountFiles(a){ for(const f of a.files || []){ V().tombstones.push({id:f.id, at:now()}); Files.del(f.id); } }
+async function storeRestoredFiles(map){
+  for(const [id, bytes] of Object.entries(map || {})){ if(!(await Files.has(id))) await Files.putRaw(id, await Files.encrypt(S.dek, id, bytes)); }
+}
+
+/* ---------- emergency kit ---------- */
+function emergencyPanelHTML(){
+  const kits = (V().meta.kits || []).slice(0, 3);
+  return `<div class="panel"><div class="panel-h"><h2>Emergency access</h2><p>Make a kit a trusted person can open if something happens to you. It's a separate encrypted file with its own code, so they never need your password.</p></div><div>
+    <div class="set-row"><span class="ol">Emergency kit<small>${kits.length ? 'Last made ' + fmtDate(kits[0].at) + ' with ' + kits[0].count + ' account' + (kits[0].count === 1 ? '' : 's') + '. Make a new one when accounts change.' : 'Choose everything or only some labels, like Family or Finance.'}</small></span><button class="btn small" data-act="kit-new">${ic('shield','s')}Make a kit</button></div>
+  </div></div>`;
+}
+function openKitBuilder(){
+  const tree = labelTree();
+  openModal({title:'Make an emergency kit', body:`<p class="muted">The kit is a file. The code that opens it is shown once. Give them to your trusted person separately, for example the file now and the code in a sealed envelope or with your will.</p>
+    <div class="field"><span class="lbl">Include</span><div class="seg" role="group"><button data-act="kit-scope" data-v="all" aria-pressed="true">Everything</button><button data-act="kit-scope" data-v="labels" aria-pressed="false" ${tree.length ? '' : 'disabled'}>Only some labels</button></div></div>
+    <div id="kit-labels" class="labelpick" hidden>${tree.map(({l}) => `<button class="chip" data-act="kit-label" data-id="${l.id}" aria-pressed="false"><span class="dot" style="background:${l.color}"></span>${esc(labelPath(l.id))}</button>`).join('')}</div>
+    <label class="check"><input type="checkbox" id="kit-files" checked><span>Include attached files</span></label>
+    <div class="field"><label for="kit-note">A note for them</label><textarea id="kit-note" class="input" rows="3" placeholder="Optional. For example: start with the bank and email accounts."></textarea></div>${ERR}`,
+    foot:`<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="kit-make">Make kit</button>`});
+  S.m.scope = 'all'; S.m.labels = new Set();
+}
+async function openKitKey(header, code){
+  const kek = await kdf(normRK(code), b64d(header.ekdf.salt), header.ekdf.iter);
+  return unseal(kek, header.ewrap, 'vl-ewrap');
+}
+async function makeKit(){
+  const m = S.m;
+  let accts = V().accounts.filter(a => !a.trashedAt);
+  if(m.scope === 'labels'){
+    if(!m.labels.size) return mErr('Pick at least one label, or choose Everything.');
+    const ids = new Set(); for(const id of m.labels) for(const x of labelDesc(id)) ids.add(x);
+    accts = accts.filter(a => a.labels.some(l => ids.has(l)));
+  }
+  if(!accts.length) return mErr('No accounts have those labels yet.');
+  const withFiles = $('#kit-files').checked, note = $('#kit-note').value.trim();
+  setModal(undefined, '<div class="spinner"></div>');
+  const code = newRecoveryKey(), dek2 = rand(32), key2 = await dekKey(dek2), salt = rand(16);
+  const kek = await kdf(normRK(code), salt, RK_ITER);
+  const usedLabels = new Set(); for(const a of accts) for(const l of a.labels){ let x = labelById(l); while(x){ usedLabels.add(x.id); x = x.parentId ? labelById(x.parentId) : null; } }
+  const kitVault = {...newVault({name:V().profile.name, email:V().profile.email}), labels:V().labels.filter(l => usedLabels.has(l.id)),
+    accounts:accts.map(a => ({...clone(a), copies:[], secrets:[], files:withFiles ? clone(a.files || []) : [], notes:a.notes})), nextNo:V().nextNo};
+  const body = await sealVault(key2, kitVault);
+  const files = {};
+  if(withFiles) for(const a of accts) for(const f of a.files || []){ const r = await fileBlob(a, f.id); if(r && r.blob) files[f.id] = await Files.encrypt(key2, f.id, new Uint8Array(await r.blob.arrayBuffer())); }
+  const header = {app:APP, v:VER, kind:'emergency', ekdf:{alg:'PBKDF2-SHA256', iter:RK_ITER, salt:b64e(salt)}, ewrap:await seal(kek, dek2, 'vl-ewrap'), hdrAt:now()};
+  const owner = V().profile.name || '';
+  const data = JSON.stringify({app:APP, kind:'emergency', v:VER, exportedAt:now(), owner, note, count:accts.length, header, body, files});
+  dek2.fill(0);
+  V().meta.kits = [{id:uid(), at:now(), count:accts.length, scope:m.scope === 'all' ? 'all' : [...m.labels].map(labelPath).join(', ')}, ...(V().meta.kits || [])].slice(0, 20);
+  persist();
+  const fname = `vaultleaf-emergency-kit-${new Date().toISOString().slice(0, 10)}.json`;
+  S.m.kit = {data, code, fname};
+  setModal(`<p><b>Emergency code</b>. Write it down now: it isn't stored anywhere and can't be shown again.</p>${syncCodeHTML(code)}
+    <div class="banner" style="margin:0">${ic('shield','s')}<b>${accts.length} account${accts.length === 1 ? '' : 's'}${Object.keys(files).length ? ', ' + Object.keys(files).length + ' file' + (Object.keys(files).length === 1 ? '' : 's') : ''}, ${fmtSize(data.length)}</b></div>
+    <ol class="howto-m"><li>Download the kit file and give it to your trusted person, or store it where they can find it.</li><li>Give them the code separately.</li><li>To open it, they go to Vaultleaf, choose <b>Restore a backup or emergency kit</b>, pick the file and choose <b>Emergency code</b>.</li></ol>`,
+    `<button class="btn" data-act="kit-copycode">${ic('copy','s')}Copy code</button><button class="btn" data-act="kit-copy">Copy kit text</button>${canDownload() ? `<button class="btn primary" data-act="kit-dl">${ic('download','s')}Download kit</button>` : ''}`);
+}
+
+/* ---------- actions ---------- */
+Object.assign(ACT, {
+  's-link'(){ openLinkCode(true); },
+  'l-bio'(){ bioUnlock(); },
+  'lk-go'(){ linkGo(); },
+  'sync-on'(){ turnOnSync(); },
+  'sync-show'(){ openSyncCode(false); },
+  'sync-copy'(){ copyText(S.m.code).then(ok => toast(ok ? 'Sync code copied' : 'Copy was blocked. Write the code down instead.', ok ? 'copy' : 'warn')); },
+  'sync-link'(){ openLinkCode(false); },
+  'sync-off'(){ confirmBox({title:'Turn off sync?', text:'The synced copy is deleted. Every device keeps the accounts it has, but changes stop moving between them.', ok:'Turn off sync', danger:true, onOk:turnOffSync}); },
+  'sync-rotate'(){ confirmBox({title:'Make a new sync code?', text:'The old code stops working. Your other devices stop syncing until you enter the new code on each of them, in Settings.', ok:'Make new code', onOk:rotateSync}); },
+  'leak-check'(){ runLeakCheck(); },
+  'file-open'(el){ const a = acct(el.dataset.id); if(a) openFile(a, el.dataset.f); },
+  'file-dl'(el){ const a = acct(el.dataset.id); if(a) downloadFile(a, el.dataset.f); },
+  'file-rm'(el){ const a = acct(el.dataset.id); if(a) removeFile(a, el.dataset.f); },
+  'kit-new'(){ openKitBuilder(); },
+  'kit-scope'(el){ S.m.scope = el.dataset.v; modalsEl.querySelectorAll('[data-act="kit-scope"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.m.scope)); $('#kit-labels').hidden = S.m.scope !== 'labels'; },
+  'kit-label'(el){ const id = el.dataset.id; S.m.labels.has(id) ? S.m.labels.delete(id) : S.m.labels.add(id); el.setAttribute('aria-pressed', S.m.labels.has(id)); },
+  'kit-make'(){ makeKit(); },
+  'kit-copycode'(){ copyText(S.m.kit.code).then(ok => toast(ok ? 'Emergency code copied' : 'Copy was blocked. Write the code down.', ok ? 'copy' : 'warn')); },
+  'kit-copy'(){ copyText(S.m.kit.data).then(ok => toast(ok ? 'Kit copied. Paste it into a file or note.' : 'Copy was blocked here.', ok ? 'copy' : 'warn')); },
+  'kit-dl'(){ saveFile(S.m.kit.fname, S.m.kit.data).then(r => { if(r === 'saved') toast('Emergency kit saved', 'download'); }); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if(t.dataset && t.dataset.acc && t.type === 'file'){ const a = acct(t.dataset.acc); if(a) addFiles(a, t.files).finally(() => { t.value = ''; }); }
+  if(t.id === 's-bio') toggleBio(t);
+});
+
+/* start the app once every module above is defined */
 boot();
 
 </script>

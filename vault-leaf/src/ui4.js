@@ -53,9 +53,11 @@ function healthData(){
   const reused = new Set(reusedGroups.flat());
   const old = withPw.filter(isOld);
   const no2fa = withPw.filter(a => !a.fields.some(f => f.type === 'totp' && f.value));
-  const bad = new Set([...weak, ...reused, ...old]);
+  const leaked = withPw.filter(isLeaked);
+  const bad = new Set([...weak, ...reused, ...old, ...leaked]);
   const score = withPw.length ? Math.round(100 * (withPw.length - bad.size) / withPw.length) : 100;
-  return {accs, withPw, weak, reusedGroups, reused, old, no2fa, score};
+  const checked = withPw.filter(a => a.leak && a.leak.pwAt === (a.pwChangedAt || a.createdAt)).length;
+  return {accs, withPw, weak, reusedGroups, reused, old, no2fa, leaked, checked, bad, score};
 }
 function healthHTML(){
   const h = healthData();
@@ -65,8 +67,9 @@ function healthHTML(){
   const block = (title, sub, rows) => `<div class="panel"><div class="panel-h"><h2>${title}</h2><p>${sub}</p></div><div style="padding-top:8px">${rows || `<p class="hint" style="padding:0 16px 16px;margin:0">${ic('check','s')} Nothing to fix here.</p>`}</div></div>`;
   return `<div class="page">${pageHead('Password health')}
     <div class="panel"><div class="score"><div class="score-dial"><svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="40" stroke="var(--line)"/><circle cx="48" cy="48" r="40" stroke="${col}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - h.score / 100)}"/></svg><b class="tnum">${h.score}</b></div>
-      <div><h2 style="font-size:20px">${h.score >= 80 ? 'In good shape' : h.score >= 50 ? 'A few things to fix' : 'Needs attention'}</h2><p class="muted" style="margin:4px 0 0">${h.withPw.length - new Set([...h.weak, ...h.reused, ...h.old]).size} of ${h.withPw.length} saved passwords have no problems.</p></div></div>
-      <div class="stat-row"><div><b class="tnum">${h.weak.length}</b><span>Weak</span></div><div><b class="tnum">${h.reused.size}</b><span>Reused</span></div><div><b class="tnum">${h.old.length}</b><span>Overdue</span></div></div></div>
+      <div><h2 style="font-size:20px">${h.score >= 80 ? 'In good shape' : h.score >= 50 ? 'A few things to fix' : 'Needs attention'}</h2><p class="muted" style="margin:4px 0 0">${h.withPw.length - h.bad.size} of ${h.withPw.length} saved passwords have no problems.</p></div></div>
+      <div class="stat-row${WEB ? ' four' : ''}">${WEB ? `<div><b class="tnum">${h.leaked.length}</b><span>Leaked</span></div>` : ''}<div><b class="tnum">${h.weak.length}</b><span>Weak</span></div><div><b class="tnum">${h.reused.size}</b><span>Reused</span></div><div><b class="tnum">${h.old.length}</b><span>Overdue</span></div></div></div>
+    ${WEB ? leakPanelHTML(h, row, block) : ''}
     ${block('Weak passwords', 'Easy to guess. Generate a new one and update it on the site.', h.weak.map(a => row(a, 'Rated ' + strength(a.password).label.toLowerCase(), `<span class="pill bad">Weak</span>`)).join(''))}
     ${block('Reused passwords', 'If one site leaks, every account sharing the password is exposed.', h.reusedGroups.map(g => g.map(a => row(a, `Same password as ${listJoin(g.filter(x => x !== a).map(x => esc(x.tool)))}`, `<span class="pill bad">${g.length} accounts</span>`)).join('')).join(''))}
     ${block('Due for a change', 'Past your reminder, or not changed in over a year.', h.old.map(a => row(a, 'Password set ' + ago(a.pwChangedAt || a.createdAt), `<span class="pill warn">${ic('clock','s')}Overdue</span>`)).join(''))}
@@ -107,6 +110,7 @@ function settingsHTML(){
     </div></div>
     <div class="panel"><div class="panel-h"><h2>Security</h2></div><div>
       <div class="set-row"><label class="ol" for="set-settings-autoLockMin">Lock automatically<small>After this long without activity</small></label>${opt('settings.autoLockMin', s.autoLockMin, [[1,'1 minute'],[2,'2 minutes'],[5,'5 minutes'],[10,'10 minutes'],[15,'15 minutes'],[30,'30 minutes'],[0,'Never']])}</div>
+      ${WEB ? bioRowHTML() : ''}
       <div class="set-row"><label class="ol" for="s-hide">Lock when I leave the app<small>If it's in the background for over a minute</small></label>${sw('settings.lockOnHide', s.lockOnHide, 's-hide')}</div>
       <div class="set-row"><label class="ol" for="set-settings-revealSec">Hide shown secrets again<small>After you tap the eye</small></label>${opt('settings.revealSec', s.revealSec, [[10,'After 10 seconds'],[30,'After 30 seconds'],[60,'After 1 minute'],[300,'After 5 minutes']])}</div>
       <div class="set-row"><label class="ol" for="set-settings-clipSec">Clear copied secrets<small>Where your browser allows it</small></label>${opt('settings.clipSec', s.clipSec, [[0,'Off'],[20,'After 20 seconds'],[30,'After 30 seconds'],[60,'After 1 minute'],[120,'After 2 minutes']])}</div>
@@ -118,12 +122,14 @@ function settingsHTML(){
     </div></div>
     <div class="panel"><div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:10px"><h2>Labels</h2><button class="btn small" data-act="label-new">${ic('plus','s')}New label</button></div>
       <div class="labels-tree">${labelTree().map(({l, d}) => `<div class="lt-row"><span style="width:${d * 18}px;flex:none"></span><span class="dot" style="width:12px;height:12px;border-radius:50%;background:${l.color};flex:none"></span><span class="nm">${esc(l.name)}</span><span class="hint tnum">${V().accounts.filter(a => !a.trashedAt && a.labels.includes(l.id)).length}</span><button class="icon-btn" data-act="label-edit" data-id="${l.id}" aria-label="Edit ${esc(l.name)}">${ic('edit','s')}</button></div>`).join('') || '<p class="hint" style="padding:0 16px 14px;margin:0">No labels yet. Labels can hold sub-labels, like Work and Work / Cloud.</p>'}</div></div>
-    <div class="panel"><div class="panel-h"><h2>Sync and backup</h2><p id="syncstate">${syncLine()}</p></div><div>
-      ${Cloud.ready ? `<div class="set-row"><label class="ol" for="s-sync">Sync across my devices<small>Encrypted before upload. Open this same page on your phone or computer.</small></label>${sw('settings.sync', s.sync, 's-sync')}</div>
+    ${WEB ? syncPanelHTML() : ''}
+    <div class="panel"><div class="panel-h"><h2>${WEB ? 'Backup' : 'Sync and backup'}</h2>${WEB ? '' : `<p id="syncstate">${syncLine()}</p>`}</div><div>
+      ${WEB ? '' : Cloud.ready ? `<div class="set-row"><label class="ol" for="s-sync">Sync across my devices<small>Encrypted before upload. Open this same page on your phone or computer.</small></label>${sw('settings.sync', s.sync, 's-sync')}</div>
       ${s.sync ? `<div class="set-row"><span class="ol">Sync now<small>Pull changes from your other devices</small></span><button class="btn small" data-act="sync-now">${ic('refresh','s')}Sync</button></div>` : ''}` : `<div class="set-row"><span class="ol">Saved on this device only<small>To use another phone or computer, back up below and restore the file there.</small></span></div>`}
       <div class="set-row"><span class="ol">Encrypted backup<small>${lastB ? 'Last backup ' + fmtDT(lastB) : 'No backup yet. Keep one somewhere other than this device.'}</small></span><button class="btn small" data-act="m-backup">${ic('download','s')}Back up</button></div>
-      <div class="set-row"><span class="ol">Restore a backup<small>Add accounts back from a backup file</small></span><button class="btn small" data-act="m-restore">${ic('restore','s')}Restore</button></div>
+      <div class="set-row"><span class="ol">Restore a backup<small>Add accounts back from a backup file or emergency kit</small></span><button class="btn small" data-act="m-restore">${ic('restore','s')}Restore</button></div>
     </div></div>
+    ${emergencyPanelHTML()}
     <div class="panel"><div class="panel-h"><h2>Import and export</h2></div><div>
       <div class="set-row"><span class="ol">Import from Notes<small>Paste your notes. Each note becomes an account.</small></span><button class="btn small" data-act="import-notes">${ic('import','s')}Import</button></div>
       <div class="set-row"><span class="ol">Import a CSV file<small>From Chrome, Safari, Bitwarden, 1Password or LastPass</small></span><button class="btn small" data-act="import-csv">${ic('upload','s')}Import</button></div>
@@ -235,14 +241,20 @@ async function newRk(){
     `<button class="btn primary" data-act="mclose">I saved it</button>`);
   renderPage();
 }
+async function backupFiles(){
+  const files = {};
+  for(const a of V().accounts) for(const f of a.files || []){ const box = await Files.getRaw(f.id); if(box) files[f.id] = box; }
+  return files;
+}
 async function openBackup(){
   await saveChain;
   const p = V().profile;
-  const data = JSON.stringify({app:APP, kind:'backup', v:VER, exportedAt:now(), owner:p.name || '', count:V().accounts.filter(a => !a.trashedAt).length, header:S.header, body:S.body});
+  const files = await backupFiles();
+  const data = JSON.stringify({app:APP, kind:'backup', v:VER, exportedAt:now(), owner:p.name || '', count:V().accounts.filter(a => !a.trashedAt).length, header:S.header, body:S.body, files});
   const name = `vaultleaf-backup-${new Date().toISOString().slice(0, 10)}.json`;
   openModal({title:'Encrypted backup', backup:data, fname:name, body:`<p>The backup is encrypted. Opening it needs your current master password and passcode, or your recovery key.</p>
     <p class="muted">Keep it somewhere other than this device: a USB drive, a cloud drive, or emailed to yourself.</p>
-    <div class="banner" style="margin:0">${ic('layers','s')}<b>${V().accounts.filter(a => !a.trashedAt).length} accounts, ${(data.length / 1024).toFixed(0)} KB</b></div>`,
+    <div class="banner" style="margin:0">${ic('layers','s')}<b>${V().accounts.filter(a => !a.trashedAt).length} accounts${Object.keys(files).length ? ', ' + Object.keys(files).length + ' attached file' + (Object.keys(files).length === 1 ? '' : 's') : ''}, ${fmtSize(data.length)}</b></div>`,
     foot:`<button class="btn" data-act="bk-copy">${ic('copy','s')}Copy backup text</button>${canDownload() ? `<button class="btn primary" data-act="bk-dl">${ic('download','s')}Download file</button>` : ''}`});
 }
 function markBackup(){ V().meta.lastBackupAt = now(); persist(); renderPage(); }
@@ -251,9 +263,10 @@ function openRestore(fresh){
   openModal({title:'Restore from backup', fresh, body:`<p class="muted">Choose the backup file, or paste its text.</p>
     <div class="field"><label for="rs-file">Backup file</label><input id="rs-file" class="input" type="file" accept=".json,.txt,application/json,text/plain"></div>
     <div class="field"><label for="rs-text">Or paste backup text</label><textarea id="rs-text" class="input mono" rows="3" spellcheck="false" placeholder='{"app":"vaultleaf","kind":"backup",…}'></textarea></div>
-    <div class="field"><span class="lbl">Unlock the backup with</span><div class="seg" role="group"><button data-act="rs-mode" data-v="creds" aria-pressed="true">Password and passcode</button><button data-act="rs-mode" data-v="rk" aria-pressed="false">Recovery key</button></div></div>
+    <div class="field"><span class="lbl">Unlock it with</span><div class="seg" role="group" style="flex-wrap:wrap"><button data-act="rs-mode" data-v="creds" aria-pressed="true">Password and passcode</button><button data-act="rs-mode" data-v="rk" aria-pressed="false">Recovery key</button><button data-act="rs-mode" data-v="ec" aria-pressed="false">Emergency code</button></div></div>
     <div id="rs-creds">${credFields('rs')}</div>
-    <div id="rs-rk" hidden><div class="field"><label for="rs-key">Recovery key</label><input id="rs-key" class="input mono" spellcheck="false" autocomplete="off"></div></div>${ERR}`,
+    <div id="rs-rk" hidden><div class="field"><label for="rs-key">Recovery key</label><input id="rs-key" class="input mono" spellcheck="false" autocomplete="off"></div></div>
+    <div id="rs-ec" hidden><div class="field"><label for="rs-ec-in">Emergency code</label><input id="rs-ec-in" class="input mono" spellcheck="false" autocomplete="off" placeholder="The code that came with the emergency kit"></div></div>${ERR}`,
     foot:`<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`});
   S.m.rsMode = 'creds';
 }
@@ -264,18 +277,27 @@ async function restoreGo(){
   if(!text) return mErr('Choose a backup file or paste the backup text.');
   let bk; try{ bk = JSON.parse(text); }catch(e){ return mErr('That isn\'t a Vaultleaf backup. Check you picked the .json file it saved.'); }
   if(!bk || bk.app !== APP || !bk.header || !bk.body) return mErr('That isn\'t a Vaultleaf backup. Check you picked the .json file it saved.');
+  const kit = bk.kind === 'emergency';
+  if(kit && m.rsMode !== 'ec') return mErr('This file is an emergency kit. Choose Emergency code and enter the code that came with it.');
+  if(!kit && m.rsMode === 'ec') return mErr('This file is a regular backup. Open it with the password and passcode, or the recovery key.');
   mErr(''); setModal(undefined, '<div class="spinner"></div>');
+  const goBtns = `<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`;
   let raw;
-  try{ raw = m.rsMode === 'rk' ? await unwrapRecovery(bk.header, $('#rs-key').value) : await unwrapCreds(bk.header, $('#rs-pw').value, $('#rs-pc').value); }
-  catch(e){ setModal(undefined, `<button class="btn" data-act="mclose">Cancel</button><button class="btn primary" data-act="rs-go">Open backup</button>`); return mErr(m.rsMode === 'rk' ? 'That recovery key doesn\'t open this backup.' : 'That password and passcode don\'t open this backup. Use the ones you had when it was made.'); }
-  let vault;
-  try{ vault = upgradeVault(await openVault(await dekKey(raw), bk.body)); }catch(e){ return mErr('The backup file is damaged and can\'t be read.'); }
+  try{ raw = kit ? await openKitKey(bk.header, $('#rs-ec-in').value) : m.rsMode === 'rk' ? await unwrapRecovery(bk.header, $('#rs-key').value) : await unwrapCreds(bk.header, $('#rs-pw').value, $('#rs-pc').value); }
+  catch(e){ setModal(undefined, goBtns); return mErr(kit ? 'That emergency code doesn\'t open this kit. Check for typos.' : m.rsMode === 'rk' ? 'That recovery key doesn\'t open this backup.' : 'That password and passcode don\'t open this backup. Use the ones you had when it was made.'); }
+  let vault, key;
+  try{ key = await dekKey(raw); vault = upgradeVault(await openVault(key, bk.body)); }catch(e){ setModal(undefined, goBtns); return mErr('The backup file is damaged and can\'t be read.'); }
+  const fileBytes = {};
+  for(const [id, box] of Object.entries(bk.files || {})){ try{ fileBytes[id] = await Files.decrypt(key, id, box); }catch(e){ console.warn('backup file unreadable', id); } }
   if(m.fresh){
-    LS.set(K.header, bk.header); LS.set(K.body, bk.body); closeModal(); S.setup = null;
+    closeModal();
+    if(kit){ S.setup = Object.assign(newSetup(), {step:2, importVault:vault, importFiles:fileBytes, name:vault.profile.name || '', email:vault.profile.email || '', examples:false}); render(); return; }
+    LS.set(K.header, bk.header); LS.set(K.body, bk.body); S.setup = null;
+    for(const [id, box] of Object.entries(bk.files || {})) if(fileBytes[id]) await Files.putRaw(id, box);
     await openWith(raw, bk.header, {vault, toast:`Restored ${vault.accounts.length} accounts`});
     return;
   }
-  m.restored = vault;
+  m.restored = vault; m.restoredFiles = fileBytes;
   const n = vault.accounts.filter(a => !a.trashedAt).length, cur = new Set(V().accounts.map(a => a.id));
   const fresh = vault.accounts.filter(a => !cur.has(a.id)).length;
   setModal(`<p>The backup from ${fmtDT(bk.exportedAt)} holds <b>${n} accounts</b>. ${fresh} of them aren't in your vault right now.</p>
@@ -343,7 +365,8 @@ function openDelete(){
 }
 async function deleteVault(){
   if($('#dv-type').value.trim().toUpperCase() !== 'DELETE') return mErr('Type DELETE to confirm.');
-  if(Cloud.ready) await Cloud.wipe();
+  if(Cloud.ready && V().settings.sync) await Cloud.drop();
+  Cloud.forget(); await Files.clear(); Bio.remove();
   LS.del(K.header); LS.del(K.body); S.cloudHeader = null; S.body = null; S.header = null;
   lock(''); S.phase = 'setup'; S.setup = newSetup(); render(); toast('Vault deleted', 'trash');
 }

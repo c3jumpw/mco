@@ -156,13 +156,14 @@ const ACT = {
   'bk-copy'(){ copyText(S.m.backup).then(ok => { if(ok){ toast('Backup copied. Paste it somewhere safe.', 'copy'); markBackup(); } else toast('Copy was blocked here.', 'warn'); }); },
   'bk-dl'(){ saveFile(S.m.fname, S.m.backup).then(r => { if(r === 'saved'){ toast('Backup saved', 'download'); markBackup(); closeModal(); } }); },
   'm-restore'(){ openRestore(false); },
-  'rs-mode'(el){ S.m.rsMode = el.dataset.v; modalsEl.querySelectorAll('[data-act="rs-mode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.m.rsMode)); $('#rs-creds').hidden = S.m.rsMode !== 'creds'; $('#rs-rk').hidden = S.m.rsMode !== 'rk'; },
+  'rs-mode'(el){ S.m.rsMode = el.dataset.v; modalsEl.querySelectorAll('[data-act="rs-mode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.m.rsMode)); $('#rs-creds').hidden = S.m.rsMode !== 'creds'; $('#rs-rk').hidden = S.m.rsMode !== 'rk'; $('#rs-ec').hidden = S.m.rsMode !== 'ec'; },
   'rs-go'(){ restoreGo(); },
-  'rs-merge'(){ const before = V().accounts.length; S.vault = upgradeVault(restoreMerge(V(), S.m.restored)); hayCache = new WeakMap(); persist(); closeModal(); renderApp(); const n = Math.max(0, V().accounts.length - before); toast(n ? `Added ${n} account${n === 1 ? '' : 's'} from the backup` : 'Everything in the backup is already here', 'restore'); },
-  'rs-replace'(){ const r = S.m.restored; confirmBox({title:'Replace your vault?', text:'Accounts that aren\'t in the backup will be deleted on every device.', ok:'Replace', danger:true, onOk:() => {
+  async 'rs-merge'(){ await storeRestoredFiles(S.m.restoredFiles); const before = V().accounts.length; S.vault = upgradeVault(restoreMerge(V(), S.m.restored)); hayCache = new WeakMap(); persist(); closeModal(); renderApp(); const n = Math.max(0, V().accounts.length - before); toast(n ? `Added ${n} account${n === 1 ? '' : 's'} from the backup` : 'Everything in the backup is already here', 'restore'); },
+  'rs-replace'(){ const r = S.m.restored, rf = S.m.restoredFiles; confirmBox({title:'Replace your vault?', text:'Accounts that aren\'t in the backup will be deleted on every device.', ok:'Replace', danger:true, onOk:() => {
     const keep = new Set(r.accounts.map(a => a.id)), t = now();
     const tomb = V().accounts.filter(a => !keep.has(a.id)).map(a => ({id:a.id, at:t}));
-    S.vault = upgradeVault({...r, settings:V().settings, profile:V().profile, tombstones:[...(r.tombstones || []), ...tomb], nextNo:Math.max(r.nextNo || 1, V().nextNo)});
+    storeRestoredFiles(rf);
+    S.vault = upgradeVault({...r, settings:V().settings, profile:V().profile, meta:V().meta, tombstones:[...(r.tombstones || []), ...tomb], nextNo:Math.max(r.nextNo || 1, V().nextNo)});
     for(const a of S.vault.accounts) a.updatedAt = Math.max(a.updatedAt, t);
     S.selId = null; hayCache = new WeakMap(); persist(); renderApp(); toast('Vault replaced with the backup', 'restore');
   }}); },
@@ -294,4 +295,3 @@ async function boot(){
   if(S.cloudHeader) S.phase = 'login'; else { S.phase = 'setup'; S.setup = newSetup(); }
   render();
 }
-boot();

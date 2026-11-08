@@ -7,7 +7,7 @@ import base64, hashlib, json, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent  # the vault-leaf folder
 SRC = ROOT / 'src'
 css = (SRC / 'style.css').read_text()
-js_src = '\n'.join((SRC / f).read_text() for f in ['core.js', 'ui1.js', 'ui2.js', 'ui3.js', 'ui4.js', 'ui5.js'])
+js_src = '\n'.join((SRC / f).read_text() for f in ['core.js', 'ui1.js', 'ui2.js', 'ui3.js', 'ui4.js', 'ui5.js', 'ui6.js', 'zz-boot.js'])
 js_src = js_src.replace('__EFF_WORDS__', (SRC / 'eff-wordlist.txt').read_text().strip())
 tpl = (SRC / 'index.html').read_text()
 
@@ -54,7 +54,7 @@ sw = re.sub(r"const CACHE = 'vaultleaf-[^']*';", f"const CACHE = 'vaultleaf-{ver
 (web / 'sw.js').write_text(sw)
 
 APP_CSP = ("default-src 'none'; script-src 'self' 'sha256-%s'; style-src 'self' 'unsafe-inline'; font-src 'self'; "
-           "img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-src 'self'; "
+           "img-src 'self' data: blob:; connect-src 'self' https://symbmscaajjmgywbifhv.supabase.co https://api.pwnedpasswords.com; manifest-src 'self'; worker-src 'self'; frame-src 'self'; "
            "frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'") % sha
 GUIDE_CSP = ("default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; "
              "frame-ancestors 'self'; base-uri 'none'; form-action 'none'; object-src 'none'")

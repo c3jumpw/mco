@@ -178,23 +178,31 @@ let pushTimer = null;
 const syncOn = () => Cloud.ready && S.vault && S.vault.settings.sync;
 function schedulePush(){ if(!syncOn()) return; clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 1200); }
 async function pushNow(){
-  if(!Cloud.ready || !S.body || !S.header) return;
+  if(!syncOn() || !S.body || !S.header) return;
   if(Cloud.pushing){ Cloud.again = true; return; }
   Cloud.pushing = true; setSync('busy');
+  let conflict = null;
   try{
-    const m = await Cloud.getMeta().catch(() => null);
-    if(m && m.off && (!S.vault || m.at > (S.vault.settings.updatedAt || 0))){ if(S.vault) syncTurnedOffElsewhere(m); Cloud.pushing = false; Cloud.again = false; return; }
-    await Cloud.putHeader(S.header); await Cloud.putBody(S.body); setSync('ok');
+    if(Cloud.kind === 'claude'){
+      const m = await Cloud.getMeta().catch(() => null);
+      if(m && m.off && m.at > (S.vault.settings.updatedAt || 0)){ syncTurnedOffElsewhere(m); return; }
+    }
+    const res = await Cloud.push(S.header, S.body);
+    if(res.gone){ syncTurnedOffElsewhere({at:now()}); return; }
+    if(res.conflict) conflict = res.meta;
+    else { Cloud.lastHdr = JSON.stringify(S.header); await syncFiles(); setSync('ok'); }
   }
   catch(e){ console.warn('sync push', e); setSync('err', e); }
-  finally{ Cloud.pushing = false; if(Cloud.again){ Cloud.again = false; pushNow(); } }
+  finally{ Cloud.pushing = false; }
+  if(conflict){ await pullMerge(conflict); return; }
+  if(Cloud.again){ Cloud.again = false; pushNow(); }
 }
 function syncTurnedOffElsewhere(m){
   if(!S.vault || !S.vault.settings.sync) return;
-  S.vault.settings.sync = false; S.vault.settings.updatedAt = m.at;
-  clearTimeout(pushTimer); persist(); setSync('ok');
+  S.vault.settings.sync = false; S.vault.settings.updatedAt = Math.max(m.at || 0, S.vault.settings.updatedAt || 0);
+  clearTimeout(pushTimer); Cloud.forget(); persist(); setSync('ok');
   if(S.phase === 'app'){ renderSide(); if(S.tab === 'settings') renderPage(); }
-  toast('Sync was turned off on another device', 'cloud');
+  toast(Cloud.kind === 'supa' ? 'This vault stopped syncing: sync was turned off or given a new code on another device' : 'Sync was turned off on another device', 'cloud');
 }
 function setSync(st, e){
   Cloud.status = st; if(st === 'ok') Cloud.lastAt = now();
@@ -203,48 +211,80 @@ function setSync(st, e){
   const el2 = document.getElementById('syncstate'); if(el2) el2.innerHTML = syncLine();
 }
 function syncLine(){
-  if(!Cloud.ready) return `<span class="sync-dot"></span> Saved on this device only`;
-  if(!S.vault || !S.vault.settings.sync) return `<span class="sync-dot"></span> Sync is off`;
+  if(!Cloud.ready || !S.vault || !S.vault.settings.sync) return WEB ? `<span class="sync-dot"></span> This device only` : `<span class="sync-dot"></span> ${Cloud.ready ? 'Sync is off' : 'Saved on this device only'}`;
   if(Cloud.status === 'busy') return `<span class="sync-dot busy"></span> Syncing…`;
   if(Cloud.status === 'err') return `<span class="sync-dot err"></span> ${esc(Cloud.err || 'Sync failed')}`;
   if(Cloud.lastAt) return `<span class="sync-dot ok"></span> Synced ${ago(Cloud.lastAt)}`;
   return `<span class="sync-dot ok"></span> Sync on`;
 }
+async function adoptHeader(h){
+  if(h && (h.hdrAt || 0) > (S.header.hdrAt || 0)){ S.header = h; LS.set(K.header, h); Cloud.lastHdr = JSON.stringify(h); }
+}
 async function pullMerge(meta){
   if(S.pulling || !S.dek) return; S.pulling = true; setSync('busy');
+  let again = false;
   try{
-    const body = await Cloud.getBody(meta);
+    const body = await Cloud.pull(meta);
     if(!body){ S.pulling = false; await pushNow(); return; }
     const remote = upgradeVault(await openVault(S.dek, body));
-    const h = await Cloud.getHeader().catch(() => null);
-    if(h && (h.hdrAt || 0) > (S.header.hdrAt || 0)){ S.header = h; LS.set(K.header, h); Cloud.lastHdr = JSON.stringify(h); }
+    await adoptHeader(meta._header || await Cloud.getHeader().catch(() => null));
     Cloud.lastRev = body.rev;
     const merged = mergeVaults(S.vault, remote);
     const same = stable(merged) === stable(remote);
     S.vault = merged; hayCache = new WeakMap();
     if(same){ S.body = body; LS.set(K.body, body); setSync('ok'); }
-    else { await persist(); }
+    else { await persist(); again = true; }
+    await syncFiles();
     if(S.phase === 'app' && S.mode === 'view' && !S.m) renderApp();
     else if(S.phase === 'app'){ renderSide(); renderList(); }
+    if(!again) setSync('ok');
   }catch(e){ console.warn('pull', e); setSync('err', e); }
   S.pulling = false;
 }
+/* Files: upload what the other devices don't have, fetch what this one is missing, delete what was removed. */
+let filesBusy = false;
+async function syncFiles(){
+  if(!Cloud.files || !syncOn() || !S.dek || filesBusy) return;
+  filesBusy = true;
+  try{
+    const h = await Cloud.head(); if(!h) return;
+    const remote = h.files || {}, want = new Map(), key = S.dek;
+    for(const a of V().accounts) for(const f of a.files || []) want.set(f.id, f);
+    for(const [id, f] of want){
+      if((remote[id] || 0) >= fileParts(f)) continue;
+      const box = await Files.getRaw(id); if(box) await Cloud.putFile(id, JSON.stringify(box));
+    }
+    let got = 0;
+    for(const [id, f] of want){
+      if((remote[id] || 0) < fileParts(f) || await Files.has(id)) continue;
+      const txt = await Cloud.getFile(id); if(!txt) continue;
+      const box = JSON.parse(txt);
+      try{ await Files.decrypt(key, id, box); await Files.putRaw(id, box); got++; }catch(e){ console.warn('file from sync unreadable', id); }
+    }
+    const gone = new Set((V().tombstones || []).map(t => t.id));
+    for(const id of Object.keys(remote)) if(gone.has(id) && !want.has(id)) await Cloud.delFile(id).catch(() => {});
+    if(got && S.phase === 'app' && S.selId && S.mode === 'view') refreshDetailKeepScroll();
+  }catch(e){ console.warn('file sync', e); }
+  finally{ filesBusy = false; }
+}
 function watchCloud(){
   if(!Cloud.ready || Cloud.unsub) return;
-  try{
-    Cloud.unsub = Cloud.ref('vl-meta').onSnapshot(snap => {
-      if(!snap.exists || !S.vault || !S.vault.settings.sync) return;
-      const m = snap.data();
-      if(m.off){ if(m.at > (S.vault.settings.updatedAt || 0)) syncTurnedOffElsewhere(m); return; }
-      if(m.rev && m.rev !== (S.body && S.body.rev) && m.rev !== Cloud.lastRev && m.dev !== DEVICE) pullMerge(clone(m));
-    }, () => { Cloud.unsub = null; });
-  }catch(e){ Cloud.unsub = null; }
+  Cloud.unsub = Cloud.watch(m => {
+    if(!S.vault || !S.vault.settings.sync) return;
+    if(m.gone){ syncTurnedOffElsewhere({at:now()}); return; }
+    if(m.off){ if(m.at > (S.vault.settings.updatedAt || 0)) syncTurnedOffElsewhere(m); return; }
+    if(m.rev && m.rev !== (S.body && S.body.rev) && m.rev !== Cloud.lastRev && m.dev !== DEVICE) pullMerge(m);
+    else if(Cloud.files && m._files) syncFiles();
+  });
 }
 async function syncNow(){
-  if(!Cloud.ready) return;
-  const meta = await Cloud.getMeta().catch(() => null);
-  if(meta && meta.off){ if(meta.at > (V().settings.updatedAt || 0)) syncTurnedOffElsewhere(meta); else await pushNow(); return; }
-  if(meta && meta.rev !== (S.body && S.body.rev)) await pullMerge(meta); else await pushNow();
+  if(!syncOn()) return;
+  let h;
+  try{ h = await Cloud.head(); }catch(e){ setSync('err', e); return; }
+  if(!h){ if(Cloud.kind === 'supa' && Cloud.lastRev){ syncTurnedOffElsewhere({at:now()}); return; } await pushNow(); return; }
+  const meta = h.meta || {};
+  if(meta.off){ if(meta.at > (V().settings.updatedAt || 0)) syncTurnedOffElsewhere(meta); else await pushNow(); return; }
+  if(meta.rev && meta.rev !== (S.body && S.body.rev)) await pullMerge({...meta, _header:h.header}); else await pushNow();
 }
 
 /* ---------- theme ---------- */
@@ -335,8 +375,8 @@ function commitAccount(draft, isNew, noPersist){
 function listJoin(arr){ if(arr.length <= 1) return arr.join(''); if(arr.length === 2) return arr.join(' and '); return arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1]; }
 function trashAccount(a){ a.trashedAt = now(); a.updatedAt = now(); a.history.unshift({id:uid(), at:now(), kind:'trash', text:'Moved to Recently deleted'}); persist(); }
 function restoreAccount(a){ a.trashedAt = 0; a.updatedAt = now(); a.history.unshift({id:uid(), at:now(), kind:'restore', text:'Restored from Recently deleted'}); persist(); }
-function purgeAccount(a){ V().accounts = V().accounts.filter(x => x.id !== a.id); V().tombstones.push({id:a.id, at:now()}); persist(); }
-function autoPurge(){ const cut = now() - 30 * DAY; let n = 0; for(const a of [...V().accounts]) if(a.trashedAt && a.trashedAt < cut){ V().accounts = V().accounts.filter(x => x !== a); V().tombstones.push({id:a.id, at:now()}); n++; } return n; }
+function purgeAccount(a){ dropAccountFiles(a); V().accounts = V().accounts.filter(x => x.id !== a.id); V().tombstones.push({id:a.id, at:now()}); persist(); }
+function autoPurge(){ const cut = now() - 30 * DAY; let n = 0; for(const a of [...V().accounts]) if(a.trashedAt && a.trashedAt < cut){ dropAccountFiles(a); V().accounts = V().accounts.filter(x => x !== a); V().tombstones.push({id:a.id, at:now()}); n++; } return n; }
 
 /* ---------- filtering ---------- */
 function hay(a){

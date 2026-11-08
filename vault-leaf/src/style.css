@@ -336,6 +336,7 @@ mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
 .score-dial b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:30px}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
 .stat-row div{background:var(--surface);padding:12px 14px}
+.stat-row.four{grid-template-columns:repeat(4,1fr)}
 .stat-row b{font-family:var(--font-display);font-size:24px;display:block}
 .stat-row span{font-size:13px;color:var(--muted);font-weight:700}
 .hrow{display:grid;grid-template-columns:36px 1fr auto;gap:12px;align-items:center;padding:10px 16px;cursor:pointer}
@@ -346,6 +347,7 @@ mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
 .set-row+.set-row{border-top:1px solid var(--line)}
 .set-row .ol{display:grid;min-width:0}
 .set-row .ol small{color:var(--muted);font-size:14px}
+.set-row>.btn,.set-row>a.btn{flex:none;white-space:nowrap}
 .set-row select.input{width:auto;min-height:40px;padding:6px 10px}
 .labels-tree{display:grid}
 .lt-row{display:flex;align-items:center;gap:8px;padding:8px 16px;min-height:48px}
@@ -409,6 +411,8 @@ a.btn{text-decoration:none;color:inherit}
   .main .chips.always{display:flex}
 }
 
+.file-img{display:block;max-width:100%;max-height:70vh;margin:0 auto;border-radius:12px;border:1px solid var(--line)}
+.howto-m{margin:0;padding-left:22px;display:grid;gap:6px;font-size:15px}
 /* ---------- Modal & toast ---------- */
 .scrim{position:fixed;inset:0;background:rgba(8,14,11,.48);display:grid;place-items:end center;z-index:50;animation:fade .15s}
 @media (min-width:640px){.scrim{place-items:center}}

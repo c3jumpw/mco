@@ -1,14 +1,14 @@
 # Local stand-in for Vercel: serves web/ and applies vercel.json headers, trailing-slash dirs.
 import http.server, json, re, pathlib, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CFG = json.loads((ROOT/'vercel.json').read_text())
 def rx(src): return re.compile('^' + src.replace('(.*)', '(.*)') + '$')
-RULES = [(rx(h['source']), h['headers']) for h in CFG['headers']]
+def rules():  # re-read on every request so a rebuild's new CSP hash applies at once
+    return [(rx(h['source']), h['headers']) for h in json.loads((ROOT/'vercel.json').read_text())['headers']]
 class H(http.server.SimpleHTTPRequestHandler):
     def __init__(s, *a, **k): super().__init__(*a, directory=str(ROOT), **k)
     def end_headers(s):
         path = s.path.split('?')[0]
-        for r, hs in RULES:
+        for r, hs in rules():
             if r.match(path):
                 for h in hs: s.send_header(h['key'], h['value'])
         super().end_headers()
