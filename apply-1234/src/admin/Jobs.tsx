@@ -4,6 +4,7 @@ import type { Job, JobStats } from '../lib/types';
 import { jobStats, listJobs } from './data';
 import { Button, Card, Empty, Loading, Pill } from '../ui';
 import { relTime } from '../lib/util';
+import Dashboard from './Dashboard';
 
 export const statusTone = (s: Job['status']) => (s === 'published' ? 'good' : s === 'closed' ? 'neutral' : 'warn') as 'good' | 'neutral' | 'warn';
 export const statusLabel = (s: Job['status']) => (s === 'published' ? 'Live' : s === 'closed' ? 'Closed' : 'Draft');
@@ -25,9 +26,12 @@ export default function Jobs() {
 
   return (
     <div className="rise">
+      {jobs.length > 0 && <Dashboard jobs={jobs} />}
       <div className="flex items-end justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-4xl sm:text-5xl leading-none">Jobs</h1>
+          {jobs.length > 0
+            ? <h2 className="font-display text-3xl sm:text-4xl leading-none">Jobs</h2>
+            : <h1 className="font-display text-4xl sm:text-5xl leading-none">Jobs</h1>}
           <p className="text-sm text-muted mt-2">
             {totals.live} live · {totals.subs} submission{totals.subs === 1 ? '' : 's'}{totals.fresh ? ` · ${totals.fresh} waiting for review` : ''}
           </p>

@@ -4,10 +4,11 @@ import { supabase } from '../lib/supabase';
 import type { Application, HEvent, Job, Note, Review, Stage } from '../lib/types';
 import { STAGES } from '../lib/types';
 import { behavior, EVENT_LABELS } from '../lib/metrics';
-import { embedUrl, fetchLoomInfo, loomId, type LoomInfo } from '../lib/loom';
+import { embedUrl, fetchLoomInfo, knownDuration, loomId, type LoomInfo } from '../lib/loom';
 import { fmtDate, fmtDuration, fmtSpan, fromLocalInput, rangeLabel, relTime, toLocalInput } from '../lib/util';
 import { reviewAverage } from '../lib/export';
 import { DEFAULT_SETTINGS, fillTemplate, getApplication, getJob, updateApplication } from './data';
+import { fileLink, fmtSize } from '../lib/files';
 import { Button, Card, Input, Loading, Pill, SectionTitle, Select, Stars, Textarea, cx, useToast } from '../ui';
 import { Flags, stageLabel, stageTone } from './Pipeline';
 import ExportModal from './ExportModal';
@@ -113,6 +114,8 @@ export default function CandidateDetail() {
               score={myReview?.scores?.[ans.question_id]}
               onScore={(v) => upsertReview(me, app.id, myReview, { scores: { ...(myReview?.scores || {}), [ans.question_id]: v } }, setReviews, toast)} />
           ))}
+
+          {((app.attachments || []).length > 0 || (app.cover_letter || '').trim()) && <ExtrasCard app={app} />}
 
           <Card>
             <SectionTitle sub="Shared with everyone on the hiring team.">Notes</SectionTitle>
@@ -269,7 +272,7 @@ function AnswerCard({ n, ans, job, score, onScore }:
   const id = ans.loom_id || loomId(ans.url);
   useEffect(() => { if (id) fetchLoomInfo(ans.url).then(setLive); }, [ans.url, id]);
   const a = job?.activity || {};
-  const dur = live?.ok ? live.duration : ans.duration_sec;
+  const dur = knownDuration(live) ?? (ans.duration_sec && ans.duration_sec >= 1 ? ans.duration_sec : null);
   const out = dur != null && ((a.answer_min && dur < a.answer_min) || (a.answer_max && dur > a.answer_max));
 
   return (
@@ -293,6 +296,7 @@ function AnswerCard({ n, ans, job, score, onScore }:
           <Pill tone={dur == null ? 'neutral' : out ? 'warn' : 'good'}>{fmtDuration(dur)}{rangeLabel(a.answer_min, a.answer_max) ? ` · asked ${rangeLabel(a.answer_min, a.answer_max)}` : ''}</Pill>
           {(live?.title || ans.title) && <Pill tone="neutral">“{live?.title || ans.title}”</Pill>}
           {live && !live.ok && live.reason !== 'not_loom' && <Pill tone="bad">Video is private or removed</Pill>}
+          {live?.ok && dur == null && <Pill tone="neutral">Length not available yet</Pill>}
           {a.hidden_code && (live?.title || ans.title) && (
             (live?.title || ans.title || '').toLowerCase().includes(a.hidden_code.toLowerCase())
               ? <Pill tone="good">Code word ✓</Pill> : <Pill tone="bad">No code word</Pill>
@@ -374,5 +378,48 @@ function InterviewPanel({ app, job, save }: { app: Application; job: Job | null;
         <Textarea rows={3} placeholder="Overall impression, concerns, next step…" value={app.interview_summary} onChange={(e) => save({ interview_summary: e.target.value })} />
       </div>
     </div>
+  );
+}
+
+function ExtrasCard({ app }: { app: Application }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState('');
+  const files = app.attachments || [];
+  const open = async (path: string, name: string, download = false) => {
+    setBusy(path);
+    try {
+      const url = await fileLink(path, download ? name : undefined);
+      window.open(url, '_blank', 'noopener');
+    } catch (e: any) {
+      toast(e?.message || 'Could not open the file', 'bad');
+    }
+    setBusy('');
+  };
+  const label = { resume: 'Résumé', cover_letter: 'Cover letter', other: 'File' } as const;
+  return (
+    <Card>
+      <SectionTitle sub="Optional extras the candidate added. Links to files expire after 10 minutes.">Résumé and cover letter</SectionTitle>
+      {files.length > 0 && (
+        <ul className="space-y-2">
+          {files.map((f) => (
+            <li key={f.path} className="flex items-center gap-3 rounded-xl border border-line px-3 py-2.5">
+              <span className="grid place-items-center h-9 w-8 rounded-md bg-accent-soft text-accent text-[10px] font-bold uppercase">{f.name.split('.').pop()}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{label[f.kind] || 'File'}</p>
+                <p className="text-[12px] text-muted truncate">{f.name} · {fmtSize(f.size || 0)}</p>
+              </div>
+              <Button size="sm" disabled={busy === f.path} onClick={() => open(f.path, f.name)}>Open</Button>
+              <Button size="sm" variant="ghost" disabled={busy === f.path} onClick={() => open(f.path, f.name, true)}>Download</Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {(app.cover_letter || '').trim() && (
+        <div className={cx(files.length > 0 && 'mt-4')}>
+          <p className="text-[12px] text-muted mb-1.5">Cover letter, written in the form</p>
+          <div className="rounded-xl bg-paper-2 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">{app.cover_letter}</div>
+        </div>
+      )}
+    </Card>
   );
 }

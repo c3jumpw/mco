@@ -1,21 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Job, Source } from '../../lib/types';
 import { fragmentsFor, fullUrl, hintText, placedParts, splitUrl, variantSlug } from '../../lib/posting';
-import { randomCode, randomSlug, sourceCode, uid } from '../../lib/util';
+import { randomSlug, uid } from '../../lib/util';
+import { freeCode, freeSourceCode, linkProblem, takenLinks } from '../data';
 import { Button, Card, CopyButton, Field, Input, Pill, SectionTitle, Toggle, cx } from '../../ui';
 import type { Patch } from '../JobEditor';
 
 export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
   const [slugDraft, setSlugDraft] = useState(job.slug || '');
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [taken, setTaken] = useState<Map<string, string> | null>(null);
+  useEffect(() => { takenLinks(job.id).then(setTaken).catch(() => setTaken(new Map())); }, [job.id]);
   const url = fullUrl(job.domain, job.slug);
   const joined = job.fragments.map((f) => f.text).join('');
   const matches = joined === url;
   const { placed } = placedParts(job.posting, job.fragments.length);
 
-  const applySlug = (raw: string, resplit = true) => {
+  const applySlug = async (raw: string, resplit = true) => {
     const slug = raw.toLowerCase().trim().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 63);
     setSlugDraft(slug);
-    if (slug.length < 3) return;
+    if (slug === job.slug) { setSlugError(null); return; }
+    // Always check against the latest jobs before saving, so two jobs can never share a link.
+    const t = await takenLinks(job.id).catch(() => taken || new Map<string, string>());
+    setTaken(t);
+    const problem = linkProblem(slug, t, job.sources || []);
+    setSlugError(problem);
+    if (problem) return;
     const p: Partial<Job> = { slug };
     if (resplit) p.fragments = splitUrl(fullUrl(job.domain, slug), job.fragments.length || 3).map((text) => ({ text }));
     patch(p);
@@ -38,14 +48,19 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm">/</span>
-                  <Input mono className="pl-6" value={slugDraft} onChange={(e) => setSlugDraft(e.target.value)}
-                    onBlur={(e) => e.target.value !== job.slug && applySlug(e.target.value)} />
+                  <Input mono className="pl-6" value={slugDraft} onChange={(e) => { setSlugDraft(e.target.value); setSlugError(null); }}
+                    onBlur={(e) => applySlug(e.target.value)} />
                 </div>
-                <Button onClick={() => applySlug(randomCode())}>Random code</Button>
+                <Button disabled={!taken} onClick={() => taken && applySlug(freeCode(taken))}>Random code</Button>
               </div>
+              {slugError && <p className="text-xs text-bad mt-1.5 font-medium">✗ {slugError} The link was not changed.</p>}
             </Field>
           </div>
-          <button className="mt-2 text-[12px] text-muted underline underline-offset-2" onClick={() => applySlug(randomSlug())}>Use a word + number instead</button>
+          <button className="mt-2 text-[12px] text-muted underline underline-offset-2" onClick={() => {
+            let next = randomSlug();
+            for (let i = 0; taken && i < 30 && linkProblem(next, taken, job.sources || []); i++) next = randomSlug();
+            applySlug(next);
+          }}>Use a word + number instead</button>
           <div className="mt-4 rounded-xl bg-ink text-white px-4 py-3 font-mono text-[15px] break-all">
             {job.fragments.map((f, i) => (
               <span key={i} className={cx(i % 2 ? 'text-accent' : 'text-white')}>{f.text}</span>
@@ -80,7 +95,7 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
             ))}
           </div>
         </Card>
-        <SourcesCard job={job} patch={patch} />
+        <SourcesCard job={job} patch={patch} taken={taken} />
       </div>
 
       <div className="space-y-5">
@@ -112,14 +127,13 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
 
 const QUICK = ['LinkedIn', 'Indeed', 'Facebook', 'Craigslist', 'Referral'];
 
-function SourcesCard({ job, patch }: { job: Job; patch: Patch }) {
+function SourcesCard({ job, patch, taken }: { job: Job; patch: Patch; taken: Map<string, string> | null }) {
   const sources = job.sources || [];
   const set = (next: Source[]) => patch({ sources: next });
   const add = (label: string) => {
     const name = label.trim();
     if (!name) return;
-    let code = sourceCode();
-    while (sources.some((x) => x.code === code)) code = sourceCode();
+    const code = freeSourceCode(job.slug || "", sources, taken || new Map());
     set([...sources, { id: uid('s'), label: name, code, active: true }]);
   };
   const baseOff = !!job.settings?.base_link_off;
@@ -147,7 +161,8 @@ function SourcesCard({ job, patch }: { job: Job; patch: Patch }) {
                 <CopyButton text={link} label="Copy link" />
                 <Button size="sm" variant="ghost" onClick={() => {
                   if (confirm(`Give ${src.label} a new code? Its current link stops working right away.`)) {
-                    set(sources.map((x) => (x.id === src.id ? { ...x, code: sourceCode() } : x)));
+                    const code = freeSourceCode(job.slug || "", sources, taken || new Map());
+                    set(sources.map((x) => (x.id === src.id ? { ...x, code } : x)));
                   }
                 }}>New code</Button>
                 <Button size="sm" variant="ghost" onClick={() => set(sources.map((x) => (x.id === src.id ? { ...x, active: !x.active } : x)))}>

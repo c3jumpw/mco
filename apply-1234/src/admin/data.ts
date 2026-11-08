@@ -1,7 +1,7 @@
 import { supabase, DEFAULT_DOMAIN } from '../lib/supabase';
-import type { Activity, Application, HEvent, Job, JobStats, Note, Review, Template } from '../lib/types';
+import type { Activity, Application, Dashboard, HEvent, HMessage, Job, JobStats, Note, Review, Template } from '../lib/types';
 import { DEFAULT_POSTING, fullUrl, splitUrl } from '../lib/posting';
-import { randomCode, uid } from '../lib/util';
+import { randomCode, sourceCode, uid } from '../lib/util';
 
 export const DEFAULT_ACTIVITY: Activity = {
   headline: 'You found it.',
@@ -22,6 +22,34 @@ export const DEFAULT_SETTINGS = {
   reject_subject: 'Your application for {role}',
   reject_body: 'Hi {first},\n\nThank you for taking the time to complete the application activity for the {role} role. We had many strong submissions, and we’ve decided not to move forward with your application this time.\n\nWe appreciate the effort you put in and wish you the best in your search.\n',
 };
+
+export const DEFAULT_CONFIRM = {
+  confirm_subject: 'We got your answers for {role}',
+  confirm_body: 'Hi {first},\n\nThanks for completing the activity for the {role} role. Your video answers came through, and a person on our team will watch every one.\n\nWhat happens next: if your answers are a good fit, we\'ll email you to set up a short interview. Either way, we\'ll let you know.\n\nYou don\'t need to do anything else. If something went wrong with your submission, just reply to this email.\n',
+};
+
+export async function getDashboard(days: number): Promise<Dashboard | null> {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const { data, error } = await supabase.rpc('hiring_dashboard', { p_days: days, p_tz: tz });
+  if (error) throw error;
+  return data as Dashboard | null;
+}
+
+export async function listMessages(): Promise<HMessage[]> {
+  const { data, error } = await supabase.from('hiring_messages').select('*').order('created_at', { ascending: false }).limit(300);
+  if (error) throw error;
+  return (data || []) as HMessage[];
+}
+
+export async function updateMessage(id: string, patch: Partial<HMessage>) {
+  const { error } = await supabase.from('hiring_messages').update(patch).eq('id', id);
+  if (error) throw error;
+}
+
+export async function unreadMessages(): Promise<number> {
+  const { count } = await supabase.from('hiring_messages').select('id', { count: 'exact', head: true }).eq('status', 'new');
+  return count || 0;
+}
 
 export function fillTemplate(t: string, vars: Record<string, string>) {
   return t.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
@@ -45,8 +73,48 @@ export async function getJob(id: string): Promise<Job | null> {
   return (data as Job) || null;
 }
 
+const RESERVED = ['admin', 'api', 'assets', 'p', 'login', 'index', 'favicon', 'robots', 'new'];
+
+/** Every address already in use: each job's main link and each job-board variant. */
+export async function takenLinks(excludeJobId?: string): Promise<Map<string, string>> {
+  const { data } = await supabase.from('hiring_jobs').select('id, title, slug, sources');
+  const taken = new Map<string, string>();
+  for (const j of (data || []) as Pick<Job, 'id' | 'title' | 'slug' | 'sources'>[]) {
+    if (j.id === excludeJobId || !j.slug) continue;
+    taken.set(j.slug, `“${j.title}” already uses this link.`);
+    for (const s of j.sources || []) taken.set(`${j.slug}-${s.code}`, `This matches the ${s.label} link of “${j.title}”.`);
+  }
+  return taken;
+}
+
+/** Returns why a link can't be used, or null if it's free. */
+export function linkProblem(slug: string, taken: Map<string, string>, ownSources: { code: string }[] = []): string | null {
+  if (!/^[a-z0-9][a-z0-9-]{2,62}$/.test(slug)) return 'Use lowercase letters, numbers and dashes (at least 3 characters).';
+  if (RESERVED.includes(slug)) return 'That word is reserved by the site.';
+  if (taken.has(slug)) return taken.get(slug)!;
+  for (const s of ownSources) if (taken.has(`${slug}-${s.code}`)) return `This job's board link “${slug}-${s.code}” would match another job.`;
+  for (const k of taken.keys()) if (k.startsWith(slug + '-') && k.length - slug.length <= 4) return `Too close to an existing link (${k}). Pick another.`;
+  return null;
+}
+
+export function freeCode(taken: Map<string, string>): string {
+  for (let i = 0; i < 50; i++) {
+    const c = randomCode();
+    if (!linkProblem(c, taken)) return c;
+  }
+  return randomCode() + sourceCode();
+}
+
+export function freeSourceCode(slug: string, existing: { code: string }[], taken: Map<string, string>): string {
+  for (let i = 0; i < 50; i++) {
+    const c = sourceCode();
+    if (!existing.some((x) => x.code === c) && !taken.has(`${slug}-${c}`)) return c;
+  }
+  return sourceCode() + sourceCode();
+}
+
 export async function createJob(opts: { title?: string; from?: Job | null; activity?: Activity | null } = {}): Promise<Job> {
-  const slug = randomCode();
+  const slug = freeCode(await takenLinks());
   const domain = opts.from?.domain || DEFAULT_DOMAIN;
   const fragments = splitUrl(fullUrl(domain, slug), 3).map((text) => ({ text }));
   const base: Partial<Job> = opts.from

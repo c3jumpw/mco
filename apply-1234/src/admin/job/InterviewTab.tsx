@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { InterviewQuestion, Job } from '../../lib/types';
 import { aiInterviewPrompt, GENERAL_INTERVIEW_QUESTIONS } from '../../lib/posting';
-import { DEFAULT_SETTINGS, newQuestionId } from '../data';
-import { Button, Card, CopyButton, Field, Input, Modal, Pill, SectionTitle, Segmented, Textarea } from '../../ui';
+import { DEFAULT_CONFIRM, DEFAULT_SETTINGS, newQuestionId } from '../data';
+import { Button, Card, CopyButton, Field, Input, Modal, Pill, SectionTitle, Segmented, Textarea, Toggle } from '../../ui';
 import type { Patch } from '../JobEditor';
 
 export default function InterviewTab({ job, patch }: { job: Job; patch: Patch }) {
@@ -43,6 +43,23 @@ export default function InterviewTab({ job, patch }: { job: Job; patch: Patch })
             <Button size="sm" onClick={() => setIq([...iq, { id: newQuestionId(), text: '', kind: newKind }])}>+ Add</Button>
             <Button size="sm" variant="ghost" onClick={addGeneral}>Add the general set</Button>
             <Button size="sm" variant="ghost" onClick={() => setPasteOpen(true)}>Paste a list</Button>
+          </div>
+        </Card>
+
+        <Card>
+          <SectionTitle sub="Sent automatically from hiring@apply1234.com the moment someone submits. {first}, {name} and {role} are filled in.">Confirmation email</SectionTitle>
+          <div className="space-y-4">
+            <Toggle checked={!s.confirm_off} onChange={(v) => setS({ confirm_off: !v })}
+              label="Email candidates when they submit" hint="Tells them their answers arrived and what happens next. Admin test runs are marked [Test]." />
+            {!s.confirm_off && (
+              <>
+                <Field label="Subject"><Input value={s.confirm_subject ?? DEFAULT_CONFIRM.confirm_subject} onChange={(e) => setS({ confirm_subject: e.target.value })} /></Field>
+                <Field label="Message"><Textarea rows={7} value={s.confirm_body ?? DEFAULT_CONFIRM.confirm_body} onChange={(e) => setS({ confirm_body: e.target.value })} /></Field>
+                <Field label="Replies go to" hint="Leave blank to use the first person on the hiring team.">
+                  <Input type="email" placeholder="you@company.com" value={s.reply_to || ''} onChange={(e) => setS({ reply_to: e.target.value.trim() })} />
+                </Field>
+              </>
+            )}
           </div>
         </Card>
 

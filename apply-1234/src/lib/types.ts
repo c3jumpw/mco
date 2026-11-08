@@ -38,6 +38,10 @@ export interface JobSettings {
   invite_body?: string;
   reject_subject?: string;
   reject_body?: string;
+  confirm_off?: boolean;
+  confirm_subject?: string;
+  confirm_body?: string;
+  reply_to?: string;
 }
 
 export interface Job {
@@ -96,6 +100,9 @@ export interface Application {
   interview_at: string | null;
   interview_answers: Record<string, { notes?: string; score?: number }>;
   interview_summary: string;
+  cover_letter?: string;
+  attachments?: Attachment[];
+  notified_at?: string | null;
   submitted_at: string;
   updated_at: string;
 }
@@ -152,4 +159,35 @@ export interface JobStats {
   wrong_visitors: number;
   form_starts: number;
   posting_views: number;
+}
+
+export interface Attachment { kind: 'resume' | 'cover_letter' | 'other'; path: string; name: string; size: number; type?: string }
+
+export type MessageKind = 'bug' | 'question' | 'other';
+export interface HMessage {
+  id: string;
+  job_id: string | null;
+  application_id: string | null;
+  visitor_id: string;
+  kind: MessageKind;
+  name: string;
+  email: string;
+  body: string;
+  context: Record<string, unknown>;
+  status: 'new' | 'open' | 'done';
+  admin_note: string;
+  notified_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DashDay { day: string; arrivals: number; starts: number; applicants: number }
+export interface Dashboard {
+  tz: string; days: number; start: string;
+  applicants: number; applicants_prev: number;
+  posting_views: number; arrivals: number; arrivals_prev: number; starts: number;
+  wrong_tries: number; wrong_visitors: number;
+  to_review: number; shortlisted: number; interviews_next7: number;
+  messages_new: number; messages_period: number; live_jobs: number;
+  series: DashDay[];
 }

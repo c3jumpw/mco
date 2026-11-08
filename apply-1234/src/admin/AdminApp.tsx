@@ -11,6 +11,8 @@ import CandidateDetail from './CandidateDetail';
 import ActivityLog from './ActivityLog';
 import Settings from './Settings';
 import NewJobWizard from './NewJobWizard';
+import Inbox, { INBOX_EVENT } from './Inbox';
+import { unreadMessages } from './data';
 
 type Gate = 'loading' | 'signed_out' | 'not_admin' | 'admin';
 
@@ -44,6 +46,7 @@ export default function AdminApp() {
 const NAV = [
   { to: '/admin', label: 'Jobs', icon: 'M4 7h16M4 12h16M4 17h10', end: true },
   { to: '/admin/candidates', label: 'Candidates', icon: 'M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6M22 19v-1a4 4 0 0 0-3-3.87M16 4.13a3 3 0 0 1 0 5.75' },
+  { to: '/admin/inbox', label: 'Inbox', icon: 'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6z' },
   { to: '/admin/activity', label: 'Activity', icon: 'M3 12h4l3 8 4-16 3 8h4' },
   { to: '/admin/settings', label: 'Settings', icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z' },
 ];
@@ -52,8 +55,27 @@ function Icon({ d, className }: { d: string; className?: string }) {
   return <svg viewBox="0 0 24 24" className={cx('h-5 w-5', className)} fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>;
 }
 
+function useUnread() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const load = () => unreadMessages().then(setN).catch(() => {});
+    load();
+    const t = setInterval(load, 60_000);
+    window.addEventListener(INBOX_EVENT, load);
+    window.addEventListener('focus', load);
+    return () => { clearInterval(t); window.removeEventListener(INBOX_EVENT, load); window.removeEventListener('focus', load); };
+  }, []);
+  return n;
+}
+
+function Badge({ n, className }: { n: number; className?: string }) {
+  if (!n) return null;
+  return <span className={cx('inline-grid place-items-center min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[11px] font-semibold leading-none', className)}>{n > 99 ? '99+' : n}</span>;
+}
+
 function Shell({ email }: { email: string }) {
   const loc = useLocation();
+  const unread = useUnread();
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
   return (
     <div className="min-h-dvh pb-24 sm:pb-10">
@@ -66,8 +88,9 @@ function Shell({ email }: { email: string }) {
           <nav className="hidden sm:flex items-center gap-1 ml-2">
             {NAV.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end}
-                className={({ isActive }) => cx('px-3 py-1.5 rounded-lg text-sm transition', isActive ? 'bg-card border border-line font-medium' : 'text-muted hover:text-ink')}>
+                className={({ isActive }) => cx('px-3 py-1.5 rounded-lg text-sm transition inline-flex items-center gap-1.5', isActive ? 'bg-card border border-line font-medium' : 'text-muted hover:text-ink')}>
                 {n.label}
+                {n.to === '/admin/inbox' && <Badge n={unread} />}
               </NavLink>
             ))}
           </nav>
@@ -81,17 +104,19 @@ function Shell({ email }: { email: string }) {
           <Route path="jobs/:id" element={<JobEditor />} />
           <Route path="candidates" element={<Candidates />} />
           <Route path="candidates/:id" element={<CandidateDetail />} />
+          <Route path="inbox" element={<Inbox />} />
           <Route path="activity" element={<ActivityLog />} />
           <Route path="settings" element={<Settings email={email} />} />
           <Route path="*" element={<Jobs />} />
         </Routes>
       </main>
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-card/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end}
-              className={({ isActive }) => cx('flex flex-col items-center gap-0.5 py-2.5 text-[11px]', isActive ? 'text-ink font-medium' : 'text-muted')}>
+              className={({ isActive }) => cx('relative flex flex-col items-center gap-0.5 py-2.5 text-[11px]', isActive ? 'text-ink font-medium' : 'text-muted')}>
               <Icon d={n.icon} />
+              {n.to === '/admin/inbox' && <Badge n={unread} className="absolute top-1 left-1/2 ml-1.5" />}
               {n.label}
             </NavLink>
           ))}

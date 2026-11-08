@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Job } from '../lib/types';
-import { DEFAULT_DOMAIN, supabase } from '../lib/supabase';
+import { DEFAULT_DOMAIN } from '../lib/supabase';
 import {
   DEFAULT_POSTING, aiJobPrompt, ensureCodeWord, fullUrl, hintText, insertMissingTokens, mdToHtml, parseAiJob,
   postingPlain, splitUrl,
 } from '../lib/posting';
 import { randomCode, randomSlug, randomWord, rangeLabel, storeJson } from '../lib/util';
-import { DEFAULT_ACTIVITY, createJob, createJobFromWizard, listJobs, updateJob } from './data';
+import { DEFAULT_ACTIVITY, createJob, createJobFromWizard, freeCode, linkProblem, listJobs, takenLinks, updateJob } from './data';
 import { ParsedSummary } from './AiImport';
 import { Button, Card, CopyButton, Field, Input, Pill, Segmented, Select, Textarea, Toggle, cx, useToast } from '../ui';
 
@@ -55,7 +55,22 @@ export default function NewJobWizard() {
     storeJson(KEY, next);
     return next;
   });
+  const [taken, setTaken] = useState<Map<string, string> | null>(null);
   useEffect(() => { listJobs().then(setJobs).catch(() => {}); }, []);
+  useEffect(() => {
+    takenLinks().then((t) => {
+      setTaken(t);
+      // A saved draft's random link may have been used by another job since. Swap it quietly.
+      setS((prev) => (linkProblem(prev.slug, t) && /^[a-z0-9]{4}-[a-z0-9]{4}$/.test(prev.slug) ? { ...prev, slug: freeCode(t) } : prev));
+    }).catch(() => setTaken(new Map()));
+  }, []);
+  const slugProblem = taken ? linkProblem(s.slug, taken) : null;
+  const newRandom = () => set({ slug: taken ? freeCode(taken) : randomCode() });
+  const newWordSlug = () => {
+    let next = randomSlug();
+    for (let i = 0; taken && i < 30 && linkProblem(next, taken); i++) next = randomSlug();
+    set({ slug: next });
+  };
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [s.step, created]);
 
   const [ansMin, ansMax] = s.answer.split('-').map(Number);
@@ -73,16 +88,23 @@ export default function NewJobWizard() {
 
   const go = (step: Step) => set({ step });
 
+  // Re-check against the latest jobs, in case one was created in another tab.
+  const freshProblem = async () => {
+    const t = await takenLinks();
+    setTaken(t);
+    return linkProblem(s.slug, t);
+  };
   const checkSlugThenNext = async () => {
-    if (!/^[a-z0-9][a-z0-9-]{2,62}$/.test(s.slug)) { toast('Links use lowercase letters, numbers and dashes (3+ characters).', 'bad'); return; }
-    const { data } = await supabase.from('hiring_jobs').select('id').eq('slug', s.slug).maybeSingle();
-    if (data) { toast('Another job already uses this link. Generate a new one.', 'bad'); return; }
+    const problem = await freshProblem();
+    if (problem) { toast(problem, 'bad'); return; }
     go(2);
   };
 
   const create = async (goLive = false) => {
     setBusy(true);
     try {
+      const problem = await freshProblem();
+      if (problem) { toast(`${problem} Go back to step 2 and pick another link.`, 'bad'); setBusy(false); return; }
       const job = await createJobFromWizard({
         title: finalTitle || 'New role',
         notes: s.notes,
@@ -215,8 +237,8 @@ export default function NewJobWizard() {
               {fragments.map((f, i) => <span key={i} className={i % 2 ? 'text-accent' : ''}>{f.text}</span>)}
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
-              <Button size="sm" onClick={() => set({ slug: randomCode() })}>New random code</Button>
-              <Button size="sm" variant="ghost" onClick={() => set({ slug: randomSlug() })}>Word + number</Button>
+              <Button size="sm" onClick={newRandom}>New random code</Button>
+              <Button size="sm" variant="ghost" onClick={newWordSlug}>Word + number</Button>
             </div>
             <Field className="mt-4" label="Or type your own" hint="Lowercase letters, numbers and dashes.">
               <div className="relative">
@@ -224,6 +246,7 @@ export default function NewJobWizard() {
                 <Input mono className="pl-[8.5rem]" value={s.slug}
                   onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 63) })} />
               </div>
+              <LinkCheck checking={!taken} problem={slugProblem} />
             </Field>
           </Card>
           <Card>
@@ -243,7 +266,7 @@ export default function NewJobWizard() {
           </Card>
           <div className="flex gap-3">
             <Button variant="ghost" onClick={() => go(0)}>Back</Button>
-            <Button variant="primary" size="lg" onClick={checkSlugThenNext}>Next: AI prompt →</Button>
+            <Button variant="primary" size="lg" disabled={!!slugProblem} onClick={checkSlugThenNext}>Next: AI prompt →</Button>
           </div>
         </div>
       )}
@@ -405,4 +428,10 @@ function Step({ n, title, body, children }: { n: number; title: string; body: st
       </div>
     </Card>
   );
+}
+
+export function LinkCheck({ checking, problem }: { checking: boolean; problem: string | null }) {
+  if (checking) return <p className="text-xs text-muted mt-1.5">Checking that no other job uses this link…</p>;
+  if (problem) return <p className="text-xs text-bad mt-1.5 font-medium">✗ {problem}</p>;
+  return <p className="text-xs text-good mt-1.5 font-medium">✓ Available. No other job uses this link or anything close to it.</p>;
 }

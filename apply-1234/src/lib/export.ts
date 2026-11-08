@@ -115,6 +115,13 @@ export function candidateMarkdown(job: Job, item: ExportItem, index: number, opt
     }
   }
 
+  const files = app.attachments || [];
+  if (files.length || (app.cover_letter || '').trim()) {
+    lines.push('', '### Résumé and cover letter');
+    for (const f of files) lines.push(`- ${f.kind === 'resume' ? 'Résumé' : f.kind === 'cover_letter' ? 'Cover letter' : 'File'} attached: ${f.name} (open it from the candidate's page; its text is not included here)`);
+    if ((app.cover_letter || '').trim()) lines.push('- Cover letter (written in the form):', '', quote(app.cover_letter || ''));
+  }
+
   if (reviews.length) {
     lines.push('', '### Reviewer scores');
     reviews.forEach((r, i) => {

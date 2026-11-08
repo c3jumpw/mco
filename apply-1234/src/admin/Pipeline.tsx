@@ -151,6 +151,7 @@ export function Flags({ a, wrong, className }: { a: Application; wrong: number; 
       <span title="Wrong link attempts before finding the page" className="text-[11px] rounded px-1.5 py-0.5 bg-paper-2 text-ink-2">{wrong} wrong tr{wrong === 1 ? 'y' : 'ies'}</span>
       {f.duplicate_email && <span className="text-[11px] rounded px-1.5 py-0.5 bg-warn-soft text-warn">Repeat</span>}
       {(a.metrics as any)?.source_label && <span title="Job board link they used" className="text-[11px] rounded px-1.5 py-0.5 bg-accent-soft text-accent">via {(a.metrics as any).source_label}</span>}
+      {(a.attachments || []).length > 0 && <span title="Added a résumé or cover letter file" className="text-[11px] rounded px-1.5 py-0.5 bg-paper-2 text-ink-2">Résumé</span>}
       {(a.metrics as any)?.preview && <span className="text-[11px] rounded px-1.5 py-0.5 bg-ink text-white">Test</span>}
     </div>
   );

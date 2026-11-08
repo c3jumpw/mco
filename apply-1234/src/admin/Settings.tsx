@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase';
 import type { Template } from '../lib/types';
 import { fmtDate, store } from '../lib/util';
 import { listTemplates } from './data';
-import { Button, Card, Input, Pill, SectionTitle, useToast } from '../ui';
+import { Button, Card, Input, Pill, SectionTitle, Toggle, useToast } from '../ui';
 
-interface AdminRow { email: string; user_id: string | null; added_at: string; claimed_at: string | null }
+interface AdminRow { email: string; user_id: string | null; added_at: string; claimed_at: string | null; notify_applications?: boolean; notify_messages?: boolean }
 
 export default function Settings({ email }: { email: string }) {
   const toast = useToast();
@@ -28,10 +28,31 @@ export default function Settings({ email }: { email: string }) {
     else { setNewEmail(''); toast('Added. They can now create a login at /admin.'); load(); }
   };
 
+  const mine = admins.find((a) => a.email === email.toLowerCase());
+  const setNotify = async (p: Partial<AdminRow>) => {
+    if (!mine) return;
+    setAdmins((all) => all.map((a) => (a.email === mine.email ? { ...a, ...p } : a)));
+    const { error } = await supabase.from('hiring_admins').update(p).eq('email', mine.email);
+    if (error) { toast(error.message, 'bad'); load(); } else toast('Saved');
+  };
+
   return (
     <div className="rise max-w-3xl">
       <h1 className="font-display text-4xl sm:text-5xl leading-none mb-6">Settings</h1>
       <div className="space-y-5">
+        <Card>
+          <SectionTitle sub={`Sent to ${email} from hiring@apply1234.com. Each person on the team picks their own.`}>Email me when</SectionTitle>
+          {mine ? (
+            <div className="space-y-4">
+              <Toggle checked={mine.notify_applications !== false} onChange={(v) => setNotify({ notify_applications: v })}
+                label="Someone finishes an activity" hint="Their name, the auto-checks, and a link straight to their answers." />
+              <Toggle checked={mine.notify_messages !== false} onChange={(v) => setNotify({ notify_messages: v })}
+                label="A candidate sends a help message" hint="From the “Need help?” button on activity pages. Reply straight from the email." />
+            </div>
+          ) : <p className="text-sm text-muted">Loading…</p>}
+          <p className="text-xs text-muted mt-4 leading-relaxed">The candidate confirmation email is set per job, on its Interview tab.</p>
+        </Card>
+
         <Card>
           <SectionTitle sub="People on this list can create a login and see every job and candidate.">Hiring team</SectionTitle>
           <ul className="divide-y divide-line">

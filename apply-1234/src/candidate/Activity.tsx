@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Activity as ActivityT, Question } from '../lib/types';
-import { fetchLoomInfo, loomId, looksLikeUrl, type LoomInfo } from '../lib/loom';
+import { fetchLoomInfo, knownDuration, loomId, looksLikeUrl, type LoomInfo } from '../lib/loom';
+import SetupStep from './SetupArt';
+import HelpButton from './HelpButton';
+import { ACCEPT, fileProblem, fmtSize, notify, uploadFile, type UploadedFile } from '../lib/files';
 import { fmtDate, fmtDuration, isPreviewBrowser, rangeLabel, storeJson, visitorId } from '../lib/util';
 import { mdToHtml } from '../lib/posting';
 import { Button, Field, Input, Spinner, Textarea, Wordmark, cx } from '../ui';
@@ -19,6 +22,9 @@ interface Draft {
   visits: number;
   firstArrival: string;
   submittedAt?: string;
+  coverLetter?: string;
+  files?: UploadedFile[];
+  confirmTo?: string;
 }
 
 const STEP_LABELS = ['Welcome', 'Set up', 'Answers', 'Submit'];
@@ -102,29 +108,63 @@ export default function Activity({ jobId, title, activity, questions, source }:
   };
 
   // ── answers ──
-  const checkLink = useCallback(async (qid: string, url: string) => {
+  // A link pasted right after recording reports 0:00 while Loom processes it, so we re-check a few times.
+  const retries = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const checkLink = useCallback(async (qid: string, url: string, attempt = 0) => {
     const u = url.trim();
+    clearTimeout(retries.current[qid]);
     if (!u) return;
     if (!looksLikeUrl(u)) {
       set((p) => ({ answers: { ...p.answers, [qid]: { ...p.answers[qid], info: { ok: false, reason: 'not_loom' }, checking: false } } }));
       track('link_invalid', { question_id: qid, reason: 'not_url' });
       return;
     }
-    set((p) => ({ answers: { ...p.answers, [qid]: { ...p.answers[qid], checking: true } } }));
-    const info = loomId(u) ? await fetchLoomInfo(u) : ({ ok: false, reason: 'not_loom' } as LoomInfo);
-    set((p) => ((p.answers[qid]?.url || '').trim() === u
-      ? { answers: { ...p.answers, [qid]: { ...p.answers[qid], info, checking: false } } }
-      : {}));
-    if (info.ok) track('link_added', { question_id: qid, duration: info.duration ?? null });
+    if (attempt === 0) set((p) => ({ answers: { ...p.answers, [qid]: { ...p.answers[qid], checking: true } } }));
+    const info = loomId(u) ? await fetchLoomInfo(u, attempt > 0) : ({ ok: false, reason: 'not_loom' } as LoomInfo);
+    let still = false;
+    set((p) => {
+      still = (p.answers[qid]?.url || '').trim() === u;
+      return still ? { answers: { ...p.answers, [qid]: { ...p.answers[qid], info, checking: false } } } : {};
+    });
+    if (info.ok && knownDuration(info) === null && attempt < 8) {
+      retries.current[qid] = setTimeout(() => {
+        if ((dRef.current.answers[qid]?.url || '').trim() === u) checkLinkRef.current(qid, u, attempt + 1);
+      }, 6000 + attempt * 3000);
+    }
+    if (attempt > 0) return;
+    if (info.ok) track('link_added', { question_id: qid, duration: knownDuration(info) });
     else track('link_invalid', { question_id: qid, reason: info.reason });
   }, [set, track]);
+  const checkLinkRef = useRef(checkLink);
+  checkLinkRef.current = checkLink;
+
+  // Re-check saved links whose length wasn't known yet (e.g. the candidate came back later).
+  useEffect(() => {
+    for (const [qid, a] of Object.entries(dRef.current.answers)) {
+      if (a.url?.trim() && loomId(a.url) && knownDuration(a.info) === null) checkLinkRef.current(qid, a.url, 1);
+    }
+    const timers = retries.current;
+    return () => Object.values(timers).forEach(clearTimeout);
+  }, []);
 
   const answer = (qid: string) => d.answers[qid] || { url: '', transcript: '' };
   const allLinked = questions.every((q) => looksLikeUrl(answer(q.id).url));
   const needsTranscript = !!activity.require_transcript;
   const allTranscripts = !needsTranscript || questions.every((q) => (answer(q.id).transcript || '').trim().length >= 20);
+  const stillNeeded: string[] = [];
+  questions.forEach((q, i) => {
+    const a = answer(q.id);
+    if (!a.url.trim()) stillNeeded.push(`a video link for question ${i + 1}`);
+    else if (!looksLikeUrl(a.url)) stillNeeded.push(`a full link (starting with https://) for question ${i + 1}`);
+    if (needsTranscript && (a.transcript || '').trim().length < 20) stillNeeded.push(`the transcript for question ${i + 1}`);
+  });
 
   // ── submit ──
+  const submitMissing = [
+    ...(d.name.trim().length < 2 ? ['your full name'] : []),
+    ...(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email.trim()) ? ['a valid email'] : []),
+    ...(activity.consent_text && !d.consent ? ['a tick in the consent box'] : []),
+  ];
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const submit = async () => {
@@ -138,7 +178,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
         url: a.url.trim(),
         loom_id: loomId(a.url) || '',
         title: a.info?.ok ? a.info.title || '' : '',
-        duration_sec: a.info?.ok ? a.info.duration ?? null : null,
+        duration_sec: knownDuration(a.info),
         transcript: a.transcript || '',
       };
     });
@@ -156,9 +196,9 @@ export default function Activity({ jobId, title, activity, questions, source }:
         ...(source ? { source: source.code, source_label: source.label } : {}),
       },
     });
-    setBusy(false);
-    const res = data as { ok: boolean; error?: string } | null;
+    const res = data as { ok: boolean; id?: string; error?: string } | null;
     if (error || !res?.ok) {
+      setBusy(false);
       const code = res?.error || 'network';
       track('submit_error', { code });
       setErr({
@@ -171,7 +211,19 @@ export default function Activity({ jobId, title, activity, questions, source }:
       }[code] || 'We couldn’t submit right now. Check your connection and try again. Your answers are saved on this device.');
       return;
     }
-    set({ step: 4, submittedAt: new Date().toISOString() });
+    const appId = res.id;
+    const files = d.files || [];
+    const cover = (d.coverLetter || '').trim();
+    if (appId && (files.length || cover)) {
+      await supabase.rpc('hiring_attach', { p_app: appId, p_visitor: vid, p_cover: cover, p_files: files }).then(() => {}, () => {});
+    }
+    setBusy(false);
+    set({ step: 4, submittedAt: new Date().toISOString(), confirmTo: undefined });
+    if (appId) {
+      notify({ application_id: appId, visitor_id: vid }).then((r) => {
+        if (r?.results?.candidate?.ok) set({ confirmTo: d.email.trim() });
+      });
+    }
   };
 
   const range = rangeLabel(activity.answer_min, activity.answer_max);
@@ -225,13 +277,8 @@ export default function Activity({ jobId, title, activity, questions, source }:
               You'll answer each question on video using Loom, a free screen and camera recorder. Learning a new tool
               quickly is part of this activity.
             </p>
-            <ol className="mt-8 space-y-4">
-              {steps.map((s, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="font-mono text-sm h-7 w-7 shrink-0 rounded-full border border-ink/20 flex items-center justify-center">{i + 1}</span>
-                  <p className="pt-0.5 leading-relaxed">{s}</p>
-                </li>
-              ))}
+            <ol className="mt-8 space-y-3">
+              {steps.map((s, i) => <SetupStep key={i} n={i + 1} text={s} />)}
             </ol>
             <div className="mt-6">
               <a href="https://www.loom.com/download" target="_blank" rel="noopener noreferrer"
@@ -303,8 +350,14 @@ export default function Activity({ jobId, title, activity, questions, source }:
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button variant="ghost" onClick={() => go(1)}>Back</Button>
               <Button variant="primary" size="lg" disabled={!allLinked || !allTranscripts} onClick={() => go(3)}>Continue</Button>
-              {(!allLinked || !allTranscripts) && <span className="text-sm text-muted">Add a link{needsTranscript ? ' and transcript' : ''} for every question to continue.</span>}
             </div>
+            {stillNeeded.length > 0 && (
+              <div className="mt-3 rounded-xl bg-paper-2 px-4 py-3 text-sm">
+                <p className="font-medium">To continue, add:</p>
+                <ul className="mt-1 list-disc pl-5 text-ink-2 space-y-0.5">{stillNeeded.slice(0, 6).map((x) => <li key={x}>{x}</li>)}</ul>
+                <p className="text-xs text-muted mt-2">Video length is only a guideline. It never stops you from submitting.</p>
+              </div>
+            )}
           </section>
         )}
 
@@ -326,11 +379,13 @@ export default function Activity({ jobId, title, activity, questions, source }:
                       <p className="text-sm leading-snug mt-0.5 line-clamp-2">{q.text}</p>
                       <p className="font-mono text-[12px] text-muted truncate mt-1">{a.url}</p>
                     </div>
-                    <span className="text-sm font-mono shrink-0">{a.info?.ok ? fmtDuration(a.info.duration) : ''}</span>
+                    <span className="text-sm font-mono shrink-0">{knownDuration(a.info) != null ? fmtDuration(knownDuration(a.info)) : ''}</span>
                   </div>
                 );
               })}
             </div>
+            <Extras jobId={jobId} visitor={vid} files={d.files || []} cover={d.coverLetter || ''}
+              onFiles={(files) => set({ files })} onCover={(coverLetter) => set({ coverLetter })} track={track} />
             {activity.consent_text && (
               <label className="mt-6 flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" className="mt-1 h-5 w-5 accent-ink" checked={d.consent} onChange={(e) => set({ consent: e.target.checked })} />
@@ -340,10 +395,13 @@ export default function Activity({ jobId, title, activity, questions, source }:
             {err && <p className="mt-5 rounded-xl bg-bad-soft text-bad text-sm px-4 py-3">{err}</p>}
             <div className="mt-8 flex gap-3">
               <Button variant="ghost" onClick={() => go(2)}>Back</Button>
-              <Button variant="accent" size="lg" disabled={busy || d.name.trim().length < 2 || !d.email.includes('@') || (!!activity.consent_text && !d.consent)} onClick={submit}>
+              <Button variant="accent" size="lg" disabled={busy || submitMissing.length > 0} onClick={submit}>
                 {busy ? <><Spinner /> Submitting</> : 'Submit application'}
               </Button>
             </div>
+            {submitMissing.length > 0 && !busy && (
+              <p className="mt-3 text-sm text-muted">To submit, add {submitMissing.join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p>
+            )}
           </section>
         )}
 
@@ -354,6 +412,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
             <p className="text-lg text-ink-2 leading-relaxed mt-6 max-w-xl">
               Your answers for the {title} role are in. We review every submission and will reply by email.
             </p>
+            {d.confirmTo && <p className="text-sm text-muted mt-3">We sent a confirmation to <span className="text-ink-2">{d.confirmTo}</span>. If it's not there in a few minutes, check your spam folder.</p>}
             <button className="mt-10 text-sm text-muted underline underline-offset-4"
               onClick={() => set({ step: 3, submittedAt: undefined })}>
               Need to fix something? You can submit again.
@@ -368,6 +427,8 @@ export default function Activity({ jobId, title, activity, questions, source }:
           </p>
         )}
       </main>
+      <HelpButton jobId={jobId} visitor={vid} step={STEP_LABELS[Math.min(d.step, 3)] + (d.step === 4 ? ' (after submitting)' : '')}
+        name={d.name} email={d.email} lastError={err} preview={preview} />
     </div>
   );
 }
@@ -391,12 +452,15 @@ function LinkStatus({ a, min, max, range }: { a: AnswerDraft; min?: number | nul
   const info = a.info;
   if (!info) return null;
   if (info.ok) {
-    const d = info.duration;
+    const d = knownDuration(info);
     const out = d != null && ((min && d < min) || (max && d > max));
     return (
       <div className="mt-2 text-sm">
         <p className="text-good">✓ {info.title ? `“${info.title}”` : 'Loom video found'}{d != null ? ` · ${fmtDuration(d)}` : ''}</p>
-        {out && <p className="text-warn mt-1">This video is {fmtDuration(d)}. The requested length is {range}.</p>}
+        {d == null && (
+          <p className="text-muted mt-1 flex items-center gap-2"><Spinner className="h-3 w-3" /> Loom is still processing this video. We'll check its length again in a moment. You can keep going.</p>
+        )}
+        {out && <p className="text-warn mt-1">This video is {fmtDuration(d)}. The requested length is {range}. You can still submit it.</p>}
       </div>
     );
   }
@@ -405,4 +469,88 @@ function LinkStatus({ a, min, max, range }: { a: AnswerDraft; min?: number | nul
   if (info.reason === 'private_or_unavailable' || info.reason === 'not_found')
     return <p className="mt-2 text-sm text-warn">We couldn’t open this video. In Loom, set sharing to “Anyone with the link”, then paste it again.</p>;
   return <p className="mt-2 text-sm text-muted">Link saved. We couldn’t verify it right now.</p>;
+}
+
+function Extras({ jobId, visitor, files, cover, onFiles, onCover, track }: {
+  jobId: string; visitor: string; files: UploadedFile[]; cover: string;
+  onFiles: (f: UploadedFile[]) => void; onCover: (c: string) => void;
+  track: (type: string, meta?: Record<string, unknown>, onceKey?: string) => void;
+}) {
+  const [open, setOpen] = useState(files.length > 0 || cover.trim().length > 0);
+  const [busy, setBusy] = useState<UploadedFile['kind'] | null>(null);
+  const [err, setErr] = useState('');
+  const [letterMode, setLetterMode] = useState<'write' | 'file'>(files.some((f) => f.kind === 'cover_letter') ? 'file' : 'write');
+
+  const pick = async (kind: UploadedFile['kind'], f?: File | null) => {
+    if (!f) return;
+    setErr('');
+    const problem = fileProblem(f);
+    if (problem) { setErr(problem); return; }
+    setBusy(kind);
+    try {
+      const up = await uploadFile(jobId, visitor, kind, f);
+      onFiles([...files.filter((x) => x.kind !== kind), up]);
+      track('file_added', { kind, size: f.size });
+    } catch {
+      setErr('That upload didn’t go through. Check your connection and try again, or skip it. It’s optional.');
+    }
+    setBusy(null);
+  };
+
+  const slot = (kind: UploadedFile['kind'], label: string) => {
+    const f = files.find((x) => x.kind === kind);
+    if (f) {
+      return (
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-paper px-3 py-2.5">
+          <span className="grid place-items-center h-9 w-8 rounded-md bg-accent-soft text-accent text-[10px] font-bold uppercase">{f.name.split('.').pop()}</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm truncate">{f.name}</p>
+            <p className="text-xs text-muted">{fmtSize(f.size)} · attached</p>
+          </div>
+          <button className="text-xs text-muted underline underline-offset-2 hover:text-ink" onClick={() => onFiles(files.filter((x) => x.kind !== kind))}>Remove</button>
+        </div>
+      );
+    }
+    return (
+      <label className={cx('flex items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-4 text-sm cursor-pointer hover:border-ink/40 transition', busy === kind && 'opacity-60 pointer-events-none')}>
+        <input type="file" accept={ACCEPT} className="sr-only" onChange={(e) => { pick(kind, e.target.files?.[0]); e.target.value = ''; }} />
+        {busy === kind ? <><Spinner className="h-4 w-4" /> Uploading…</> : <><span aria-hidden className="text-lg leading-none">+</span> {label}</>}
+      </label>
+    );
+  };
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)}
+        className="mt-6 w-full text-left rounded-2xl border border-dashed border-line px-5 py-4 hover:border-ink/40 transition">
+        <p className="font-medium">Add a résumé or cover letter <span className="text-muted font-normal">(optional)</span></p>
+        <p className="text-sm text-muted mt-0.5">PDF or Word, up to 5 MB. Your video answers are what we look at first.</p>
+      </button>
+    );
+  }
+  return (
+    <div className="mt-6 rounded-2xl border border-line bg-card p-5">
+      <p className="font-medium">Résumé and cover letter <span className="text-muted font-normal">(optional)</span></p>
+      <p className="text-sm text-muted mt-0.5">PDF or Word, up to 5 MB. Only the hiring team can open these.</p>
+      <div className="mt-4 space-y-4">
+        <div>
+          <p className="text-sm font-medium mb-1.5">Résumé</p>
+          {slot('resume', 'Choose your résumé')}
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-sm font-medium">Cover letter</p>
+            <div className="text-xs text-muted flex gap-3">
+              <button className={cx(letterMode === 'write' && 'text-ink font-medium underline underline-offset-2')} onClick={() => setLetterMode('write')}>Write it here</button>
+              <button className={cx(letterMode === 'file' && 'text-ink font-medium underline underline-offset-2')} onClick={() => setLetterMode('file')}>Upload a file</button>
+            </div>
+          </div>
+          {letterMode === 'write'
+            ? <Textarea rows={5} value={cover} placeholder="A few lines on why this role, and why you." onChange={(e) => onCover(e.target.value)} />
+            : slot('cover_letter', 'Choose your cover letter')}
+        </div>
+      </div>
+      {err && <p className="mt-3 rounded-xl bg-bad-soft text-bad text-sm px-4 py-2.5">{err}</p>}
+    </div>
+  );
 }
