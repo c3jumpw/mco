@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
 import { copyText } from './lib/util';
 
 export function cx(...c: (string | false | null | undefined)[]) {
@@ -207,7 +208,8 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
     return () => window.removeEventListener('keydown', h);
   }, [open, onClose]);
   if (!open) return null;
-  return (
+  // Rendered into <body> so no animated or transformed parent can shift it off-screen.
+  return createPortal(
     <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-ink/40 backdrop-blur-[2px] p-0 sm:p-6" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()}
         className={cx('rise w-full max-h-[92vh] overflow-y-auto bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
@@ -217,7 +219,8 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
         </div>
         <div className="p-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>apply1234 Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Same visual world as the apply1234 app: paper, ink and one orange accent. Layout: sticky contents on the left, guide on the right. */
+:root {
+  --paper: #f5f3ee;
+  --paper-2: #ece9e1;
+  --card: #ffffff;
+  --ink: #16151a;
+  --ink-2: #3d3b42;
+  --muted: #6e6c73;
+  --line: #e2ded4;
+  --accent: #ff5a1f;
+  --accent-soft: #ffe7dc;
+  --good: #17804f;
+  --good-soft: #dff3e8;
+  --bad: #c0352b;
+  --bad-soft: #fbe3e0;
+  --warn: #9a6200;
+  --warn-soft: #fbefd6;
+  --display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --body: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 15px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font: 400 clamp(44px, 7vw, 76px)/0.95 var(--display); letter-spacing: -0.01em; }
+h2 { font: 400 clamp(32px, 4.4vw, 44px)/1 var(--display); }
+h3 { font: 600 17px/1.35 var(--body); }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: 0.92em; }
+code { background: var(--paper-2); border-radius: 5px; padding: 1px 5px; }
+
+.layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.toc { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 32px 0; }
+.toc .brand { font: 600 15px var(--mono); letter-spacing: -0.02em; display: block; margin-bottom: 22px; text-decoration: none; }
+.brand b { color: var(--accent); font-weight: 600; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: t; }
+.toc li { counter-increment: t; }
+.toc ol a { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; text-decoration: none; color: var(--muted); font-size: 14px; }
+.toc ol a::before { content: counter(t, decimal-leading-zero); font: 500 11px/22px var(--mono); color: var(--line); min-width: 18px; }
+.toc ol a:hover { color: var(--ink); background: var(--paper-2); }
+.toc ol a.on { color: var(--ink); background: var(--card); box-shadow: inset 0 0 0 1px var(--line); font-weight: 500; }
+.toc ol a.on::before { color: var(--accent); }
+.chips { display: none; }
+main { padding: 40px 0 96px; min-width: 0; }
+
+.eyebrow { font: 500 12px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 62ch; margin-top: 18px; }
+.hero { padding-bottom: 8px; }
+.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.role { display: grid; gap: 6px; padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; text-decoration: none; transition: border-color .15s, transform .15s; }
+.role:hover { border-color: var(--ink); }
+.role .who { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.role strong { font-size: 16px; }
+.role span:last-child { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.meta { margin-top: 14px; font-size: 13px; color: var(--muted); }
+
+section { padding-top: 64px; }
+section > header { display: grid; gap: 10px; margin-bottom: 22px; }
+section > header p { color: var(--ink-2); max-width: 64ch; }
+.sub { margin-top: 36px; margin-bottom: 14px; }
+.prose { max-width: 66ch; color: var(--ink-2); display: grid; gap: 12px; }
+.prose ul, .list { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+figure { margin: 0; }
+.shot { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.shot img { width: 100%; height: auto; cursor: zoom-in; }
+.shot .box { position: absolute; border: 2px solid var(--accent); border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 4px rgba(255, 90, 31, .12); }
+.shot .num { position: absolute; transform: translate(-40%, -40%); width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 13px/26px var(--body); text-align: center; pointer-events: none; box-shadow: 0 2px 6px rgba(22, 21, 26, .25); }
+figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }
+.legend { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 20px; }
+.legend li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.legend li b { color: var(--ink); font-weight: 600; }
+.legend .n { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 12px/22px var(--body); text-align: center; margin-top: 1px; }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.pair.flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+.pair .text { display: grid; gap: 12px; align-content: start; color: var(--ink-2); }
+.pair .text h3 { color: var(--ink); }
+
+.steps { display: grid; gap: 28px; counter-reset: s; }
+.step { display: grid; grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; padding: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; }
+.step .big { font: 400 54px/0.9 var(--display); color: var(--accent); }
+.step .text { display: grid; gap: 10px; color: var(--ink-2); }
+.step .text h3 { color: var(--ink); font-size: 18px; }
+.step .shot { border-radius: 12px; }
+
+.tip { display: block; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--ink); font-size: 14px; line-height: 1.5; }
+.tip::before { content: "Tip"; display: inline-block; margin-right: 10px; font: 700 11px/20px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.tip.note { background: var(--paper-2); }
+.tip.note::before { content: "Note"; color: var(--muted); }
+.tip.warn { background: var(--warn-soft); }
+.tip.warn::before { content: "Careful"; color: var(--warn); }
+
+/* Menu map */
+.appbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.appbar .brand { font: 600 14px var(--mono); margin-right: 14px; }
+.appbar .brand small { font: 400 11px var(--body); color: var(--muted); margin-left: 6px; }
+.appbar .item { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; font-size: 13.5px; color: var(--muted); }
+.appbar .item i { font: 700 10px/18px var(--body); font-style: normal; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); color: #fff; text-align: center; }
+.appbar .badge { background: var(--accent); color: #fff; border-radius: 99px; font: 600 10.5px/16px var(--body); padding: 0 5px; }
+.menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.menu-card { padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: 6px; align-content: start; }
+.menu-card .hd { display: flex; align-items: center; gap: 10px; }
+.menu-card .hd i { width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 12px/24px var(--body); font-style: normal; text-align: center; flex: none; }
+.menu-card h3 { font-size: 15.5px; }
+.menu-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+.menu-card .path { font: 500 11.5px var(--mono); color: var(--muted); }
+.tabbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: var(--paper-2); border-radius: 12px; margin-top: 28px; }
+.tabbar span { padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+.tabbar span.on { background: var(--card); color: var(--ink); font-weight: 500; box-shadow: 0 1px 2px rgba(22, 21, 26, .06); }
+
+/* Tab cards */
+.tabs-list { display: grid; gap: 40px; }
+.tabcard { display: grid; gap: 16px; }
+.tabcard .label { display: inline-flex; align-items: center; gap: 10px; }
+.tabcard .label span { font: 500 12px var(--mono); padding: 4px 10px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); }
+.tabcard .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 28px; align-items: start; }
+.tabcard .cols .text { display: grid; gap: 12px; color: var(--ink-2); }
+
+/* Diagrams */
+.diagram { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 14px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.diagram.small svg { min-width: 680px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--paper); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.chip { display: inline-block; font: 500 12px/1.5 var(--body); padding: 1px 8px; border-radius: 6px; white-space: nowrap; }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.neutral { background: var(--paper-2); color: var(--ink-2); }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.chip.ink { background: var(--ink); color: #fff; }
+
+/* Phones */
+.phones { display: grid; grid-auto-flow: column; grid-auto-columns: 220px; gap: 18px; overflow-x: auto; padding: 4px 4px 14px; scroll-snap-type: x mandatory; }
+.phone { scroll-snap-align: start; display: grid; gap: 10px; align-content: start; }
+.phone .frame { border: 7px solid var(--ink); border-radius: 30px; overflow: hidden; background: var(--paper); aspect-ratio: 520 / 1125; }
+.phone .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; cursor: zoom-in; }
+.phone .cap { display: grid; grid-template-columns: 24px 1fr; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.phone .cap b { display: block; color: var(--ink); }
+.phone .cap .n { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 11.5px/22px var(--body); text-align: center; }
+
+/* FAQ */
+.faq { display: grid; gap: 10px; }
+details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; }
+summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font: 400 22px/1 var(--body); color: var(--muted); }
+details[open] summary::after { content: "–"; }
+details > div { padding: 0 0 16px; color: var(--ink-2); display: grid; gap: 8px; max-width: 70ch; }
+
+footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* Lightbox */
+.lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(22, 21, 26, .82); display: none; align-items: center; justify-content: center; padding: 24px; cursor: zoom-out; }
+.lightbox.open { display: flex; }
+.lightbox img { max-width: min(1200px, 100%); max-height: 100%; border-radius: 12px; background: var(--card); box-shadow: 0 20px 60px rgba(0, 0, 0, .35); }
+.lightbox button { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--card); color: var(--ink); font-size: 22px; cursor: pointer; }
+
+@media (max-width: 1020px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0 18px; }
+  .toc { display: none; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 12px 0; position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
+  .chips a { flex: none; font-size: 13px; text-decoration: none; padding: 5px 11px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); color: var(--ink-2); }
+  .chips a.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  main { padding-top: 0; }
+  .hero { padding-top: 22px; }
+  .pair, .pair.flip, .tabcard .cols { grid-template-columns: minmax(0, 1fr); }
+  .step { grid-template-columns: 44px minmax(0, 1fr); }
+  .step > figure { grid-column: 1 / -1; }
+  .step .big { font-size: 44px; }
+  .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .roles, .menu-grid { grid-template-columns: minmax(0, 1fr); }
+  .step { padding: 18px; gap: 14px 16px; }
+  section { padding-top: 48px; }
+  .phones { grid-auto-columns: 190px; }
+  .shot .num { width: 22px; height: 22px; font-size: 11.5px; line-height: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+@media print { .toc, .chips, .lightbox { display: none !important; } .layout { display: block; } section { break-inside: avoid-page; } }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <a class="brand" href="#top">apply<b>1234</b> guide</a>
+    <ol>
+      <li><a href="#big-picture">How it works</a></li>
+      <li><a href="#menu">Find your way</a></li>
+      <li><a href="#post-a-job">Post a job</a></li>
+      <li><a href="#job-tabs">Inside a job</a></li>
+      <li><a href="#review">Review candidates</a></li>
+      <li><a href="#signals">Behavior signals</a></li>
+      <li><a href="#overview">Overview dashboard</a></li>
+      <li><a href="#inbox">Inbox</a></li>
+      <li><a href="#emails">Emails</a></li>
+      <li><a href="#activity-log">Activity log</a></li>
+      <li><a href="#settings">Settings and team</a></li>
+      <li><a href="#candidates">What candidates see</a></li>
+      <li><a href="#tips">Tips and fixes</a></li>
+    </ol>
+  </nav>
+
+  <main id="top">
+    <nav class="chips" aria-label="Sections">
+      <a href="#big-picture">How it works</a><a href="#menu">Menu</a><a href="#post-a-job">Post a job</a><a href="#job-tabs">Inside a job</a><a href="#review">Review</a><a href="#signals">Signals</a><a href="#overview">Dashboard</a><a href="#inbox">Inbox</a><a href="#emails">Emails</a><a href="#activity-log">Activity</a><a href="#settings">Settings</a><a href="#candidates">Candidates</a><a href="#tips">Tips</a>
+    </nav>
+
+    <div class="hero">
+      <p class="eyebrow">Hiring team guide</p>
+      <h1 style="margin-top:14px">How apply1234 works.</h1>
+      <p class="lede">apply1234 turns your notes on a role into a job posting with a hidden link. Candidates who find the link answer your questions on video. You then review, score and interview them in one place. This guide shows every screen, menu and setting, with pictures.</p>
+      <div class="roles">
+        <a class="role" href="#post-a-job"><span class="who">Hiring lead</span><strong>Set up and post a job</strong><span>Notes, AI draft, the hidden link, the activity page and job boards.</span></a>
+        <a class="role" href="#review"><span class="who">Reviewer</span><strong>Review candidates</strong><span>Watch answers, score them, read the signals, shortlist and interview.</span></a>
+        <a class="role" href="#candidates"><span class="who">Candidate</span><strong>See what applicants see</strong><span>Every screen of the application, from the posting to the thank-you page.</span></a>
+      </div>
+      <p class="meta">Everyone on the hiring team has the same access, so every part of this guide applies to every team member. Pictures use sample data. Updated November 8, 2026.</p>
+    </div>
+
+    <!-- 1 -->
+    <section id="big-picture">
+      <header>
+        <p class="eyebrow">01 · The big picture</p>
+        <h2>From notes to a hire</h2>
+        <p>Three stages. You set the job up, candidates apply through the hidden link, and you decide. The app measures how each candidate moves through the middle stage.</p>
+      </header>
+      <figure class="diagram">
+        <svg viewBox="0 0 1000 400" role="img" aria-label="The hiring flow: you write notes, AI drafts the posting, the link is hidden in pieces and posted on job boards; candidates find the pieces, open the link, record Loom answers and submit; you get an email, review, shortlist, interview and decide.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#16151a"/></marker>
+            <marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ff5a1f"/></marker>
+          </defs>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#6e6c73" letter-spacing="1.2">
+            <text x="50" y="26">1 · YOU SET UP THE JOB</text>
+            <text x="50" y="166">2 · THE CANDIDATE APPLIES</text>
+            <text x="50" y="316">3 · YOU DECIDE</text>
+          </g>
+          <g font-family="Inter, sans-serif">
+            <!-- Row 1 -->
+            <g><rect x="50" y="38" width="200" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="150" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Your notes</text><text x="150" y="82" text-anchor="middle" font-size="12" fill="#6e6c73">rough bullet points</text></g>
+            <g><rect x="280" y="38" width="200" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="380" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">AI draft</text><text x="380" y="82" text-anchor="middle" font-size="12" fill="#6e6c73">posting, questions, rubric</text></g>
+            <g><rect x="510" y="38" width="200" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="610" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Hidden link</text><text x="610" y="82" text-anchor="middle" font-size="12" fill="#6e6c73">split into pieces in the posting</text></g>
+            <g><rect x="740" y="38" width="200" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="840" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Job boards</text><text x="840" y="82" text-anchor="middle" font-size="12" fill="#6e6c73">one link per board</text></g>
+            <g stroke="#16151a" stroke-width="1.5" fill="none" marker-end="url(#ar)"><path d="M252 68H276"/><path d="M482 68H506"/><path d="M712 68H736"/></g>
+            <!-- Row 2 -->
+            <g><rect x="50" y="178" width="200" height="60" rx="12" fill="#ffe7dc" stroke="#ff5a1f" stroke-width="1.5"/><text x="150" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Reads the posting</text><text x="150" y="222" text-anchor="middle" font-size="12" fill="#6e6c73">spots the pieces</text></g>
+            <g><rect x="280" y="178" width="200" height="60" rx="12" fill="#ffe7dc" stroke="#ff5a1f" stroke-width="1.5"/><text x="380" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Assembles the link</text><text x="380" y="222" text-anchor="middle" font-size="12" fill="#6e6c73">wrong tries are logged</text></g>
+            <g><rect x="510" y="178" width="200" height="60" rx="12" fill="#ffe7dc" stroke="#ff5a1f" stroke-width="1.5"/><text x="610" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Records Loom answers</text><text x="610" y="222" text-anchor="middle" font-size="12" fill="#6e6c73">one video per question</text></g>
+            <g><rect x="740" y="178" width="200" height="60" rx="12" fill="#ffe7dc" stroke="#ff5a1f" stroke-width="1.5"/><text x="840" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Submits</text><text x="840" y="222" text-anchor="middle" font-size="12" fill="#6e6c73">plus optional résumé</text></g>
+            <g stroke="#ff5a1f" stroke-width="1.5" fill="none" marker-end="url(#ara)"><path d="M252 208H276"/><path d="M482 208H506"/><path d="M712 208H736"/></g>
+            <text x="50" y="268" font-size="12" fill="#6e6c73">Measured along the way: wrong link tries, time to find the page, time on each step, tab switches, link checks.</text>
+            <!-- Row 3 -->
+            <g><rect x="50" y="328" width="162" height="60" rx="12" fill="#16151a"/><text x="131" y="353" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">Email alert</text><text x="131" y="372" text-anchor="middle" font-size="12" fill="#cfcbc2">to the hiring team</text></g>
+            <g><rect x="232" y="328" width="162" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="313" y="353" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Review</text><text x="313" y="372" text-anchor="middle" font-size="12" fill="#6e6c73">watch, score, note</text></g>
+            <g><rect x="414" y="328" width="162" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="495" y="353" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Shortlist</text><text x="495" y="372" text-anchor="middle" font-size="12" fill="#6e6c73">compare top picks</text></g>
+            <g><rect x="596" y="328" width="162" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="677" y="353" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Interview</text><text x="677" y="372" text-anchor="middle" font-size="12" fill="#6e6c73">guided questions</text></g>
+            <g><rect x="778" y="328" width="162" height="60" rx="12" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="859" y="353" text-anchor="middle" font-size="14" font-weight="600" fill="#16151a">Decide</text><text x="859" y="372" text-anchor="middle" font-size="12" fill="#6e6c73">invite or decline</text></g>
+            <g stroke="#16151a" stroke-width="1.5" fill="none" marker-end="url(#ar)"><path d="M214 358H228"/><path d="M396 358H410"/><path d="M578 358H592"/><path d="M760 358H774"/></g>
+            <!-- Connectors between rows -->
+            <path d="M840 100V136H28V208H46" fill="none" stroke="#16151a" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+            <rect x="420" y="126" width="240" height="20" rx="10" fill="#f5f3ee"/><text x="540" y="140" text-anchor="middle" font-size="12" fill="#3d3b42">the posting goes out</text>
+            <path d="M840 240V290H28V358H46" fill="none" stroke="#ff5a1f" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ara)"/>
+            <rect x="680" y="280" width="200" height="20" rx="10" fill="#f5f3ee"/><text x="780" y="294" text-anchor="middle" font-size="12" fill="#3d3b42">submission arrives instantly</text>
+          </g>
+        </svg>
+        <figcaption>Orange is the candidate's side. Everything they do on the activity page is timed and logged, so you see how they worked as well as what they answered.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 2 -->
+    <section id="menu">
+      <header>
+        <p class="eyebrow">02 · Find your way</p>
+        <h2>The admin menu</h2>
+        <p>Sign in at <code>apply1234.com/admin</code>. On a computer the menu runs along the top. On a phone it sits at the bottom of the screen.</p>
+      </header>
+      <div class="appbar" aria-hidden="true">
+        <span class="brand">apply<b style="color:var(--accent);font-weight:600">1234</b><small>admin</small></span>
+        <span class="item"><i>1</i>Jobs</span><span class="item"><i>2</i>Candidates</span><span class="item"><i>3</i>Inbox <span class="badge">1</span></span><span class="item"><i>4</i>Activity</span><span class="item"><i>5</i>Settings</span><span class="item"><i>6</i>Guide</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card"><div class="hd"><i>1</i><h3>Jobs</h3></div><p class="path">/admin</p><p>Your home page. The Overview dashboard sits on top and every job is listed below it. Start a new job here.</p></div>
+        <div class="menu-card"><div class="hd"><i>2</i><h3>Candidates</h3></div><p class="path">/admin/candidates</p><p>Everyone who applied, across all jobs. Filter by job, stage or flag, then open a person to review them.</p></div>
+        <div class="menu-card"><div class="hd"><i>3</i><h3>Inbox</h3></div><p class="path">/admin/inbox</p><p>Messages candidates send with the Help button. The orange number counts unread ones.</p></div>
+        <div class="menu-card"><div class="hd"><i>4</i><h3>Activity</h3></div><p class="path">/admin/activity</p><p>A live log of visits, wrong link tries and submissions, plus the most-tried wrong links.</p></div>
+        <div class="menu-card"><div class="hd"><i>5</i><h3>Settings</h3></div><p class="path">/admin/settings</p><p>Your email alerts, the hiring team list, saved templates and your account.</p></div>
+        <div class="menu-card"><div class="hd"><i>6</i><h3>Guide</h3></div><p class="path">/admin/guide</p><p>This guide. Open it from the Guide link in the header any time.</p></div>
+      </div>
+      <h3 class="sub">Inside every job there are seven tabs</h3>
+      <div class="tabbar" aria-hidden="true"><span class="on">Overview</span><span>Notes &amp; posting</span><span>Hidden link</span><span>Activity page</span><span>Questions</span><span>Interview</span><span>Candidates</span></div>
+      <p style="margin-top:12px;color:var(--ink-2)">They follow the order you work in. Each one is explained in <a href="#job-tabs">Inside a job</a>.</p>
+    </section>
+
+    <!-- 3 -->
+    <section id="post-a-job">
+      <header>
+        <p class="eyebrow">03 · Hiring lead</p>
+        <h2>Post a job in five steps</h2>
+        <p>On the Jobs page, click <b>+ New job</b>. A step-by-step wizard takes you from rough notes to a job you can post. Your progress saves as you go, so you can switch to your AI tool and come back.</p>
+      </header>
+      @@SHOT admin-jobs|The Jobs list with the New job button|<b>+ New job</b> opens the wizard.;;Each job card shows submissions, how many wait for review and the shortlist count. Click it to open the job.@@
+      <div class="steps" style="margin-top:28px">
+        <div class="step"><div class="big">1</div><div class="text"><h3>Paste your notes</h3><p>Duties, must-haves, schedule, pay and what success looks like. Rough bullet points are fine. Leave the title blank and the AI suggests one.</p><p>Pick how many video questions (3 to 6) and how long each answer should be.</p><p>Keep the <b>hidden code word</b> switched on. The posting asks candidates to put this word in every video title, and the app checks for it, which shows who read the posting closely.</p></div>@@SHOT wiz-1-notes|Step 1: notes, question count, answer length and code word@@</div>
+        <div class="step"><div class="big">2</div><div class="text"><h3>Choose the hidden link</h3><p>A random code like <code>apply1234.com/7nu6-sw79</code> keeps the job private: nobody can guess it, and the site never lists jobs. You can also use a word and number, or type your own.</p><p>The link is checked as you type. A green ✓ means no other job uses it or anything close to it.</p><p>Choose how many pieces to split it into and how each piece appears in the posting.</p></div>@@SHOT wiz-2-link|Step 2: the hidden link and its pieces|The link, the pieces it is split into and the availability check.;;How many pieces, and the label each piece gets in the posting.@@</div>
+        <div class="step"><div class="big">3</div><div class="text"><h3>Copy the AI prompt</h3><p>The prompt holds your notes and tells the AI exactly how to format its reply. Click <b>Copy prompt</b>, paste it into Claude, ChatGPT or Gemini, then copy the AI's whole reply.</p><div class="tip">Prefer writing it yourself? Use <b>Skip, I'll write it myself</b> to start from a standard posting.</div></div>@@SHOT wiz-3-prompt|Step 3: copy the prompt into your AI tool@@</div>
+        <div class="step"><div class="big">4</div><div class="text"><h3>Paste the reply</h3><p>Paste the AI's reply. The app sorts it into a title, the posting, screening questions, interview questions and a rubric, and shows what it found with green ticks.</p><p>The link pieces and the code word sentence are placed into the posting automatically if the AI left them out.</p></div>@@SHOT wiz-4-reply|Step 4: the app reads the AI reply into each part of the job@@</div>
+        <div class="step"><div class="big">5</div><div class="text"><h3>Review and launch</h3><p>Check the summary and the posting preview. Placeholders like <code>[add pay range]</code> are flagged so you can fill them in.</p><p><b>Create as draft</b> saves it privately. <b>Create and go live</b> opens the activity page to candidates. Then copy the posting to your job boards.</p></div>@@SHOT wiz-5-launch|Step 5: review, then create as draft or go live@@</div>
+      </div>
+      <div class="tip note" style="margin-top:20px">Hiring for a similar role again? On step 1, open <b>Duplicate a job instead</b> to copy a past job's posting, activity page and questions with a fresh private link.</div>
+    </section>
+
+    <!-- 4 -->
+    <section id="job-tabs">
+      <header>
+        <p class="eyebrow">04 · Hiring lead</p>
+        <h2>Inside a job</h2>
+        <p>Open any job from the Jobs page. Changes save automatically a moment after you stop typing.</p>
+      </header>
+      <div class="tabs-list">
+        <div class="tabcard">
+          <div class="label"><span>Overview</span></div>
+          <div class="cols"><div class="text">
+            <p><b>Status</b> switches the job between Draft (only you can open it), Live (candidates can apply) and Closed (the page tells visitors applications are closed).</p>
+            <p><b>Activity link</b> opens the candidate page. Signed in as an admin, your visit counts as a test.</p>
+            <p><b>Copy for job boards</b> copies the posting formatted for each site. Pick a board under <i>Posting for</i> and the copy uses that board's own link.</p>
+            <p>On the right, a <b>funnel</b> shows how many people viewed, found the page, started and submitted, and a table breaks results down <b>by job board</b>.</p>
+          </div>@@SHOT job-overview|The job Overview tab@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Notes &amp; posting</span></div>
+          <div class="cols"><div class="text">
+            <p>Your original notes stay on the left for reference.</p>
+            <p>The posting editor uses Markdown. Lines like <code>{{part1}}</code> mark where each link piece appears. They are filled in automatically wherever the posting is shown or copied.</p>
+            <p><b>1. Copy AI prompt / 2. Paste the AI's reply</b> redraft the posting from your notes at any time. Save a snapshot under <b>Versions</b> before a big rewrite, so you can go back.</p>
+          </div>@@SHOT job-posting|The Notes and posting tab@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Hidden link</span></div>
+          <div class="cols"><div class="text">
+            <p>Change the link, re-split it into 2 to 6 pieces, and fine-tune each piece. A green line confirms the pieces add up to the full link. <b>Hint format</b> sets how each piece is labelled in the posting.</p>
+            <p><b>Links per job board</b> gives LinkedIn, Indeed and others their own version of the link, ending in a short code. You'll see which board sends the best candidates, and if one link leaks you can switch only that one off. You can also switch the main link off so only board links work.</p>
+            <div class="tip warn">Changing the link of a live job breaks it for anyone who already pieced it together.</div>
+          </div>@@SHOT job-puzzle|The Hidden link tab|<b>Secret link.</b> The address, a random-code button and the availability check.;;<b>Pieces.</b> How the link is split, and whether each piece is placed in the posting.;;<b>Links per job board.</b> One code per board, with copy, new code and on/off.@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Activity page</span></div>
+          <div class="cols"><div class="text">
+            <p>Everything candidates see once they find the link: the headline and introduction, the Loom setup steps, the shortest and longest suggested answer, extra instructions and an optional deadline.</p>
+            <p>Switches control <b>transcripts</b> (candidates paste Loom's transcript under each answer, so AI exports can read what they said), the <b>code word</b>, the <b>consent</b> line and an <b>accommodations email</b>.</p>
+            <p>Save a setup as a <b>template</b> to reuse it on the next job.</p>
+          </div>@@SHOT job-activity|The Activity page tab@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Questions</span></div>
+          <div class="cols"><div class="text">
+            <p>The video questions, each with an optional tip for the candidate. Move them up or down, edit or remove them, paste a list, or use the AI prompt to draft more.</p>
+            <div class="tip">Good questions ask for a specific past situation, a realistic scenario from the role, a "teach us something" moment and how they approached this application.</div>
+          </div>@@SHOT job-questions|The Questions tab@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Interview</span></div>
+          <div class="cols"><div class="text">
+            <p><b>Interview questions</b> mix <span class="chip neutral">general</span> ones that suit any role with <span class="chip accent">custom</span> ones written for this job. They appear on each candidate's page during the interview.</p>
+            <p><b>Confirmation email</b> goes out automatically when someone submits. Edit its wording or switch it off here.</p>
+            <p><b>Emails</b> holds the interview invite and rejection templates. <b>Scheduling link</b> (Calendly, Cal.com and similar) is added to invites. The <b>Rubric</b> lists the criteria reviewers score.</p>
+          </div>@@SHOT job-interview|The Interview tab@@</div>
+        </div>
+        <div class="tabcard">
+          <div class="label"><span>Candidates</span></div>
+          <div class="cols"><div class="text">
+            <p>This job's applicants by stage, with their flags and scores. It works like the main Candidates page, filtered to one job.</p>
+          </div>@@SHOT job-candidates|The job's Candidates tab@@</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section id="review">
+      <header>
+        <p class="eyebrow">05 · Reviewer</p>
+        <h2>Review candidates</h2>
+        <p>Every applicant moves through the same stages. Change a stage from the candidate's page or the list.</p>
+      </header>
+      <figure class="diagram small">
+        <svg viewBox="0 0 1000 190" role="img" aria-label="Stages: New, Reviewed, Shortlisted, Interview, Offer, Hired. A candidate can be moved to Rejected from any stage.">
+          <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#16151a"/></marker></defs>
+          <g font-family="Inter, sans-serif" font-size="14" font-weight="600" text-anchor="middle">
+            <rect x="20" y="20" width="135" height="50" rx="25" fill="#ffe7dc" stroke="#ff5a1f" stroke-width="1.5"/><text x="87.5" y="50" fill="#16151a">New</text>
+            <rect x="185" y="20" width="135" height="50" rx="25" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="252.5" y="50" fill="#16151a">Reviewed</text>
+            <rect x="350" y="20" width="135" height="50" rx="25" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="417.5" y="50" fill="#16151a">Shortlisted</text>
+            <rect x="515" y="20" width="135" height="50" rx="25" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="582.5" y="50" fill="#16151a">Interview</text>
+            <rect x="680" y="20" width="135" height="50" rx="25" fill="#fff" stroke="#16151a" stroke-width="1.5"/><text x="747.5" y="50" fill="#16151a">Offer</text>
+            <rect x="845" y="20" width="135" height="50" rx="25" fill="#17804f"/><text x="912.5" y="50" fill="#fff">Hired</text>
+            <rect x="432" y="128" width="136" height="44" rx="22" fill="#fbe3e0" stroke="#c0352b" stroke-width="1.5"/><text x="500" y="155" fill="#c0352b">Rejected</text>
+          </g>
+          <g stroke="#16151a" stroke-width="1.5" fill="none" marker-end="url(#ar2)"><path d="M157 45H181"/><path d="M322 45H346"/><path d="M487 45H511"/><path d="M652 45H676"/><path d="M817 45H841"/></g>
+          <path d="M87 100V108H913V100" fill="none" stroke="#c0352b" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <path d="M500 108V124" fill="none" stroke="#c0352b" stroke-width="1.5" marker-end="url(#ar2)"/>
+          <g font-family="Inter, sans-serif" font-size="12" fill="#6e6c73" text-anchor="middle"><text x="87.5" y="90">arrives here</text><text x="582.5" y="90">your invite moves them here</text><text x="620" y="140">from any stage</text></g>
+        </svg>
+        <figcaption>New candidates count toward "Waiting for review" on the dashboard until someone moves them on.</figcaption>
+      </figure>
+
+      <h3 class="sub">The candidate page</h3>
+      @@SHOT candidate-page|A candidate's page|<b>Stage and actions.</b> Change the stage, open a pre-written interview invite or rejection in your email app, or export for AI.;;<b>Auto-check flags.</b> Loom links, answer length, code word, wrong link tries and extras at a glance.;;<b>Answers.</b> Watch each video here, check its length and title, open the transcript and give it a 1 to 5 score.;;<b>Your review.</b> Score each rubric criterion, give an overall score and a recommendation. Other reviewers' scores show underneath.;;<b>Behavior.</b> How they found the page and worked through it. See <a href="#signals">Behavior signals</a>.@@
+      <div class="pair" style="margin-top:28px">
+        <div class="text">
+          <h3>Further down the page</h3>
+          <ul class="list">
+            <li><b>Résumé and cover letter</b> appear when the candidate added them. Files open in a new tab, and the link expires after 10 minutes.</li>
+            <li><b>Notes</b> are shared with the whole hiring team.</li>
+            <li><b>Tags</b> are free labels like "strong writer", searchable on the Candidates page.</li>
+            <li><b>Interview</b> sets the date and holds the interview questions, each with space for notes and a score, plus a summary box.</li>
+          </ul>
+          <h3 style="margin-top:12px">Export for AI review</h3>
+          <p>The <b>Export</b> button builds one document with the role, questions, rubric and the candidate's answers, signals, scores and notes, with instructions for an AI reviewer at the top. Paste it into Claude or another model to get a second opinion. Switch on <b>Hide names and emails</b> for a blind review.</p>
+          <p>To compare everyone who applied to a job, use <b>Export candidates</b> on the job's Overview tab.</p>
+        </div>
+        @@SHOT export|The Export window@@
+      </div>
+
+      <h3 class="sub">What the flags mean</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip good">✓ Loom</span></td><td>Every answer is a working Loom link. <span class="chip bad">× Loom</span> means at least one link points somewhere else.</td></tr>
+          <tr><td><span class="chip good">✓ Length</span></td><td>Every video is within the suggested length. <span class="chip bad">× Length</span> means at least one is outside it. Length is a guide and never blocks a submission. Loom doesn't share the length of some videos, so this flag can be missing.</td></tr>
+          <tr><td><span class="chip good">✓ Code</span></td><td>The hidden code word is in the video titles, so they read the posting closely. <span class="chip bad">× Code</span> means it's missing.</td></tr>
+          <tr><td><span class="chip neutral">2 wrong tries</span></td><td>Wrong addresses they typed before finding the page.</td></tr>
+          <tr><td><span class="chip accent">via LinkedIn</span></td><td>They used the LinkedIn version of the link.</td></tr>
+          <tr><td><span class="chip neutral">Résumé</span></td><td>They attached a résumé or cover letter file.</td></tr>
+          <tr><td><span class="chip warn" style="background:var(--warn-soft);color:var(--warn)">Repeat</span></td><td>Someone already applied to this job with the same email.</td></tr>
+          <tr><td><span class="chip ink">Test</span></td><td>A team member submitted it while testing. Tests are left out of every dashboard number.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub">The Candidates page</h3>
+      @@SHOT admin-candidates|The Candidates page, across all jobs@@
+    </section>
+
+    <!-- 6 -->
+    <section id="signals">
+      <header>
+        <p class="eyebrow">06 · Reviewer</p>
+        <h2>Reading the behavior signals</h2>
+        <p>The Behavior panel on each candidate's page shows how they worked. Read the signals as context next to their answers. On their own they don't decide anything.</p>
+      </header>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Signal</th><th>What it measures</th><th>What it can suggest</th></tr></thead>
+        <tbody>
+          <tr><td>Wrong link tries</td><td>Wrong or partial addresses typed on apply1234.com before finding the page. <b>Links they tried</b> lists them.</td><td>Persistence and how they solve a puzzle. Many tries that get closer each time show method.</td></tr>
+          <tr><td>Arrival → submit</td><td>Time from first opening the activity page to submitting.</td><td>Whether they did it in one sitting or came back later.</td></tr>
+          <tr><td>Answering time</td><td>Time from starting the questions to submitting.</td><td>How long the recording itself took.</td></tr>
+          <tr><td>On setup steps</td><td>Time spent on the Loom setup instructions.</td><td>Comfort with a new tool. Learning Loom quickly is part of the activity.</td></tr>
+          <tr><td>Active on page</td><td>Time the page was open and visible.</td><td>Effort, when compared with the total time.</td></tr>
+          <tr><td>Switched away</td><td>How often they left the tab, and for how long.</td><td>Usually recording in Loom. Long breaks are normal.</td></tr>
+          <tr><td>Failed link checks</td><td>Pasted links that weren't valid Loom links.</td><td>Attention to detail with instructions.</td></tr>
+          <tr><td>Came from / Referrer</td><td>Which job board link they used, and the site they came from.</td><td>Which boards bring your best applicants.</td></tr>
+          <tr><td>Time zone / Device</td><td>From their browser.</td><td>Where they are and whether they applied on a phone or a computer.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tip note" style="margin-top:14px">Tracking is tied to one browser. Someone who switches devices starts fresh, so their numbers only cover the device they submitted from.</div>
+    </section>
+
+    <!-- 7 -->
+    <section id="overview">
+      <header>
+        <p class="eyebrow">07 · Everyone</p>
+        <h2>The Overview dashboard</h2>
+        <p>The top of the Jobs page. It answers "what happened lately, and what needs me?" Your own test visits are never counted.</p>
+      </header>
+      @@SHOT admin-overview|The Overview dashboard|<b>Period.</b> Switch between today, the last 7 days and the last 30 days.;;<b>Number tiles.</b> New applicants (with the change from the period before), page visits, starts, help messages, waiting for review, shortlist, upcoming interviews and live jobs. Orange numbers need you; click them to jump there.;;<b>Applicants per day.</b> The chosen period in orange, earlier days in gray. Hover a bar for that day's numbers, or click Show numbers for a table.;;<b>From link to application.</b> How many people moved through each step, and the share that went on to the next one.;;<b>Needs attention.</b> The newest people waiting for review, upcoming interviews and unread messages.@@
+    </section>
+
+    <!-- 8 -->
+    <section id="inbox">
+      <header>
+        <p class="eyebrow">08 · Everyone</p>
+        <h2>Inbox and help messages</h2>
+        <p>Every activity page has a <b>Help</b> button in the corner. Candidates choose <i>Something isn't working</i>, <i>Question about the role</i> or <i>Something else</i>, write a message and leave their email.</p>
+      </header>
+      <div class="pair flip">
+        <div class="text">
+          <ul class="list">
+            <li>New messages show an orange dot and raise the count on the <b>Inbox</b> menu item. Team members with alerts on also get an email.</li>
+            <li>Open a message to see the step they were on, their browser and screen size, any error they saw and whether they've applied. <b>Yes, open their application</b> jumps to their page.</li>
+            <li><b>Reply by email</b> opens your email app with their message quoted.</li>
+            <li><b>Mark done</b> moves it to the Done list. Add a private note for the team at any point.</li>
+          </ul>
+        </div>
+        @@SHOT admin-inbox|The Inbox with a message opened@@
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section id="emails">
+      <header>
+        <p class="eyebrow">09 · Everyone</p>
+        <h2>Emails</h2>
+        <p>Automatic emails come from <code>hiring@apply1234.com</code>. Interview invites and rejections are never sent automatically: they open in your own email app so you can read them before sending.</p>
+      </header>
+      <div class="table-wrap"><table>
+        <thead><tr><th>When</th><th>Email</th><th>Goes to</th><th>Change it in</th></tr></thead>
+        <tbody>
+          <tr><td>A candidate submits</td><td><span class="chip accent">Automatic</span> "We got your answers for {role}"</td><td>The candidate. Replies go to you.</td><td>Job › Interview › Confirmation email</td></tr>
+          <tr><td>A candidate submits</td><td><span class="chip accent">Automatic</span> "New applicant: {name}" with their auto-checks and a link to their answers</td><td>Every team member with this alert on</td><td>Settings › Email me when</td></tr>
+          <tr><td>A help message arrives</td><td><span class="chip accent">Automatic</span> The message, the step they were on and their browser</td><td>Every team member with this alert on</td><td>Settings › Email me when</td></tr>
+          <tr><td>You click Invite to interview</td><td><span class="chip neutral">You send it</span> Interview invite with your scheduling link</td><td>The candidate</td><td>Job › Interview › Emails</td></tr>
+          <tr><td>You click Reject</td><td><span class="chip neutral">You send it</span> A kind rejection</td><td>The candidate</td><td>Job › Interview › Emails</td></tr>
+          <tr><td>Someone signs up</td><td><span class="chip accent">Automatic</span> "Confirm your apply1234 login"</td><td>The new team member</td><td>Set up once in Supabase</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tip" style="margin-top:14px">In email templates, <code>{first}</code>, <code>{name}</code>, <code>{role}</code> and <code>{link}</code> are replaced with the candidate's first name, full name, the job title and your scheduling link. Test runs by a team member are marked <b>[Test]</b> in the subject.</div>
+    </section>
+
+    <!-- 10 -->
+    <section id="activity-log">
+      <header>
+        <p class="eyebrow">10 · Everyone</p>
+        <h2>Activity log</h2>
+        <p>A running record of everything that happens on candidate pages: arrivals, steps, link checks, submissions and every wrong address typed on apply1234.com.</p>
+      </header>
+      <div class="pair">
+        @@SHOT admin-activity|The Activity log@@
+        <div class="text">
+          <ul class="list">
+            <li>Switch between <b>Wrong links</b> and <b>Everything</b>, and filter by job.</li>
+            <li><b>Most-tried wrong links</b> shows the addresses people guess most often. If many people make the same mistake, a piece in the posting may be unclear.</li>
+            <li>Wrong tries are matched to the closest live job, and to the candidate when that same browser later submits.</li>
+            <li><b>Hide my test visits</b> leaves out what you did while testing.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section id="settings">
+      <header>
+        <p class="eyebrow">11 · Everyone</p>
+        <h2>Settings and your team</h2>
+      </header>
+      <div class="pair flip">
+        <div class="text">
+          <h3>Email me when</h3>
+          <p>Each team member chooses their own alerts: when someone finishes an activity, and when a candidate sends a help message.</p>
+          <h3 style="margin-top:8px">Add a teammate</h3>
+          <ol class="list">
+            <li>Type their email under <b>Hiring team</b> and click <b>Add</b>.</li>
+            <li>Send them to <code>apply1234.com/admin</code>. They click <b>First time? Create your login</b> and use that same email.</li>
+            <li>They click the link in the confirmation email. They now see every job and candidate.</li>
+          </ol>
+          <h3 style="margin-top:8px">Templates</h3>
+          <p>Activity page setups saved from a job. Rename or delete them here.</p>
+          <div class="tip note">Signing in marks your browser as an admin browser, so your visits to activity pages count as tests.</div>
+        </div>
+        @@SHOT admin-settings|The Settings page@@
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section id="candidates">
+      <header>
+        <p class="eyebrow">12 · Candidate</p>
+        <h2>What candidates see</h2>
+        <p>Most candidates apply on a phone, so these are phone screens. Scroll sideways to follow the whole journey. Click any screen to enlarge it.</p>
+      </header>
+      <div class="phones">
+        @@PHONE cand-0-posting|1|The posting|The pieces of the link are spread through it, labelled "Part 1 of 3" and so on.@@
+        @@PHONE cand-1-wrong|2|A wrong link|They see "Nothing here". The try is logged and later linked to their application.@@
+        @@PHONE cand-2-welcome|3|Welcome|The headline and intro you wrote, the number of questions, answer length and deadline.@@
+        @@PHONE cand-3-setup|4|Get Loom ready|Each setup step has a picture. They tick a box once Loom is installed.@@
+        @@PHONE cand-4-answers|5|Answers|One Loom link per question. Each link is checked right away and shows its title.@@
+        @@PHONE cand-5-submit|6|Last step|Name, email and consent, plus an optional résumé and cover letter.@@
+        @@PHONE cand-6-done|7|Thank you|The page confirms it arrived, and a confirmation email goes out.@@
+        @@PHONE cand-7-help|8|Need help?|The Help button works on every step and sends a message to your Inbox.@@
+      </div>
+      <div class="pair" style="margin-top:24px">
+        <div class="text">
+          <h3>Rules candidates work within</h3>
+          <ul class="list">
+            <li>Progress is saved on their device, so they can leave and come back.</li>
+            <li>Every question needs a video link before they can continue. When transcripts are on, each answer needs its transcript too. A box under the button lists exactly what is still missing.</li>
+            <li>Video length is a guide only and never stops them from submitting.</li>
+            <li>They can submit again to fix something. You'll see the second submission marked <span class="chip warn" style="background:var(--warn-soft);color:var(--warn)">Repeat</span>.</li>
+          </ul>
+        </div>
+        <div class="text">
+          <h3>What they never see</h3>
+          <ul class="list">
+            <li>The code word check, the signals and any of the tracking.</li>
+            <li>Other jobs. The site never lists jobs, and a job's page opens only through its own link.</li>
+            <li>This guide. It lives behind the admin sign-in.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section id="tips">
+      <header>
+        <p class="eyebrow">13 · Everyone</p>
+        <h2>Tips and fixes</h2>
+      </header>
+      <div class="faq">
+        <details><summary>How do I test a job the way a candidate would?</summary><div><p>Open the job's activity link while signed in. Everything works, including on Draft jobs, and the page shows a "Preview" bar. Your visits and submissions are marked <span class="chip ink">Test</span>, left out of the dashboard, and their emails say [Test]. To see it exactly as a stranger does, use a private browser window.</p></div></details>
+        <details><summary>A candidate says the link doesn't work</summary><div><p>Check that the job is <b>Live</b> and, if they used a job board link, that the board link is switched on under <b>Hidden link</b>. Then open <b>Activity › Wrong links</b>: you'll see exactly what they typed.</p></div></details>
+        <details><summary>A video shows no length</summary><div><p>Loom doesn't report the length of some videos, often ones uploaded rather than recorded in Loom. The link still counts as valid and the candidate can submit. Watch the video to judge its length.</p></div></details>
+        <details><summary>Can I change the link after posting?</summary><div><p>Yes, but anyone who already pieced together the old link will hit "Nothing here". To retire one job board's link only, use <b>New code</b> or <b>Turn off</b> on that board instead.</p></div></details>
+        <details><summary>How do I stop new applications?</summary><div><p>Set the job's status to <b>Closed</b> on its Overview tab, or set a deadline on the Activity page tab. Visitors then see that applications are closed.</p></div></details>
+        <details><summary>Someone applied twice</summary><div><p>The newer submission carries a <span class="chip warn" style="background:var(--warn-soft);color:var(--warn)">Repeat</span> flag. Review the latest one and reject or delete the older one.</p></div></details>
+        <details><summary>Emails aren't arriving</summary><div><p>Check <b>Settings › Email me when</b>, then your spam folder. Candidate confirmations can be switched off per job on the Interview tab, so check that too.</p></div></details>
+        <details><summary>Deleting a candidate</summary><div><p><b>Delete candidate</b> at the bottom of their page removes their answers, scores and notes for good. Moving them to <b>Rejected</b> keeps the record instead.</p></div></details>
+        <details><summary>Use apply1234 like an app on your phone</summary><div><p>On iPhone, open <code>apply1234.com/admin</code> in Safari, tap Share, then <b>Add to Home Screen</b>. On Android, open it in Chrome and choose <b>Install app</b>. It opens straight to your dashboard.</p></div></details>
+      </div>
+      <footer><span>apply1234 hiring guide</span><span>Pictures use sample data · Updated November 8, 2026</span></footer>
+    </section>
+  </main>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged screenshot"><button type="button" aria-label="Close">×</button><img alt=""></div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(id, smooth) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: smooth && !reduce ? 'smooth' : 'auto', block: 'start' });
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+  var box = document.getElementById('lightbox');
+  var big = box.querySelector('img');
+  function close() { box.classList.remove('open'); big.removeAttribute('src'); }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (a) { e.preventDefault(); go(a.getAttribute('href').slice(1), true); return; }
+    var img = e.target.closest && e.target.closest('.shot img, .phone img');
+    if (img) { big.src = img.src; big.alt = img.alt; box.classList.add('open'); box.querySelector('button').focus(); return; }
+    if (box.classList.contains('open')) close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a[href^="#"], .chips a[href^="#"]'));
+  var ids = Array.prototype.map.call(document.querySelectorAll('main section[id]'), function (s) { return s.id; });
+  function spy() {
+    var current = ids[0];
+    for (var i = 0; i < ids.length; i++) {
+      var s = document.getElementById(ids[i]);
+      if (s.getBoundingClientRect().top < 140) current = ids[i];
+    }
+    links.forEach(function (l) {
+      var on = l.getAttribute('href') === '#' + current;
+      l.classList.toggle('on', on);
+      if (on && l.parentElement.classList.contains('chips')) {
+        var c = l.parentElement;
+        if (l.offsetLeft < c.scrollLeft || l.offsetLeft + l.offsetWidth > c.scrollLeft + c.clientWidth) c.scrollLeft = l.offsetLeft - 18;
+      }
+    });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+  var start = (location.hash || '').slice(1);
+  if (start) setTimeout(function () { go(start, false); }, 50);
+})();
+</script>
+</body>
+</html>

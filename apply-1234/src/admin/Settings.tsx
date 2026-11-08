@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Template } from '../lib/types';
 import { fmtDate, store } from '../lib/util';
@@ -51,6 +52,11 @@ export default function Settings({ email }: { email: string }) {
             </div>
           ) : <p className="text-sm text-muted">Loading…</p>}
           <p className="text-xs text-muted mt-4 leading-relaxed">The candidate confirmation email is set per job, on its Interview tab.</p>
+        </Card>
+
+        <Card>
+          <SectionTitle sub="Every screen, menu and setting explained with pictures. Share it with new teammates.">Guide</SectionTitle>
+          <Link to="/admin/guide"><Button>Open the guide</Button></Link>
         </Card>
 
         <Card>

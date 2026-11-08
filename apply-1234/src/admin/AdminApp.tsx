@@ -12,6 +12,7 @@ import ActivityLog from './ActivityLog';
 import Settings from './Settings';
 import NewJobWizard from './NewJobWizard';
 import Inbox, { INBOX_EVENT } from './Inbox';
+import Guide from './Guide';
 import { unreadMessages } from './data';
 
 type Gate = 'loading' | 'signed_out' | 'not_admin' | 'admin';
@@ -100,7 +101,11 @@ function Shell({ email }: { email: string }) {
               </NavLink>
             ))}
           </nav>
-          <span className="ml-auto text-[12px] text-muted truncate max-w-[40vw] hidden sm:block">{email}</span>
+          <NavLink to="/admin/guide"
+            className={({ isActive }) => cx('ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition', isActive ? 'bg-card border border-line font-medium' : 'text-muted hover:text-ink')}>
+            <span className="grid place-items-center h-5 w-5 rounded-full bg-ink text-white text-[11px] font-semibold">?</span>Guide
+          </NavLink>
+          <span className="text-[12px] text-muted truncate max-w-[30vw] hidden md:block">{email}</span>
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
@@ -111,6 +116,7 @@ function Shell({ email }: { email: string }) {
           <Route path="candidates" element={<Candidates />} />
           <Route path="candidates/:id" element={<CandidateDetail />} />
           <Route path="inbox" element={<Inbox />} />
+          <Route path="guide" element={<Guide />} />
           <Route path="activity" element={<ActivityLog />} />
           <Route path="settings" element={<Settings email={email} />} />
           <Route path="*" element={<Jobs />} />
