@@ -11,6 +11,8 @@
  *   CONTACT_FROM   (optional) Sender. Must be on a Resend-verified domain.
  */
 
+const { recordLead } = require('./_crm');
+
 const API_KEY = process.env.RESEND_API_KEY;
 const TO = process.env.CONTACT_TO || 'contact@mambaykanu.com';
 const FROM = process.env.CONTACT_FROM || 'Mambay Kanu <onboarding@resend.dev>';
@@ -91,6 +93,16 @@ module.exports = async function handler(req, res) {
   if (!email || !EMAIL_RE.test(email)) {
     return res.status(400).json({ field: 'email', error: 'Enter a valid email address.' });
   }
+
+  // A recommendation is a warm contact, so it lands in the CRM like any other
+  // enquiry. recordLead never throws and never blocks the submission.
+  await recordLead(
+    { email: email, name: name, source: 'library', sourceDetail: 'Book recommendation' },
+    {
+      message: 'Recommended ' + title + (author ? ' by ' + author : '')
+             + (note ? '\n\n' + note : '')
+    }
+  );
 
   if (!API_KEY) {
     console.error('RESEND_API_KEY is not set; recommendations cannot be relayed.');

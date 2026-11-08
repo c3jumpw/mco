@@ -48,6 +48,7 @@
     'bkg': 'BKG',
     'hatrack': 'HatRack',
     'vault-leaf': 'Vault Leaf',
+    'apply1234': 'apply1234',
     'brand-craftsman': 'Consulting',
     'mco-investments': 'Investment or partnership',
     'the-anvil': 'The Anvil',

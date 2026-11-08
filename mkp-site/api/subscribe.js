@@ -12,6 +12,8 @@
  *   CONTACT_TO         (optional) Fallback recipient. Defaults to contact@mambaykanu.com.
  */
 
+const { recordLead } = require('./_crm');
+
 const API_KEY = process.env.RESEND_API_KEY;
 const AUDIENCE = process.env.RESEND_AUDIENCE_ID;
 const TO = process.env.CONTACT_TO || 'contact@mambaykanu.com';
@@ -74,6 +76,13 @@ module.exports = async function handler(req, res) {
   if (!email || !EMAIL_RE.test(email)) {
     return res.status(400).json({ field: 'email', error: 'Enter a valid email address.' });
   }
+
+  // Every address that comes through the site becomes a lead, or updates the
+  // one already there. recordLead never throws and never blocks the signup.
+  await recordLead(
+    { email: email, source: 'anvil', sourceDetail: 'The Anvil signup' },
+    { message: 'Joined The Anvil from the site.' }
+  );
 
   if (!API_KEY) {
     console.error('RESEND_API_KEY is not set; subscribe endpoint cannot run.');

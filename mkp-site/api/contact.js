@@ -10,6 +10,8 @@
  *                               Defaults to Resend's shared testing sender.
  */
 
+const { recordLead } = require('./_crm');
+
 const TO = process.env.CONTACT_TO || 'contact@mambaykanu.com';
 const FROM = process.env.CONTACT_FROM || 'Mambay Kanu <onboarding@resend.dev>';
 const API_KEY = process.env.RESEND_API_KEY;
@@ -104,6 +106,21 @@ module.exports = async function handler(req, res) {
   if (message.length < 10) {
     return res.status(400).json({ field: 'message', error: 'Add a bit more detail so we can route your note.' });
   }
+
+
+  // Record the enquiry as a lead before replying. A CRM failure is logged
+  // inside recordLead and never fails the submission.
+  const isDemo = /request a demo/i.test(interest) || /^(Dispatch It|HaloDeck|DayForge|ContentFlow|My PD|Circuit Book|PingPath|BKG|HatRack|Vault Leaf|apply1234)$/i.test(interest);
+  await recordLead(
+    {
+      email: email,
+      name: name,
+      company: company,
+      source: isDemo ? 'demo' : 'site',
+      sourceDetail: interest || null
+    },
+    { message: message, interest: interest }
+  );
 
   if (!API_KEY) {
     console.error('RESEND_API_KEY is not set; contact form cannot send.');
