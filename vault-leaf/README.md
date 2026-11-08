@@ -26,3 +26,5 @@ python3 tools/build_guide.py    # rebuild guide/index.html
 Always rebuild rather than editing `index.html` directly: the Content Security Policy only allows the exact script that `build.py` produced.
 
 User data never touches this repository or Vercel. Each vault is encrypted in the visitor's browser.
+
+History: moved from c3jumpw/public on November 8, 2026.
