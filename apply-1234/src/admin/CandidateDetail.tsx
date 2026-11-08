@@ -188,6 +188,8 @@ export default function CandidateDetail() {
                 <Metric k="Active on page" v={b.activeSeconds != null ? fmtSpan(b.activeSeconds * 1000) : '—'} />
                 <Metric k="Switched away" v={`${b.tabSwitches}×`} />
                 <Metric k="Failed link checks" v={String(b.invalidLinks)} />
+                <Metric k="Came from" v={String((app.metrics as any)?.source_label || 'Main link')} />
+                <Metric k="Referrer" v={b.referrer || '—'} />
                 <Metric k="Time zone" v={b.tz || '—'} />
                 <Metric k="Device" v={b.device || '—'} />
               </dl>

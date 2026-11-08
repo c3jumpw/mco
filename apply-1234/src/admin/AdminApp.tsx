@@ -10,6 +10,7 @@ import Candidates from './Candidates';
 import CandidateDetail from './CandidateDetail';
 import ActivityLog from './ActivityLog';
 import Settings from './Settings';
+import NewJobWizard from './NewJobWizard';
 
 type Gate = 'loading' | 'signed_out' | 'not_admin' | 'admin';
 
@@ -76,6 +77,7 @@ function Shell({ email }: { email: string }) {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         <Routes>
           <Route index element={<Jobs />} />
+          <Route path="new" element={<NewJobWizard />} />
           <Route path="jobs/:id" element={<JobEditor />} />
           <Route path="candidates" element={<Candidates />} />
           <Route path="candidates/:id" element={<CandidateDetail />} />

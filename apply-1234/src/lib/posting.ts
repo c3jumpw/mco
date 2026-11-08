@@ -1,4 +1,4 @@
-import type { Fragment } from './types';
+import type { Fragment, Job } from './types';
 
 export const TOKEN_RE = /\{\{\s*part\s*(\d+)\s*\}\}/gi;
 
@@ -6,8 +6,43 @@ export function fullUrl(domain: string, slug: string | null | undefined): string
   return `${(domain || '').trim().replace(/\/+$/, '')}/${slug || ''}`;
 }
 
-/** Splits a URL into n pieces, preferring natural breaks (., /, -, letter↔digit). */
+/** Splits a path like "qkqg-vrsd" into `count` pieces, keeping dashes on the left piece. */
+function splitPath(path: string, count: number): string[] {
+  let pieces = path.split(/(?<=-)/).filter(Boolean);
+  while (pieces.length > count) {
+    let best = 0;
+    for (let i = 1; i < pieces.length - 1; i++) {
+      if (pieces[i].length + pieces[i + 1].length < pieces[best].length + pieces[best + 1].length) best = i;
+    }
+    pieces.splice(best, 2, pieces[best] + pieces[best + 1]);
+  }
+  while (pieces.length < count) {
+    let idx = 0;
+    pieces.forEach((p, i) => { if (p.length > pieces[idx].length) idx = i; });
+    const p = pieces[idx];
+    if (p.length < 2) break;
+    const mid = Math.ceil(p.length / 2);
+    pieces.splice(idx, 1, p.slice(0, mid), p.slice(mid));
+  }
+  return pieces;
+}
+
+/** Splits "apply1234.com/qkqg-vrsd" into n pieces: name, ".com/", then the path. */
 export function splitUrl(full: string, n: number): string[] {
+  const slash = full.indexOf('/');
+  const dot = slash > 0 ? full.lastIndexOf('.', slash) : -1;
+  if (slash > 0 && slash < full.length - 1 && dot > 0) {
+    const domain = full.slice(0, slash);
+    const path = full.slice(slash + 1);
+    if (n <= 2) return [domain + '/', path];
+    const domParts = [domain.slice(0, dot), domain.slice(dot) + '/'];
+    return [...domParts, ...splitPath(path, n - domParts.length)];
+  }
+  return splitGeneric(full, n);
+}
+
+/** Fallback: splits any string into n pieces, preferring natural breaks (., /, -, letter↔digit). */
+function splitGeneric(full: string, n: number): string[] {
   const len = full.length;
   n = Math.max(2, Math.min(n, 8, len));
   const isBreak = (a: string, b: string) =>
@@ -161,24 +196,6 @@ Describe the role in two or three sentences: what this person owns and why it ma
 ## How to apply
 Read this whole posting carefully. Pieces of the application link are hidden in it. Put them together, in order, and open the link in your browser.`;
 
-export function aiPostingPrompt(title: string, notes: string, parts: number, hintFormat: string): string {
-  return `You are helping me write a job posting.
-
-Role: ${title}
-
-My notes on the role:
-"""
-${notes || '(no notes yet)'}
-"""
-
-Write a clear, specific job posting in Markdown with sections (## headings) and bullet lists. Keep it honest and concrete, avoid buzzwords, and write in a warm, direct voice.
-
-Important: the application link is hidden in the posting as ${parts} fragments. Place these exact placeholder tokens on their own lines, spread across different sections so a careful reader has to read the whole posting to find them all, in order:
-${Array.from({ length: parts }, (_, i) => `{{part${i + 1}}}`).join(', ')}
-
-Each token will be replaced with a line like "${hintText(hintFormat, 0, parts, '…')}". Do not write the URL yourself. End with a short "How to apply" section telling the reader that pieces of the link are hidden in the posting and must be combined in order.`;
-}
-
 export function aiQuestionsPrompt(title: string, notes: string, posting: string, count: number): string {
   return `I'm hiring for: ${title}
 
@@ -220,3 +237,151 @@ export const GENERAL_INTERVIEW_QUESTIONS = [
   'What would you want to have accomplished 90 days into this role?',
   'What questions do you have for us?',
 ];
+
+/* ───────────── link variants (per job-board source) ───────────── */
+
+export function variantSlug(slug: string | null | undefined, sourceCode?: string | null): string {
+  return sourceCode ? `${slug}-${sourceCode}` : `${slug || ''}`;
+}
+
+/** Link pieces for the base link, or for one source's variant of it. */
+export function fragmentsFor(job: Pick<Job, 'domain' | 'slug' | 'fragments'>, sourceCode?: string | null): Fragment[] {
+  if (!sourceCode) return job.fragments;
+  const base = fullUrl(job.domain, job.slug);
+  if (job.fragments.length && job.fragments.map((f) => f.text).join('') === base) {
+    return job.fragments.map((f, i) => (i === job.fragments.length - 1 ? { text: `${f.text}-${sourceCode}` } : f));
+  }
+  const n = Math.max(2, job.fragments.length || 3);
+  return splitUrl(fullUrl(job.domain, variantSlug(job.slug, sourceCode)), n).map((text) => ({ text }));
+}
+
+/* ───────────── structured AI prompt + parser ───────────── */
+
+export const CODE_WORD_SENTENCE = (word: string) =>
+  `One more detail for careful readers: include the word **${word}** in the title of every video you record.`;
+
+export interface JobPromptOptions {
+  title?: string;
+  notes: string;
+  parts: number;
+  questionCount: number;
+  answerRange: string; // e.g. "1–3 minutes"
+  codeWord?: string;
+}
+
+export function aiJobPrompt(o: JobPromptOptions): string {
+  const tokens = Array.from({ length: o.parts }, (_, i) => `{{part${i + 1}}}`).join(', ');
+  return `You are helping me hire. Turn my notes into a job posting and interview material.
+
+Reply in Markdown using EXACTLY the structure below: these five section headings, spelled exactly as shown, each on its own line, in this order. Put nothing before the first heading. Do not wrap your reply in a code block.
+
+# TITLE
+One line: a clear, specific job title.${o.title ? ` Use "${o.title}" unless it is unclear.` : ''}
+
+# POSTING
+The full job posting in Markdown. Inside it, use only ## and ### headings, never a single #. Keep paragraphs short and use bullet lists. Sections, in order: About the role, What you'll do, What we're looking for, Your first 90 days (only if my notes mention onboarding or probation), Details, How to apply.
+- Put each of these placeholder tokens on its own line, in this order, spread across different sections: ${tokens}. Put the last token just before "How to apply". Don't explain them; they're replaced with pieces of the application link.
+- In "Details", list schedule, location and pay. If my notes don't say, write [add schedule], [add location] and [add pay range]. Don't invent them.
+- "How to apply" must say: we don't take résumés; the link to the application is hidden in this posting in pieces; put the pieces together in order and open the link in a browser.${o.codeWord ? `\n- End "How to apply" with exactly this sentence: ${CODE_WORD_SENTENCE(o.codeWord)}` : ''}
+
+# SCREENING QUESTIONS
+${o.questionCount} questions the candidate answers on video, ${o.answerRange} each. Someone who would thrive in this role should answer them well. Include a specific past situation, a realistic scenario from this role, a "teach us something" question, and one about how they approached this application. Format each exactly like this:
+1. The question
+   Guidance: one short tip for the candidate
+
+# INTERVIEW QUESTIONS
+8 live-interview questions that go deeper than the screening questions, one per line, formatted as "- [general] question" for questions that suit any role or "- [custom] question" for questions specific to this role. At least 5 should be custom.
+
+# RUBRIC
+4 to 6 short criteria (2 to 4 words each) for scoring candidates, one per line as "- Criterion".
+
+Write honestly and concretely in a warm, direct voice. Avoid buzzwords and don't invent facts that aren't in my notes.
+
+My notes:
+"""
+${o.notes.trim() || '(no notes)'}
+"""`;
+}
+
+export interface ParsedJob {
+  title: string;
+  posting: string;
+  questions: { text: string; guidance: string }[];
+  interview: { text: string; kind: 'general' | 'custom' }[];
+  rubric: string[];
+  sections: string[]; // which headings were found
+}
+
+const SECTION_RE = /^\s*#{1,2}\s*\**\s*(title|posting|job posting|screening questions|questions|interview questions|rubric)\s*\**\s*:?\s*$/i;
+
+const clean = (s: string) => s.replace(/\*\*/g, '').replace(/^["“”']+|["“”']+$/g, '').trim();
+
+export function parseAiJob(raw: string): ParsedJob {
+  let text = (raw || '').replace(/\r\n/g, '\n').trim();
+  // strip a wrapping code fence if the AI added one
+  text = text.replace(/^```[a-z]*\s*\n/i, '').replace(/\n```\s*$/i, '');
+  const lines = text.split('\n');
+  const buckets: Record<string, string[]> = {};
+  let current: string | null = null;
+  for (const line of lines) {
+    const m = line.match(SECTION_RE);
+    // "## Questions" style headings only count when the AI wrote them in capitals
+    if (m && (/^\s*#\s/.test(line) || m[1] === m[1].toUpperCase())) {
+      const k = m[1].toLowerCase();
+      current = k === 'job posting' ? 'posting' : k === 'questions' ? 'screening questions' : k;
+      buckets[current] = [];
+      continue;
+    }
+    if (current) buckets[current].push(line);
+  }
+  const sections = Object.keys(buckets);
+  if (!sections.length) {
+    return { title: '', posting: text, questions: [], interview: [], rubric: [], sections: [] };
+  }
+
+  const title = clean((buckets['title'] || []).find((l) => l.trim())?.replace(/^#+\s*/, '') || '');
+
+  const posting = (buckets['posting'] || []).join('\n').trim().replace(/^#\s+/gm, '## ');
+
+  const questions: ParsedJob['questions'] = [];
+  for (const l of buckets['screening questions'] || []) {
+    const q = l.match(/^\s*(?:\d+[.)]|[-*•])\s+(.*)$/);
+    const g = l.match(/^\s*[-*]?\s*(?:guidance|tip)\s*:\s*(.*)$/i);
+    if (g && questions.length) questions[questions.length - 1].guidance = clean(g[1]);
+    else if (q) questions.push({ text: clean(q[1]), guidance: '' });
+    else if (l.trim() && questions.length && !questions[questions.length - 1].guidance) {
+      questions[questions.length - 1].text += ' ' + clean(l);
+    }
+  }
+
+  const interview: ParsedJob['interview'] = [];
+  for (const l of buckets['interview questions'] || []) {
+    const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(?:\[(general|custom)\]\s*)?(.*)$/i);
+    if (m && m[2].trim()) interview.push({ text: clean(m[2]), kind: (m[1]?.toLowerCase() as 'general' | 'custom') || 'custom' });
+  }
+
+  const rubric: string[] = [];
+  for (const l of buckets['rubric'] || []) {
+    const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+    if (m) {
+      const c = clean(m[1]).split(/\s+[—–-]\s+|:\s/)[0].trim();
+      if (c && !rubric.includes(c)) rubric.push(c.slice(0, 40));
+    }
+  }
+  return { title, posting, questions, interview, rubric: rubric.slice(0, 8), sections };
+}
+
+/** Adds any {{partN}} tokens the AI left out, just before "How to apply" (or at the end). */
+export function insertMissingTokens(posting: string, total: number): string {
+  const { missing } = placedParts(posting, total);
+  if (!missing.length) return posting;
+  const block = missing.map((n) => `{{part${n}}}`).join('\n\n');
+  const idx = posting.search(/^#{2,3}\s+how to apply/im);
+  if (idx >= 0) return posting.slice(0, idx) + block + '\n\n' + posting.slice(idx);
+  return posting.trimEnd() + '\n\n' + block + '\n';
+}
+
+export function ensureCodeWord(posting: string, word?: string): string {
+  if (!word || posting.toLowerCase().includes(word.toLowerCase())) return posting;
+  return posting.trimEnd() + '\n\n' + CODE_WORD_SENTENCE(word) + '\n';
+}

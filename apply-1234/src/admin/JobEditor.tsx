@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import type { Job, JobStats } from '../lib/types';
 import { deleteJob, getJob, jobStats, updateJob } from './data';
-import { Button, Card, CopyButton, Input, Loading, Pill, SectionTitle, Tabs, useToast, cx } from '../ui';
-import { fullUrl, mdToHtml, placedParts, postingMarkdown, postingPlain } from '../lib/posting';
+import { Button, Card, CopyButton, Input, Loading, Pill, SectionTitle, Select, Tabs, useToast, cx } from '../ui';
+import { fragmentsFor, fullUrl, mdToHtml, placedParts, postingMarkdown, postingPlain, variantSlug } from '../lib/posting';
+import { supabase } from '../lib/supabase';
 import { statusLabel, statusTone } from './Jobs';
 import PostingTab from './job/PostingTab';
 import PuzzleTab from './job/PuzzleTab';
@@ -152,9 +153,14 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
     toast(status === 'published' ? 'Live. The activity page is open.' : status === 'closed' ? 'Closed. New submissions are blocked.' : 'Moved back to draft.');
   };
 
-  const md = () => `# ${job.title}\n\n` + postingMarkdown(job.posting, job.fragments, job.hint_format);
-  const plain = () => `${job.title}\n\n` + postingPlain(job.posting, job.fragments, job.hint_format);
-  const html = () => `<h1>${job.title}</h1>` + mdToHtml(job.posting, undefined, job.fragments, job.hint_format);
+  const sources = (job.sources || []).filter((x) => x.active);
+  const [srcCode, setSrcCode] = useState('');
+  const src = sources.find((x) => x.code === srcCode) || null;
+  const frags = fragmentsFor(job, src?.code);
+  const md = () => `# ${job.title}\n\n` + postingMarkdown(job.posting, frags, job.hint_format);
+  const plain = () => `${job.title}\n\n` + postingPlain(job.posting, frags, job.hint_format);
+  const html = () => `<h1>${job.title}</h1>` + mdToHtml(job.posting, undefined, frags, job.hint_format);
+  const bySource = useSourceStats(job);
 
   const share = async () => {
     if (!job.share_enabled) patch({ share_enabled: true });
@@ -217,12 +223,23 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
 
         <Card>
           <SectionTitle sub="The posting with link fragments filled in. Paste it into Indeed, LinkedIn or any job board.">Copy for job boards</SectionTitle>
+          {sources.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="text-sm text-muted">Posting for</span>
+              <Select value={srcCode} onChange={(e) => setSrcCode(e.target.value)} className="w-auto h-9 text-sm">
+                <option value="">Main link</option>
+                {sources.map((x) => <option key={x.id} value={x.code}>{x.label}</option>)}
+              </Select>
+              <span className="font-mono text-[12px] text-muted break-all">{fullUrl(job.domain, variantSlug(job.slug, src?.code))}</span>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             <CopyButton text={plain} html={html} label="Copy formatted" variant="primary" done="Formatted posting copied" />
             <CopyButton text={plain} label="Copy plain text" />
             <CopyButton text={md} label="Copy Markdown" />
             <Button size="sm" onClick={share}>Share posting link</Button>
             <Button size="sm" variant="ghost" onClick={() => setTab('posting')}>Edit posting</Button>
+            {sources.length === 0 && <Button size="sm" variant="ghost" onClick={() => setTab('puzzle')}>Make a link per board</Button>}
           </div>
           {job.share_enabled && (
             <div className="mt-4 flex items-center gap-2 text-sm">
@@ -256,6 +273,23 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
             Lots of wrong tries and few arrivals means the puzzle may be too hard. Nearly no wrong tries can mean the link is being shared.
           </p>
         </Card>
+        {bySource.length > 0 && (
+          <Card>
+            <SectionTitle sub="Unique visitors who found the page, and submissions, per link.">By job board</SectionTitle>
+            <table className="w-full text-sm">
+              <thead><tr className="text-[12px] text-muted text-left"><th className="font-normal pb-1.5">Link</th><th className="font-normal pb-1.5 text-right">Found</th><th className="font-normal pb-1.5 text-right">Submitted</th></tr></thead>
+              <tbody>
+                {bySource.map((r) => (
+                  <tr key={r.key} className="border-t border-line">
+                    <td className="py-1.5">{r.label}</td>
+                    <td className="py-1.5 text-right font-mono">{r.arrivals}</td>
+                    <td className="py-1.5 text-right font-mono">{r.submissions}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        )}
         <Card>
           <SectionTitle>Export</SectionTitle>
           <p className="text-sm text-muted leading-relaxed">All candidates for this job as Markdown or HTML, ready to load into an AI model for analysis.</p>
@@ -266,4 +300,34 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
       <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} job={job} />
     </div>
   );
+}
+
+/** Arrivals and submissions per job-board link, counted from the event log. */
+function useSourceStats(job: Job) {
+  const [rows, setRows] = useState<{ key: string; label: string; arrivals: number; submissions: number }[]>([]);
+  const hasSources = (job.sources || []).length > 0;
+  useEffect(() => {
+    if (!hasSources) { setRows([]); return; }
+    (async () => {
+      const [{ data: ev }, { data: apps }] = await Promise.all([
+        supabase.from('hiring_events').select('visitor_id, meta').eq('job_id', job.id).eq('type', 'arrival').limit(10000),
+        supabase.from('hiring_applications').select('metrics').eq('job_id', job.id).limit(5000),
+      ]);
+      const label = (code: string) => (code ? job.sources.find((x) => x.code === code)?.label || `Old link (${code})` : 'Main link');
+      const acc: Record<string, { visitors: Set<string>; submissions: number }> = {};
+      const bucket = (k: string) => (acc[k] ||= { visitors: new Set(), submissions: 0 });
+      for (const e of (ev || []) as { visitor_id: string; meta: Record<string, unknown> }[]) {
+        if (e.meta?.preview) continue;
+        bucket(String(e.meta?.source || '')).visitors.add(e.visitor_id);
+      }
+      for (const a of (apps || []) as { metrics: Record<string, unknown> }[]) {
+        if (a.metrics?.preview) continue;
+        bucket(String(a.metrics?.source || '')).submissions++;
+      }
+      for (const x of job.sources) bucket(x.code);
+      setRows(Object.entries(acc).map(([k, v]) => ({ key: k || 'main', label: label(k), arrivals: v.visitors.size, submissions: v.submissions }))
+        .sort((a, b) => b.arrivals - a.arrivals));
+    })();
+  }, [job.id, hasSources, job.sources]);
+  return rows;
 }

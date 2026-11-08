@@ -23,8 +23,8 @@ interface Draft {
 
 const STEP_LABELS = ['Welcome', 'Set up', 'Answers', 'Submit'];
 
-export default function Activity({ jobId, title, activity, questions }:
-  { jobId: string; title: string; activity: ActivityT; questions: Question[] }) {
+export default function Activity({ jobId, title, activity, questions, source }:
+  { jobId: string; title: string; activity: ActivityT; questions: Question[]; source?: { code: string; label: string } | null }) {
   const key = `a1234_draft_${jobId}`;
   const vid = useMemo(() => visitorId(), []);
   const preview = useMemo(() => isPreviewBrowser(), []);
@@ -56,8 +56,8 @@ export default function Activity({ jobId, title, activity, questions }:
       if (sent.current.has(onceKey)) return;
       sent.current.add(onceKey);
     }
-    supabase.rpc('hiring_track', { p_job: jobId, p_visitor: vid, p_type: type, p_meta: { ...meta, preview } }).then(() => {});
-  }, [jobId, vid, preview]);
+    supabase.rpc('hiring_track', { p_job: jobId, p_visitor: vid, p_type: type, p_meta: { ...meta, preview, ...(source ? { source: source.code } : {}) } }).then(() => {});
+  }, [jobId, vid, preview, source]);
 
   useEffect(() => {
     if (restored.current) track('draft_restored', { step: dRef.current.step }, 'restored');
@@ -153,6 +153,7 @@ export default function Activity({ jobId, title, activity, questions }:
         visits: d.visits,
         first_arrival_local: d.firstArrival,
         preview,
+        ...(source ? { source: source.code, source_label: source.label } : {}),
       },
     });
     setBusy(false);

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { Job } from '../../lib/types';
 import { supabase } from '../../lib/supabase';
-import { aiPostingPrompt, mdToHtml, placedParts } from '../../lib/posting';
+import { aiJobPrompt, mdToHtml, placedParts } from '../../lib/posting';
+import { rangeLabel } from '../../lib/util';
+import { ImportAiModal } from '../AiImport';
 import { fmtDate } from '../../lib/util';
 import { Button, Card, CopyButton, Field, Input, Pill, SectionTitle, Segmented, Textarea, useToast } from '../../ui';
 import type { Patch } from '../JobEditor';
@@ -14,6 +16,7 @@ export default function PostingTab({ job, patch }: { job: Job; patch: Patch }) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [label, setLabel] = useState('');
   const [showVersion, setShowVersion] = useState<Version | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const total = job.fragments.length;
   const { placed, missing } = placedParts(job.posting, total);
 
@@ -43,12 +46,18 @@ export default function PostingTab({ job, patch }: { job: Job; patch: Patch }) {
     <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
       <div className="space-y-5 min-w-0">
         <Card>
-          <SectionTitle sub="Everything you know about the role. Only you see this. It feeds the AI prompts below.">Your notes</SectionTitle>
+          <SectionTitle sub="Everything you know about the role. Only you see this. The AI prompt turns it into a title, posting, questions and rubric.">Your notes</SectionTitle>
           <Textarea rows={6} value={job.notes} placeholder="What the person will own, must-haves, nice-to-haves, schedule, pay, team, what thriving looks like…"
             onChange={(e) => patch({ notes: e.target.value })} />
           <div className="flex flex-wrap gap-2 mt-3">
-            <CopyButton label="Copy AI prompt: draft the posting" done="Prompt copied. Paste it into Claude, then paste the posting back below."
-              text={() => aiPostingPrompt(job.title, job.notes, Math.max(total, 1), job.hint_format)} />
+            <CopyButton label="1. Copy AI prompt" variant="primary" done="Prompt copied. Paste it into Claude or another AI."
+              text={() => aiJobPrompt({
+                title: job.title, notes: job.notes, parts: Math.max(total, 1),
+                questionCount: job.questions.length || 5,
+                answerRange: rangeLabel(job.activity?.answer_min, job.activity?.answer_max) || '1–3 minutes',
+                codeWord: job.activity?.hidden_code || undefined,
+              })} />
+            <Button size="sm" onClick={() => setImportOpen(true)}>2. Paste the AI's reply</Button>
           </div>
         </Card>
 
@@ -124,6 +133,7 @@ export default function PostingTab({ job, patch }: { job: Job; patch: Patch }) {
           <Input mono value={job.hint_format} onChange={(e) => patch({ hint_format: e.target.value })} />
         </Field>
       </div>
+      <ImportAiModal open={importOpen} onClose={() => setImportOpen(false)} job={job} patch={patch} />
     </div>
   );
 }

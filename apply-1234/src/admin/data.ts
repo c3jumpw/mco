@@ -1,7 +1,7 @@
 import { supabase, DEFAULT_DOMAIN } from '../lib/supabase';
 import type { Activity, Application, HEvent, Job, JobStats, Note, Review, Template } from '../lib/types';
 import { DEFAULT_POSTING, fullUrl, splitUrl } from '../lib/posting';
-import { randomSlug, uid } from '../lib/util';
+import { randomCode, uid } from '../lib/util';
 
 export const DEFAULT_ACTIVITY: Activity = {
   headline: 'You found it.',
@@ -46,7 +46,7 @@ export async function getJob(id: string): Promise<Job | null> {
 }
 
 export async function createJob(opts: { title?: string; from?: Job | null; activity?: Activity | null } = {}): Promise<Job> {
-  const slug = randomSlug();
+  const slug = randomCode();
   const domain = opts.from?.domain || DEFAULT_DOMAIN;
   const fragments = splitUrl(fullUrl(domain, slug), 3).map((text) => ({ text }));
   const base: Partial<Job> = opts.from
@@ -80,6 +80,49 @@ export async function createJob(opts: { title?: string; from?: Job | null; activ
     .single();
   if (error) throw error;
   return data as Job;
+}
+
+export interface NewJobInput {
+  title: string;
+  notes: string;
+  posting: string;
+  domain: string;
+  slug: string;
+  parts: number;
+  hint_format: string;
+  activity: Activity;
+  questions: { text: string; guidance?: string }[];
+  interview: { text: string; kind: 'general' | 'custom' }[];
+  rubric: string[];
+}
+
+export async function createJobFromWizard(i: NewJobInput): Promise<Job> {
+  const fragments = splitUrl(fullUrl(i.domain, i.slug), i.parts).map((text) => ({ text }));
+  const { data, error } = await supabase
+    .from('hiring_jobs')
+    .insert({
+      title: i.title.trim() || 'New role',
+      status: 'draft',
+      notes: i.notes,
+      posting: i.posting,
+      domain: i.domain,
+      slug: i.slug,
+      fragments,
+      hint_format: i.hint_format,
+      activity: i.activity,
+      questions: i.questions.map((q) => ({ id: uid('q'), text: q.text, guidance: q.guidance || '' })),
+      interview_questions: i.interview.map((q) => ({ id: uid('q'), text: q.text, kind: q.kind })),
+      ...(i.rubric.length ? { rubric: i.rubric } : {}),
+      settings: DEFAULT_SETTINGS,
+    })
+    .select('*')
+    .single();
+  if (error) throw error;
+  const job = data as Job;
+  if (i.posting.trim()) {
+    await supabase.from('hiring_posting_versions').insert({ job_id: job.id, label: 'AI draft from notes', posting: i.posting });
+  }
+  return job;
 }
 
 export async function updateJob(id: string, patch: Partial<Job>) {

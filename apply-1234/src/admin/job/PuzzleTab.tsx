@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { Job } from '../../lib/types';
-import { fullUrl, hintText, placedParts, splitUrl } from '../../lib/posting';
-import { randomSlug } from '../../lib/util';
-import { Button, Card, Field, Input, Pill, SectionTitle, cx } from '../../ui';
+import type { Job, Source } from '../../lib/types';
+import { fragmentsFor, fullUrl, hintText, placedParts, splitUrl, variantSlug } from '../../lib/posting';
+import { randomCode, randomSlug, sourceCode, uid } from '../../lib/util';
+import { Button, Card, CopyButton, Field, Input, Pill, SectionTitle, Toggle, cx } from '../../ui';
 import type { Patch } from '../JobEditor';
 
 export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
@@ -30,7 +30,7 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
     <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
       <div className="space-y-5 min-w-0">
         <Card>
-          <SectionTitle sub="The page candidates must find. Keep it unguessable: a word plus numbers works well.">Secret link</SectionTitle>
+          <SectionTitle sub="The page candidates must find. A random code keeps the job private: nobody can guess it, and the site never lists jobs.">Secret link</SectionTitle>
           <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
             <Field label="Domain"><Input mono value={job.domain}
               onChange={(e) => patch({ domain: e.target.value.trim().toLowerCase() })} /></Field>
@@ -41,10 +41,11 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
                   <Input mono className="pl-6" value={slugDraft} onChange={(e) => setSlugDraft(e.target.value)}
                     onBlur={(e) => e.target.value !== job.slug && applySlug(e.target.value)} />
                 </div>
-                <Button onClick={() => applySlug(randomSlug())}>Generate</Button>
+                <Button onClick={() => applySlug(randomCode())}>Random code</Button>
               </div>
             </Field>
           </div>
+          <button className="mt-2 text-[12px] text-muted underline underline-offset-2" onClick={() => applySlug(randomSlug())}>Use a word + number instead</button>
           <div className="mt-4 rounded-xl bg-ink text-white px-4 py-3 font-mono text-[15px] break-all">
             {job.fragments.map((f, i) => (
               <span key={i} className={cx(i % 2 ? 'text-accent' : 'text-white')}>{f.text}</span>
@@ -79,6 +80,7 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
             ))}
           </div>
         </Card>
+        <SourcesCard job={job} patch={patch} />
       </div>
 
       <div className="space-y-5">
@@ -105,5 +107,75 @@ export default function PuzzleTab({ job, patch }: { job: Job; patch: Patch }) {
         </Card>
       </div>
     </div>
+  );
+}
+
+const QUICK = ['LinkedIn', 'Indeed', 'Facebook', 'Craigslist', 'Referral'];
+
+function SourcesCard({ job, patch }: { job: Job; patch: Patch }) {
+  const sources = job.sources || [];
+  const set = (next: Source[]) => patch({ sources: next });
+  const add = (label: string) => {
+    const name = label.trim();
+    if (!name) return;
+    let code = sourceCode();
+    while (sources.some((x) => x.code === code)) code = sourceCode();
+    set([...sources, { id: uid('s'), label: name, code, active: true }]);
+  };
+  const baseOff = !!job.settings?.base_link_off;
+  return (
+    <Card>
+      <SectionTitle sub="Give each job board its own version of the link. You'll see which board sends the best candidates, and if one link leaks you can switch just that one off.">
+        Links per job board
+      </SectionTitle>
+      {sources.length === 0 && <p className="text-sm text-muted mb-3">No board links yet. Everyone uses the main link.</p>}
+      <div className="space-y-3">
+        {sources.map((src) => {
+          const link = fullUrl(job.domain, variantSlug(job.slug, src.code));
+          const pieces = fragmentsFor(job, src.code);
+          return (
+            <div key={src.id} className={cx('rounded-xl border p-3', src.active ? 'border-line' : 'border-dashed border-line opacity-60')}>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="w-40 shrink-0">
+                  <Input value={src.label} className="h-9 text-sm"
+                    onChange={(e) => set(sources.map((x) => (x.id === src.id ? { ...x, label: e.target.value } : x)))} />
+                </div>
+                <span className="font-mono text-[13px] break-all flex-1 min-w-0">{link}</span>
+              </div>
+              <p className="text-[12px] text-muted mt-1.5">Last piece in this board's posting: <span className="font-mono text-ink-2">{pieces[pieces.length - 1]?.text}</span></p>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <CopyButton text={link} label="Copy link" />
+                <Button size="sm" variant="ghost" onClick={() => {
+                  if (confirm(`Give ${src.label} a new code? Its current link stops working right away.`)) {
+                    set(sources.map((x) => (x.id === src.id ? { ...x, code: sourceCode() } : x)));
+                  }
+                }}>New code</Button>
+                <Button size="sm" variant="ghost" onClick={() => set(sources.map((x) => (x.id === src.id ? { ...x, active: !x.active } : x)))}>
+                  {src.active ? 'Turn off' : 'Turn on'}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => confirm(`Remove ${src.label}? Its link stops working.`) && set(sources.filter((x) => x.id !== src.id))}>Remove</Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex flex-wrap gap-1.5 mt-4">
+        {QUICK.filter((q) => !sources.some((x) => x.label === q)).map((q) => (
+          <Button key={q} size="sm" onClick={() => add(q)}>+ {q}</Button>
+        ))}
+        <form className="flex gap-1.5" onSubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.namedItem('src') as HTMLInputElement; add(f.value); f.value = ''; }}>
+          <Input name="src" placeholder="Other board" className="h-8 w-32 text-sm" />
+          <Button size="sm" type="submit">Add</Button>
+        </form>
+      </div>
+      {sources.length > 0 && (
+        <div className="mt-5 pt-4 border-t border-line">
+          <Toggle checked={baseOff} onChange={(v) => patch({ settings: { ...(job.settings || {}), base_link_off: v } })}
+            label="Turn off the main link"
+            hint={`Only the board links work. ${fullUrl(job.domain, job.slug)} will show “Nothing here”.`} />
+        </div>
+      )}
+      <p className="text-xs text-muted mt-4 leading-relaxed">To post on a board, open Overview and pick that board under “Copy for job boards”. The posting fills in that board's pieces.</p>
+    </Card>
   );
 }

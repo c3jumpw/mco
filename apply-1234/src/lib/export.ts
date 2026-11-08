@@ -85,6 +85,7 @@ export function candidateMarkdown(job: Job, item: ExportItem, index: number, opt
   lines.push(`- Stage: ${stageLabel(app.stage)}`);
   lines.push(`- Submitted: ${iso(app.submitted_at)}`);
   if (app.tags?.length) lines.push(`- Tags: ${app.tags.join(', ')}`);
+  lines.push(`- Applied through: ${(app.metrics as any)?.source_label || 'main link'}`);
   const av = reviewAverage(reviews);
   if (av != null) lines.push(`- Average reviewer score: ${av} / 5 (${reviews.length} review${reviews.length === 1 ? '' : 's'})`);
   if (app.metrics?.preview) lines.push(`- Note: this was a test submission by the hiring team.`);

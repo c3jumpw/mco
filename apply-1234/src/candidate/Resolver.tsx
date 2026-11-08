@@ -9,7 +9,7 @@ import Activity from './Activity';
 type Result =
   | { found: false }
   | { found: true; closed: true; title: string }
-  | { found: true; closed: false; job_id: string; title: string; activity: ActivityT; questions: Question[] };
+  | { found: true; closed: false; job_id: string; title: string; activity: ActivityT; questions: Question[]; source?: { code: string; label: string } | null };
 
 export default function Resolver() {
   const { pathname } = useLocation();
@@ -43,7 +43,7 @@ export default function Resolver() {
   if (!res) return <div className="min-h-dvh flex items-center justify-center text-muted"><Spinner /></div>;
   if (!res.found) return <NotFound />;
   if (res.closed) return <Message title="Applications for this role have closed." body={`Thanks for your interest in the ${res.title} role. This activity is no longer accepting submissions.`} />;
-  return <Activity jobId={res.job_id} title={res.title} activity={res.activity || {}} questions={res.questions || []} />;
+  return <Activity jobId={res.job_id} title={res.title} activity={res.activity || {}} questions={res.questions || []} source={res.source || null} />;
 }
 
 function safeHost(u: string) {

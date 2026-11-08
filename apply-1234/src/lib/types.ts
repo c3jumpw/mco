@@ -30,7 +30,10 @@ export interface Activity {
 export interface Question { id: string; text: string; guidance?: string }
 export interface InterviewQuestion { id: string; text: string; kind: 'general' | 'custom' }
 
+export interface Source { id: string; label: string; code: string; active: boolean }
+
 export interface JobSettings {
+  base_link_off?: boolean;
   invite_subject?: string;
   invite_body?: string;
   reject_subject?: string;
@@ -55,6 +58,7 @@ export interface Job {
   rubric: string[];
   booking_url: string;
   settings: JobSettings;
+  sources: Source[];
   created_at: string;
   updated_at: string;
   published_at: string | null;

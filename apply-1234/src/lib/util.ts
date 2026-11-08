@@ -137,6 +137,28 @@ export function slugify(s: string): string {
 const WORDS = ['harbor', 'ember', 'quarry', 'lantern', 'meridian', 'cobalt', 'atlas', 'juniper', 'summit', 'ledger',
   'falcon', 'orbit', 'granite', 'willow', 'beacon', 'kestrel', 'saffron', 'tundra', 'voyage', 'cinder'];
 
+const CODE_CHARS = 'abcdefghjkmnpqrstuvwxyz23456789';
+function pick(n: number) {
+  const a = new Uint32Array(n);
+  crypto.getRandomValues(a);
+  return Array.from(a, (x) => CODE_CHARS[x % CODE_CHARS.length]).join('');
+}
+
+/** Private, unguessable link code like "7nu6-sw79". */
+export function randomCode(): string {
+  return `${pick(4)}-${pick(4)}`;
+}
+
+/** Short code for a job-board source link, like "k3p". */
+export function sourceCode(): string {
+  return pick(3);
+}
+
+export function randomWord(except?: string): string {
+  const pool = WORDS.filter((w) => !except || !except.includes(w));
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export function randomSlug(): string {
   const w = WORDS[Math.floor(Math.random() * WORDS.length)];
   const n = Math.floor(100 + Math.random() * 900);
