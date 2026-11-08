@@ -22,6 +22,12 @@ export default function AdminApp() {
 
   useEffect(() => {
     document.title = 'apply1234 · admin';
+    if (!document.querySelector('link[rel="manifest"]')) {
+      const l = document.createElement('link');
+      l.rel = 'manifest';
+      l.href = '/manifest.webmanifest';
+      document.head.appendChild(l);
+    }
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
