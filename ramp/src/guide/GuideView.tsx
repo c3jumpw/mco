@@ -127,9 +127,9 @@ function Hero({ view, views, setView, query, setQuery, count, searching, standal
               <Segmented label="Show the guide for" value={view} onChange={setView} options={views.map((v) => ({ value: v, label: VIEW_LABEL[v] }))} />
             </div>
           )}
-          <button type="button" onClick={() => window.print()} className="guide-noprint inline-flex items-center gap-2 min-h-11 px-3.5 rounded-xl text-sm font-semibold text-white/90 hover:bg-white/10 cursor-pointer self-start sm:self-auto">
-            <Icon name="download" size={18} />{standalone ? 'Print or save as PDF' : 'Print'}
-          </button>
+          {!standalone && <button type="button" onClick={() => window.print()} className="guide-noprint inline-flex items-center gap-2 min-h-11 px-3.5 rounded-xl text-sm font-semibold text-white/90 hover:bg-white/10 cursor-pointer self-start sm:self-auto">
+            <Icon name="download" size={18} />Print
+          </button>}
         </div>
         <label className="relative block guide-noprint">
           <span className="sr-only">Search the guide</span>

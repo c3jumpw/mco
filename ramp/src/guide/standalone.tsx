@@ -2,7 +2,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
-import '../styles.css';
+import './standalone.css';
 import GuideView, { type GuideViewMode } from './GuideView';
 import type { GuideData } from './types';
 import data from './guide.json';
