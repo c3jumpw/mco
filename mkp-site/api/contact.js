@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
   // Record the enquiry as a lead before replying. A CRM failure is logged
   // inside recordLead and never fails the submission.
   const isDemo = /request a demo/i.test(interest) || /^(Dispatch It|HaloDeck|DayForge|ContentFlow|My PD|Circuit Book|PingPath|BKG|HatRack|Vault Leaf|apply1234)$/i.test(interest);
-  await recordLead(
+  const crm = await recordLead(
     {
       email: email,
       name: name,
@@ -122,9 +122,25 @@ module.exports = async function handler(req, res) {
     { message: message, interest: interest }
   );
 
+  // The enquiry is safe the moment it is in the CRM. Email is the notification,
+  // not the record, so once the lead is stored the visitor is told it arrived
+  // even if the send fails. Telling somebody their message bounced when it is
+  // sitting in the Leads list costs a real enquiry; a missed notification does
+  // not, because the task is there either way.
+  const captured = crm && crm.ok === true;
+
+  function delivered(res) {
+    return res.status(200).json({ ok: true });
+  }
+
+  function undelivered(res, status, error) {
+    if (captured) return delivered(res);
+    return res.status(status).json({ error: error });
+  }
+
   if (!API_KEY) {
     console.error('RESEND_API_KEY is not set; contact form cannot send.');
-    return res.status(503).json({ error: 'Email delivery is not configured.' });
+    return undelivered(res, 503, 'Email delivery is not configured.');
   }
 
   const rows = [
@@ -188,12 +204,12 @@ module.exports = async function handler(req, res) {
     if (!resend.ok) {
       const detail = await resend.text();
       console.error('Resend rejected the message:', resend.status, detail);
-      return res.status(502).json({ error: 'The message could not be delivered.' });
+      return undelivered(res, 502, 'The message could not be delivered.');
     }
 
-    return res.status(200).json({ ok: true });
+    return delivered(res);
   } catch (err) {
     console.error('Contact form failed:', err);
-    return res.status(502).json({ error: 'The message could not be delivered.' });
+    return undelivered(res, 502, 'The message could not be delivered.');
   }
 };
