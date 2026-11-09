@@ -12,6 +12,7 @@ import { fileLink, fmtSize } from '../lib/files';
 import { Button, Card, Input, Loading, Pill, SectionTitle, Select, Stars, Textarea, cx, useToast } from '../ui';
 import { Flags, stageLabel, stageTone } from './Pipeline';
 import ExportModal from './ExportModal';
+import { BEFORE_REFRESH } from './refresh';
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -54,7 +55,16 @@ export default function CandidateDetail() {
     };
     if (now) run(); else timer.current = setTimeout(run, 700);
   }, [id, toast]);
-  useEffect(() => () => { clearTimeout(timer.current); if (Object.keys(pending.current).length && id) updateApplication(id, pending.current); }, [id]);
+  useEffect(() => {
+    const now = () => {
+      clearTimeout(timer.current);
+      const body = pending.current;
+      pending.current = {};
+      if (Object.keys(body).length && id) updateApplication(id, body);
+    };
+    window.addEventListener(BEFORE_REFRESH, now);
+    return () => { window.removeEventListener(BEFORE_REFRESH, now); now(); };
+  }, [id]);
 
   const b = useMemo(() => (app ? behavior(app, events) : null), [app, events]);
 

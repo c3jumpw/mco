@@ -210,7 +210,7 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
   if (!open) return null;
   // Rendered into <body> so no animated or transformed parent can shift it off-screen.
   return createPortal(
-    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-ink/40 backdrop-blur-[2px] p-0 sm:p-6" onClick={onClose}>
+    <div data-no-pull className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-ink/40 backdrop-blur-[2px] p-0 sm:p-6" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()}
         className={cx('rise w-full max-h-[92vh] overflow-y-auto bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
         <div className="sticky top-0 bg-card/95 backdrop-blur flex items-center justify-between px-5 py-4 border-b border-line">

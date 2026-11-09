@@ -13,6 +13,7 @@ import QuestionsTab from './job/QuestionsTab';
 import InterviewTab from './job/InterviewTab';
 import Pipeline from './Pipeline';
 import ExportModal from './ExportModal';
+import { BEFORE_REFRESH } from './refresh';
 
 export type TabId = 'overview' | 'posting' | 'puzzle' | 'activity' | 'questions' | 'interview' | 'candidates';
 export type Patch = (p: Partial<Job>) => void;
@@ -63,7 +64,9 @@ export default function JobEditor() {
   useEffect(() => {
     const before = (e: BeforeUnloadEvent) => { if (Object.keys(pending.current).length) { e.preventDefault(); } };
     window.addEventListener('beforeunload', before);
-    return () => { window.removeEventListener('beforeunload', before); clearTimeout(timer.current); flush(); };
+    const now = () => { clearTimeout(timer.current); flush(); };
+    window.addEventListener(BEFORE_REFRESH, now);
+    return () => { window.removeEventListener('beforeunload', before); window.removeEventListener(BEFORE_REFRESH, now); clearTimeout(timer.current); flush(); };
   }, [flush]);
 
   if (job === undefined) return <Loading />;
