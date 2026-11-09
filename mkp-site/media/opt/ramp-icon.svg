@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="RAMP">
+  <rect width="48" height="48" rx="11" fill="#1b1a2e"/>
+  <g fill="none" stroke="#6f63f2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 36h26"/>
+    <path d="M11 32.5 33 13"/>
+  </g>
+  <g fill="#6f63f2">
+    <circle cx="16.5" cy="29" r="2.1"/>
+    <circle cx="23.5" cy="23" r="2.1"/>
+    <circle cx="30.5" cy="16.8" r="2.1"/>
+  </g>
+  <path d="M33 13h4.5v4.5" fill="none" stroke="#f0eeff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
