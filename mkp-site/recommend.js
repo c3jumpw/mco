@@ -101,7 +101,7 @@
         setStatus('error', 'That did not go through. Try again, or email <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
       })
       .catch(function () {
-        setStatus('error', 'We could not reach the server. Check your connection and try again.');
+        setStatus('error', 'Could not reach the server. Check your connection and try again.');
       })
       .then(function () {
         btn.disabled = false;

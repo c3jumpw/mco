@@ -174,7 +174,7 @@
       .then(function (r) {
         if (r.status === 200) {
           form.reset();
-          setStatus('ok', 'Message sent. Someone from our team will be in touch shortly.');
+          setStatus('ok', 'Got it. I will be in touch shortly.');
           return;
         }
 
@@ -185,19 +185,19 @@
         }
 
         if (r.status === 429) {
-          setStatus('error', 'That’s a few messages in quick succession. Wait a minute and try again, or email us at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
+          setStatus('error', 'That’s a few messages in quick succession. Wait a minute and try again, or email me at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
           return;
         }
 
         if (r.status === 503) {
-          setStatus('error', 'Email delivery isn’t switched on for this site yet. Reach us directly at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
+          setStatus('error', 'Email delivery isn’t switched on for this site yet. Reach me directly at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
           return;
         }
 
-        setStatus('error', 'The message didn’t go through. Try again, or email us at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
+        setStatus('error', 'The message didn’t go through. Try again, or email me at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
       })
       .catch(function () {
-        setStatus('error', 'We couldn’t reach the server. Check your connection and try again, or email us at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
+        setStatus('error', 'Could not reach the server. Check your connection and try again, or email me at <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
       })
       .then(function () {
         submitBtn.disabled = false;
@@ -276,7 +276,7 @@
         setSubStatus('error', 'That did not go through. Try again, or email <a href="mailto:' + FALLBACK + '">' + FALLBACK + '</a>.');
       })
       .catch(function () {
-        setSubStatus('error', 'We could not reach the server. Check your connection and try again.');
+        setSubStatus('error', 'Could not reach the server. Check your connection and try again.');
       })
       .then(function () {
         subBtn.disabled = false;
