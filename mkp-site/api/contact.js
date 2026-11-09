@@ -17,6 +17,11 @@ const FROM = process.env.CONTACT_FROM || 'Mambay Kanu <onboarding@resend.dev>';
 const API_KEY = process.env.RESEND_API_KEY;
 
 const LIMITS = { name: 100, email: 200, company: 120, interest: 80, message: 5000 };
+// Every tool's option value in the contact form ends in ", request a demo",
+// which is how a demo request is told apart from a general enquiry without
+// keeping a list of tool names in this file.
+const DEMO_SUFFIX = /,\s*request a demo\s*$/i;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Best-effort burst control. Serverless instances are short-lived and not
@@ -108,16 +113,21 @@ module.exports = async function handler(req, res) {
   }
 
 
+  // A demo request identifies itself: every tool's option value ends in
+  // ", request a demo". No list of tool names to keep in step here, so a
+  // project added to the dropdown later is tagged correctly on its own.
+  const isDemo = DEMO_SUFFIX.test(interest);
+  const topic = interest.replace(DEMO_SUFFIX, '').trim();
+
   // Record the enquiry as a lead before replying. A CRM failure is logged
   // inside recordLead and never fails the submission.
-  const isDemo = /request a demo/i.test(interest) || /^(Dispatch It|HaloDeck|DayForge|ContentFlow|My PD|Circuit Book|PingPath|BKG|HatRack|Vault Leaf|apply1234)$/i.test(interest);
   const crm = await recordLead(
     {
       email: email,
       name: name,
       company: company,
       source: isDemo ? 'demo' : 'site',
-      sourceDetail: interest || null
+      sourceDetail: topic || null
     },
     { message: message, interest: interest }
   );
@@ -147,7 +157,7 @@ module.exports = async function handler(req, res) {
     ['Name', name],
     ['Email', email],
     ['Company', company || 'Not provided'],
-    ['Regarding', interest || 'General enquiry']
+    ['Regarding', (isDemo ? 'Demo request: ' : '') + (topic || 'General enquiry')]
   ];
 
   const html = [
@@ -178,7 +188,7 @@ module.exports = async function handler(req, res) {
     'Name: ' + name,
     'Email: ' + email,
     'Company: ' + (company || 'Not provided'),
-    'Regarding: ' + (interest || 'General enquiry'),
+    'Regarding: ' + (isDemo ? 'Demo request: ' : '') + (topic || 'General enquiry'),
     '',
     message
   ].join('\n');
@@ -194,7 +204,7 @@ module.exports = async function handler(req, res) {
         from: FROM,
         to: [TO],
         reply_to: email,
-        subject: (interest ? '[' + interest + '] ' : '') +
+        subject: (topic ? '[' + (isDemo ? 'Demo: ' : '') + topic + '] ' : '') +
           'Website enquiry from ' + name + (company ? ' (' + company + ')' : ''),
         html: html,
         text: text

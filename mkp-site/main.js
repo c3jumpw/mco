@@ -37,23 +37,16 @@
 
   // Project pages link here as /?project=dayforge#contact, so the form opens
   // already pointed at the thing the visitor was just reading about.
-  var PROJECT_LABELS = {
-    'dispatch-it': 'Dispatch It',
-    'halodeck': 'HaloDeck',
-    'dayforge': 'DayForge',
-    'contentflow': 'ContentFlow',
-    'my-pd': 'My PD',
-    'circuit-book': 'Circuit Book',
-    'pingpath': 'PingPath',
-    'bkg': 'BKG',
-    'hatrack': 'HatRack',
-    'vault-leaf': 'Vault Leaf',
-    'apply1234': 'apply1234',
-    'brand-craftsman': 'Consulting',
-    'mco-investments': 'Investment or partnership',
-    'the-anvil': 'The Anvil',
-    'mk-holding-co': 'General enquiry'
-  };
+  //
+  // The dropdown itself is the only list. Each option carries data-project
+  // with its slug, so a new project needs one <option> in index.html and
+  // nothing here. There is deliberately no slug-to-label map to forget.
+  var DEMO_SUFFIX = /,\s*request a demo\s*$/i;
+
+  function optionForSlug(select, slug) {
+    if (!slug) return null;
+    return select.querySelector('option[data-project="' + String(slug).replace(/"/g, '') + '"]');
+  }
 
   (function prefillInterest() {
     var select = form.elements.interest;
@@ -62,25 +55,23 @@
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('project');
     var intent = params.get('intent');
+    var option = optionForSlug(select, slug);
 
-    var wanted = intent === 'partner'
-      ? 'Investment or partnership'
-      : (slug && PROJECT_LABELS[slug]);
-    if (!wanted) return;
+    if (intent === 'partner') {
+      var partnering = select.querySelector('option[data-project="mco-investments"]');
+      if (partnering) select.value = partnering.value;
 
-    for (var i = 0; i < select.options.length; i++) {
-      if (select.options[i].value === wanted) {
-        select.selectedIndex = i;
-        break;
+      if (option) {
+        var msg = form.elements.message;
+        var name = option.textContent.replace(DEMO_SUFFIX, '').trim();
+        if (msg && !msg.value) {
+          msg.value = 'I am interested in partnering on ' + name + '. ';
+        }
       }
+      return;
     }
 
-    if (intent === 'partner' && slug && PROJECT_LABELS[slug]) {
-      var msg = form.elements.message;
-      if (msg && !msg.value) {
-        msg.value = 'I am interested in partnering on ' + PROJECT_LABELS[slug] + '. ';
-      }
-    }
+    if (option) select.value = option.value;
   })();
 
   function setStatus(tone, html) {
