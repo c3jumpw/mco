@@ -1,0 +1,3736 @@
+{
+  "sections": [
+    {
+      "id": "sign-in",
+      "group": "start",
+      "audience": "everyone",
+      "title": "Signing in",
+      "icon": "key",
+      "summary": "Create your login with the email address you were invited at, confirm it, then sign in from any phone or computer.",
+      "route": null,
+      "shots": [
+        {
+          "src": "/guide-media/sign-in-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Signing in",
+          "alt": "RAMP sign-in screen on a phone with Sign in selected, email and password fields, the Sign in button and the Forgot your password link.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 9.5,
+              "y": 37.4,
+              "w": 81,
+              "h": 6.6,
+              "label": "Sign in or New here",
+              "text": "Pick **New here** the first time you use RAMP. After that, stay on **Sign in**."
+            },
+            {
+              "n": 2,
+              "x": 9.5,
+              "y": 48.5,
+              "w": 81,
+              "h": 6.4,
+              "label": "Email",
+              "text": "Use the address your invitation went to. RAMP matches your login to your invite by email."
+            },
+            {
+              "n": 3,
+              "x": 9.5,
+              "y": 58.9,
+              "w": 81,
+              "h": 6.4,
+              "label": "Password",
+              "text": "Tap the eye to check what you typed."
+            },
+            {
+              "n": 4,
+              "x": 9.5,
+              "y": 66.2,
+              "w": 81,
+              "h": 6.6,
+              "label": "Sign in",
+              "text": "Opens your Home screen, or the welcome flow if you haven’t finished setup."
+            },
+            {
+              "n": 5,
+              "x": 27,
+              "y": 74.3,
+              "w": 46,
+              "h": 6.2,
+              "label": "Forgot your password?",
+              "text": "Sends a link to choose a new password."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/sign-in-2.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Creating your login with New here",
+          "alt": "The New here tab on a phone: Create your login, with the invited email filled in, a password and the Create login button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 31.5,
+              "y": 39.3,
+              "w": 26.8,
+              "h": 5.7,
+              "label": "New here",
+              "text": "The tab for creating your login. Your invite link may open it for you."
+            },
+            {
+              "n": 2,
+              "x": 9.5,
+              "y": 49.9,
+              "w": 81,
+              "h": 6.4,
+              "label": "Invited email",
+              "text": "Type the exact email HR invited. A different address won’t match your invite."
+            },
+            {
+              "n": 3,
+              "x": 9.5,
+              "y": 57.3,
+              "w": 81,
+              "h": 14.8,
+              "label": "New password",
+              "text": "At least 8 characters. Use one you don’t use anywhere else."
+            },
+            {
+              "n": 4,
+              "x": 9.5,
+              "y": 73,
+              "w": 81,
+              "h": 6.6,
+              "label": "Create login",
+              "text": "We email you a confirmation link. Open it on the same device to finish."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Get your invite",
+          "text": "HR adds you to RAMP and sends you a message with a link. Open it on your phone or computer."
+        },
+        {
+          "title": "Create your login",
+          "text": "Tap **New here**, type the exact email your invite went to, choose a password of at least 8 characters and tap **Create login**."
+        },
+        {
+          "title": "Confirm your email",
+          "text": "Open the confirmation link we email you, on the same device. RAMP then opens your welcome flow."
+        },
+        {
+          "title": "Sign in next time",
+          "text": "Stay on **Sign in**, enter your email and password, and tap **Sign in**. You land on Home."
+        },
+        {
+          "title": "Reset a forgotten password",
+          "text": "Tap **Forgot your password?**, enter your email and tap **Send reset link**. Follow the link, choose a new password and tap **Save and continue**."
+        }
+      ],
+      "tips": [
+        "No email after a minute? Check spam or promotions.",
+        "If RAMP says you’re not on the team list, your email doesn’t match an invite. Sign out and use the invited address, or tap **Request access**.",
+        "Guest access is time-limited. When it ends, ask your contact at the company to extend it."
+      ]
+    },
+    {
+      "id": "navigation",
+      "group": "start",
+      "audience": "everyone",
+      "title": "Finding your way around",
+      "icon": "more",
+      "summary": "On a computer the menu runs down the left side. On a phone it’s a bar along the bottom, with everything else under More.",
+      "route": null,
+      "shots": [
+        {
+          "src": "/guide-media/navigation-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "On a computer: the sidebar",
+          "alt": "RAMP Home on a computer, signed in as an admin. The left sidebar lists Home, Training, Tasks, Notebook, Chat, Resources, News, Team progress, Guide and the Admin portal, with the profile and sign-out button at the bottom.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 0.6,
+              "y": 8.5,
+              "w": 18.7,
+              "h": 35.3,
+              "label": "Main menu",
+              "text": "Every page you use day to day. The highlighted item is where you are."
+            },
+            {
+              "n": 2,
+              "x": 0.6,
+              "y": 43,
+              "w": 18.7,
+              "h": 12.3,
+              "label": "Badges",
+              "text": "Amber numbers count news you still need to confirm and work waiting for your review."
+            },
+            {
+              "n": 3,
+              "x": 0.6,
+              "y": 54.5,
+              "w": 18.7,
+              "h": 6.5,
+              "label": "Guide",
+              "text": "Opens this guide, filtered to what you can do."
+            },
+            {
+              "n": 4,
+              "x": 0.6,
+              "y": 65.8,
+              "w": 18.7,
+              "h": 6.5,
+              "label": "Admin portal",
+              "text": "Owners and admins only. Opens setup, people, metrics and system pages."
+            },
+            {
+              "n": 5,
+              "x": 0.6,
+              "y": 91.5,
+              "w": 14.6,
+              "h": 7.5,
+              "label": "Your profile",
+              "text": "Your details, documents, sign-in history and password."
+            },
+            {
+              "n": 6,
+              "x": 15.2,
+              "y": 92,
+              "w": 4.1,
+              "h": 6.5,
+              "label": "Sign out",
+              "text": "Signs you out on this device."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/navigation-2.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "On a phone: the bottom bar and More",
+          "alt": "The More page on a phone, with the bottom bar showing Home, Training, Tasks, Chat and More. More lists the profile, Notebook, Resources, News, Guide, Vault, Replay the platform tour and Sign out.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 3.1,
+              "y": 15,
+              "w": 93.8,
+              "h": 10.7,
+              "label": "Profile and documents",
+              "text": "Your details, documents and sign-in history."
+            },
+            {
+              "n": 2,
+              "x": 3.1,
+              "y": 27.1,
+              "w": 93.8,
+              "h": 34.4,
+              "label": "Other pages",
+              "text": "Notebook, Resources, News, this Guide and your Vault."
+            },
+            {
+              "n": 3,
+              "x": 3.3,
+              "y": 63,
+              "w": 93.3,
+              "h": 7.6,
+              "label": "Replay the platform tour",
+              "text": "Run the practice sandbox again any time."
+            },
+            {
+              "n": 4,
+              "x": 3.3,
+              "y": 69.7,
+              "w": 93.3,
+              "h": 7.6,
+              "label": "Sign out",
+              "text": "Signs you out on this phone."
+            },
+            {
+              "n": 5,
+              "x": 0,
+              "y": 91.9,
+              "w": 81,
+              "h": 8.1,
+              "label": "Bottom bar",
+              "text": "Home, Training, Tasks and Chat are always one tap away."
+            },
+            {
+              "n": 6,
+              "x": 79,
+              "y": 91.9,
+              "w": 21,
+              "h": 8.1,
+              "label": "More",
+              "text": "Everything else. An amber dot means unread news or work to review."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open a page",
+          "text": "Click an item in the sidebar, or tap one in the bottom bar on a phone. The highlighted item shows where you are."
+        },
+        {
+          "title": "Find everything else on a phone",
+          "text": "Tap **More** for Notebook, Resources, News, the Guide, your Vault and the practice tour."
+        },
+        {
+          "title": "Check your badges",
+          "text": "An amber number next to **News**, **My team** or **Team progress** means something is waiting. On a phone, look for the dot on **More**."
+        },
+        {
+          "title": "Open your profile",
+          "text": "Click your name at the bottom of the sidebar, or your initials at the top right on a phone."
+        },
+        {
+          "title": "Sign out",
+          "text": "Click the arrow next to your name, or tap **Sign out** at the bottom of More."
+        }
+      ],
+      "tips": [
+        "What you see depends on your access level. Mentors and leads get **My team**; admins get **Team progress** and the **Admin portal**.",
+        "If an owner switches off Chat or Tasks, it leaves the menu for everyone.",
+        "Guests see Home, Training, Resources, Guide and Profile."
+      ]
+    },
+    {
+      "id": "welcome-flow",
+      "group": "start",
+      "audience": "staff",
+      "title": "Your welcome flow",
+      "icon": "sparkle",
+      "summary": "The first time you sign in, RAMP walks you through a few setup steps before your training starts. You can stop and pick up where you left off.",
+      "route": "/welcome",
+      "shots": [
+        {
+          "src": "/guide-media/welcome-flow-1.webp",
+          "w": 780,
+          "h": 2360,
+          "device": "phone",
+          "caption": "The documents step of the welcome flow",
+          "alt": "The welcome flow on a phone at step 4 of 6, Documents. Two documents are done and two are still to do, with Fill out and Review and sign buttons, and a disabled Continue button showing 2 left.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 68.3,
+              "y": 0.3,
+              "w": 28.6,
+              "h": 4.1,
+              "label": "Sign out",
+              "text": "Stop for now. Next time you sign in, you pick up at this step."
+            },
+            {
+              "n": 2,
+              "x": 3.1,
+              "y": 6.2,
+              "w": 93.8,
+              "h": 4.4,
+              "label": "Steps",
+              "text": "One bar per step. Amber is where you are. Tap a finished step to go back to it."
+            },
+            {
+              "n": 3,
+              "x": 8.5,
+              "y": 32.1,
+              "w": 83.1,
+              "h": 14.9,
+              "label": "Done",
+              "text": "Tap **View** to see what you sent, or **Submit again** to update it."
+            },
+            {
+              "n": 4,
+              "x": 8.5,
+              "y": 60.9,
+              "w": 83.1,
+              "h": 18.5,
+              "label": "Still to do",
+              "text": "Tap **Fill out**, **Upload** or **Review and sign** to complete it."
+            },
+            {
+              "n": 5,
+              "x": 30.7,
+              "y": 94.6,
+              "w": 66.2,
+              "h": 4.7,
+              "label": "Continue",
+              "text": "Unlocks once every document is in. The counter says how many are left."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Read the welcome",
+          "text": "Read the message from the team and check your role, department and mentor. Tap **Let’s get started**."
+        },
+        {
+          "title": "Set up your profile",
+          "text": "Confirm your full name, add a preferred name, phone number and time zone, then tap **Save and continue**."
+        },
+        {
+          "title": "Practice the platform",
+          "text": "Tap **Start practice** for the five-minute sandbox, or **Do it later** to skip it for now."
+        },
+        {
+          "title": "Complete your documents",
+          "text": "Tap **Fill out**, **Upload** or **Review and sign** on each one. **Continue** unlocks when they’re all done."
+        },
+        {
+          "title": "Meet your mentor",
+          "text": "See who your mentor is and what they help with, then tap **Continue**."
+        },
+        {
+          "title": "Finish",
+          "text": "Tap **Go to my dashboard**, or **Message my mentor** to say hello. First-week documents are added to your tasks."
+        }
+      ],
+      "tips": [
+        "Your admin chooses which steps you see, so yours may have fewer.",
+        "Tap a finished bar at the top to go back to that step.",
+        "**Sign out** keeps your place. Next time you sign in, you continue from the same step."
+      ]
+    },
+    {
+      "id": "practice",
+      "group": "start",
+      "audience": "staff",
+      "title": "Practising in the sandbox",
+      "icon": "play",
+      "summary": "A five-minute practice copy of RAMP with nine quick missions. Nothing you do there is saved.",
+      "route": "/practice",
+      "shots": [
+        {
+          "src": "/guide-media/practice-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "A practice mission",
+          "alt": "The practice sandbox on a phone. A dark mission card reads Mission 3 of 9, Create a task, and a glowing amber outline marks the New task button in the sample task board.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 74.7,
+              "y": 0.2,
+              "w": 24.3,
+              "h": 6.2,
+              "label": "Exit",
+              "text": "Leave whenever you like. Platform basics stays in Training until you finish."
+            },
+            {
+              "n": 2,
+              "x": 2.1,
+              "y": 7.6,
+              "w": 95.9,
+              "h": 22.7,
+              "label": "Mission",
+              "text": "What to do next, with a hint. The bars show how many missions you’ve done."
+            },
+            {
+              "n": 3,
+              "x": 0,
+              "y": 30.8,
+              "w": 100,
+              "h": 69.2,
+              "label": "Practice copy",
+              "text": "Sample content only. Tap around freely: nothing here touches your real work."
+            },
+            {
+              "n": 4,
+              "x": 65.2,
+              "y": 39.2,
+              "w": 33.3,
+              "h": 7.1,
+              "label": "Glowing outline",
+              "text": "Tap the outlined spot to complete the mission. A green note confirms it."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open the practice",
+          "text": "Tap **Start practice** in the welcome flow, or **Replay the platform tour** in More."
+        },
+        {
+          "title": "Read the mission",
+          "text": "The dark card says what to do, with a hint. The bars show how many missions you’ve done."
+        },
+        {
+          "title": "Tap the glowing outline",
+          "text": "Tap the spot outlined in amber. A green note confirms the mission and the next one starts."
+        },
+        {
+          "title": "Finish all nine",
+          "text": "When you’re done, Platform basics is marked complete in your training."
+        },
+        {
+          "title": "Go back",
+          "text": "Tap **Back to setup**, **Go to home** or **Practice again**. **Exit** leaves at any time."
+        }
+      ],
+      "tips": [
+        "Exploring ahead still counts: missions you finish early are ticked off.",
+        "On a computer, the full mission list sits next to the sandbox.",
+        "The practice is also the **Platform basics (interactive)** module in Training."
+      ]
+    },
+    {
+      "id": "home",
+      "group": "daily",
+      "audience": "everyone",
+      "title": "Your Home screen",
+      "icon": "home",
+      "summary": "Home shows what to do next: your next module, your training progress, your first-week checklist, tasks due soon and the latest news.",
+      "route": "/",
+      "shots": [
+        {
+          "src": "/guide-media/home-1.webp",
+          "w": 780,
+          "h": 2700,
+          "device": "phone",
+          "caption": "A trainee’s Home screen",
+          "alt": "Home on a phone for a trainee: a purple Next up card for Communication and chat basics with a Continue button, a Training progress card at 33 percent with what’s coming up, and the Getting started checklist.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 85.1,
+              "y": 0.1,
+              "w": 13.3,
+              "h": 3.9,
+              "label": "Profile",
+              "text": "Your details, documents and sign-in history."
+            },
+            {
+              "n": 2,
+              "x": 3.1,
+              "y": 13.4,
+              "w": 93.8,
+              "h": 23.2,
+              "label": "Next up",
+              "text": "Your next module, its due date and how far you got. Tap **Continue** or **Start**."
+            },
+            {
+              "n": 3,
+              "x": 3.1,
+              "y": 37.2,
+              "w": 93.8,
+              "h": 21.9,
+              "label": "Training progress",
+              "text": "How much assigned training is done, what’s waiting for review and what’s coming up."
+            },
+            {
+              "n": 4,
+              "x": 3.1,
+              "y": 60.3,
+              "w": 93.8,
+              "h": 31.3,
+              "label": "Getting started",
+              "text": "Your first-week checklist. Tap an open item to do it right away."
+            },
+            {
+              "n": 5,
+              "x": 0,
+              "y": 94.9,
+              "w": 100,
+              "h": 5.1,
+              "label": "Menu",
+              "text": "Switch pages here. **More** holds everything else."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Start your next module",
+          "text": "Tap **Start** or **Continue** on the Next up card. If it says **Fix and resend**, read your mentor’s feedback first."
+        },
+        {
+          "title": "Check your progress",
+          "text": "Training progress shows how much is done and what’s coming up. Tap **See all** for the full list."
+        },
+        {
+          "title": "Work through Getting started",
+          "text": "Tap an open item on your first-week checklist to fill out a document or open the practice."
+        },
+        {
+          "title": "See what’s due",
+          "text": "Due soon lists your next tasks. Tap one, or **All tasks**, to open your board."
+        },
+        {
+          "title": "Read announcements",
+          "text": "Tap **Mark as read** on posts marked **Please read**. **All news** opens every post."
+        }
+      ],
+      "tips": [
+        "Getting started shows while you’re a trainee and something on it is still open.",
+        "Mentors and leads also see what’s waiting for their review. Admins get an Admin card with access requests, invites and drafts.",
+        "Guests see the training, documents and resources shared with them instead."
+      ]
+    },
+    {
+      "id": "training",
+      "group": "daily",
+      "audience": "everyone",
+      "title": "Training",
+      "icon": "book",
+      "summary": "Your assigned modules in the order to do them, plus continued training and an optional library. Modules open one step at a time.",
+      "route": "/training",
+      "shots": [
+        {
+          "src": "/guide-media/training-1.webp",
+          "w": 780,
+          "h": 2700,
+          "device": "phone",
+          "caption": "Your training list",
+          "alt": "The Training page on a phone: an Assigned training summary at 33 percent with a Continue next button, filter pills, and module cards with status, minutes, due date and progress.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 3.1,
+              "y": 13.8,
+              "w": 93.8,
+              "h": 11.7,
+              "label": "Assigned training",
+              "text": "Everything required for you, as one percentage."
+            },
+            {
+              "n": 2,
+              "x": 52.9,
+              "y": 15.3,
+              "w": 38.6,
+              "h": 3.6,
+              "label": "Continue next",
+              "text": "Jumps straight into the module you should do next."
+            },
+            {
+              "n": 3,
+              "x": 3.1,
+              "y": 26.7,
+              "w": 96.9,
+              "h": 3.6,
+              "label": "Filters",
+              "text": "Show all modules, or only to do, in progress or completed."
+            },
+            {
+              "n": 4,
+              "x": 5.4,
+              "y": 51.9,
+              "w": 32.7,
+              "h": 3.6,
+              "label": "Certificate",
+              "text": "On completed modules when certificates are on. Print it or save it as a PDF."
+            },
+            {
+              "n": 5,
+              "x": 3.1,
+              "y": 76.1,
+              "w": 93.8,
+              "h": 15.6,
+              "label": "Module card",
+              "text": "Tap a card to open it. The chip shows its status, the bar how far you got."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/training-2.webp",
+          "w": 780,
+          "h": 2700,
+          "device": "phone",
+          "caption": "A quiz step in the module player",
+          "alt": "The module player on a phone at step 2 of 2 of Security and data handling: two quiz questions answered correctly with explanations, a green You scored 100 percent result, and the Finish module button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 0,
+              "y": 0,
+              "w": 100,
+              "h": 5.1,
+              "label": "Where you are",
+              "text": "Module name, step number and a progress bar."
+            },
+            {
+              "n": 2,
+              "x": 1,
+              "y": 0.1,
+              "w": 13.3,
+              "h": 3.9,
+              "label": "Close",
+              "text": "Leave and come back later. Your place is saved."
+            },
+            {
+              "n": 3,
+              "x": 3.1,
+              "y": 11.8,
+              "w": 93.8,
+              "h": 3.9,
+              "label": "Questions",
+              "text": "Pick one answer per question, then tap **Check answers**."
+            },
+            {
+              "n": 4,
+              "x": 3.1,
+              "y": 29.9,
+              "w": 93.8,
+              "h": 5.4,
+              "label": "Feedback",
+              "text": "Each answer shows whether it’s right, and why."
+            },
+            {
+              "n": 5,
+              "x": 3.1,
+              "y": 59.7,
+              "w": 93.8,
+              "h": 8.2,
+              "label": "Your score",
+              "text": "You need the passing score to continue. **Try again** clears your answers."
+            },
+            {
+              "n": 6,
+              "x": 53.6,
+              "y": 95.6,
+              "w": 43.3,
+              "h": 3.9,
+              "label": "Finish module",
+              "text": "Completes the module, or sends it to your mentor when it needs review."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Pick up where you left off",
+          "text": "Tap **Continue next** at the top to open the module you should do next."
+        },
+        {
+          "title": "Filter the list",
+          "text": "Tap **To do**, **In progress** or **Completed** to narrow it down, or **All** to see everything."
+        },
+        {
+          "title": "Open a module",
+          "text": "Tap a card. The overview lists what you’ll learn and how many steps there are. Tap **Start** or **Continue**."
+        },
+        {
+          "title": "Move through the steps",
+          "text": "Read each slide or page, then tap **Next**. On a computer, the arrow keys work too."
+        },
+        {
+          "title": "Pass the quiz",
+          "text": "Pick your answers and tap **Check answers**. Below the passing score, tap **Try again**."
+        },
+        {
+          "title": "Finish",
+          "text": "Tap **Finish module**, or **Send for review** when your mentor checks it. Then tap **Next module**."
+        },
+        {
+          "title": "Get a certificate",
+          "text": "On a completed module, tap **Certificate**, then **Print**. Choose “Save as PDF” to keep a copy."
+        }
+      ],
+      "tips": [
+        "Your place is saved as you go. Quiz answers and assignment drafts stay on the device you used.",
+        "**Waiting for review** means your mentor is checking it. **Needs changes** means it came back: open it and tap **Make changes**.",
+        "**Certificate** only appears when an owner has switched certificates on."
+      ]
+    },
+    {
+      "id": "documents",
+      "group": "daily",
+      "audience": "everyone",
+      "title": "Filling out and signing documents",
+      "icon": "fileText",
+      "summary": "Forms, uploads, e-signatures and checklists from HR. Sensitive answers are encrypted, and each submission records the time, IP address and device.",
+      "route": "/me",
+      "shots": [
+        {
+          "src": "/guide-media/documents-1.webp",
+          "w": 780,
+          "h": 2600,
+          "device": "phone",
+          "caption": "Filling out and signing a document",
+          "alt": "The Payroll and direct deposit form open on a phone: bank name, account type, encrypted routing and account number fields shown as dots, an attached W-4 file, and a typed signature preview, with Sign and submit at the bottom.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 4.1,
+              "y": 15.4,
+              "w": 78.5,
+              "h": 8.6,
+              "label": "The document",
+              "text": "Its name, type and what it’s for."
+            },
+            {
+              "n": 2,
+              "x": 4.1,
+              "y": 39,
+              "w": 91.8,
+              "h": 9.6,
+              "label": "Sensitive answers",
+              "text": "The lock means it’s encrypted. Tap the eye to check what you typed."
+            },
+            {
+              "n": 3,
+              "x": 4.1,
+              "y": 61.3,
+              "w": 91.8,
+              "h": 5.4,
+              "label": "Files",
+              "text": "Attach a PDF or a photo, up to 25 MB. Sensitive files only HR can open."
+            },
+            {
+              "n": 4,
+              "x": 4.1,
+              "y": 71,
+              "w": 91.8,
+              "h": 14.3,
+              "label": "Signature",
+              "text": "Type your full legal name. It counts as your electronic signature."
+            },
+            {
+              "n": 5,
+              "x": 0,
+              "y": 92.6,
+              "w": 100,
+              "h": 7.4,
+              "label": "Sign and submit",
+              "text": "The counter says what’s still required. RAMP records the time, IP address and device."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open a document",
+          "text": "Tap **Fill out**, **Upload**, **Review and sign** or **Open checklist** in the welcome flow, on Home, on Tasks or in your profile."
+        },
+        {
+          "title": "Answer each field",
+          "text": "Fields with a red star are required. The bottom of the form counts how many are left."
+        },
+        {
+          "title": "Enter sensitive details",
+          "text": "Fields with a lock are encrypted. Tap the eye to check what you typed."
+        },
+        {
+          "title": "Attach files",
+          "text": "Tap **Choose a file or take a photo**. PDFs, images and documents up to 25 MB work."
+        },
+        {
+          "title": "Sign",
+          "text": "Type your full legal name in the signature field. The preview shows your signature with today’s date."
+        },
+        {
+          "title": "Submit",
+          "text": "Tap **Sign and submit**, **Submit** or **Upload**. A message confirms it, and the document shows as done."
+        }
+      ],
+      "tips": [
+        "Need to change something you sent, like your bank? In your profile, under **My documents**, tap **Submit again**.",
+        "Only you and HR admins can see sensitive answers and files, and every view is logged.",
+        "If HR updates a document you signed, it shows **New version** so you can sign the latest one."
+      ]
+    },
+    {
+      "id": "tasks",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Tasks",
+      "icon": "tasks",
+      "summary": "A board for everything you need to get done. Move each task from To do to Done as you work on it.",
+      "route": "/tasks",
+      "shots": [
+        {
+          "src": "/guide-media/tasks-1.webp",
+          "w": 1920,
+          "h": 1320,
+          "device": "desktop",
+          "caption": "Your task board",
+          "alt": "The Tasks board on a computer with four columns: To do, In progress, In review and Done. Cards show due dates, who assigned them, Form chips with a Fill out button, and buttons to move them along.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 87.3,
+              "y": 5.6,
+              "w": 10.6,
+              "h": 5.9,
+              "label": "New task",
+              "text": "Add your own task with notes and a due date."
+            },
+            {
+              "n": 2,
+              "x": 60.3,
+              "y": 13.3,
+              "w": 18.4,
+              "h": 33.6,
+              "label": "In review",
+              "text": "Finished on your side and waiting for a check."
+            },
+            {
+              "n": 3,
+              "x": 23.3,
+              "y": 14.9,
+              "w": 16.3,
+              "h": 4.1,
+              "label": "Status columns",
+              "text": "Tasks move left to right. Drag a card to another column, or use its buttons."
+            },
+            {
+              "n": 4,
+              "x": 24.1,
+              "y": 39.4,
+              "w": 14.5,
+              "h": 5.9,
+              "label": "Move a task",
+              "text": "**Start**, **Send for review** and **Mark done** move it one column right; the arrow moves it back."
+            },
+            {
+              "n": 5,
+              "x": 24.5,
+              "y": 65.1,
+              "w": 7.9,
+              "h": 5.5,
+              "label": "Form tasks",
+              "text": "First-week documents. **Fill out** opens the form; sending it marks the task done."
+            },
+            {
+              "n": 6,
+              "x": 43.5,
+              "y": 66.3,
+              "w": 8.5,
+              "h": 3.1,
+              "label": "Assigned to you",
+              "text": "Tasks from your mentor or lead say who they’re from."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Add a task",
+          "text": "Click **New task**, say what needs doing, add notes and a due date, then click **Add task**."
+        },
+        {
+          "title": "Start it",
+          "text": "Click **Start** to move it to In progress. You can also drag a card to another column."
+        },
+        {
+          "title": "Send it for review",
+          "text": "When your part is done, click **Send for review**. It moves to In review for a check."
+        },
+        {
+          "title": "Finish it",
+          "text": "Click **Mark done**. The arrow on the left of a card moves it back a column."
+        },
+        {
+          "title": "Complete form tasks",
+          "text": "Tasks marked **Form** come from first-week documents. Click **Fill out**; sending the form marks the task done."
+        },
+        {
+          "title": "Edit or delete",
+          "text": "Click a task’s title to change it, or click **Delete** in the task."
+        }
+      ],
+      "tips": [
+        "On a phone, tasks are grouped into tabs by status. Change a task’s status with its **Status** menu.",
+        "Tasks from your mentor or lead say **From** and their name.",
+        "Red due dates are overdue; amber ones are due today."
+      ]
+    },
+    {
+      "id": "notebook",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Your notebook",
+      "icon": "notes",
+      "summary": "Private pages for module notes, meeting notes and files. Share a page with your mentor and lead when you want feedback.",
+      "route": "/notes",
+      "shots": [
+        {
+          "src": "/guide-media/notebook-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "A notebook page",
+          "alt": "The Notebook on a computer: a list of pages on the left with Shared chips and a Vault link, and the open page Module notes: How we use tasks, with its text, an attached file, the Share with my mentor and lead switch and the Training module link.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 86.8,
+              "y": 4.2,
+              "w": 11,
+              "h": 4.4,
+              "label": "New page",
+              "text": "Start blank or from a template: meeting notes, daily log or questions for your mentor."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 9.9,
+              "w": 22.5,
+              "h": 36.4,
+              "label": "Your pages",
+              "text": "Search, open a page or a sub-page. **Shared** marks pages your mentor can read."
+            },
+            {
+              "n": 3,
+              "x": 45.9,
+              "y": 13.3,
+              "w": 51.9,
+              "h": 32.8,
+              "label": "Write",
+              "text": "Type a title and notes. Everything saves as you go; look for **Saved**."
+            },
+            {
+              "n": 4,
+              "x": 23,
+              "y": 41,
+              "w": 20.8,
+              "h": 4.4,
+              "label": "Vault",
+              "text": "Your encrypted saved logins."
+            },
+            {
+              "n": 5,
+              "x": 45.9,
+              "y": 46.8,
+              "w": 51.9,
+              "h": 12.9,
+              "label": "Attachments",
+              "text": "Add screenshots, PDFs or other files, up to 25 MB each."
+            },
+            {
+              "n": 6,
+              "x": 45.9,
+              "y": 60.3,
+              "w": 51.9,
+              "h": 20.6,
+              "label": "Share and link",
+              "text": "Let your mentor and lead read this page, and link it to a training module."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Create a page",
+          "text": "Click **New page**, choose where it goes, then pick **Blank page**, **Meeting notes**, **Daily log** or **Questions for my mentor**."
+        },
+        {
+          "title": "Write",
+          "text": "Type a title and your notes. Everything saves as you type; look for **Saved** at the top."
+        },
+        {
+          "title": "Attach files",
+          "text": "Click **Attach a file** to add screenshots or PDFs, up to 25 MB each."
+        },
+        {
+          "title": "Share it",
+          "text": "Turn on **Share with my mentor and lead**. They can read the page but not change it."
+        },
+        {
+          "title": "Organize",
+          "text": "Link the page to a **Training module**, move it **Inside** another page, or click **Add a sub-page**."
+        },
+        {
+          "title": "Find a page",
+          "text": "Type in **Search pages** to search titles and text."
+        }
+      ],
+      "tips": [
+        "Pages are private until you share them. Shared pages show a **Shared** chip.",
+        "On a phone you see the list first. Tap a page to open it, and **All pages** to go back.",
+        "**Delete page** also deletes its sub-pages and attached files."
+      ]
+    },
+    {
+      "id": "vault",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Your Vault",
+      "icon": "lock",
+      "summary": "Encrypted storage for your work logins. Only you can open it: not your mentor, your lead or admins.",
+      "route": "/vault",
+      "shots": [
+        {
+          "src": "/guide-media/vault-1.webp",
+          "w": 780,
+          "h": 2000,
+          "device": "phone",
+          "caption": "Your Vault",
+          "alt": "The Vault on a phone with four saved logins. The Dispatch board login shows its password with a Hides in 30s countdown, and Copy password and Hide buttons.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 3.1,
+              "y": 14.9,
+              "w": 38.2,
+              "h": 5.2,
+              "label": "Add a login",
+              "text": "Save a name, username, link and password. RAMP can generate a strong one."
+            },
+            {
+              "n": 2,
+              "x": 3.1,
+              "y": 21.7,
+              "w": 93.8,
+              "h": 10,
+              "label": "Only you",
+              "text": "Entries are encrypted. Your mentor, lead and admins can’t open them."
+            },
+            {
+              "n": 3,
+              "x": 7.4,
+              "y": 60.9,
+              "w": 85.1,
+              "h": 4.7,
+              "label": "Password shown",
+              "text": "Shown for 30 seconds, then hidden again."
+            },
+            {
+              "n": 4,
+              "x": 7.4,
+              "y": 65.9,
+              "w": 41.7,
+              "h": 9.6,
+              "label": "Copy",
+              "text": "Copy the password or username without showing it to anyone nearby."
+            },
+            {
+              "n": 5,
+              "x": 79.2,
+              "y": 79.3,
+              "w": 13.3,
+              "h": 5.2,
+              "label": "Edit",
+              "text": "Change the details or password, or delete the login."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Add a login",
+          "text": "Tap **Add a login**, fill in **Name**, **Username or email**, **Website** and the password, then tap **Save login**."
+        },
+        {
+          "title": "Generate a password",
+          "text": "Tap **Generate** for a strong 20-character password. It’s copied, so you can paste it into the other site."
+        },
+        {
+          "title": "Show a password",
+          "text": "Tap **Show password**. It hides again after 30 seconds, or when you tap **Hide**."
+        },
+        {
+          "title": "Copy without showing",
+          "text": "Tap **Copy password** or **Copy username** to paste it without anyone seeing it."
+        },
+        {
+          "title": "Edit or delete",
+          "text": "Tap the pencil to change the details or password, or **Delete** to remove the login."
+        }
+      ],
+      "tips": [
+        "Find the Vault under **More** on a phone, or at the bottom of your notebook’s page list on a computer.",
+        "Once you have more than five logins, a search box appears."
+      ]
+    },
+    {
+      "id": "chat",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Chat",
+      "icon": "chat",
+      "summary": "Company, department and cohort channels, plus direct messages with anyone on the team.",
+      "route": "/chat",
+      "shots": [
+        {
+          "src": "/guide-media/chat-1.webp",
+          "w": 1920,
+          "h": 1320,
+          "device": "desktop",
+          "caption": "Chat with your mentor",
+          "alt": "Chat on a computer: channels and direct messages on the left with unread dots, and a direct message conversation with Sam Patel on the right, with the message box at the bottom.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 32.2,
+              "y": 0.9,
+              "w": 11.8,
+              "h": 5.5,
+              "label": "New message",
+              "text": "Pick anyone on the team to message directly."
+            },
+            {
+              "n": 2,
+              "x": 20.5,
+              "y": 8.2,
+              "w": 24,
+              "h": 27.1,
+              "label": "Channels",
+              "text": "Company, department and cohort channels. The lock means only admins post."
+            },
+            {
+              "n": 3,
+              "x": 44.7,
+              "y": 6.8,
+              "w": 55.3,
+              "h": 83.3,
+              "label": "Conversation",
+              "text": "Messages are grouped by day. Your own are on the right."
+            },
+            {
+              "n": 4,
+              "x": 42,
+              "y": 18.6,
+              "w": 2,
+              "h": 3,
+              "label": "Unread",
+              "text": "An amber dot means new messages since you last looked."
+            },
+            {
+              "n": 5,
+              "x": 20.5,
+              "y": 36.2,
+              "w": 24,
+              "h": 15.2,
+              "label": "Direct messages",
+              "text": "One-to-one conversations, newest first."
+            },
+            {
+              "n": 6,
+              "x": 46.6,
+              "y": 90.7,
+              "w": 51.9,
+              "h": 5.9,
+              "label": "Write a message",
+              "text": "Enter sends; Shift+Enter starts a new line."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open a conversation",
+          "text": "Pick a channel or a person on the left. On a phone, tap one, then the back arrow to return to the list."
+        },
+        {
+          "title": "Send a message",
+          "text": "Type in the box at the bottom and press Enter. Shift+Enter starts a new line."
+        },
+        {
+          "title": "Message someone new",
+          "text": "Click **New message**, search by name, role or department, and pick the person."
+        },
+        {
+          "title": "Spot new messages",
+          "text": "An amber dot next to a channel or person means messages you haven’t seen."
+        },
+        {
+          "title": "Delete a message",
+          "text": "Hover over your message, or tap it on a phone, then tap the trash icon."
+        }
+      ],
+      "tips": [
+        "**announcements** is read-only: only admins post there.",
+        "Keep updates about a piece of work on its task, and use chat for conversation.",
+        "If an owner switches Chat off, it leaves the menu. Past messages are kept."
+      ]
+    },
+    {
+      "id": "resources",
+      "group": "daily",
+      "audience": "everyone",
+      "title": "Resources",
+      "icon": "folder",
+      "summary": "Policies, SOPs, guides and tools for your work, all in one place.",
+      "route": "/resources",
+      "shots": [
+        {
+          "src": "/guide-media/resources-1.webp",
+          "w": 780,
+          "h": 2400,
+          "device": "phone",
+          "caption": "Resources",
+          "alt": "Resources on a phone: a search box, category filters, and lists of policies, SOPs and guides with Required and Your role chips.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 3.1,
+              "y": 15.5,
+              "w": 93.8,
+              "h": 4.7,
+              "label": "Search",
+              "text": "Find a policy, SOP or guide by title or text."
+            },
+            {
+              "n": 2,
+              "x": 3.1,
+              "y": 20.5,
+              "w": 93.8,
+              "h": 4,
+              "label": "Categories",
+              "text": "Show one kind of resource at a time."
+            },
+            {
+              "n": 3,
+              "x": 3.3,
+              "y": 29.1,
+              "w": 93.3,
+              "h": 6,
+              "label": "Required",
+              "text": "Required reading for you. Open it before your due dates."
+            },
+            {
+              "n": 4,
+              "x": 3.3,
+              "y": 55.9,
+              "w": 93.3,
+              "h": 7.8,
+              "label": "Your role",
+              "text": "Resources for your job role."
+            },
+            {
+              "n": 5,
+              "x": 3.3,
+              "y": 68.4,
+              "w": 93.3,
+              "h": 6,
+              "label": "Opens in RAMP",
+              "text": "Some resources open a RAMP page, like this guide."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Search",
+          "text": "Type in the search box to find a resource by its title or text."
+        },
+        {
+          "title": "Filter by category",
+          "text": "Tap **Policies**, **SOPs**, **Guides**, **Tools** or **Other**. **All** shows everything."
+        },
+        {
+          "title": "Open a resource",
+          "text": "Tap it. Text opens right here, web links open in a new tab, and **Opens in RAMP** goes to a RAMP page."
+        },
+        {
+          "title": "Close it",
+          "text": "Use **Open link** or **Open file** if the resource has one, then tap **Done**."
+        }
+      ],
+      "tips": [
+        "**Required** marks reading you’re expected to do. **Your role** marks resources for your job.",
+        "Guests only see the resources shared with guests."
+      ]
+    },
+    {
+      "id": "news",
+      "group": "daily",
+      "audience": "staff",
+      "title": "News",
+      "icon": "megaphone",
+      "summary": "Announcements from the company and your department. Some ask you to confirm you’ve read them.",
+      "route": "/news",
+      "shots": [
+        {
+          "src": "/guide-media/news-1.webp",
+          "w": 780,
+          "h": 2400,
+          "device": "phone",
+          "caption": "News",
+          "alt": "News on a phone: a reminder that one post needs confirming, an Office closed for Thanksgiving post highlighted with Please confirm and a Mark as read button, and older posts including a department post for Operations.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 3.1,
+              "y": 15.5,
+              "w": 93.8,
+              "h": 6.5,
+              "label": "Needs confirming",
+              "text": "How many posts are waiting for you to confirm you’ve read them."
+            },
+            {
+              "n": 2,
+              "x": 8.5,
+              "y": 25,
+              "w": 83.1,
+              "h": 2.7,
+              "label": "Please confirm",
+              "text": "Highlighted until you confirm."
+            },
+            {
+              "n": 3,
+              "x": 8.5,
+              "y": 48.8,
+              "w": 41.6,
+              "h": 4.3,
+              "label": "Mark as read",
+              "text": "Confirms you’ve read it. Admins can see who hasn’t yet."
+            },
+            {
+              "n": 4,
+              "x": 3.1,
+              "y": 55.6,
+              "w": 93.8,
+              "h": 20.5,
+              "label": "Department news",
+              "text": "Posts from your department lead show your department’s name."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Read new posts",
+          "text": "Open **News** from the menu, or from **More** on a phone. The newest posts are at the top."
+        },
+        {
+          "title": "Confirm you’ve read it",
+          "text": "Posts marked **Please confirm** are highlighted. Read it, then tap **Mark as read**."
+        },
+        {
+          "title": "See who it’s for",
+          "text": "Department posts show the department’s name. Everything else is company news."
+        },
+        {
+          "title": "Post to your department (leads)",
+          "text": "Department leads tap **Post to my department**, add a **Headline** and **Message**, and post it."
+        }
+      ],
+      "tips": [
+        "The amber number on News counts posts you still need to confirm.",
+        "Leads can tick **Ask everyone to confirm they’ve read it** when they post.",
+        "Admins post and track read receipts in **Admin › Announcements**."
+      ]
+    },
+    {
+      "id": "profile",
+      "group": "daily",
+      "audience": "everyone",
+      "title": "Your profile",
+      "icon": "pen",
+      "summary": "Your details, your account, every document you’ve completed, your recent sign-ins and your password.",
+      "route": "/me",
+      "shots": [
+        {
+          "src": "/guide-media/profile-1.webp",
+          "w": 780,
+          "h": 2700,
+          "device": "phone",
+          "caption": "Your documents and sign-in history",
+          "alt": "The Profile page on a phone scrolled to My documents, listing completed onboarding documents with View and Submit again buttons and two first-week checklists, followed by Sign-in history with dates, devices and IP addresses.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 8.5,
+              "y": 6,
+              "w": 83.1,
+              "h": 2.4,
+              "label": "My documents",
+              "text": "Every form, upload and agreement that applies to you, with what’s still to do."
+            },
+            {
+              "n": 2,
+              "x": 8.5,
+              "y": 16.9,
+              "w": 23,
+              "h": 3.6,
+              "label": "View",
+              "text": "Opens what you sent, with the date, IP address and device recorded."
+            },
+            {
+              "n": 3,
+              "x": 31.5,
+              "y": 16.9,
+              "w": 31.3,
+              "h": 3.6,
+              "label": "Submit again",
+              "text": "Send an updated version, for example after you change banks."
+            },
+            {
+              "n": 4,
+              "x": 3.3,
+              "y": 54.3,
+              "w": 93.3,
+              "h": 9,
+              "label": "To do",
+              "text": "Documents you still need to complete."
+            },
+            {
+              "n": 5,
+              "x": 3.1,
+              "y": 72.9,
+              "w": 93.8,
+              "h": 27.1,
+              "label": "Sign-in history",
+              "text": "Your last 10 sign-ins. Don’t recognize one? Change your password and tell an admin."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Update your details",
+          "text": "Change your **Full name**, **Preferred name**, **Mobile phone** or **Time zone**, then tap **Save details**."
+        },
+        {
+          "title": "Check your account",
+          "text": "**Your account** shows your email, access level, role, department, mentor and start date. Ask an admin to change them."
+        },
+        {
+          "title": "Review your documents",
+          "text": "Under **My documents**, tap **View** to see a record, or **Submit again** to send an update."
+        },
+        {
+          "title": "Check your sign-ins",
+          "text": "**Sign-in history** lists your last 10 sign-ins with the device and IP address."
+        },
+        {
+          "title": "Change your password",
+          "text": "Type a **New password** and **Confirm new password**, then tap **Change password**."
+        }
+      ],
+      "tips": [
+        "Don’t recognize a sign-in? Change your password right away and tell an admin.",
+        "Leave **Time zone** on the company time zone unless you work somewhere else."
+      ]
+    },
+    {
+      "id": "team",
+      "group": "team",
+      "audience": "reviewers",
+      "title": "My team",
+      "icon": "users",
+      "summary": "Mentors see their trainees, department leads see their department and admins see everyone, with work waiting for review at the top.",
+      "route": "/team",
+      "shots": [
+        {
+          "src": "/guide-media/team-1.webp",
+          "w": 1920,
+          "h": 1350,
+          "device": "desktop",
+          "caption": "My team, for a mentor",
+          "alt": "My team on a computer for a mentor: two items waiting for review with Review buttons, then the list of trainees with their stage, items to review and training progress bars.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 22.2,
+              "y": 15.8,
+              "w": 75.6,
+              "h": 20.3,
+              "label": "Waiting for your review",
+              "text": "Work your trainees sent. Oldest first."
+            },
+            {
+              "n": 2,
+              "x": 90,
+              "y": 29.2,
+              "w": 6.5,
+              "h": 5.3,
+              "label": "Review",
+              "text": "Opens the answer and score so you can approve or return it."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 42.3,
+              "w": 75.6,
+              "h": 6.2,
+              "label": "Search",
+              "text": "Find someone by name, email or role."
+            },
+            {
+              "n": 4,
+              "x": 27.7,
+              "y": 50.4,
+              "w": 66.4,
+              "h": 8.4,
+              "label": "Stage and progress",
+              "text": "Onboarding, Training x% or Graduated, plus anything to review or overdue."
+            },
+            {
+              "n": 5,
+              "x": 22.3,
+              "y": 75.4,
+              "w": 75.5,
+              "h": 11.2,
+              "label": "Open a person",
+              "text": "Their plan, shared notebook pages and tasks."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open your team",
+          "text": "Click **My team** in the menu (**Team progress** for admins). The badge counts work waiting for you."
+        },
+        {
+          "title": "Review waiting work",
+          "text": "Under **Waiting for your review**, click **Review** next to an item. The oldest is first."
+        },
+        {
+          "title": "Find someone",
+          "text": "Search by name, email or role. Admins can also filter by department."
+        },
+        {
+          "title": "Read each person’s stage",
+          "text": "Each row shows **Onboarding**, **Training** with a percentage or **Graduated**, plus anything to review or overdue."
+        },
+        {
+          "title": "Open a person",
+          "text": "Click their row to see their training plan, shared notebook pages and tasks."
+        }
+      ],
+      "tips": [
+        "Mentors see the trainees assigned to them. Leads see their whole department, plus anyone they mentor.",
+        "On a phone, open **My team** from **More**."
+      ]
+    },
+    {
+      "id": "reviews",
+      "group": "team",
+      "audience": "reviewers",
+      "title": "Reviewing work",
+      "icon": "check",
+      "summary": "When a module needs mentor review, it waits for you to approve it or send it back with feedback.",
+      "route": "/team",
+      "shots": [
+        {
+          "src": "/guide-media/reviews-1.webp",
+          "w": 1920,
+          "h": 1350,
+          "device": "desktop",
+          "caption": "Reviewing submitted work",
+          "alt": "The review sheet open over My team: How we use tasks sent by Jordan Lee, with a quiz score of 100 percent, the assignment, Jordan’s answer, a feedback box, and Return with feedback and Approve buttons.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 21.3,
+              "y": 22.3,
+              "w": 57.5,
+              "h": 3.6,
+              "label": "Score",
+              "text": "Their quiz score against the pass mark."
+            },
+            {
+              "n": 2,
+              "x": 21.3,
+              "y": 26.7,
+              "w": 57.5,
+              "h": 11.8,
+              "label": "The assignment",
+              "text": "What they were asked to do."
+            },
+            {
+              "n": 3,
+              "x": 21.3,
+              "y": 39.4,
+              "w": 57.5,
+              "h": 17.4,
+              "label": "Their answer",
+              "text": "What they wrote."
+            },
+            {
+              "n": 4,
+              "x": 21.3,
+              "y": 57.8,
+              "w": 57.5,
+              "h": 20.6,
+              "label": "Feedback",
+              "text": "Required when you return it. They see it with the result."
+            },
+            {
+              "n": 5,
+              "x": 19.7,
+              "y": 79.6,
+              "w": 60.6,
+              "h": 7.7,
+              "label": "Approve or return",
+              "text": "**Approve** completes the module. **Return with feedback** sends it back to fix."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open the review",
+          "text": "Click **Review** under **Waiting for your review** on My team, or next to the module on the person’s page."
+        },
+        {
+          "title": "Check their work",
+          "text": "Look at their quiz score against the pass mark, the assignment and their answer."
+        },
+        {
+          "title": "Approve it",
+          "text": "Click **Approve**. The module is marked complete in their training."
+        },
+        {
+          "title": "Or send it back",
+          "text": "Write what to change under **Feedback**, then click **Return with feedback**. They see it as **Needs changes**."
+        },
+        {
+          "title": "Check the resubmission",
+          "text": "They fix it and send it again, and it comes back to your list."
+        }
+      ],
+      "tips": [
+        "Feedback is required when you return work. Be specific about what to change and how they’ll know it’s right.",
+        "Admins can also approve or return work on the **Training** tab of a person’s record.",
+        "You can’t review your own work."
+      ]
+    },
+    {
+      "id": "team-member",
+      "group": "team",
+      "audience": "reviewers",
+      "title": "A team member’s page",
+      "icon": "eye",
+      "summary": "Everything about one person you look after: their training plan, the notebook pages they share with you and their tasks.",
+      "route": null,
+      "shots": [
+        {
+          "src": "/guide-media/team-member-1.webp",
+          "w": 1920,
+          "h": 1920,
+          "device": "desktop",
+          "caption": "One trainee’s page",
+          "alt": "A trainee’s page for their mentor on a computer: the training plan with statuses and a Review button, shared notebook pages, and the Tasks card with an Assign a task button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 23.8,
+              "y": 3.2,
+              "w": 72.3,
+              "h": 2.6,
+              "label": "Training plan",
+              "text": "Every assigned module with its due date, score and status."
+            },
+            {
+              "n": 2,
+              "x": 89.7,
+              "y": 21.5,
+              "w": 6.5,
+              "h": 3.8,
+              "label": "Review",
+              "text": "Shows on work waiting for you."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 42.8,
+              "w": 75.6,
+              "h": 17.1,
+              "label": "Shared notebook pages",
+              "text": "Pages they chose to share with you. Read-only."
+            },
+            {
+              "n": 4,
+              "x": 84.7,
+              "y": 62.9,
+              "w": 11.4,
+              "h": 3.8,
+              "label": "Assign a task",
+              "text": "Add a task to their board, marked as from you."
+            },
+            {
+              "n": 5,
+              "x": 22.3,
+              "y": 67.8,
+              "w": 75.5,
+              "h": 32.2,
+              "label": "Their tasks",
+              "text": "Open tasks and who assigned them. Click one of yours to edit it."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open the page",
+          "text": "Click someone’s row on **My team**."
+        },
+        {
+          "title": "Check their plan",
+          "text": "**Training plan** lists every assigned module with its due date, score and status."
+        },
+        {
+          "title": "Read shared pages",
+          "text": "Click a page under **Shared notebook pages** to read it. You can’t change it."
+        },
+        {
+          "title": "Assign a task",
+          "text": "Click **Assign a task**, say what to do, add notes and a due date, then click **Assign task**."
+        },
+        {
+          "title": "Edit your tasks",
+          "text": "Click a task you assigned to change or delete it. Tasks from others are read-only."
+        }
+      ],
+      "tips": [
+        "Tasks you assign show on their board as **From** your name.",
+        "Admins also see **Open full record**, with documents, files and sign-ins."
+      ]
+    },
+    {
+      "id": "admin-home",
+      "group": "admin",
+      "audience": "admins",
+      "title": "The Admin portal",
+      "icon": "shield",
+      "summary": "Where owners and admins set up RAMP, bring people in and keep an eye on progress. The setup checklist shows what’s left.",
+      "route": "/admin",
+      "shots": [
+        {
+          "src": "/guide-media/admin-home-1.webp",
+          "w": 1920,
+          "h": 1920,
+          "device": "desktop",
+          "caption": "The Admin portal",
+          "alt": "The Admin portal on a computer: the setup checklist at 78 percent with Fix buttons on two items, quick stats, and the Set up section cards. The sidebar shows the admin pages.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 23.8,
+              "y": 10.8,
+              "w": 72.3,
+              "h": 4.4,
+              "label": "Setup checklist",
+              "text": "What’s left to set up. Done items have a green check."
+            },
+            {
+              "n": 2,
+              "x": 0.6,
+              "y": 44.7,
+              "w": 18.7,
+              "h": 40,
+              "label": "Admin menu",
+              "text": "Inside the portal, the sidebar lists every admin page."
+            },
+            {
+              "n": 3,
+              "x": 91.2,
+              "y": 45.7,
+              "w": 4.9,
+              "h": 4.1,
+              "label": "Fix",
+              "text": "Opens the page that finishes that step."
+            },
+            {
+              "n": 4,
+              "x": 22.2,
+              "y": 68.2,
+              "w": 75.6,
+              "h": 8.8,
+              "label": "Quick stats",
+              "text": "Active members, onboarding, invites, requests and reviews. Click one to open it."
+            },
+            {
+              "n": 5,
+              "x": 22.2,
+              "y": 78.3,
+              "w": 75.6,
+              "h": 21.7,
+              "label": "Admin pages",
+              "text": "Every admin page, grouped by Set up, People, Communicate and System."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open the portal",
+          "text": "Click **Admin portal** in the sidebar, or in **More** on a phone. Inside, the sidebar lists every admin page."
+        },
+        {
+          "title": "Work through setup",
+          "text": "Each unchecked item on the checklist has a **Fix** button that opens the page to finish it."
+        },
+        {
+          "title": "Watch the numbers",
+          "text": "Quick stats show active members, onboarding, invites, access requests and reviews. Click one to open it."
+        },
+        {
+          "title": "Go to a page",
+          "text": "Pick a card under **Set up**, **People**, **Communicate** or **System**."
+        },
+        {
+          "title": "Read the admin guide",
+          "text": "Click **Admin guide** under System to open this guide for admins."
+        }
+      ],
+      "tips": [
+        "The checklist fills in as you finish each step. You can change any of it later.",
+        "Only owners and admins can open the Admin portal."
+      ]
+    },
+    {
+      "id": "org",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Organization",
+      "icon": "building",
+      "summary": "Your company name, brand color and time zone, and the welcome message every new person sees first.",
+      "route": "/admin/org",
+      "shots": [
+        {
+          "src": "/guide-media/org-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "Organization settings",
+          "alt": "The Organization page: company name, brand color swatches with a custom color field, time zone, the welcome message fields, and a live preview of the welcome screen.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 70.6,
+              "y": 17.9,
+              "w": 27.2,
+              "h": 62,
+              "label": "Live preview",
+              "text": "What new people see first, as you type."
+            },
+            {
+              "n": 2,
+              "x": 23.8,
+              "y": 19.7,
+              "w": 43.9,
+              "h": 2.8,
+              "label": "Company profile",
+              "text": "Name, brand color and time zone."
+            },
+            {
+              "n": 3,
+              "x": 23.8,
+              "y": 31.3,
+              "w": 43.9,
+              "h": 18.2,
+              "label": "Brand color",
+              "text": "Pick a swatch or type any six-digit color. RAMP warns if white text would be hard to read."
+            },
+            {
+              "n": 4,
+              "x": 23.8,
+              "y": 50.5,
+              "w": 43.9,
+              "h": 8.9,
+              "label": "Time zone",
+              "text": "Used for due dates, record times and the audit log."
+            },
+            {
+              "n": 5,
+              "x": 22.2,
+              "y": 62.5,
+              "w": 47.2,
+              "h": 37.5,
+              "label": "Welcome message",
+              "text": "Who it’s from, a headline with {first}, the message and an optional video."
+            },
+            {
+              "n": 6,
+              "x": 22.2,
+              "y": 92.4,
+              "w": 75.6,
+              "h": 6.6,
+              "label": "Save organization",
+              "text": "Nothing changes until you save. Leaving with unsaved changes asks first."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Set the basics",
+          "text": "Enter your **Company name**, pick a **Brand color** and choose your **Time zone**."
+        },
+        {
+          "title": "Write the welcome",
+          "text": "Fill in **Message from**, a **Headline** with {first} where their first name goes, and a short **Message**."
+        },
+        {
+          "title": "Add a video",
+          "text": "Paste a YouTube, Vimeo or Loom link into **Welcome video link** to play it on the welcome screen."
+        },
+        {
+          "title": "Check the preview",
+          "text": "The **Live preview** on the right updates as you type."
+        },
+        {
+          "title": "Save",
+          "text": "Click **Save organization**. **Discard** undoes your changes."
+        }
+      ],
+      "tips": [
+        "If white text is hard to read on your color, RAMP warns you. Pick a darker shade.",
+        "Leaving with unsaved changes asks you to confirm first."
+      ],
+      "settings": [
+        {
+          "name": "Company name",
+          "where": "Admin › Organization",
+          "effect": "Shown in the sidebar, on the sign-in screen and in invite messages. Up to 80 characters."
+        },
+        {
+          "name": "Brand color",
+          "where": "Admin › Organization",
+          "effect": "Colors buttons, highlights and the welcome screens for everyone, including the sign-in screen. Pick a swatch or type a six-digit color."
+        },
+        {
+          "name": "Time zone",
+          "where": "Admin › Organization",
+          "effect": "Used for due dates, record times and the audit log, and for people who haven’t set their own."
+        },
+        {
+          "name": "Message from",
+          "where": "Admin › Organization",
+          "effect": "Who the welcome is from, like a name and title. Shown with the message and video."
+        },
+        {
+          "name": "Headline",
+          "where": "Admin › Organization",
+          "effect": "The title of the first welcome screen. {first} becomes each person’s first name. Required."
+        },
+        {
+          "name": "Message",
+          "where": "Admin › Organization",
+          "effect": "A short note on the first screen of the welcome flow: what RAMP is for and who to ask for help."
+        },
+        {
+          "name": "Welcome video link",
+          "where": "Admin › Organization",
+          "effect": "Optional. YouTube, Vimeo and Loom links play on the welcome screen; other links show a button to open them."
+        }
+      ]
+    },
+    {
+      "id": "roles",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Roles and departments",
+      "icon": "sliders",
+      "summary": "Job roles decide which training and documents someone gets and the access they move to when they graduate. Departments group people under a lead.",
+      "route": "/admin/roles",
+      "shots": [
+        {
+          "src": "/guide-media/roles-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "Roles and departments",
+          "alt": "Roles and departments: a list of job roles with Graduates to chips, department and counts, edit and delete buttons, and the Departments list with each lead.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 84.1,
+              "y": 19.7,
+              "w": 12.1,
+              "h": 4.4,
+              "label": "Add job role",
+              "text": "Title, department and the access it graduates to."
+            },
+            {
+              "n": 2,
+              "x": 31.4,
+              "y": 42.1,
+              "w": 11.3,
+              "h": 2.7,
+              "label": "Graduates to",
+              "text": "The access level people in this role move to when they graduate."
+            },
+            {
+              "n": 3,
+              "x": 23.8,
+              "y": 49.9,
+              "w": 65.2,
+              "h": 6.4,
+              "label": "Role details",
+              "text": "Department, how many people have it and its training modules."
+            },
+            {
+              "n": 4,
+              "x": 89,
+              "y": 50.9,
+              "w": 8.1,
+              "h": 4.4,
+              "label": "Edit or delete",
+              "text": "Deleting warns you who and what it affects first."
+            },
+            {
+              "n": 5,
+              "x": 23.8,
+              "y": 86.6,
+              "w": 57.5,
+              "h": 2.8,
+              "label": "Departments",
+              "text": "Group people and roles. A lead sees progress, reviews and news for their department."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Add a job role",
+          "text": "Click **Add job role**, enter a **Role title**, pick a **Department** and **Access after graduating**, then click **Add role**."
+        },
+        {
+          "title": "Edit or delete a role",
+          "text": "Click the pencil or the trash icon. Before deleting, RAMP tells you who and what it affects."
+        },
+        {
+          "title": "Add a department",
+          "text": "Click **Add department**, name it, pick a **Department lead** and click **Add department**."
+        },
+        {
+          "title": "Pick each role’s training",
+          "text": "Choose the modules for each role on **Assign training**."
+        },
+        {
+          "title": "Check the access levels",
+          "text": "The **Access levels** card explains what each level can do, from Owner to Guest."
+        }
+      ],
+      "tips": [
+        "Only people with Department lead or Admin access can lead a department.",
+        "Changing a role’s access level only affects future graduations.",
+        "Pick Admin only for HR and operations roles: admins can open sensitive records."
+      ],
+      "settings": [
+        {
+          "name": "Role title",
+          "where": "Admin › Roles and departments › a role",
+          "effect": "The job people are hired into. Shown on profiles, in invites and on My team."
+        },
+        {
+          "name": "Department (role)",
+          "where": "Admin › Roles and departments › a role",
+          "effect": "Where the role sits. People invited with this role join that department."
+        },
+        {
+          "name": "Access after graduating",
+          "where": "Admin › Roles and departments › a role",
+          "effect": "Employee, Mentor, Department lead or Admin. People in this role move to it when an admin graduates them."
+        },
+        {
+          "name": "Description",
+          "where": "Admin › Roles and departments › a role",
+          "effect": "Optional. A sentence or two on what the role does."
+        },
+        {
+          "name": "Department name",
+          "where": "Admin › Roles and departments › a department",
+          "effect": "Groups people and roles. The lead sees progress and reviews for everyone in it."
+        },
+        {
+          "name": "Department lead",
+          "where": "Admin › Roles and departments › a department",
+          "effect": "Sees progress and reviews for everyone in the department, and can post department news."
+        }
+      ]
+    },
+    {
+      "id": "flow",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Welcome flow",
+      "icon": "list",
+      "summary": "The steps every new person goes through the first time they sign in, before they reach their training.",
+      "route": "/admin/flow",
+      "shots": [
+        {
+          "src": "/guide-media/flow-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "The welcome flow steps",
+          "alt": "The Welcome flow page: six numbered steps from Welcome to All set, each with a description, on and off switches and up and down arrows, and a Preview as a new hire button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 80.3,
+              "y": 12.2,
+              "w": 17.5,
+              "h": 4.4,
+              "label": "Preview as a new hire",
+              "text": "Walk through the flow yourself. Nothing is saved."
+            },
+            {
+              "n": 2,
+              "x": 22.3,
+              "y": 25.2,
+              "w": 75.5,
+              "h": 9.8,
+              "label": "Always on",
+              "text": "Welcome and All set are always first and last."
+            },
+            {
+              "n": 3,
+              "x": 84.3,
+              "y": 35.3,
+              "w": 5,
+              "h": 4.4,
+              "label": "On or off",
+              "text": "Skip a step for everyone. Skipped steps are greyed out."
+            },
+            {
+              "n": 4,
+              "x": 88.7,
+              "y": 35.3,
+              "w": 7.5,
+              "h": 4.4,
+              "label": "Order",
+              "text": "Move a step up or down."
+            },
+            {
+              "n": 5,
+              "x": 27.3,
+              "y": 53.9,
+              "w": 25.9,
+              "h": 2.1,
+              "label": "Documents",
+              "text": "How many onboarding documents are published. Click to manage them."
+            },
+            {
+              "n": 6,
+              "x": 22.2,
+              "y": 72.7,
+              "w": 75.6,
+              "h": 6.6,
+              "label": "Save flow",
+              "text": "Saves the steps and marks the flow as reviewed."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Review the steps",
+          "text": "Read each step’s description. Welcome and All set are **Always on**."
+        },
+        {
+          "title": "Turn steps on or off",
+          "text": "Use the switch on Your profile, Practice the platform, Documents and forms or Meet your mentor."
+        },
+        {
+          "title": "Change the order",
+          "text": "Use the up and down arrows to move a middle step."
+        },
+        {
+          "title": "Check the documents",
+          "text": "The documents step shows how many onboarding documents are published. Click the link to manage them."
+        },
+        {
+          "title": "Preview it",
+          "text": "Click **Preview as a new hire** to walk through it yourself. Nothing changes for anyone."
+        },
+        {
+          "title": "Save",
+          "text": "Click **Save flow**. Saving also marks the flow as reviewed on your setup checklist."
+        }
+      ],
+      "tips": [
+        "If the documents step is on but nothing is published, RAMP warns you.",
+        "With practice switched off, people can still open the sandbox later from Training."
+      ],
+      "settings": [
+        {
+          "name": "Welcome",
+          "where": "Admin › Welcome flow",
+          "effect": "Always first. Shows your welcome message and video, and the person’s role, department and mentor."
+        },
+        {
+          "name": "Your profile",
+          "where": "Admin › Welcome flow",
+          "effect": "On or off. They confirm their name and add a preferred name, phone number and time zone."
+        },
+        {
+          "name": "Practice the platform",
+          "where": "Admin › Welcome flow",
+          "effect": "On or off. The five-minute hands-on sandbox. They can choose to do it later."
+        },
+        {
+          "name": "Documents and forms",
+          "where": "Admin › Welcome flow",
+          "effect": "On or off. Every published onboarding document; they can’t continue until each one is done."
+        },
+        {
+          "name": "Meet your mentor",
+          "where": "Admin › Welcome flow",
+          "effect": "On or off. Who their mentor is and what a mentor does."
+        },
+        {
+          "name": "All set",
+          "where": "Admin › Welcome flow",
+          "effect": "Always last. Shows their first modules; first-week documents become tasks on their board."
+        },
+        {
+          "name": "Step order",
+          "where": "Admin › Welcome flow",
+          "effect": "The arrows set the order of the middle steps."
+        }
+      ]
+    },
+    {
+      "id": "documents-admin",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Documents",
+      "icon": "fileText",
+      "summary": "Build the forms, uploads, e-signatures and checklists people complete before they start, during onboarding or in their first week.",
+      "route": "/admin/documents",
+      "shots": [
+        {
+          "src": "/guide-media/documents-admin-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "All documents",
+          "alt": "The Documents admin page: a notice that sensitive answers are encrypted, type filters, and documents grouped into Before start and During onboarding, with chips for type, status, Encrypted, Needs legal review and placeholders.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 83.9,
+              "y": 12.2,
+              "w": 13.9,
+              "h": 4.4,
+              "label": "New document",
+              "text": "Start from a template, like payroll or a confidentiality agreement."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 25.9,
+              "w": 75.6,
+              "h": 4.4,
+              "label": "Filter by type",
+              "text": "Form, Upload, E-sign or Checklist."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 47.2,
+              "w": 75.6,
+              "h": 4.7,
+              "label": "Stages",
+              "text": "Grouped by when people complete them."
+            },
+            {
+              "n": 4,
+              "x": 22.3,
+              "y": 69.5,
+              "w": 75.5,
+              "h": 9.4,
+              "label": "A document",
+              "text": "Who it’s for, its version and how many people submitted it."
+            },
+            {
+              "n": 5,
+              "x": 36.9,
+              "y": 92.5,
+              "w": 10.9,
+              "h": 2.7,
+              "label": "Warnings",
+              "text": "Drafts, [placeholders] and legal review are flagged before anyone sees them."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/documents-admin-2.webp",
+          "w": 1920,
+          "h": 1920,
+          "device": "desktop",
+          "caption": "Building a document’s fields",
+          "alt": "The document editor for Payroll and direct deposit scrolled to its fields: the encrypted account number field, the W-4 file upload with Required and Sensitive file ticked, the signature field, and the Add a field buttons for all ten field types.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 25.2,
+              "y": 1.3,
+              "w": 23,
+              "h": 4.1,
+              "label": "Field type",
+              "text": "Each field shows its number and type. **Encrypted** marks answers only admins can reveal."
+            },
+            {
+              "n": 2,
+              "x": 25.2,
+              "y": 6.4,
+              "w": 69.7,
+              "h": 6.2,
+              "label": "Question",
+              "text": "What people see. Help text shows under it."
+            },
+            {
+              "n": 3,
+              "x": 25.2,
+              "y": 47.6,
+              "w": 8.2,
+              "h": 5.6,
+              "label": "Required",
+              "text": "People can’t submit until every required field is done."
+            },
+            {
+              "n": 4,
+              "x": 35.2,
+              "y": 47.6,
+              "w": 33.4,
+              "h": 5.6,
+              "label": "Sensitive file",
+              "text": "Only owners and admins can open the file, and every view is logged."
+            },
+            {
+              "n": 5,
+              "x": 84.8,
+              "y": 55.3,
+              "w": 10.9,
+              "h": 4.1,
+              "label": "Order and remove",
+              "text": "Move a field up or down, or remove it."
+            },
+            {
+              "n": 6,
+              "x": 23.8,
+              "y": 81.4,
+              "w": 72.3,
+              "h": 10.6,
+              "label": "Add a field",
+              "text": "Pick one of the ten field types to add it at the end."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Start a document",
+          "text": "Click **New document** and pick a template. It’s saved as a draft that nobody sees yet."
+        },
+        {
+          "title": "Fill in the details",
+          "text": "Set the **Title**, **Short description**, **Type**, **When it’s completed** and **Who completes it**."
+        },
+        {
+          "title": "Build the fields",
+          "text": "Edit each field’s question and help text, and tick **Required**. Under **Add a field**, pick a type to add one."
+        },
+        {
+          "title": "Protect sensitive answers",
+          "text": "Use a **Sensitive (encrypted)** field, or tick **Encrypt the answer** or **Sensitive file**."
+        },
+        {
+          "title": "Preview it",
+          "text": "Click **Preview** to see it the way people will."
+        },
+        {
+          "title": "Publish",
+          "text": "Click **Publish**. Later changes to the fields save a new version; records already signed keep theirs."
+        },
+        {
+          "title": "Unpublish or delete",
+          "text": "**Unpublish** hides it and keeps its records together. **Delete** removes the document."
+        }
+      ],
+      "tips": [
+        "Replace any text in [brackets] before you publish. RAMP flags placeholders.",
+        "Have an employment lawyer check agreements like non-competes. Rules differ by state.",
+        "Encrypted answers and sensitive files open only for owners and admins, and each view is logged."
+      ],
+      "settings": [
+        {
+          "name": "Type",
+          "where": "Admin › Documents › a document",
+          "effect": "Form, Upload, E-sign or Checklist. Sets the button people see: **Fill out**, **Upload**, **Review and sign** or **Open checklist**."
+        },
+        {
+          "name": "When it’s completed: Before start",
+          "where": "Admin › Documents › a document",
+          "effect": "For candidates and guests, before they start."
+        },
+        {
+          "name": "When it’s completed: During onboarding",
+          "where": "Admin › Documents › a document",
+          "effect": "Part of the welcome flow. People can’t finish setup until it’s done."
+        },
+        {
+          "name": "When it’s completed: First week",
+          "where": "Admin › Documents › a document",
+          "effect": "Added as a task, due in five days, when someone finishes the welcome flow."
+        },
+        {
+          "name": "Who completes it: Everyone",
+          "where": "Admin › Documents › a document",
+          "effect": "Every staff member. Before-start documents also go to guests."
+        },
+        {
+          "name": "Who completes it: One job role",
+          "where": "Admin › Documents › a document",
+          "effect": "Only people with the job role you pick."
+        },
+        {
+          "name": "Who completes it: Candidates and guests",
+          "where": "Admin › Documents › a document",
+          "effect": "Only people with guest access, like candidates and contractors."
+        },
+        {
+          "name": "Needs legal review",
+          "where": "Admin › Documents › a document",
+          "effect": "Flags the document until a lawyer has checked the wording. You’re warned before publishing while it’s on."
+        },
+        {
+          "name": "Field: Short answer",
+          "where": "Admin › Documents › Add a field",
+          "effect": "One line of text. Tick **Encrypt the answer** for things like ID or tax numbers."
+        },
+        {
+          "name": "Field: Email",
+          "where": "Admin › Documents › Add a field",
+          "effect": "An email address, checked for the right format."
+        },
+        {
+          "name": "Field: Phone",
+          "where": "Admin › Documents › Add a field",
+          "effect": "A phone number, filled in from their profile."
+        },
+        {
+          "name": "Field: Date",
+          "where": "Admin › Documents › Add a field",
+          "effect": "A date picker."
+        },
+        {
+          "name": "Field: Choice",
+          "where": "Admin › Documents › Add a field",
+          "effect": "People pick one of the options you list. Needs at least two."
+        },
+        {
+          "name": "Field: File upload",
+          "where": "Admin › Documents › Add a field",
+          "effect": "A PDF, image or document up to 25 MB. Tick **Sensitive file** so only owners and admins can open it."
+        },
+        {
+          "name": "Field: Checkbox",
+          "where": "Admin › Documents › Add a field",
+          "effect": "A box people tick to confirm something, like reading the handbook."
+        },
+        {
+          "name": "Field: Signature",
+          "where": "Admin › Documents › Add a field",
+          "effect": "People type their full legal name to sign. RAMP records the time, IP address and device."
+        },
+        {
+          "name": "Field: Sensitive (encrypted)",
+          "where": "Admin › Documents › Add a field",
+          "effect": "Always encrypted. Only owners and admins can reveal it, and every reveal is logged."
+        },
+        {
+          "name": "Field: Instructions",
+          "where": "Admin › Documents › Add a field",
+          "effect": "A heading and text to read. Nothing to fill in."
+        },
+        {
+          "name": "Required",
+          "where": "Admin › Documents › a field",
+          "effect": "People can’t submit until the field is done. New fields start as required."
+        },
+        {
+          "name": "Help text",
+          "where": "Admin › Documents › a field",
+          "effect": "Optional. Shown under the field."
+        },
+        {
+          "name": "Publish and versions",
+          "where": "Admin › Documents › a document",
+          "effect": "Published documents go to the people they’re for. Changing a published document’s fields saves a new version."
+        }
+      ]
+    },
+    {
+      "id": "training-admin",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Training modules",
+      "icon": "book",
+      "summary": "Build modules from slides, readings, videos, quizzes, assignments, forms and the practice sandbox, then choose who gets them.",
+      "route": "/admin/training",
+      "shots": [
+        {
+          "src": "/guide-media/training-admin-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "All training modules",
+          "alt": "The Training modules admin page: modules grouped into Company-wide, Role track and Continued training, with chips for Published, Draft, Required, Mentor review, Guests can see and Built in, and duplicate and delete buttons.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 85.4,
+              "y": 12.2,
+              "w": 12.4,
+              "h": 4.4,
+              "label": "New module",
+              "text": "Start from a template and fill in what’s specific to you."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 17.9,
+              "w": 75.6,
+              "h": 4.7,
+              "label": "Tracks",
+              "text": "Company-wide, Role track and Continued training."
+            },
+            {
+              "n": 3,
+              "x": 37.6,
+              "y": 28.2,
+              "w": 6.6,
+              "h": 2.7,
+              "label": "Built in",
+              "text": "The interactive practice can’t be deleted."
+            },
+            {
+              "n": 4,
+              "x": 22.3,
+              "y": 40.3,
+              "w": 67.7,
+              "h": 9.3,
+              "label": "A module",
+              "text": "Length, steps, completions and its settings at a glance."
+            },
+            {
+              "n": 5,
+              "x": 89.6,
+              "y": 42.7,
+              "w": 7.8,
+              "h": 4.4,
+              "label": "Duplicate or delete",
+              "text": "Copy a module as a draft, or delete it."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/training-admin-2.webp",
+          "w": 1920,
+          "h": 1920,
+          "device": "desktop",
+          "caption": "The module builder with a quiz block",
+          "alt": "The module builder for How we use tasks scrolled to Lessons, in order: a collapsed slides block, an open quiz block with a question, its answers and the right answer marked, and the assignment block.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 22.5,
+              "y": 0.9,
+              "w": 30.9,
+              "h": 4.4,
+              "label": "Lessons, in order",
+              "text": "People go through blocks one step at a time. Each slide is a step."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 5.6,
+              "w": 75.6,
+              "h": 5.2,
+              "label": "Collapsed block",
+              "text": "Click a block’s header to fold it away while you work on another."
+            },
+            {
+              "n": 3,
+              "x": 86.5,
+              "y": 11.6,
+              "w": 10.9,
+              "h": 4.1,
+              "label": "Block tools",
+              "text": "Move a block up or down, or remove it."
+            },
+            {
+              "n": 4,
+              "x": 23.5,
+              "y": 16.9,
+              "w": 73,
+              "h": 42.5,
+              "label": "Quiz question",
+              "text": "Write the question and answers, and tick the right one."
+            },
+            {
+              "n": 5,
+              "x": 24.5,
+              "y": 37.3,
+              "w": 70.9,
+              "h": 4.2,
+              "label": "Right answer",
+              "text": "The ticked answer is outlined green."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Start a module",
+          "text": "Click **New module** and pick a template. It’s saved as a draft."
+        },
+        {
+          "title": "Fill in the details",
+          "text": "Set the **Title**, **Track**, **Summary**, **Minutes to complete** and **Learning objectives**."
+        },
+        {
+          "title": "Add lessons",
+          "text": "Under **Add a block**, pick Slides, Reading, Video, Quiz, Assignment, Form or e-sign, or Platform practice."
+        },
+        {
+          "title": "Write a quiz",
+          "text": "Type each question and its answers, and tick the right one. Add an **Explanation** so people learn why."
+        },
+        {
+          "title": "Arrange the blocks",
+          "text": "Use the arrows to reorder and the trash icon to remove. Click a block’s header to fold it away."
+        },
+        {
+          "title": "Set the rules",
+          "text": "Under **Settings**, choose the passing score, mentor review, due date and who can see it."
+        },
+        {
+          "title": "Preview and publish",
+          "text": "Click **Preview** to try it, then **Publish**. Add role modules to a job role on **Assign training**."
+        }
+      ],
+      "tips": [
+        "The copy icon duplicates a module as a draft, handy for one version per role.",
+        "The built-in practice module can’t be deleted, and its lessons can’t be changed.",
+        "Replace any text in [brackets] before you publish."
+      ],
+      "settings": [
+        {
+          "name": "Track: Company-wide",
+          "where": "Admin › Training modules › a module",
+          "effect": "For everyone. Required ones are assigned automatically; the rest form an optional library."
+        },
+        {
+          "name": "Track: Role track",
+          "where": "Admin › Training modules › a module",
+          "effect": "Only for the job roles you add it to on Assign training."
+        },
+        {
+          "name": "Track: Continued training",
+          "where": "Admin › Training modules › a module",
+          "effect": "Goes to everyone who has graduated (Employee and above)."
+        },
+        {
+          "name": "Minutes to complete",
+          "where": "Admin › Training modules › a module",
+          "effect": "Shown on the module card and overview."
+        },
+        {
+          "name": "Passing score",
+          "where": "Admin › Training modules › Settings",
+          "effect": "No passing score, or 50 to 100 percent. Below it, people review and retake the quiz before they can finish."
+        },
+        {
+          "name": "Mentor review",
+          "where": "Admin › Training modules › Settings",
+          "effect": "A mentor or lead approves the work before the module counts as complete."
+        },
+        {
+          "name": "Due date",
+          "where": "Admin › Training modules › Settings",
+          "effect": "Days after each person’s start date. Leave empty for no due date."
+        },
+        {
+          "name": "Required for everyone",
+          "where": "Admin › Training modules › Settings",
+          "effect": "Company-wide modules only. Assigned to every team member, including people who joined earlier."
+        },
+        {
+          "name": "Visible to guests",
+          "where": "Admin › Training modules › Settings",
+          "effect": "Guests, like contractors and candidates, can see and take it."
+        },
+        {
+          "name": "Publish",
+          "where": "Admin › Training modules › a module",
+          "effect": "Drafts are only visible to admins. Publishing makes the module available to the people it’s assigned to."
+        }
+      ]
+    },
+    {
+      "id": "assign",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Assigning training",
+      "icon": "target",
+      "summary": "Decide what everyone must complete and what each job role learns on top.",
+      "route": "/admin/assign",
+      "shots": [
+        {
+          "src": "/guide-media/assign-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "Assigning training",
+          "alt": "The Assign training page: Required for everyone with a switch for each company-wide module, and Role tracks for each job role listing its modules in order with an Add to track picker.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 23.8,
+              "y": 17.7,
+              "w": 72.3,
+              "h": 5,
+              "label": "Required for everyone",
+              "text": "Switch a company-wide module on to assign it to every team member."
+            },
+            {
+              "n": 2,
+              "x": 91.8,
+              "y": 24.5,
+              "w": 5,
+              "h": 4.4,
+              "label": "Required switch",
+              "text": "On means required. Off keeps it in the optional library."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 54.7,
+              "w": 75.6,
+              "h": 4.7,
+              "label": "Role tracks",
+              "text": "What each job role learns on top, in this order."
+            },
+            {
+              "n": 4,
+              "x": 23.8,
+              "y": 73.1,
+              "w": 72.3,
+              "h": 4.4,
+              "label": "Add to track",
+              "text": "Pick a role module, then click **Add to track**."
+            },
+            {
+              "n": 5,
+              "x": 22.2,
+              "y": 79.6,
+              "w": 75.6,
+              "h": 20.4,
+              "label": "A role’s track",
+              "text": "Reorder with the arrows or remove a module with the X."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Choose required modules",
+          "text": "Under **Required for everyone**, switch a company-wide module on. Everyone gets it, due from their start date."
+        },
+        {
+          "title": "Build each role’s track",
+          "text": "Under **Role tracks**, pick a module in **Add a role module…**, then click **Add to track**."
+        },
+        {
+          "title": "Set the order",
+          "text": "Use the up and down arrows. People see role modules in this order."
+        },
+        {
+          "title": "Remove a module",
+          "text": "Click the X next to it. The module itself isn’t deleted."
+        },
+        {
+          "title": "Check how it works",
+          "text": "**How assignment works** explains the order: required, role track, continued training, then the optional library."
+        }
+      ],
+      "tips": [
+        "Draft modules show **Draft, not visible yet** and don’t count until you publish them.",
+        "Changing someone’s job role changes their role track right away."
+      ],
+      "settings": [
+        {
+          "name": "Required for everyone",
+          "where": "Admin › Assign training",
+          "effect": "On: assigned to every team member. Off: stays in the optional library."
+        },
+        {
+          "name": "Role track",
+          "where": "Admin › Assign training",
+          "effect": "The role modules each job role gets, in the order shown."
+        }
+      ]
+    },
+    {
+      "id": "people",
+      "group": "admin",
+      "audience": "admins",
+      "title": "People",
+      "icon": "userPlus",
+      "summary": "Invite people, bring in potential staff from hiring and staff records, handle access requests and manage everyone’s access.",
+      "route": "/admin/people",
+      "shots": [
+        {
+          "src": "/guide-media/people-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "People: the Team tab",
+          "alt": "The People page on the Team tab: search and filters for access level, status and department, and everyone in RAMP with their level, role, stage and when they were last seen.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 83.9,
+              "y": 10.1,
+              "w": 13.9,
+              "h": 4.4,
+              "label": "Invite someone",
+              "text": "Add one person by email, with their access level, role, mentor and start date."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 15.9,
+              "w": 34,
+              "h": 4.7,
+              "label": "Tabs",
+              "text": "Team, Potential staff and Access requests."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 22,
+              "w": 75.6,
+              "h": 9.2,
+              "label": "Search and filter",
+              "text": "By name, email, role, access level, status or department."
+            },
+            {
+              "n": 4,
+              "x": 27.6,
+              "y": 57.7,
+              "w": 57.9,
+              "h": 4.7,
+              "label": "A person",
+              "text": "Name, access level, role and department. Click to open their record."
+            },
+            {
+              "n": 5,
+              "x": 85.8,
+              "y": 57.8,
+              "w": 8.3,
+              "h": 4.4,
+              "label": "Stage",
+              "text": "Invited, Onboarding, Training x%, Graduated or Paused, and when they were last seen."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/people-2.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "People: Potential staff",
+          "alt": "The Potential staff tab: people from the hiring app, staff records and access requests with source chips and Invite buttons. Two people are ticked and a dark bar at the bottom says 2 people selected with an Invite button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 22.2,
+              "y": 32.6,
+              "w": 75.6,
+              "h": 4.1,
+              "label": "Sources",
+              "text": "Hiring applicants, staff records and access requests not in RAMP yet."
+            },
+            {
+              "n": 2,
+              "x": 22.3,
+              "y": 37.4,
+              "w": 75.5,
+              "h": 4.7,
+              "label": "Select all",
+              "text": "Ticks everyone shown who has an email address."
+            },
+            {
+              "n": 3,
+              "x": 89.2,
+              "y": 42.5,
+              "w": 7.3,
+              "h": 4.1,
+              "label": "One at a time",
+              "text": "**Invite** opens the invite form filled in from their record."
+            },
+            {
+              "n": 4,
+              "x": 22.3,
+              "y": 51.5,
+              "w": 75.5,
+              "h": 10.8,
+              "label": "Tick several",
+              "text": "Tick people, or **Select all**, to invite them together."
+            },
+            {
+              "n": 5,
+              "x": 22.2,
+              "y": 92.5,
+              "w": 75.6,
+              "h": 6.4,
+              "label": "Invite selected",
+              "text": "Same access level, role and mentor for everyone you picked."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Invite one person",
+          "text": "Click **Invite someone**, enter their **Email**, **Full name**, access level, job role, mentor and start date, then click **Add to RAMP**."
+        },
+        {
+          "title": "Send the invite",
+          "text": "RAMP doesn’t send email. Click **Copy message** or **Open in email** and send it yourself."
+        },
+        {
+          "title": "Invite potential staff",
+          "text": "On **Potential staff**, click **Invite** next to someone, or tick several and click **Invite** in the bar."
+        },
+        {
+          "title": "Handle access requests",
+          "text": "On **Access requests**, click **Invite** to let someone in, or **Dismiss** to turn the request down."
+        },
+        {
+          "title": "Find someone",
+          "text": "On **Team**, search, or filter by access level, status and department."
+        },
+        {
+          "title": "Open a record",
+          "text": "Click a person to see their training, documents, files, sign-ins and activity."
+        }
+      ],
+      "tips": [
+        "People must create their login with the exact email you invited.",
+        "**Invited** means they haven’t created a login yet. Their record has **Send invite again**.",
+        "Potential staff without an email address can’t be invited until one is added."
+      ],
+      "settings": [
+        {
+          "name": "Access level",
+          "where": "Admin › People › Invite someone",
+          "effect": "Admin, Department lead, Mentor, Employee, Trainee or Guest. New hires usually start as Trainee."
+        },
+        {
+          "name": "Job role",
+          "where": "Admin › People › Invite someone",
+          "effect": "Sets their role training and their department."
+        },
+        {
+          "name": "Mentor",
+          "where": "Admin › People › Invite someone",
+          "effect": "Who they go to with questions. Their mentor can review their work and read pages they share."
+        },
+        {
+          "name": "Start date",
+          "where": "Admin › People › Invite someone",
+          "effect": "Training due dates count from this date."
+        }
+      ]
+    },
+    {
+      "id": "person",
+      "group": "admin",
+      "audience": "admins",
+      "title": "A person’s record",
+      "icon": "eye",
+      "summary": "Everything about one person: details, onboarding, training, documents, files, sign-ins and activity, plus their access.",
+      "route": null,
+      "shots": [
+        {
+          "src": "/guide-media/person-1.webp",
+          "w": 1920,
+          "h": 1770,
+          "device": "desktop",
+          "caption": "A signed record with IP address and device",
+          "alt": "A person’s record open on the Documents tab with the Payroll and direct deposit record shown: bank name and account type, encrypted routing and account numbers with Reveal buttons, the W-4 file marked Sensitive, and the record box with the typed signature, date and time, IP address 203.0.113.24, device iPhone Safari and template version.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 21.3,
+              "y": 27.1,
+              "w": 57.3,
+              "h": 4.7,
+              "label": "Answers",
+              "text": "What they entered, in the document’s order."
+            },
+            {
+              "n": 2,
+              "x": 54.3,
+              "y": 36.2,
+              "w": 7.9,
+              "h": 4.1,
+              "label": "Reveal",
+              "text": "Shows an encrypted answer. Every reveal is logged with your name, IP address and device."
+            },
+            {
+              "n": 3,
+              "x": 21.3,
+              "y": 46.2,
+              "w": 57.3,
+              "h": 6.1,
+              "label": "Sensitive file",
+              "text": "**Open** gives a two-minute link. Opening is logged too."
+            },
+            {
+              "n": 4,
+              "x": 22.5,
+              "y": 59,
+              "w": 55,
+              "h": 3.3,
+              "label": "Signed as",
+              "text": "The name they typed to sign."
+            },
+            {
+              "n": 5,
+              "x": 22.5,
+              "y": 62.3,
+              "w": 55,
+              "h": 10,
+              "label": "IP address and device",
+              "text": "Recorded by the database when they submitted, with the date, time and version."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/person-2.webp",
+          "w": 1920,
+          "h": 1500,
+          "device": "desktop",
+          "caption": "Sign-ins",
+          "alt": "The Sign-ins tab of a person’s record: a summary of nine sign-ins from three IP addresses and two devices, and a list with date and time, IP address, device and New IP or New device flags.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 87.3,
+              "y": 13.2,
+              "w": 10.5,
+              "h": 5.2,
+              "label": "Graduate",
+              "text": "Moves a trainee to their role’s access level."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 23.6,
+              "w": 57,
+              "h": 5.6,
+              "label": "Tabs",
+              "text": "Overview, Training, Documents, Files, Sign-ins and Activity."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 30.8,
+              "w": 75.6,
+              "h": 3.1,
+              "label": "Summary",
+              "text": "How many sign-ins, from how many IP addresses and devices."
+            },
+            {
+              "n": 4,
+              "x": 22.3,
+              "y": 34.8,
+              "w": 75.5,
+              "h": 5.5,
+              "label": "A sign-in",
+              "text": "Date and time in the company time zone, IP address and device."
+            },
+            {
+              "n": 5,
+              "x": 89.8,
+              "y": 59.7,
+              "w": 6.7,
+              "h": 3.2,
+              "label": "New IP or device",
+              "text": "Flagged the first time each one appears. Check anything unexpected."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open a record",
+          "text": "In **People**, click a person. The chips under their name show their level, status and stage."
+        },
+        {
+          "title": "Change their access",
+          "text": "On **Overview**, click **Change** next to access level, job role, department, mentor or start date."
+        },
+        {
+          "title": "Review their training",
+          "text": "On **Training**, click **Approve** or **Return with feedback** on work waiting for review."
+        },
+        {
+          "title": "Open a signed record",
+          "text": "On **Documents**, click **View record** for their answers, signature, date and time, IP address, device and version."
+        },
+        {
+          "title": "Reveal sensitive data",
+          "text": "Click **Reveal** for an encrypted answer, or **Open** for a file. Each one is written to the audit log."
+        },
+        {
+          "title": "Check sign-ins and activity",
+          "text": "**Sign-ins** flags new IP addresses and devices. **Activity** lists everything done by or about them."
+        },
+        {
+          "title": "Graduate, pause or remove",
+          "text": "**Graduate** moves a trainee to their role’s access. **Pause access** keeps their records; **Remove person** deletes them."
+        }
+      ],
+      "tips": [
+        "Opening someone’s record is itself recorded in the audit log.",
+        "When someone leaves, pause their access instead of removing them, so you keep their records.",
+        "The **Files** tab lists every file they’ve uploaded."
+      ],
+      "settings": [
+        {
+          "name": "Access level",
+          "where": "Admin › People › a person › Overview",
+          "effect": "What they can see and do. Only an owner can make or change an owner."
+        },
+        {
+          "name": "Job role",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Changes their role training right away, and their department to match the role."
+        },
+        {
+          "name": "Department",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Which department lead sees them, and which department news they get."
+        },
+        {
+          "name": "Mentor",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Who reviews their work and can read the pages they share."
+        },
+        {
+          "name": "Start date",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Training due dates count from this date."
+        },
+        {
+          "name": "Guest access until",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Guests only. After this date they can’t sign in until you extend it."
+        },
+        {
+          "name": "Pause access",
+          "where": "Admin › People › a person › Overview",
+          "effect": "Stops them signing in and keeps their records. **Restore access** turns it back on."
+        }
+      ]
+    },
+    {
+      "id": "metrics",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Metrics",
+      "icon": "chart",
+      "summary": "Onboarding and training progress across the team, updated each time you open the page.",
+      "route": "/admin/metrics",
+      "shots": [
+        {
+          "src": "/guide-media/metrics-1.webp",
+          "w": 1920,
+          "h": 1800,
+          "device": "desktop",
+          "caption": "Metrics",
+          "alt": "The Metrics page: a department filter, six key numbers, and the onboarding funnel from invited to graduated.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 79.3,
+              "y": 12,
+              "w": 18.5,
+              "h": 4.3,
+              "label": "Export people progress",
+              "text": "Downloads a spreadsheet of everyone’s progress."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 17.6,
+              "w": 23.1,
+              "h": 6.5,
+              "label": "Department",
+              "text": "See everyone, or one department."
+            },
+            {
+              "n": 3,
+              "x": 22.2,
+              "y": 25.4,
+              "w": 75.6,
+              "h": 19.1,
+              "label": "Key numbers",
+              "text": "Members, onboarding, days to onboard, required training, overdue items and reviews."
+            },
+            {
+              "n": 4,
+              "x": 23.8,
+              "y": 47.6,
+              "w": 72.3,
+              "h": 2.7,
+              "label": "Onboarding funnel",
+              "text": "How far everyone who started as a trainee has got."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Pick a department",
+          "text": "Use **Department** to see everyone or one department."
+        },
+        {
+          "title": "Read the key numbers",
+          "text": "Active members, people in onboarding, median days to onboard, required training done, overdue items and reviews."
+        },
+        {
+          "title": "Follow the funnel",
+          "text": "**Onboarding funnel** shows how many trainees were invited, joined, onboarded and graduated."
+        },
+        {
+          "title": "Check modules and documents",
+          "text": "Scroll down for each module’s completion and average score, and progress on each onboarding document."
+        },
+        {
+          "title": "Export",
+          "text": "Click **Export people progress** for a spreadsheet of everyone in view."
+        }
+      ],
+      "tips": [
+        "A module’s completion counts only the people it’s assigned to.",
+        "Hover over or focus a funnel bar for the exact numbers."
+      ]
+    },
+    {
+      "id": "news-admin",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Announcements",
+      "icon": "megaphone",
+      "summary": "Post news to everyone or one group, and see who has read it.",
+      "route": "/admin/news",
+      "shots": [
+        {
+          "src": "/guide-media/news-admin-1.webp",
+          "w": 1920,
+          "h": 1650,
+          "device": "desktop",
+          "caption": "Announcements",
+          "alt": "The Announcements admin page with the first post expanded: its audience and Read confirmation chips, a 4 of 9 read progress bar, the message, the people who haven’t read it yet and a Delete announcement button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 79.5,
+              "y": 10.9,
+              "w": 18.3,
+              "h": 4.7,
+              "label": "Post an announcement",
+              "text": "Title, message, audience and whether to ask for read confirmation."
+            },
+            {
+              "n": 2,
+              "x": 23.8,
+              "y": 18.9,
+              "w": 68.3,
+              "h": 3,
+              "label": "Audience",
+              "text": "Everyone, trainees, employees or one department."
+            },
+            {
+              "n": 3,
+              "x": 23.8,
+              "y": 24.4,
+              "w": 35.6,
+              "h": 2.5,
+              "label": "Read so far",
+              "text": "How many of the audience confirmed they’ve read it."
+            },
+            {
+              "n": 4,
+              "x": 23.8,
+              "y": 39.9,
+              "w": 72.3,
+              "h": 6.5,
+              "label": "Hasn’t read it yet",
+              "text": "Who still needs to confirm, so you can follow up."
+            },
+            {
+              "n": 5,
+              "x": 23.8,
+              "y": 47.1,
+              "w": 16,
+              "h": 4.4,
+              "label": "Delete",
+              "text": "Removes it for everyone."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Write a post",
+          "text": "Click **Post an announcement**, add a **Title** and **Message**, and choose the **Audience**."
+        },
+        {
+          "title": "Ask for confirmation",
+          "text": "Tick **Ask people to confirm they’ve read it** to collect read receipts."
+        },
+        {
+          "title": "Post it",
+          "text": "Click the **Post to** button. It shows how many people will see it."
+        },
+        {
+          "title": "Track who has read it",
+          "text": "Each post shows how many have read it. Open it to see who hasn’t yet."
+        },
+        {
+          "title": "Delete a post",
+          "text": "Open the post and click **Delete announcement** to remove it for everyone."
+        }
+      ],
+      "tips": [
+        "Read receipts are only collected when you ask people to confirm.",
+        "Department leads can post to their own department from News."
+      ],
+      "settings": [
+        {
+          "name": "Audience: Everyone",
+          "where": "Admin › Announcements › Post an announcement",
+          "effect": "Every active team member. Guests don’t see news."
+        },
+        {
+          "name": "Audience: Trainees",
+          "where": "Admin › Announcements › Post an announcement",
+          "effect": "Only people still in training."
+        },
+        {
+          "name": "Audience: Employees",
+          "where": "Admin › Announcements › Post an announcement",
+          "effect": "Employees and everyone above them: mentors, leads, admins and owners."
+        },
+        {
+          "name": "Audience: A department",
+          "where": "Admin › Announcements › Post an announcement",
+          "effect": "Everyone in the department you pick."
+        },
+        {
+          "name": "Ask people to confirm they’ve read it",
+          "where": "Admin › Announcements › Post an announcement",
+          "effect": "Highlights the post in their News until they tap **Mark as read**, and shows you who hasn’t."
+        }
+      ]
+    },
+    {
+      "id": "resources-admin",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Managing resources",
+      "icon": "folder",
+      "summary": "Add the policies, SOPs, guides and tools people find in Resources, as a link, a file or a page of text.",
+      "route": "/admin/resources",
+      "shots": [
+        {
+          "src": "/guide-media/resources-admin-1.webp",
+          "w": 1920,
+          "h": 1650,
+          "device": "desktop",
+          "caption": "Managing resources",
+          "alt": "The Resources admin page: category filters and the list of resources with up and down arrows, category, Required, audience and Guests chips.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 83.9,
+              "y": 13.1,
+              "w": 13.9,
+              "h": 4.7,
+              "label": "Add a resource",
+              "text": "A link, a file or a page of text."
+            },
+            {
+              "n": 2,
+              "x": 22.2,
+              "y": 19.3,
+              "w": 75.6,
+              "h": 4.4,
+              "label": "Category",
+              "text": "Filter the list by category."
+            },
+            {
+              "n": 3,
+              "x": 22.9,
+              "y": 26.9,
+              "w": 7.5,
+              "h": 4.7,
+              "label": "Order",
+              "text": "The arrows set the order people see."
+            },
+            {
+              "n": 4,
+              "x": 35.1,
+              "y": 29,
+              "w": 58.8,
+              "h": 2.9,
+              "label": "Who it’s for",
+              "text": "Everyone or one role, Required, and whether guests can see it."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Add a resource",
+          "text": "Click **Add a resource**, enter a **Title** and pick a **Category**."
+        },
+        {
+          "title": "Add the content",
+          "text": "Paste a **Link**, click **Choose a file**, or write **Text**. A link starting with / opens a RAMP page, like /guide."
+        },
+        {
+          "title": "Choose who sees it",
+          "text": "Under **Who it’s for**, pick everyone or one role. Tick **Required reading** or **Guests can see it** if needed."
+        },
+        {
+          "title": "Save",
+          "text": "Click **Add resource**, or **Save changes** when you’re editing."
+        },
+        {
+          "title": "Set the order",
+          "text": "Use the up and down arrows. People see resources in this order."
+        },
+        {
+          "title": "Edit or delete",
+          "text": "Click the pencil to edit. In the editor, **Delete resource** removes it."
+        }
+      ],
+      "tips": [
+        "Filter the list by category with the chips at the top.",
+        "Files are stored privately and open through short-lived links."
+      ],
+      "settings": [
+        {
+          "name": "Category",
+          "where": "Admin › Resources › a resource",
+          "effect": "Policy, SOP, Guide, Tool or Other. Groups it on the Resources page."
+        },
+        {
+          "name": "Link",
+          "where": "Admin › Resources › a resource",
+          "effect": "A web page or tool, or a RAMP page starting with /."
+        },
+        {
+          "name": "File",
+          "where": "Admin › Resources › a resource",
+          "effect": "A file up to 25 MB, stored privately."
+        },
+        {
+          "name": "Text",
+          "where": "Admin › Resources › a resource",
+          "effect": "Shown on the resource itself, like a short SOP or a note on what the link is for."
+        },
+        {
+          "name": "Who it’s for",
+          "where": "Admin › Resources › a resource",
+          "effect": "Everyone, or one job role."
+        },
+        {
+          "name": "Required reading",
+          "where": "Admin › Resources › a resource",
+          "effect": "Marked **Required** for the people it’s for."
+        },
+        {
+          "name": "Guests can see it",
+          "where": "Admin › Resources › a resource",
+          "effect": "Contractors and candidates with guest access can see it."
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "group": "admin",
+      "audience": "admins",
+      "title": "System and audit",
+      "icon": "shield",
+      "summary": "Feature switches, how RAMP protects your records, and the full audit log of who did what.",
+      "route": "/admin/system",
+      "shots": [
+        {
+          "src": "/guide-media/system-1.webp",
+          "w": 1920,
+          "h": 1500,
+          "device": "desktop",
+          "caption": "Feature switches",
+          "alt": "System and audit, signed in as an owner: the Feature switches card with Chat, Tasks, Certificates and Record IP address and device, each with an on or off switch, and the Save switches button.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 91.2,
+              "y": 28.4,
+              "w": 5,
+              "h": 13.4,
+              "label": "Chat and Tasks",
+              "text": "Turn whole tools on or off for everyone. Nothing is deleted."
+            },
+            {
+              "n": 2,
+              "x": 91.2,
+              "y": 44.8,
+              "w": 5,
+              "h": 5.2,
+              "label": "Certificates",
+              "text": "Certificates for completed modules."
+            },
+            {
+              "n": 3,
+              "x": 23.8,
+              "y": 51.4,
+              "w": 72.3,
+              "h": 14.2,
+              "label": "Record IP address and device",
+              "text": "Saved with every sign-in, signature and submission."
+            },
+            {
+              "n": 4,
+              "x": 84.7,
+              "y": 66,
+              "w": 11.4,
+              "h": 5.2,
+              "label": "Save switches",
+              "text": "Owners only. Admins see the switches but can’t change them."
+            },
+            {
+              "n": 5,
+              "x": 23.8,
+              "y": 77,
+              "w": 72.3,
+              "h": 3.3,
+              "label": "How RAMP protects records",
+              "text": "Encryption, logging, private files and row-level security."
+            }
+          ]
+        },
+        {
+          "src": "/guide-media/system-2.webp",
+          "w": 1920,
+          "h": 1650,
+          "device": "desktop",
+          "caption": "The audit log",
+          "alt": "The audit log: search and person filters, an Export button, and a table of entries with time, who, action, person, detail, IP address and device. Revealed and Opened file entries are highlighted.",
+          "hotspots": [
+            {
+              "n": 1,
+              "x": 82.7,
+              "y": 3,
+              "w": 13.5,
+              "h": 4.4,
+              "label": "Export",
+              "text": "Downloads the entries shown as a spreadsheet."
+            },
+            {
+              "n": 2,
+              "x": 23.8,
+              "y": 9.2,
+              "w": 51.7,
+              "h": 5.1,
+              "label": "Search",
+              "text": "Find actions and details by word."
+            },
+            {
+              "n": 3,
+              "x": 75.5,
+              "y": 9.2,
+              "w": 20.6,
+              "h": 5.1,
+              "label": "Person",
+              "text": "Everything done by or about one person."
+            },
+            {
+              "n": 4,
+              "x": 89.9,
+              "y": 15.4,
+              "w": 9.8,
+              "h": 4,
+              "label": "IP and device",
+              "text": "Where each action came from. On narrower screens, scroll the table sideways to see the device."
+            },
+            {
+              "n": 5,
+              "x": 22.3,
+              "y": 28.8,
+              "w": 77.7,
+              "h": 6.6,
+              "label": "Sensitive actions",
+              "text": "Reveals and file opens are highlighted."
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "title": "Change a feature (owners)",
+          "text": "Flip a switch, then click **Save switches**. **Undo changes** puts them back."
+        },
+        {
+          "title": "See how records are protected",
+          "text": "**How RAMP protects your records** explains encryption, logging, private files and row-level security."
+        },
+        {
+          "title": "Search the audit log",
+          "text": "Type in **Search actions and details**, or pick a person, to filter the log."
+        },
+        {
+          "title": "Spot sensitive actions",
+          "text": "Reveals and file opens are highlighted. Each entry shows who, when, the IP address and device."
+        },
+        {
+          "title": "See older entries",
+          "text": "The newest 50 show first. Click **Load 50 more** for older ones."
+        },
+        {
+          "title": "Export",
+          "text": "Click **Export** to download the entries shown as a spreadsheet."
+        }
+      ],
+      "tips": [
+        "Only owners can change feature switches. Admins can see them.",
+        "Turning a feature off never deletes anything.",
+        "On narrower screens, scroll the audit table sideways to see the device."
+      ],
+      "settings": [
+        {
+          "name": "Chat",
+          "where": "Admin › System and audit",
+          "effect": "Channels and direct messages. Off: Chat leaves the menu and nobody can post. Past messages are kept."
+        },
+        {
+          "name": "Tasks",
+          "where": "Admin › System and audit",
+          "effect": "The task board, and assigning tasks. Off: Tasks leaves the menu. Existing tasks are kept."
+        },
+        {
+          "name": "Certificates",
+          "where": "Admin › System and audit",
+          "effect": "A certificate on each completed module. Off: no certificates are shown."
+        },
+        {
+          "name": "Record IP address and device",
+          "where": "Admin › System and audit",
+          "effect": "Saved with every sign-in, signature and submission. Off: new records don’t include them; existing records keep theirs."
+        }
+      ]
+    }
+  ]
+}

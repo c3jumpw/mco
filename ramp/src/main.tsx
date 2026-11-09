@@ -31,6 +31,7 @@ const News = page(() => import('./pages/News'));
 const Team = page(() => import('./pages/Team'));
 const TeamMember = page(() => import('./pages/TeamMember'));
 const Me = page(() => import('./pages/Me'));
+const Guide = page(() => import('./pages/Guide'));
 
 const AdminHome = page(() => import('./admin/AdminHome'));
 const Org = page(() => import('./admin/Org'));
@@ -72,6 +73,7 @@ function Root() {
           <Route path="training" element={<Training />} />
           <Route path="resources" element={<Resources />} />
           <Route path="me" element={<Me />} />
+          <Route path="guide" element={<Guide />} />
           {staff && <Route path="more" element={<More />} />}
           {staff && flags.tasks && <Route path="tasks" element={<Tasks />} />}
           {staff && <Route path="notes" element={<Notes />} />}

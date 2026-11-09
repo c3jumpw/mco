@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase, errText, openFile } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
@@ -14,10 +15,12 @@ const CATS: { value: Cat; label: string; heading: string; one: string }[] = [
   { value: 'other', label: 'Other', heading: 'Other', one: 'Resource' },
 ];
 
-const hrefOf = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
+const isInternal = (url: string) => url.trim().startsWith('/');
+const hrefOf = (url: string) => (isInternal(url) || /^https?:\/\//i.test(url) ? url.trim() : `https://${url}`);
 
 function kindOf(r: Resource): { icon: string; hint: string } {
   if (r.body.trim()) return { icon: 'fileText', hint: 'Read here' };
+  if (isInternal(r.url)) return { icon: 'chevronRight', hint: 'Opens in RAMP' };
   if (r.url.trim()) {
     let host = '';
     try { host = new URL(hrefOf(r.url)).host.replace(/^www\./, ''); } catch { /* keep it blank */ }
@@ -31,6 +34,7 @@ export default function Resources() {
   useTitle('Resources');
   const { me, isAdmin, isGuest } = useMe();
   const toast = useToast();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [cat, setCat] = useState<Cat | 'all'>('all');
   const [reading, setReading] = useState<Resource | null>(null);
@@ -51,6 +55,7 @@ export default function Resources() {
 
   async function openRes(r: Resource) {
     if (r.body.trim()) { setReading(r); return; }
+    if (isInternal(r.url)) { navigate(r.url.trim()); return; }
     if (r.url.trim()) { window.open(hrefOf(r.url), '_blank', 'noopener,noreferrer'); return; }
     if (r.file_path) {
       try { await openFile(r.file_path); } catch (e) { toast(errText(e), 'bad'); }
@@ -128,13 +133,15 @@ export default function Resources() {
                               {isAdmin && r.job_role_id && !mineRole && <Chip>For {roleName(r.job_role_id)}</Chip>}
                               {isAdmin && r.guest_visible && <Chip>Guests</Chip>}
                             </span>
-                            <Icon name={r.url.trim() && !r.body.trim() ? 'link' : 'chevronRight'} size={18} className="text-muted" />
+                            <Icon name={r.url.trim() && !r.body.trim() && !isInternal(r.url) ? 'link' : 'chevronRight'} size={18} className="text-muted" />
                           </>
                         );
                         const cls = 'flex items-center gap-3 w-full min-h-16 px-4 py-3 text-left text-ink no-underline hover:bg-bg cursor-pointer';
                         return (
                           <li key={r.id} className="border-t border-line-2 first:border-t-0">
-                            {r.url.trim() && !r.body.trim()
+                            {isInternal(r.url) && !r.body.trim()
+                              ? <Link to={r.url.trim()} className={cls}>{inner}</Link>
+                              : r.url.trim() && !r.body.trim()
                               ? <a href={hrefOf(r.url)} target="_blank" rel="noopener noreferrer" className={cls}>{inner}<span className="sr-only">(opens in a new tab)</span></a>
                               : <button type="button" onClick={() => openRes(r)} className={cls}>{inner}</button>}
                           </li>

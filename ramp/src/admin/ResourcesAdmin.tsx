@@ -192,9 +192,11 @@ function EditBody({ item, roles, nextSort, onClose, onSaved, onDelete }: { item:
     e?.preventDefault();
     setError('');
     let link = url.trim();
-    if (link && !/^https?:\/\//i.test(link)) link = `https://${link}`;
+    // Links starting with "/" are pages inside RAMP, like /guide.
+    const internal = link.startsWith('/');
+    if (link && !internal && !/^https?:\/\//i.test(link)) link = `https://${link}`;
     const tErr = title.trim() ? '' : 'Give it a title.';
-    const uErr = link && !/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(link) ? 'Enter a full web address, like https://example.com/handbook.' : '';
+    const uErr = link && !internal && !/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(link) ? 'Enter a full web address, like https://example.com/handbook, or a RAMP page like /guide.' : '';
     setTitleErr(tErr);
     setUrlErr(uErr);
     if (tErr || uErr) { focusInvalid('ops-resource-form'); return; }
@@ -257,7 +259,7 @@ function EditBody({ item, roles, nextSort, onClose, onSaved, onDelete }: { item:
         </div>
 
         <Field label="Link" error={urlErr} hint="A page, document or tool people should open. Leave empty to use a file or text instead.">
-          <Input type="url" inputMode="url" autoCapitalize="none" spellCheck={false} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" aria-invalid={!!urlErr} />
+          <Input type="text" inputMode="url" autoCapitalize="none" spellCheck={false} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" aria-invalid={!!urlErr} />
         </Field>
 
         <div className="flex flex-col gap-2">

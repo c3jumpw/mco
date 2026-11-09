@@ -29,3 +29,9 @@ npm run dev        # needs VITE_SUPABASE_URL and VITE_SUPABASE_KEY, or uses the 
 npm run typecheck
 npm run build
 ```
+
+## Guide
+The in-app guide lives at `/guide`. It's linked from the menu, the Admin portal and Resources, and shows each person only the sections for their access level.
+- **Content:** `src/guide/guide.json`. Screenshots are in `public/guide-media/`, captured from the real screens with made-up data, with numbered callouts.
+- **Layout and diagrams:** `src/guide/GuideView.tsx`.
+- **Shareable copy:** `npm run build:guide` builds a standalone page into `dist-guide/` from the same component and content.

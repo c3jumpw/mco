@@ -17,6 +17,7 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
       { to: '/', label: 'Home', icon: 'home' },
       { to: '/training', label: 'Training', icon: 'book' },
       { to: '/resources', label: 'Resources', icon: 'folder' },
+      { to: '/guide', label: 'Guide', icon: 'lifebuoy' },
       { to: '/me', label: 'Profile', icon: 'users' },
     ];
     return { main: items, mobile: items };
@@ -30,6 +31,7 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
     { to: '/resources', label: 'Resources', icon: 'folder' },
     { to: '/news', label: 'News', icon: 'megaphone', badge: 'news' as const },
     ...(rank <= 4 ? [{ to: '/team', label: rank <= 2 ? 'Team progress' : 'My team', icon: 'users', badge: 'review' as const }] : []),
+    { to: '/guide', label: 'Guide', icon: 'lifebuoy' },
   ];
   const pick = (to: string) => main.find((m) => m.to === to);
   const mobile = [pick('/'), pick('/training'), pick('/tasks') || pick('/notes'), pick('/chat') || pick('/resources'),
@@ -50,6 +52,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { to: '/admin/news', label: 'Announcements', icon: 'megaphone', desc: 'Post news and track who has read it', group: 'Communicate' },
   { to: '/admin/resources', label: 'Resources', icon: 'folder', desc: 'Policies, SOPs, guides and tools', group: 'Communicate' },
   { to: '/admin/system', label: 'System and audit', icon: 'shield', desc: 'Feature switches, IP recording and the audit log', group: 'System' },
+  { to: '/guide?view=admin', label: 'Admin guide', icon: 'lifebuoy', desc: 'How every admin page and setting works, with screenshots', group: 'System' },
 ];
 
 // ───────── badges (unread news, work waiting for review) ─────────
@@ -109,7 +112,7 @@ export default function AppShell() {
         <div className="flex-1 min-w-0 flex flex-col">
           <MobileTop />
           <main id="main" className={cx(full
-            ? 'flex-1 min-h-0 h-[calc(100dvh-56px-64px-env(safe-area-inset-bottom))] md:h-dvh'
+            ? 'shrink-0 overflow-hidden h-[calc(100dvh-56px-64px-env(safe-area-inset-bottom))] md:h-dvh'
             : 'flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 pt-5 md:pt-8 pb-28 md:pb-12')}>
             <Outlet />
           </main>
