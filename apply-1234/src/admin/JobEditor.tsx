@@ -14,6 +14,8 @@ import InterviewTab from './job/InterviewTab';
 import Pipeline from './Pipeline';
 import ExportModal from './ExportModal';
 import { BEFORE_REFRESH } from './refresh';
+import { useRole } from './role';
+import AccessCard from './job/AccessCard';
 
 export type TabId = 'overview' | 'posting' | 'puzzle' | 'activity' | 'questions' | 'interview' | 'candidates';
 export type Patch = (p: Partial<Job>) => void;
@@ -141,6 +143,7 @@ export function publishProblems(job: Job): { blocking: string[]; warnings: strin
 function Overview({ job, stats, patch, flush, setTab, onDelete }:
   { job: Job; stats: JobStats | null; patch: Patch; flush: () => Promise<void>; setTab: (t: TabId) => void; onDelete: () => void }) {
   const links = activityLinks(job);
+  const admin = useRole() === 'admin';
   const { blocking, warnings } = publishProblems(job);
   const [exportOpen, setExportOpen] = useState(false);
   const toast = useToast();
@@ -254,6 +257,7 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
             The shared posting page lives on this site, so its address shows the domain. If the domain is one of your hidden pieces, post the text on job boards instead.
           </p>
         </Card>
+        {admin && <AccessCard job={job} />}
       </div>
 
       <div className="space-y-5">
@@ -298,7 +302,7 @@ function Overview({ job, stats, patch, flush, setTab, onDelete }:
           <p className="text-sm text-muted leading-relaxed">All candidates for this job as Markdown or HTML, ready to load into an AI model for analysis.</p>
           <Button className="mt-3" size="sm" onClick={() => setExportOpen(true)}>Export candidates</Button>
         </Card>
-        <Button variant="danger" size="sm" onClick={onDelete}>Delete job</Button>
+        {admin && <Button variant="danger" size="sm" onClick={onDelete}>Delete job</Button>}
       </div>
       <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} job={job} />
     </div>

@@ -191,3 +191,34 @@ export interface Dashboard {
   messages_new: number; messages_period: number; live_jobs: number;
   series: DashDay[];
 }
+
+export type AccessRole = 'reviewer' | 'editor';
+export interface JobAccess {
+  id: string;
+  job_id: string;
+  email: string;
+  name: string;
+  user_id: string | null;
+  role: AccessRole;
+  hide_contact: boolean;
+  shortlisted_only: boolean;
+  notify: boolean;
+  can_move_stages: boolean;
+  invited_by: string;
+  invited_at: string;
+  last_invite_at: string | null;
+  claimed_at: string | null;
+}
+
+/** A job as an invited reviewer sees it. */
+export interface ClientJob {
+  id: string;
+  title: string;
+  status: JobStatus;
+  questions: Question[];
+  rubric: string[];
+  activity: Pick<Activity, 'answer_min' | 'answer_max' | 'hidden_code' | 'require_transcript'>;
+  access: Pick<JobAccess, 'role' | 'hide_contact' | 'shortlisted_only' | 'notify' | 'can_move_stages'>;
+  candidates: number;
+  scored_by_me: number;
+}

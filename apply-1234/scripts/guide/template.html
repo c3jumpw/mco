@@ -219,6 +219,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       <li><a href="#emails">Emails</a></li>
       <li><a href="#activity-log">Activity log</a></li>
       <li><a href="#settings">Settings and team</a></li>
+      <li><a href="#share">Share a job</a></li>
       <li><a href="#candidates">What candidates see</a></li>
       <li><a href="#tips">Tips and fixes</a></li>
     </ol>
@@ -226,7 +227,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
 
   <main id="top">
     <nav class="chips" aria-label="Sections">
-      <a href="#big-picture">How it works</a><a href="#menu">Menu</a><a href="#post-a-job">Post a job</a><a href="#job-tabs">Inside a job</a><a href="#review">Review</a><a href="#signals">Signals</a><a href="#overview">Dashboard</a><a href="#inbox">Inbox</a><a href="#emails">Emails</a><a href="#activity-log">Activity</a><a href="#settings">Settings</a><a href="#candidates">Candidates</a><a href="#tips">Tips</a>
+      <a href="#big-picture">How it works</a><a href="#menu">Menu</a><a href="#post-a-job">Post a job</a><a href="#job-tabs">Inside a job</a><a href="#review">Review</a><a href="#signals">Signals</a><a href="#overview">Dashboard</a><a href="#inbox">Inbox</a><a href="#emails">Emails</a><a href="#activity-log">Activity</a><a href="#settings">Settings</a><a href="#share">Share</a><a href="#candidates">Candidates</a><a href="#tips">Tips</a>
     </nav>
 
     <div class="hero">
@@ -583,9 +584,48 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     </section>
 
     <!-- 12 -->
+    <section id="share">
+      <header>
+        <p class="eyebrow">12 · Hiring lead</p>
+        <h2>Share a job with someone</h2>
+        <p>Hiring for a client or a manager? Give them access to one job, without adding them to your hiring team. They sign in with their own login and see only that job.</p>
+      </header>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Access</th><th>They can</th><th>They can't</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip neutral">Reviewer</span></td><td>Watch the video answers, fill in their own scorecard, give a recommendation and add notes.</td><td>See candidates' email addresses (unless you allow it), change stages, edit the job, email candidates, or see any other job.</td></tr>
+          <tr><td><span class="chip accent">Full access to this job</span></td><td>Everything you can do on this job: edit the posting, hidden link, activity page and questions; set it live; move candidates; send invite and reject emails; export.</td><td>See other jobs, the Overview dashboard, Inbox, Activity log or Settings; delete the job or candidates; give anyone else access.</td></tr>
+          <tr><td><span class="chip ink">Hiring team</span></td><td>Everything, on every job. Add them under Settings › Hiring team.</td><td>Nothing is off limits, so keep this for your own team.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="pair" style="margin-top:28px">
+        <div class="text">
+          <h3>Invite someone</h3>
+          <ol class="list">
+            <li>Open the job and stay on its <b>Overview</b> tab.</li>
+            <li>Under <b>People with access to this job</b>, type their email and name, choose <b>Reviewer</b> or <b>Full access to this job</b>, and click <b>Send invite</b>.</li>
+            <li>They get an email from hiring@apply1234.com. They create a login at <code>apply1234.com/admin</code> with that same address and confirm their email.</li>
+          </ol>
+          <p><b>Options</b> on each person lets you change their access, hide or show candidates' email addresses, show only shortlisted candidates, let a reviewer move stages, and switch their new-candidate emails on or off. <b>Remove access</b> takes effect straight away; their scores and notes stay.</p>
+          <div class="tip">Each person keeps their own scorecard, so you can compare everyone's scores under <b>Other reviewers</b> on each candidate.</div>
+        </div>
+        @@SHOT access-card|The People with access to this job card@@
+      </div>
+      <h3 class="sub">What a reviewer sees</h3>
+      <div class="pair">
+        @@SHOT client-list|A reviewer's list of candidates@@
+        <div class="text">
+          <p>Reviewers land straight on the job. Each candidate shows their auto-check flags, the team's average score and whether they still need to score them. <b>To score</b> filters down to the ones they haven't done yet.</p>
+          <p>A candidate's page shows the answers, résumé, notes, the behavior signals and their own scorecard. Contact details are hidden unless you allow them, and there are no buttons to email, move or delete candidates.</p>
+        </div>
+      </div>
+      @@SHOT client-candidate|A reviewer's view of one candidate@@
+    </section>
+
+    <!-- 13 -->
     <section id="candidates">
       <header>
-        <p class="eyebrow">12 · Candidate</p>
+        <p class="eyebrow">13 · Candidate</p>
         <h2>What candidates see</h2>
         <p>Most candidates apply on a phone, so these are phone screens. Scroll sideways to follow the whole journey. Click any screen to enlarge it.</p>
       </header>
@@ -623,7 +663,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 13 -->
     <section id="tips">
       <header>
-        <p class="eyebrow">13 · Everyone</p>
+        <p class="eyebrow">14 · Everyone</p>
         <h2>Tips and fixes</h2>
       </header>
       <div class="faq">

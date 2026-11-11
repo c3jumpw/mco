@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import type { Application, HEvent, Job, Note, Review, Stage } from '../lib/types';
+import type { Application, ClientJob, HEvent, Job, Note, Review, Stage } from '../lib/types';
 import { STAGES } from '../lib/types';
 import { behavior, EVENT_LABELS } from '../lib/metrics';
 import { embedUrl, fetchLoomInfo, knownDuration, loomId, type LoomInfo } from '../lib/loom';
@@ -13,9 +13,20 @@ import { Button, Card, Input, Loading, Pill, SectionTitle, Select, Stars, Textar
 import { Flags, stageLabel, stageTone } from './Pipeline';
 import ExportModal from './ExportModal';
 import { BEFORE_REFRESH } from './refresh';
+import { useRole } from './role';
 
-export default function CandidateDetail() {
+/** A reviewer's job, shaped like a Job for the parts of this page that read it. */
+function asJob(c: ClientJob): Job {
+  return { id: c.id, title: c.title, status: c.status, questions: c.questions, rubric: c.rubric, activity: c.activity,
+    interview_questions: [], settings: {}, booking_url: '' } as unknown as Job;
+}
+
+/** One candidate. Admins and full-access people get every tool; invited reviewers (client) get answers,
+ *  their own scorecard and notes, loaded through the limited reviewer functions. */
+export default function CandidateDetail({ client }: { client?: ClientJob[] } = {}) {
   const { id } = useParams();
+  const role = useRole();
+  const [canMove, setCanMove] = useState(false);
   const nav = useNavigate();
   const toast = useToast();
   const [app, setApp] = useState<Application | null | undefined>(undefined);
@@ -29,15 +40,31 @@ export default function CandidateDetail() {
   useEffect(() => {
     if (!id) return;
     supabase.auth.getUser().then(({ data }) => data.user && setMe({ id: data.user.id, email: data.user.email || '' }));
+    const loadShared = (appId: string) => {
+      supabase.from('hiring_reviews').select('*').eq('application_id', appId).then(({ data }) => setReviews((data || []) as Review[]));
+      supabase.from('hiring_notes').select('*').eq('application_id', appId).order('created_at').then(({ data }) => setNotes((data || []) as Note[]));
+    };
+    if (client) {
+      supabase.rpc('hiring_review_app', { p_app: id }).then(({ data }) => {
+        const r = data as { app: Application; events: HEvent[]; can_move_stages: boolean } | null;
+        if (!r?.app) { setApp(null); return; }
+        setApp({ ...r.app, tags: r.app.tags || [], answers: r.app.answers || [] });
+        setEvents(r.events || []);
+        setCanMove(!!r.can_move_stages);
+        const cj = client.find((j) => j.id === r.app.job_id);
+        if (cj) setJob(asJob(cj));
+        loadShared(r.app.id);
+      });
+      return;
+    }
     getApplication(id).then(async (a) => {
       setApp(a);
       if (!a) return;
       getJob(a.job_id).then(setJob);
       supabase.from('hiring_events').select('*').eq('application_id', a.id).order('created_at').limit(2000).then(({ data }) => setEvents((data || []) as HEvent[]));
-      supabase.from('hiring_reviews').select('*').eq('application_id', a.id).then(({ data }) => setReviews((data || []) as Review[]));
-      supabase.from('hiring_notes').select('*').eq('application_id', a.id).order('created_at').then(({ data }) => setNotes((data || []) as Note[]));
+      loadShared(a.id);
     });
-  }, [id]);
+  }, [id, client]);
 
   // debounced save for application fields
   const pending = useRef<Partial<Application>>({});
@@ -69,7 +96,7 @@ export default function CandidateDetail() {
   const b = useMemo(() => (app ? behavior(app, events) : null), [app, events]);
 
   if (app === undefined) return <Loading />;
-  if (app === null) return <p className="py-10 text-muted">Candidate not found. <Link className="underline" to="/admin/candidates">Back</Link></p>;
+  if (app === null) return <p className="py-10 text-muted">Candidate not found, or not shared with you. <Link className="underline" to={client ? '/admin' : '/admin/candidates'}>Back</Link></p>;
 
   const first = app.name.trim().split(/\s+/)[0] || app.name;
   const settings = { ...DEFAULT_SETTINGS, ...(job?.settings || {}) };
@@ -80,13 +107,25 @@ export default function CandidateDetail() {
   const addTag = (t: string) => { const v = t.trim().toLowerCase(); if (v && !app.tags.includes(v)) save({ tags: [...app.tags, v] }, true); };
 
   const myReview = reviews.find((r) => r.reviewer_id === me?.id);
+  const setStageAsReviewer = async (stage: Stage) => {
+    const prev = app.stage;
+    setApp((a) => (a ? { ...a, stage } : a));
+    const { data } = await supabase.rpc('hiring_review_set_stage', { p_app: app.id, p_stage: stage });
+    if (!data) { setApp((a) => (a ? { ...a, stage: prev } : a)); toast('Couldn’t change the stage', 'bad'); }
+  };
   const avg = reviewAverage(reviews);
 
   return (
     <div className="rise">
       <div className="flex items-center gap-2 text-sm text-muted mb-3">
-        <Link to="/admin/candidates" className="hover:text-ink">Candidates</Link><span>/</span>
-        {job && <><Link to={`/admin/jobs/${job.id}?tab=candidates`} className="hover:text-ink truncate">{job.title}</Link><span>/</span></>}
+        {client ? (
+          <>{job && <><Link to={`/admin/jobs/${job.id}`} className="hover:text-ink truncate">{job.title}</Link><span>/</span></>}</>
+        ) : (
+          <>
+            <Link to="/admin/candidates" className="hover:text-ink">Candidates</Link><span>/</span>
+            {job && <><Link to={`/admin/jobs/${job.id}?tab=candidates`} className="hover:text-ink truncate">{job.title}</Link><span>/</span></>}
+          </>
+        )}
         <span className="truncate">{app.name}</span>
       </div>
 
@@ -98,10 +137,15 @@ export default function CandidateDetail() {
             {avg != null && <Pill tone="neutral">★ {avg}</Pill>}
           </div>
           <p className="text-sm text-muted mt-2">
-            <a className="hover:text-ink underline-offset-2 hover:underline" href={`mailto:${app.email}`}>{app.email}</a> · submitted {fmtDate(app.submitted_at)}
+            {app.email ? <a className="hover:text-ink underline-offset-2 hover:underline" href={`mailto:${app.email}`}>{app.email}</a> : 'Contact details hidden'} · submitted {fmtDate(app.submitted_at)}
           </p>
           <Flags a={app} wrong={b?.wrongAttempts || 0} className="mt-3" />
         </div>
+        {client ? (canMove && (
+          <Select value={app.stage} onChange={(e) => setStageAsReviewer(e.target.value as Stage)} className="w-auto h-10">
+            {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </Select>
+        )) : (
         <div className="flex flex-wrap gap-2">
           <Select value={app.stage} onChange={(e) => save({ stage: e.target.value as Stage }, true)} className="w-auto h-10">
             {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
@@ -115,6 +159,7 @@ export default function CandidateDetail() {
           </a>
           <Button onClick={() => setExportOpen(true)}>Export</Button>
         </div>
+        )}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
@@ -128,14 +173,17 @@ export default function CandidateDetail() {
           {((app.attachments || []).length > 0 || (app.cover_letter || '').trim()) && <ExtrasCard app={app} />}
 
           <Card>
-            <SectionTitle sub="Shared with everyone on the hiring team.">Notes</SectionTitle>
-            <NotesPanel appId={app.id} notes={notes} setNotes={setNotes} />
+            <SectionTitle sub={client ? 'Shared with the hiring team and everyone reviewing this job.' : 'Shared with everyone on the hiring team.'}>Notes</SectionTitle>
+            <NotesPanel appId={app.id} notes={notes} setNotes={setNotes}
+              canDelete={(n) => !client || n.author_email.toLowerCase() === (me?.email || '').toLowerCase()} />
           </Card>
 
-          <Card>
-            <SectionTitle sub={job?.booking_url ? undefined : 'Add a scheduling link on the job’s Interview tab to include it in invites.'}>Interview</SectionTitle>
-            <InterviewPanel app={app} job={job} save={save} />
-          </Card>
+          {!client && (
+            <Card>
+              <SectionTitle sub={job?.booking_url ? undefined : 'Add a scheduling link on the job’s Interview tab to include it in invites.'}>Interview</SectionTitle>
+              <InterviewPanel app={app} job={job} save={save} />
+            </Card>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -175,6 +223,12 @@ export default function CandidateDetail() {
             )}
           </Card>
 
+          {client ? (app.tags.length > 0 && (
+            <Card>
+              <SectionTitle>Tags</SectionTitle>
+              <div className="flex flex-wrap gap-1.5">{app.tags.map((t) => <span key={t} className="rounded-full bg-paper-2 px-3 py-1 text-sm">{t}</span>)}</div>
+            </Card>
+          )) : (
           <Card>
             <SectionTitle>Tags</SectionTitle>
             <div className="flex flex-wrap gap-1.5">
@@ -188,6 +242,7 @@ export default function CandidateDetail() {
               <Input name="tag" placeholder="Add a tag and press Enter" className="h-9 text-sm" />
             </form>
           </Card>
+          )}
 
           {b && (
             <Card>
@@ -230,14 +285,14 @@ export default function CandidateDetail() {
             </Card>
           )}
 
-          <Button variant="danger" size="sm" onClick={async () => {
+          {!client && role === 'admin' && <Button variant="danger" size="sm" onClick={async () => {
             if (!confirm(`Delete ${app.name}'s submission, notes and reviews? This can't be undone.`)) return;
             await supabase.from('hiring_applications').delete().eq('id', app.id);
             nav('/admin/candidates');
-          }}>Delete candidate</Button>
+          }}>Delete candidate</Button>}
         </div>
       </div>
-      {job && <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} job={job} appIds={[app.id]} />}
+      {job && !client && <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} job={job} appIds={[app.id]} />}
     </div>
   );
 }
@@ -327,7 +382,8 @@ function AnswerCard({ n, ans, job, score, onScore }:
   );
 }
 
-function NotesPanel({ appId, notes, setNotes }: { appId: string; notes: Note[]; setNotes: React.Dispatch<React.SetStateAction<Note[]>> }) {
+function NotesPanel({ appId, notes, setNotes, canDelete }:
+  { appId: string; notes: Note[]; setNotes: React.Dispatch<React.SetStateAction<Note[]>>; canDelete: (n: Note) => boolean }) {
   const [body, setBody] = useState('');
   const toast = useToast();
   const add = async () => {
@@ -345,11 +401,11 @@ function NotesPanel({ appId, notes, setNotes }: { appId: string; notes: Note[]; 
             <p className="text-sm whitespace-pre-wrap leading-relaxed">{n.body}</p>
             <p className="text-[11px] text-muted mt-1.5 flex justify-between gap-2">
               <span>{n.author_email}{n.kind === 'interview' ? ' · interview' : ''} · {relTime(n.created_at)}</span>
-              <button className="hover:text-bad" onClick={async () => {
+              {canDelete(n) && <button className="hover:text-bad" onClick={async () => {
                 if (!confirm('Delete this note?')) return;
                 await supabase.from('hiring_notes').delete().eq('id', n.id);
                 setNotes((ns) => ns.filter((x) => x.id !== n.id));
-              }}>Delete</button>
+              }}>Delete</button>}
             </p>
           </li>
         ))}

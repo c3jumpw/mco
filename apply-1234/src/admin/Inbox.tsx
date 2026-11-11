@@ -14,8 +14,8 @@ const KIND_TONE: Record<HMessage['kind'], 'bad' | 'accent' | 'neutral'> = { bug:
 
 type Filter = 'open' | 'done' | 'all';
 
-/** Lets the nav badge refresh as soon as a message is read. */
-export const INBOX_EVENT = 'a1234-inbox-changed';
+export { INBOX_EVENT } from './chrome';
+import { INBOX_EVENT } from './chrome';
 
 export default function Inbox() {
   const toast = useToast();

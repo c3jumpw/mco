@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Activity, Job, Template } from '../../lib/types';
 import { fromLocalInput, minutesLabel, toLocalInput } from '../../lib/util';
 import { listTemplates, saveTemplate } from '../data';
+import { useRole } from '../role';
 import { Button, Card, Field, Input, SectionTitle, Select, Textarea, Toggle, useToast } from '../../ui';
 import { activityLinks, type Patch } from '../JobEditor';
 
@@ -10,7 +11,8 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
   const set = (p: Partial<Activity>) => patch({ activity: { ...a, ...p } });
   const toast = useToast();
   const [templates, setTemplates] = useState<Template[]>([]);
-  useEffect(() => { listTemplates('activity').then(setTemplates); }, []);
+  const admin = useRole() === 'admin';
+  useEffect(() => { if (admin) listTemplates('activity').then(setTemplates); }, [admin]);
   const links = activityLinks(job);
 
   const toSec = (v: string) => (v === '' ? null : Math.round(Number(v) * 60));
@@ -78,7 +80,7 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
           <a href={links.test} target="_blank" rel="noreferrer"><Button variant="primary" className="w-full">Open the activity page ↗</Button></a>
           <p className="text-xs text-muted mt-2 leading-relaxed">Drafts open only for signed-in admins. Visits from this browser are marked as tests.</p>
         </Card>
-        <Card>
+        {admin && (<Card>
           <SectionTitle sub="Reuse this page setup for future jobs.">Templates</SectionTitle>
           <Select defaultValue="" onChange={(e) => {
             const t = templates.find((x) => x.id === e.target.value);
@@ -96,7 +98,7 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
             if (error) toast(error.message, 'bad');
             else { toast('Template saved'); listTemplates('activity').then(setTemplates); }
           }}>Save as template</Button>
-        </Card>
+        </Card>)}
       </div>
     </div>
   );
