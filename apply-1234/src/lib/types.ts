@@ -201,6 +201,7 @@ export interface JobAccess {
   user_id: string | null;
   role: AccessRole;
   hide_contact: boolean;
+  see_files: boolean;
   shortlisted_only: boolean;
   notify: boolean;
   can_move_stages: boolean;
@@ -218,7 +219,7 @@ export interface ClientJob {
   questions: Question[];
   rubric: string[];
   activity: Pick<Activity, 'answer_min' | 'answer_max' | 'hidden_code' | 'require_transcript'>;
-  access: Pick<JobAccess, 'role' | 'hide_contact' | 'shortlisted_only' | 'notify' | 'can_move_stages'>;
+  access: Pick<JobAccess, 'role' | 'hide_contact' | 'see_files' | 'shortlisted_only' | 'notify' | 'can_move_stages'>;
   candidates: number;
   scored_by_me: number;
 }

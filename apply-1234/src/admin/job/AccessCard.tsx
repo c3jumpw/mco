@@ -11,6 +11,38 @@ const ROLES: { id: AccessRole; label: string; hint: string }[] = [
 
 const SIGN_IN = 'https://www.apply1234.com/admin';
 
+type Perms = Pick<JobAccess, 'hide_contact' | 'see_files' | 'shortlisted_only' | 'can_move_stages' | 'notify'>;
+const DEFAULT_PERMS: Perms = { hide_contact: true, see_files: true, shortlisted_only: false, can_move_stages: false, notify: true };
+const FULL_ACCESS: Omit<Perms, 'notify'> = { hide_contact: false, see_files: true, shortlisted_only: false, can_move_stages: true };
+
+/** The switches for one person. Full access always includes contact details, files and stages. */
+function PermissionSwitches({ role, value, onChange }: { role: AccessRole; value: Perms; onChange: (p: Partial<Perms>) => void }) {
+  return (
+    <div className="space-y-4">
+      {role === 'reviewer' && (
+        <>
+          <Toggle checked={!value.hide_contact} onChange={(v) => onChange({ hide_contact: !v })}
+            label="Can see candidates' contact details"
+            hint="Their email addresses, on screen and in new-candidate emails. Off by default." />
+          <Toggle checked={value.see_files} onChange={(v) => onChange({ see_files: v })}
+            label="Can open résumés and cover letters"
+            hint={value.hide_contact && value.see_files
+              ? 'Résumés usually include a phone number and address. Turn this off too to keep contact details fully private.'
+              : 'Files and cover letters candidates added at the end of the activity.'} />
+          <Toggle checked={value.shortlisted_only} onChange={(v) => onChange({ shortlisted_only: v })}
+            label="Only show shortlisted candidates" hint="Candidates appear for them once you move them to Shortlisted or later." />
+          <Toggle checked={value.can_move_stages} onChange={(v) => onChange({ can_move_stages: v })}
+            label="Can move candidates between stages" />
+        </>
+      )}
+      <Toggle checked={value.notify} onChange={(v) => onChange({ notify: v })}
+        label="Email them when a new candidate applies"
+        hint={role === 'reviewer' && value.shortlisted_only ? 'Not sent while they only see shortlisted candidates.' : undefined} />
+      {role === 'editor' && <p className="text-xs text-muted">Full access always includes contact details, résumés and moving candidates.</p>}
+    </div>
+  );
+}
+
 /** Sends the invite email through the email function. Returns false when emails aren't set up. */
 async function sendInvite(id: string) {
   try {
@@ -35,6 +67,7 @@ export default function AccessCard({ job }: { job: Job }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<AccessRole>('reviewer');
+  const [perms, setPerms] = useState<Perms>(DEFAULT_PERMS);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
 
@@ -48,8 +81,8 @@ export default function AccessCard({ job }: { job: Job }) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Enter a valid email address', 'bad'); return; }
     setBusy(true);
     const row: Partial<JobAccess> = role === 'editor'
-      ? { job_id: job.id, email: v, name: name.trim(), role, hide_contact: false, shortlisted_only: false, can_move_stages: true }
-      : { job_id: job.id, email: v, name: name.trim(), role };
+      ? { job_id: job.id, email: v, name: name.trim(), role, ...FULL_ACCESS, notify: perms.notify }
+      : { job_id: job.id, email: v, name: name.trim(), role, ...perms };
     const { data, error } = await supabase.from('hiring_reviewers').insert(row).select('*').single();
     if (error) {
       setBusy(false);
@@ -58,7 +91,7 @@ export default function AccessCard({ job }: { job: Job }) {
     }
     const sent = await sendInvite((data as JobAccess).id);
     setBusy(false);
-    setEmail(''); setName(''); setRole('reviewer');
+    setEmail(''); setName(''); setRole('reviewer'); setPerms(DEFAULT_PERMS);
     load();
     if (sent) toast(`Invite sent to ${v}`);
     else {
@@ -73,8 +106,7 @@ export default function AccessCard({ job }: { job: Job }) {
     if (error) { toast(error.message, 'bad'); load(); }
   };
 
-  const setRoleFor = (a: JobAccess, r: AccessRole) =>
-    update(a, r === 'editor' ? { role: r, hide_contact: false, shortlisted_only: false, can_move_stages: true } : { role: r });
+  const setRoleFor = (a: JobAccess, r: AccessRole) => update(a, r === 'editor' ? { role: r, ...FULL_ACCESS } : { role: r });
 
   const remove = async (a: JobAccess) => {
     if (!confirm(`Remove ${a.name || a.email}'s access to this job? They lose it straight away. Their scores and notes stay.`)) return;
@@ -116,19 +148,7 @@ export default function AccessCard({ job }: { job: Job }) {
                     <Segmented size="sm" value={a.role} onChange={(r) => setRoleFor(a, r)}
                       options={ROLES.map((r) => ({ id: r.id, label: r.label }))} />
                     <p className="text-xs text-muted -mt-2">{ROLES.find((r) => r.id === a.role)?.hint}</p>
-                    {a.role === 'reviewer' && (
-                      <>
-                        <Toggle checked={a.hide_contact} onChange={(v) => update(a, { hide_contact: v })}
-                          label="Hide candidates' email addresses" hint="They see names, answers and scores, but can't contact candidates." />
-                        <Toggle checked={a.shortlisted_only} onChange={(v) => update(a, { shortlisted_only: v })}
-                          label="Only show shortlisted candidates" hint="Candidates appear for them once you move them to Shortlisted or later." />
-                        <Toggle checked={a.can_move_stages} onChange={(v) => update(a, { can_move_stages: v })}
-                          label="Let them move candidates between stages" />
-                      </>
-                    )}
-                    <Toggle checked={a.notify} onChange={(v) => update(a, { notify: v })}
-                      label="Email them when a new candidate applies"
-                      hint={a.role === 'reviewer' && a.shortlisted_only ? 'Not sent while they only see shortlisted candidates.' : undefined} />
+                    <PermissionSwitches role={a.role} value={a} onChange={(p) => update(a, p)} />
                     <div className="flex flex-wrap gap-2 pt-1">
                       {!a.user_id && <Button size="sm" onClick={() => resend(a)}>Send the invite again</Button>}
                       <Button size="sm" variant="ghost" onClick={async () => { await copyText(inviteText(job, a)); toast('Invite text copied'); }}>Copy invite text</Button>
@@ -158,11 +178,14 @@ export default function AccessCard({ job }: { job: Job }) {
             ))}
           </div>
         </Field>
+        <Field label="Permissions">
+          <div className="rounded-xl bg-paper px-4 py-4">
+            <PermissionSwitches role={role} value={perms} onChange={(p) => setPerms((x) => ({ ...x, ...p }))} />
+          </div>
+        </Field>
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" variant="primary" disabled={busy || !email.trim()}>{busy ? 'Sending…' : 'Send invite'}</Button>
-          <span className="text-xs text-muted">
-            {role === 'reviewer' ? 'Candidates’ email addresses are hidden from reviewers. Change this under Options.' : 'They’ll see this job in their own dashboard.'}
-          </span>
+          <span className="text-xs text-muted">You can change any of this later under Options.</span>
         </div>
       </form>
       <p className="text-xs text-muted mt-4 leading-relaxed">
