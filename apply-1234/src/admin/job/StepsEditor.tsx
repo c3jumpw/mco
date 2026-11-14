@@ -26,7 +26,7 @@ export function StepIcon({ type, className }: { type: StepType; className?: stri
 }
 
 const TIME_OPTS = [30, 45, 60, 90, 120, 180, 300];
-const secLabel = (s: number) => (s < 60 ? `${s} sec` : s % 60 ? `${s / 60} min` : `${s / 60} min`);
+const secLabel = (s: number) => (s < 60 ? `${s} sec` : `${s / 60} min`);
 
 export default function StepsEditor({ steps, onChange, activity, jobId, title, notes, live, compact, aiFills }: {
   steps: Question[];
@@ -201,9 +201,11 @@ function StepEditorCard({ q, i, total, set, move, remove, changeType, compact, j
             </label>
             <label className="flex items-center gap-2 text-xs text-muted">
               Type
-              <Select className="h-8 text-[13px] w-auto" value={t} onChange={(e) => changeType(e.target.value as StepType)}>
-                {STEP_TYPES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
-              </Select>
+              <span className="w-40 block">
+                <Select className="h-8 text-[13px]" value={t} onChange={(e) => changeType(e.target.value as StepType)}>
+                  {STEP_TYPES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+                </Select>
+              </span>
             </label>
           </div>
         </div>
@@ -248,10 +250,12 @@ function PasteSetting({ q, set, allowBlock = true }: { q: Question; set: (p: Par
 
 function TimeSelect({ value, onChange, none, opts = TIME_OPTS }: { value?: number | null; onChange: (v: number | null) => void; none?: string; opts?: number[] }) {
   return (
-    <Select className="h-8 text-[13px] w-auto" value={value || ''} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}>
-      {none && <option value="">{none}</option>}
-      {opts.map((s) => <option key={s} value={s}>{secLabel(s)}</option>)}
-    </Select>
+    <div className="w-32 shrink-0">
+      <Select className="h-8 text-[13px]" value={value || ''} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}>
+        {none && <option value="">{none}</option>}
+        {opts.map((s) => <option key={s} value={s}>{secLabel(s)}</option>)}
+      </Select>
+    </div>
   );
 }
 
@@ -299,7 +303,7 @@ function TypeSettings({ q, set, jobId }: { q: Question; set: (p: Partial<Questio
     case 'written':
       return (
         <div className="space-y-3">
-          <Row label="Word guide"><Input className="h-8 w-24 text-sm" type="number" min={20} max={2000} value={q.words || ''} placeholder="None" onChange={(e) => set({ words: e.target.value ? Number(e.target.value) : null })} /></Row>
+          <Row label="Word guide"><div className="w-24 shrink-0"><Input className="h-8 text-sm" type="number" min={20} max={2000} value={q.words || ''} placeholder="None" onChange={(e) => set({ words: e.target.value ? Number(e.target.value) : null })} /></div></Row>
           <Row label="Time limit" hint={q.time_limit ? 'The box locks when time is up.' : undefined}><TimeSelect value={q.time_limit} onChange={(time_limit) => set({ time_limit })} none="No limit" opts={[60, 120, 180, 300, 600, 900]} /></Row>
           <PasteSetting q={q} set={set} />
         </div>
@@ -308,7 +312,7 @@ function TypeSettings({ q, set, jobId }: { q: Question; set: (p: Partial<Questio
       return (
         <div className="space-y-3">
           <p className="text-xs text-muted">Candidates pick: record a Loom or write. Both appear the same way in their answers.</p>
-          <Row label="Word guide (written)"><Input className="h-8 w-24 text-sm" type="number" min={20} max={2000} value={q.words || ''} placeholder="None" onChange={(e) => set({ words: e.target.value ? Number(e.target.value) : null })} /></Row>
+          <Row label="Word guide (written)"><div className="w-24 shrink-0"><Input className="h-8 text-sm" type="number" min={20} max={2000} value={q.words || ''} placeholder="None" onChange={(e) => set({ words: e.target.value ? Number(e.target.value) : null })} /></div></Row>
           <PasteSetting q={q} set={set} allowBlock={false} />
         </div>
       );
@@ -334,7 +338,7 @@ function TypeSettings({ q, set, jobId }: { q: Question; set: (p: Partial<Questio
             <Segmented size="sm" value={q.walkthrough || 'optional'} onChange={(walkthrough) => set({ walkthrough })}
               options={[{ id: 'off', label: 'Off' }, { id: 'optional', label: 'Optional' }, { id: 'required', label: 'Required' }]} />
           </Row>
-          <Row label="Suggested time"><Input className="h-8 w-24 text-sm" type="number" min={5} max={240} value={q.minutes || ''} onChange={(e) => set({ minutes: Number(e.target.value) || 30 })} /></Row>
+          <Row label="Suggested time"><div className="w-24 shrink-0"><Input className="h-8 text-sm" type="number" min={5} max={240} value={q.minutes || ''} onChange={(e) => set({ minutes: Number(e.target.value) || 30 })} /></div></Row>
         </div>
       );
     case 'critique':

@@ -44,7 +44,7 @@ export default function QuestionsTab({ job, patch }: { job: Job; patch: Patch })
             <li>Ask about their own experience: “a time you…”, “your role and the result”.</li>
             <li>A timed quick scenario leaves no time to look things up.</li>
             <li>Pair written work with a short walkthrough video. People who did the work explain it easily.</li>
-            <li>Keep it to 2 videos and about 30–45 minutes. Longer activities lose strong candidates.</li>
+            <li>Keep it to 2 videos and under an hour; 30–45 minutes is best. Longer activities lose strong candidates.</li>
           </ul>
         </Card>
       </div>
