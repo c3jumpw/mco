@@ -444,3 +444,9 @@ language sql stable security definer set search_path = public as $$
             or a.answers @> jsonb_build_array(jsonb_build_object('files', jsonb_build_array(jsonb_build_object('path', p_name))))
             or a.answers @> jsonb_build_array(jsonb_build_object('voice', jsonb_build_object('path', p_name)))));
 $$;
+
+-- Pin the search path on the small helpers (Supabase security advisor).
+alter function public.hiring_num(jsonb, text) set search_path = public;
+alter function public.hiring_clean_sig(jsonb) set search_path = public;
+alter function public.hiring_public_steps(jsonb) set search_path = public;
+alter function public.hiring_path_job(text) set search_path = public;
