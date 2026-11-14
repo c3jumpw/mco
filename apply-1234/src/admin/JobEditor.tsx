@@ -15,6 +15,7 @@ import Pipeline from './Pipeline';
 import ExportModal from './ExportModal';
 import { BEFORE_REFRESH } from './refresh';
 import { useRole } from './role';
+import { activityWarnings } from '../lib/steps';
 import AccessCard from './job/AccessCard';
 
 export type TabId = 'overview' | 'posting' | 'puzzle' | 'activity' | 'questions' | 'interview' | 'candidates';
@@ -79,7 +80,7 @@ export default function JobEditor() {
     { id: 'posting', label: 'Notes & posting' },
     { id: 'puzzle', label: 'Hidden link' },
     { id: 'activity', label: 'Activity page' },
-    { id: 'questions', label: `Questions${job.questions.length ? ` (${job.questions.length})` : ''}` },
+    { id: 'questions', label: `Steps${job.questions.length ? ` (${job.questions.length})` : ''}` },
     { id: 'interview', label: 'Interview' },
     { id: 'candidates', label: `Candidates${stats?.submissions ? ` (${stats.submissions})` : ''}` },
   ];
@@ -130,13 +131,19 @@ export function publishProblems(job: Job): { blocking: string[]; warnings: strin
   const blocking: string[] = [];
   const warnings: string[] = [];
   if (!job.slug) blocking.push('Set the secret link on the Hidden link tab.');
-  if (!job.questions.length) blocking.push('Add at least one question.');
+  if (!job.questions.length) blocking.push('Add at least one step on the Steps tab.');
+  for (const w of activityWarnings(job.questions, job.activity)) {
+    if (/no question yet|at least 2 options|empty option|to critique|placeholder/.test(w)) blocking.push(w);
+    else if (job.questions.length) warnings.push(w);
+  }
+  if (job.activity.hidden_code && !job.questions.some((q) => ['video', 'written', 'choice', 'critique', 'brief', 'work', 'rank', 'quiz'].includes(q.type || 'video')))
+    warnings.push('None of the steps take text or a video title, so the code word can’t be checked.');
   const url = fullUrl(job.domain, job.slug);
   if (job.fragments.map((f) => f.text).join('') !== url) warnings.push('The link pieces don’t add up to the full link. Re-split them on the Hidden link tab.');
   const { missing } = placedParts(job.posting, job.fragments.length);
   if (missing.length) warnings.push(`Piece${missing.length > 1 ? 's' : ''} ${missing.join(', ')} ${missing.length > 1 ? 'aren’t' : 'isn’t'} placed in the posting yet.`);
   if (!job.posting.trim()) warnings.push('The posting is empty.');
-  if ((job.activity.answer_max || 0) > 300) warnings.push('Answers longer than 5 minutes won’t fit on Loom’s free plan.');
+  if ((job.activity.answer_max || 0) > 300 && job.questions.some((q) => (q.type || 'video') === 'video')) warnings.push('Answers longer than 5 minutes won’t fit on Loom’s free plan.');
   return { blocking, warnings };
 }
 

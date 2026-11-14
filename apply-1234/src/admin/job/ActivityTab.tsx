@@ -3,7 +3,8 @@ import type { Activity, Job, Template } from '../../lib/types';
 import { fromLocalInput, minutesLabel, toLocalInput } from '../../lib/util';
 import { listTemplates, saveTemplate } from '../data';
 import { useRole } from '../role';
-import { Button, Card, Field, Input, SectionTitle, Select, Textarea, Toggle, useToast } from '../../ui';
+import { Button, Card, Field, Input, SectionTitle, Segmented, Select, Textarea, Toggle, useToast } from '../../ui';
+import { AI_NONE, AI_WELCOME, needsLoomSetup, stepType, usesLoom } from '../../lib/steps';
 import { activityLinks, type Patch } from '../JobEditor';
 
 export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) {
@@ -16,6 +17,10 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
   const links = activityLinks(job);
 
   const toSec = (v: string) => (v === '' ? null : Math.round(Number(v) * 60));
+  const loomSetup = needsLoomSetup(job.questions);
+  const anyVideo = job.questions.some(usesLoom);
+  const hasVideoStep = job.questions.some((q) => stepType(q) === 'video');
+  const policy = a.ai_policy || 'welcome';
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -31,7 +36,23 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
         </Card>
 
         <Card>
-          <SectionTitle sub="One step per line. Shown as a numbered list.">Loom setup steps</SectionTitle>
+          <SectionTitle sub="Candidates see this on the welcome screen and answer it before they submit.">AI</SectionTitle>
+          <div className="space-y-4">
+            <Segmented value={policy} onChange={(ai_policy) => set({ ai_policy, ai_message: '' })}
+              options={[{ id: 'welcome', label: 'Welcome, tell us how' }, { id: 'none', label: 'Ask them not to' }, { id: 'off', label: 'Don’t mention it' }]} />
+            {policy !== 'off' && (
+              <Field label="What candidates read" hint="Before submitting, each candidate says whether they used AI and how. It shows on their answers.">
+                <Textarea rows={2} value={a.ai_message ?? ''} placeholder={policy === 'none' ? AI_NONE : AI_WELCOME} onChange={(e) => set({ ai_message: e.target.value })} />
+              </Field>
+            )}
+            <Toggle checked={!!a.pledge} onChange={(pledge) => set({ pledge })}
+              label="Ask candidates to confirm the work is their own"
+              hint="A required tick box on the Submit step. A small, honest commitment makes people less likely to cut corners." />
+          </div>
+        </Card>
+
+        <Card>
+          <SectionTitle sub={loomSetup ? 'One step per line. Shown as a numbered list.' : anyVideo ? 'No step requires a video, so this screen is skipped. Candidates who choose to record see a short Loom tip instead.' : 'None of your steps use video, so this screen is skipped.'}>Loom setup steps</SectionTitle>
           <Textarea rows={5} value={a.loom_steps || ''} onChange={(e) => set({ loom_steps: e.target.value })} />
           <div className="grid gap-4 sm:grid-cols-2 mt-4">
             <Field label="Shortest answer (minutes)">
@@ -49,7 +70,9 @@ export default function ActivityTab({ job, patch }: { job: Job; patch: Patch }) 
         <Card>
           <SectionTitle sub="Optional checks that test how closely people follow instructions.">Instruction checks</SectionTitle>
           <div className="space-y-5">
-            <Field label="Hidden code word" hint="Tell candidates somewhere (in the posting or the extra instructions) to put this word in their Loom video titles. Submissions are checked for it automatically.">
+            <Field label="Hidden code word" hint={hasVideoStep
+              ? 'Tell candidates somewhere (in the posting or the extra instructions) to put this word in their Loom video titles. Submissions are checked for it automatically.'
+              : 'Tell candidates in the posting to use this word in one of their written answers. Submissions are checked for it automatically.'}>
               <Input mono value={a.hidden_code || ''} onChange={(e) => set({ hidden_code: e.target.value.trim() })} placeholder="e.g. lantern" />
             </Field>
             <Toggle checked={!!a.require_transcript} onChange={(v) => set({ require_transcript: v })}

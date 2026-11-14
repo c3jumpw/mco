@@ -56,6 +56,7 @@ export default function PostingTab({ job, patch }: { job: Job; patch: Patch }) {
                 questionCount: job.questions.length || 5,
                 answerRange: rangeLabel(job.activity?.answer_min, job.activity?.answer_max) || '1–3 minutes',
                 codeWord: job.activity?.hidden_code || undefined,
+                steps: job.questions.some((q) => q.type && q.type !== 'video') ? job.questions : undefined,
               })} />
             <Button size="sm" onClick={() => setImportOpen(true)}>2. Paste the AI's reply</Button>
           </div>

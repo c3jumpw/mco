@@ -25,9 +25,40 @@ export interface Activity {
   hidden_code?: string;
   consent_text?: string;
   accommodations_email?: string;
+  ai_policy?: 'welcome' | 'none' | 'off'; // what candidates are told about AI (default: welcome, tell us how)
+  ai_message?: string;            // custom wording for the AI note
+  pledge?: boolean;               // ask candidates to confirm the work is their own
 }
 
-export interface Question { id: string; text: string; guidance?: string }
+export type StepType = 'video' | 'written' | 'choice' | 'voice' | 'work' | 'brief' | 'critique' | 'rank' | 'quiz' | 'musthave';
+export type PasteRule = 'allow' | 'flag' | 'block';
+
+/** One activity step. Older jobs only have id, text and guidance, which means a video answer. */
+export interface Question {
+  id: string;
+  text: string;
+  guidance?: string;
+  type?: StepType;
+  optional?: boolean;
+  time_limit?: number | null;   // seconds; quiz always, written optionally
+  paste?: PasteRule;            // written, choice, critique, quiz reason
+  words?: number | null;        // suggested maximum words for written answers
+  options?: string[];           // rank and quiz
+  correct?: number | null;      // quiz: index of the right option (never sent to candidates)
+  reason?: boolean;             // rank and quiz: ask for one line on why
+  material?: string;            // brief, critique, quiz: markdown shown to the candidate
+  material_url?: string;        // brief, critique: a link to open
+  image_url?: string;           // critique: an image to look at
+  deliverable?: 'link' | 'file' | 'either'; // brief
+  walkthrough?: 'off' | 'optional' | 'required'; // brief: short Loom walking through their work
+  minutes?: number;             // brief: suggested time
+  respond?: 'written' | 'video' | 'either'; // critique
+  items?: number;               // work: how many samples
+  expected?: 'yes' | 'no' | null; // must-have: the answer you need (never sent to candidates)
+}
+
+/** How a written answer was produced, measured in the browser. */
+export interface WriteSig { typed?: number; pasted?: number; pastes?: number; ms?: number; blurs?: number; blocked?: number }
 export interface InterviewQuestion { id: string; text: string; kind: 'general' | 'custom' }
 
 export interface Source { id: string; label: string; code: string; active: boolean }
@@ -69,6 +100,8 @@ export interface Job {
   closed_at: string | null;
 }
 
+export interface StepFile { path: string; name: string; size?: number; type?: string; note?: string }
+
 export interface Answer {
   question_id: string;
   question: string;
@@ -77,6 +110,29 @@ export interface Answer {
   title?: string;
   duration_sec?: number | null;
   transcript?: string;
+  type?: StepType;
+  skipped?: boolean;
+  mode?: 'video' | 'written';
+  text?: string;
+  sig?: WriteSig;
+  voice?: StepFile & { seconds?: number | null };
+  links?: { url: string; note?: string }[];
+  files?: StepFile[];
+  deliverable?: string;
+  walk_url?: string;
+  walk_loom_id?: string;
+  walk_title?: string;
+  opened_at?: string;
+  seconds?: number | null;
+  order?: number[];
+  reason?: string;
+  choice?: number | null;
+  correct?: boolean | null;
+  started_at?: string;
+  answered_at?: string;
+  timed_out?: boolean;
+  yesno?: 'yes' | 'no';
+  ok?: boolean | null;
 }
 
 export interface Application {
@@ -95,6 +151,11 @@ export interface Application {
     transcripts_ok?: boolean;
     hidden_code_ok?: boolean | null;
     duplicate_email?: boolean;
+    musthave_ok?: boolean;
+    quiz_right?: number;
+    quiz_total?: number;
+    pasted?: boolean;
+    ai_used?: boolean;
   };
   metrics: Record<string, unknown>;
   interview_at: string | null;

@@ -1,4 +1,5 @@
-import type { Fragment, Job } from './types';
+import type { Fragment, Job, Question } from './types';
+import { stepSpec } from './steps';
 
 export const TOKEN_RE = /\{\{\s*part\s*(\d+)\s*\}\}/gi;
 
@@ -133,7 +134,16 @@ function inline(s: string): string {
     .replace(/\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 }
 
-/** Minimal, safe Markdown → HTML (headings, lists, paragraphs, bold/italic, links). */
+function tableHtml(rows: string[]): string {
+  const cells = (r: string) => r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => inline(esc(c.trim())));
+  const body = rows.filter((r) => !/^\s*\|?\s*:?-{2,}/.test(r));
+  if (!body.length) return '';
+  const [head, ...rest] = body;
+  return `<div class="md-table"><table><thead><tr>${cells(head).map((c) => `<th>${c}</th>`).join('')}</tr></thead>`
+    + `<tbody>${rest.map((r) => `<tr>${cells(r).map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+/** Minimal, safe Markdown → HTML (headings, lists, paragraphs, bold/italic, links, code blocks, tables). */
 export function mdToHtml(md: string, hintClass?: string, fragments?: Fragment[], format?: string): string {
   const marks: string[] = [];
   let src = md;
@@ -149,8 +159,19 @@ export function mdToHtml(md: string, hintClass?: string, fragments?: Fragment[],
   let list: { type: 'ul' | 'ol'; items: string[] } | null = null;
   const flushPara = () => { if (para.length) { out.push(`<p>${para.map((l) => inline(esc(l))).join('<br>')}</p>`); para = []; } };
   const flushList = () => { if (list) { out.push(`<${list.type}>${list.items.map((i) => `<li>${inline(esc(i))}</li>`).join('')}</${list.type}>`); list = null; } };
+  let code: string[] | null = null;
+  let table: string[] = [];
+  const flushTable = () => { if (table.length) { out.push(tableHtml(table)); table = []; } };
   for (const raw of lines) {
     const line = raw.trimEnd();
+    if (/^\s*```/.test(line)) {
+      if (code) { out.push(`<pre><code>${esc(code.join('\n'))}</code></pre>`); code = null; }
+      else { flushPara(); flushList(); flushTable(); code = []; }
+      continue;
+    }
+    if (code) { code.push(raw); continue; }
+    if (/^\s*\|.*\|\s*$/.test(line)) { flushPara(); flushList(); table.push(line); continue; }
+    flushTable();
     const h = line.match(/^(#{1,3})\s+(.*)$/);
     const ul = line.match(/^\s*[-*•]\s+(.*)$/);
     const ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
@@ -166,8 +187,10 @@ export function mdToHtml(md: string, hintClass?: string, fragments?: Fragment[],
     flushList();
     para.push(line);
   }
+  if (code) out.push(`<pre><code>${esc((code as string[]).join('\n'))}</code></pre>`);
   flushPara();
   flushList();
+  flushTable();
   let html = out.join('\n');
   html = html.replace(/\u0000(\d+)\u0000/g, (_, i) =>
     hintClass ? `<span class="${hintClass}">${esc(marks[Number(i)])}</span>` : esc(marks[Number(i)]));
@@ -214,6 +237,25 @@ Write ${count} open-ended questions that a person who would truly thrive in this
 Return only the questions, one per line, with no numbering or extra text.`;
 }
 
+/** A prompt that writes (or rewrites) a job's activity steps, answered in "## Step N" blocks. */
+export function aiStepsPrompt(title: string, notes: string, posting: string, steps: Question[]): string {
+  return `I'm hiring for: ${title || '(untitled role)'}.
+
+My notes:
+"""
+${notes.trim() || '(none)'}
+"""
+
+The job posting:
+"""
+${posting.trim().slice(0, 6000) || '(none)'}
+"""
+
+${stepsSection(steps).replace('# ACTIVITY STEPS\n', '')}
+
+Reply with only the steps, starting at "## Step 1". Don't wrap your reply in a code block.`;
+}
+
 export function aiInterviewPrompt(title: string, notes: string, questions: string[]): string {
   return `I'm interviewing candidates for: ${title}
 
@@ -257,8 +299,13 @@ export function fragmentsFor(job: Pick<Job, 'domain' | 'slug' | 'fragments'>, so
 
 /* ───────────── structured AI prompt + parser ───────────── */
 
-export const CODE_WORD_SENTENCE = (word: string) =>
-  `One more detail for careful readers: include the word **${word}** in the title of every video you record.`;
+/** The code-word line for the posting. Jobs with video steps ask for it in video titles; others in a written answer. */
+export const CODE_WORD_SENTENCE = (word: string, video = true) => video
+  ? `One more detail for careful readers: include the word **${word}** in the title of every video you record.`
+  : `One more detail for careful readers: use the word **${word}** somewhere in one of your written answers.`;
+
+/** Whether a job's steps include a recorded video, which decides where the code word goes. */
+export const stepsHaveVideo = (steps?: Question[]) => !steps || !steps.length || steps.some((q) => !q.type || q.type === 'video' || q.type === 'choice');
 
 export interface JobPromptOptions {
   title?: string;
@@ -267,13 +314,33 @@ export interface JobPromptOptions {
   questionCount: number;
   answerRange: string; // e.g. "1–3 minutes"
   codeWord?: string;
+  steps?: Question[];   // when given, the AI writes these activity steps instead of video questions
+}
+
+function stepsSection(steps: Question[]): string {
+  return `# ACTIVITY STEPS
+The candidate completes these ${steps.length} steps, in this order. Write each one for this role, using specifics from my notes, so that someone who would thrive here does well and generic answers stand out. Keep each step's type. Keep any [square-bracket placeholder] you can't fill from my notes. Format every step exactly like this, with only the lines that apply:
+## Step 1
+Question: the question or task, written to the candidate
+Guidance: one short tip for the candidate
+Options:
+- an option
+- another option
+Correct: the number of the right option (quick scenarios only)
+Expected: yes or no (must-haves only)
+Material: context, numbers or data the candidate needs, in Markdown (only where it helps)
+
+Across the video and written questions, mix a specific past situation, a realistic task or scenario from this role, and something that shows how they think or learn. Quick scenarios need one clearly best option and plausible alternatives.
+
+The steps:
+${steps.map((q, i) => `- ${stepSpec(q, i)}`).join('\n')}`;
 }
 
 export function aiJobPrompt(o: JobPromptOptions): string {
   const tokens = Array.from({ length: o.parts }, (_, i) => `{{part${i + 1}}}`).join(', ');
   return `You are helping me hire. Turn my notes into a job posting and interview material.
 
-Reply in Markdown using EXACTLY the structure below: these five section headings, spelled exactly as shown, each on its own line, in this order. Put nothing before the first heading. Do not wrap your reply in a code block.
+Reply in Markdown using EXACTLY the structure below: these five # section headings, spelled exactly as shown, each on its own line, in this order. Put nothing before the first heading. Do not wrap your reply in a code block.
 
 # TITLE
 One line: a clear, specific job title.${o.title ? ` Use "${o.title}" unless it is unclear.` : ''}
@@ -282,15 +349,15 @@ One line: a clear, specific job title.${o.title ? ` Use "${o.title}" unless it i
 The full job posting in Markdown. Inside it, use only ## and ### headings, never a single #. Keep paragraphs short and use bullet lists. Sections, in order: About the role, What you'll do, What we're looking for, Your first 90 days (only if my notes mention onboarding or probation), Details, How to apply.
 - Put each of these placeholder tokens on its own line, in this order, spread across different sections: ${tokens}. Put the last token just before "How to apply". Don't explain them; they're replaced with pieces of the application link.
 - In "Details", list schedule, location and pay. If my notes don't say, write [add schedule], [add location] and [add pay range]. Don't invent them.
-- "How to apply" must say: we don't take résumés; the link to the application is hidden in this posting in pieces; put the pieces together in order and open the link in a browser.${o.codeWord ? `\n- End "How to apply" with exactly this sentence: ${CODE_WORD_SENTENCE(o.codeWord)}` : ''}
+- "How to apply" must say: we don't take résumés; the link to the application is hidden in this posting in pieces; put the pieces together in order and open the link in a browser.${o.codeWord ? `\n- End "How to apply" with exactly this sentence: ${CODE_WORD_SENTENCE(o.codeWord, stepsHaveVideo(o.steps))}` : ''}
 
-# SCREENING QUESTIONS
+${o.steps?.length ? stepsSection(o.steps) : `# SCREENING QUESTIONS
 ${o.questionCount} questions the candidate answers on video, ${o.answerRange} each. Someone who would thrive in this role should answer them well. Include a specific past situation, a realistic scenario from this role, a "teach us something" question, and one about how they approached this application. Format each exactly like this:
 1. The question
-   Guidance: one short tip for the candidate
+   Guidance: one short tip for the candidate`}
 
 # INTERVIEW QUESTIONS
-8 live-interview questions that go deeper than the screening questions, one per line, formatted as "- [general] question" for questions that suit any role or "- [custom] question" for questions specific to this role. At least 5 should be custom.
+8 live-interview questions that go deeper than the ${o.steps?.length ? 'activity' : 'screening questions'}, one per line, formatted as "- [general] question" for questions that suit any role or "- [custom] question" for questions specific to this role. At least 5 should be custom.
 
 # RUBRIC
 4 to 6 short criteria (2 to 4 words each) for scoring candidates, one per line as "- Criterion".
@@ -307,12 +374,55 @@ export interface ParsedJob {
   title: string;
   posting: string;
   questions: { text: string; guidance: string }[];
+  steps: Partial<Question>[]; // from "# ACTIVITY STEPS"
   interview: { text: string; kind: 'general' | 'custom' }[];
   rubric: string[];
   sections: string[]; // which headings were found
 }
 
-const SECTION_RE = /^\s*#{1,2}\s*\**\s*(title|posting|job posting|screening questions|questions|interview questions|rubric)\s*\**\s*:?\s*$/i;
+const SECTION_RE = /^\s*#{1,2}\s*\**\s*(title|posting|job posting|screening questions|questions|activity steps|steps|interview questions|rubric)\s*\**\s*:?\s*$/i;
+const STEP_RE = /^\s*#{2,4}\s*\**\s*step\s*(\d+)\b.*$/i;
+const FIELD_RE = /^\s*[-*]?\s*\**\s*(question|task|guidance|tip|options|correct|correct option|expected|material)\s*\**\s*:\s*\**\s*(.*)$/i;
+
+/** Reads "## Step N" blocks with Question/Guidance/Options/Correct/Expected/Material lines. */
+export function parseSteps(lines: string[]): Partial<Question>[] {
+  const out: Partial<Question>[] = [];
+  let cur: Record<string, string[]> | null = null;
+  let field = '';
+  let fence = false;
+  const finish = () => {
+    if (!cur) return;
+    const get = (k: string) => (cur![k] || []).join('\n').trim();
+    const step: Partial<Question> = {};
+    const text = get('question');
+    if (text) step.text = text.replace(/^\*\*|\*\*$/g, '').trim();
+    if (get('guidance')) step.guidance = clean(get('guidance'));
+    if (get('material')) step.material = get('material');
+    const opts = (cur['options'] || []).map((l) => l.match(/^\s*(?:[-*•]|\d+[.)]|[A-Ha-h][.)])\s+(.*)$/)?.[1] ?? '').map(clean).filter(Boolean);
+    if (opts.length) step.options = opts;
+    const c = get('correct').match(/\d+|^[A-Ha-h]\b/);
+    if (c) step.correct = /\d/.test(c[0]) ? Number(c[0]) - 1 : c[0].toUpperCase().charCodeAt(0) - 65;
+    const e = get('expected').toLowerCase().match(/\b(yes|no)\b/);
+    if (e) step.expected = e[1] as 'yes' | 'no';
+    out.push(step);
+    cur = null;
+  };
+  for (const line of lines) {
+    if (!fence && STEP_RE.test(line)) { finish(); cur = {}; field = ''; continue; }
+    if (!cur) continue;
+    if (/^\s*```/.test(line)) fence = !fence;
+    const m = !fence && line.match(FIELD_RE);
+    if (m) {
+      const k = m[1].toLowerCase();
+      field = k === 'task' ? 'question' : k === 'tip' ? 'guidance' : k.startsWith('correct') ? 'correct' : k;
+      cur[field] = m[2].trim() ? [m[2]] : [];
+      continue;
+    }
+    if (field) (cur[field] ||= []).push(line);
+  }
+  finish();
+  return out;
+}
 
 const clean = (s: string) => s.replace(/\*\*/g, '').replace(/^["“”']+|["“”']+$/g, '').trim();
 
@@ -328,7 +438,7 @@ export function parseAiJob(raw: string): ParsedJob {
     // "## Questions" style headings only count when the AI wrote them in capitals
     if (m && (/^\s*#\s/.test(line) || m[1] === m[1].toUpperCase())) {
       const k = m[1].toLowerCase();
-      current = k === 'job posting' ? 'posting' : k === 'questions' ? 'screening questions' : k;
+      current = k === 'job posting' ? 'posting' : k === 'questions' ? 'screening questions' : k === 'steps' ? 'activity steps' : k;
       buckets[current] = [];
       continue;
     }
@@ -336,7 +446,7 @@ export function parseAiJob(raw: string): ParsedJob {
   }
   const sections = Object.keys(buckets);
   if (!sections.length) {
-    return { title: '', posting: text, questions: [], interview: [], rubric: [], sections: [] };
+    return { title: '', posting: text, questions: [], steps: [], interview: [], rubric: [], sections: [] };
   }
 
   const title = clean((buckets['title'] || []).find((l) => l.trim())?.replace(/^#+\s*/, '') || '');
@@ -368,7 +478,8 @@ export function parseAiJob(raw: string): ParsedJob {
       if (c && !rubric.includes(c)) rubric.push(c.slice(0, 40));
     }
   }
-  return { title, posting, questions, interview, rubric: rubric.slice(0, 8), sections };
+  const steps = parseSteps(buckets['activity steps'] || []);
+  return { title, posting, questions, steps, interview, rubric: rubric.slice(0, 8), sections };
 }
 
 /** Adds any {{partN}} tokens the AI left out, just before "How to apply" (or at the end). */
@@ -381,7 +492,7 @@ export function insertMissingTokens(posting: string, total: number): string {
   return posting.trimEnd() + '\n\n' + block + '\n';
 }
 
-export function ensureCodeWord(posting: string, word?: string): string {
+export function ensureCodeWord(posting: string, word?: string, video = true): string {
   if (!word || posting.toLowerCase().includes(word.toLowerCase())) return posting;
-  return posting.trimEnd() + '\n\n' + CODE_WORD_SENTENCE(word) + '\n';
+  return posting.trimEnd() + '\n\n' + CODE_WORD_SENTENCE(word, video) + '\n';
 }

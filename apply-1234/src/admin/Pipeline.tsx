@@ -134,10 +134,12 @@ function Chip({ on, children, onClick }: { on: boolean; children: React.ReactNod
 
 export function Flags({ a, wrong, className }: { a: Application; wrong: number; className?: string }) {
   const f = a.flags || {};
-  const items: { ok: boolean | null | undefined; label: string; title: string }[] = [
-    { ok: f.all_loom_links, label: 'Loom', title: f.all_loom_links ? 'All answers are Loom links' : 'Some answers are not Loom links' },
-    { ok: f.lengths_in_range, label: 'Length', title: f.lengths_in_range == null ? 'Length not checked' : f.lengths_in_range ? 'All answers within the requested length' : 'Some answers outside the requested length' },
-  ];
+  const items: { ok: boolean | null | undefined; label: string; title: string }[] = [];
+  // Older submissions (video only) have no step types; they always show the Loom and length checks.
+  const videoOnly = !(a.answers || []).some((x) => x.type && x.type !== 'video');
+  if (videoOnly || f.all_loom_links != null) items.push({ ok: f.all_loom_links, label: 'Loom', title: f.all_loom_links ? 'All videos are Loom links' : 'Some videos are not Loom links' });
+  if (videoOnly || f.lengths_in_range != null) items.push({ ok: f.lengths_in_range, label: 'Length', title: f.lengths_in_range == null ? 'Length not checked' : f.lengths_in_range ? 'All videos within the requested length' : 'Some videos outside the requested length' });
+  if (f.musthave_ok != null) items.push({ ok: f.musthave_ok, label: 'Must-haves', title: f.musthave_ok ? 'Every must-have answered as needed' : 'At least one must-have answered differently from what you need' });
   if (f.hidden_code_ok != null) items.push({ ok: f.hidden_code_ok, label: 'Code', title: f.hidden_code_ok ? 'Hidden code word found' : 'Hidden code word missing' });
   return (
     <div className={cx('flex flex-wrap items-center gap-1', className)}>
@@ -149,6 +151,14 @@ export function Flags({ a, wrong, className }: { a: Application; wrong: number; 
         </span>
       ))}
       <span title="Wrong link attempts before finding the page" className="text-[11px] rounded px-1.5 py-0.5 bg-paper-2 text-ink-2">{wrong} wrong tr{wrong === 1 ? 'y' : 'ies'}</span>
+      {f.quiz_total != null && f.quiz_total > 0 && (
+        <span title="Quick scenarios with the best answer" className={cx('text-[11px] rounded px-1.5 py-0.5 font-medium',
+          (f.quiz_right || 0) / f.quiz_total >= 0.75 ? 'bg-good-soft text-good' : (f.quiz_right || 0) / f.quiz_total >= 0.5 ? 'bg-paper-2 text-ink-2' : 'bg-bad-soft text-bad')}>
+          Scenarios {f.quiz_right || 0}/{f.quiz_total}
+        </span>
+      )}
+      {f.pasted && <span title="Most of at least one written answer was pasted in rather than typed" className="text-[11px] rounded px-1.5 py-0.5 bg-warn-soft text-warn">Pasted</span>}
+      {f.ai_used != null && <span title={f.ai_used ? 'Said they used AI. See how on their answers.' : 'Said they didn’t use AI'} className="text-[11px] rounded px-1.5 py-0.5 bg-paper-2 text-ink-2">{f.ai_used ? 'Used AI' : 'No AI'}</span>}
       {f.duplicate_email && <span className="text-[11px] rounded px-1.5 py-0.5 bg-warn-soft text-warn">Repeat</span>}
       {(a.metrics as any)?.source_label && <span title="Job board link they used" className="text-[11px] rounded px-1.5 py-0.5 bg-accent-soft text-accent">via {(a.metrics as any).source_label}</span>}
       {(a.attachments || []).length > 0 && <span title="Added a résumé or cover letter file" className="text-[11px] rounded px-1.5 py-0.5 bg-paper-2 text-ink-2">Résumé</span>}

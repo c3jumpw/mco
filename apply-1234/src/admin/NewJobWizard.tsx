@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { Job } from '../lib/types';
+import type { Job, Question } from '../lib/types';
 import { DEFAULT_DOMAIN } from '../lib/supabase';
 import {
   DEFAULT_POSTING, aiJobPrompt, ensureCodeWord, fullUrl, hintText, insertMissingTokens, mdToHtml, parseAiJob,
-  postingPlain, splitUrl,
+  postingPlain, splitUrl, stepsHaveVideo,
 } from '../lib/posting';
+import { FAMILIES, activityMinutes, activityWarnings, applyAiSteps, familyById, newStep, stepType, suggestFamily } from '../lib/steps';
+import StepsEditor, { StepIcon } from './job/StepsEditor';
 import { randomCode, randomSlug, randomWord, rangeLabel, storeJson } from '../lib/util';
 import { DEFAULT_ACTIVITY, createJob, createJobFromWizard, freeCode, linkProblem, listJobs, takenLinks, updateJob } from './data';
 import { ParsedSummary } from './AiImport';
 import { Button, Card, CopyButton, Field, Input, Pill, Segmented, Select, Textarea, Toggle, cx, useToast } from '../ui';
 
-type Step = 0 | 1 | 2 | 3 | 4;
+type Step = 0 | 1 | 2 | 3 | 4 | 5;
 interface WizardState {
+  v?: number;
   step: Step;
   title: string;
   notes: string;
@@ -27,24 +30,36 @@ interface WizardState {
   hintFormat: string;
   aiText: string;
   skippedAi: boolean;
+  family?: string;        // role family the steps came from ('video' = classic video questions)
+  steps?: Question[] | null;
+  edited?: boolean;       // steps changed after picking a preset
 }
 
 const KEY = 'a1234_wizard';
-const STEPS = ['Notes', 'Link', 'AI prompt', 'Paste reply', 'Launch'];
+const STEPS = ['Notes', 'Link', 'Activity', 'AI prompt', 'Paste reply', 'Launch'];
+const videoSteps = (n: number) => Array.from({ length: n }, () => newStep('video'));
+
+/** Drafts saved before the Activity step existed: shift them along one step. */
+function upgrade(saved: WizardState | null): Partial<WizardState> {
+  if (!saved) return {};
+  if (saved.v === 2) return saved;
+  return { ...saved, v: 2, step: (saved.step >= 2 ? saved.step + 1 : saved.step) as Step, family: 'video', steps: videoSteps(saved.questionCount || 5) };
+}
 const HINTS = ['Part {n} of {total}: {text}', 'Clue {n}: {text}', '[{text}]', 'Key: {text}'];
 
 function fresh(): WizardState {
   const slug = randomCode();
   return {
-    step: 0, title: '', notes: '', questionCount: 5, answer: '60-180', useCodeWord: true, codeWord: randomWord(),
+    v: 2, step: 0, title: '', notes: '', questionCount: 5, answer: '60-180', useCodeWord: true, codeWord: randomWord(),
     requireTranscript: true, domain: DEFAULT_DOMAIN, slug, parts: 4, hintFormat: HINTS[0], aiText: '', skippedAi: false,
+    family: undefined, steps: null, edited: false,
   };
 }
 
 export default function NewJobWizard() {
   const nav = useNavigate();
   const toast = useToast();
-  const [s, setS] = useState<WizardState>(() => ({ ...fresh(), ...(storeJson<WizardState>(KEY) || {}) }));
+  const [s, setS] = useState<WizardState>(() => ({ ...fresh(), ...upgrade(storeJson<WizardState>(KEY)) }));
   const [created, setCreated] = useState<Job | null>(null);
   const [busy, setBusy] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -78,15 +93,41 @@ export default function NewJobWizard() {
   const url = fullUrl(s.domain, s.slug);
   const fragments = useMemo(() => splitUrl(url, s.parts).map((text) => ({ text })), [url, s.parts]);
   const codeWord = s.useCodeWord ? s.codeWord : undefined;
-  const prompt = aiJobPrompt({ title: s.title, notes: s.notes, parts: fragments.length, questionCount: s.questionCount, answerRange: range, codeWord });
+  const steps = s.steps || [];
+  const hasVideo = steps.some((q) => stepType(q) === 'video');
+  const prompt = aiJobPrompt({ title: s.title, notes: s.notes, parts: fragments.length, questionCount: s.questionCount, answerRange: range, codeWord, steps });
   const parsed = useMemo(() => parseAiJob(s.aiText), [s.aiText]);
   const finalTitle = (s.title.trim() || parsed.title || '').trim();
+  const video = stepsHaveVideo(steps);
   const finalPosting = s.skippedAi || !parsed.posting
-    ? ensureCodeWord(insertMissingTokens(s.skippedAi ? DEFAULT_POSTING : parsed.posting || DEFAULT_POSTING, fragments.length), codeWord)
-    : ensureCodeWord(insertMissingTokens(parsed.posting, fragments.length), codeWord);
+    ? ensureCodeWord(insertMissingTokens(s.skippedAi ? DEFAULT_POSTING : parsed.posting || DEFAULT_POSTING, fragments.length), codeWord, video)
+    : ensureCodeWord(insertMissingTokens(parsed.posting, fragments.length), codeWord, video);
   const placeholders = Array.from(new Set(finalPosting.match(/\[add [^\]]+\]/gi) || []));
+  // The AI fills in the chosen steps; an older-style reply with only screening questions still works.
+  const finalSteps: Question[] = useMemo(() => {
+    if (s.skippedAi) return steps;
+    if (parsed.steps.length) return applyAiSteps(steps, parsed.steps);
+    if (parsed.questions.length && steps.every((q) => stepType(q) === 'video')) return parsed.questions.slice(0, 8).map((q) => newStep('video', q.text, { guidance: q.guidance }));
+    return steps;
+  }, [s.skippedAi, steps, parsed]);
+  const stepIssues = activityWarnings(finalSteps).filter((w) => /no question yet|at least 2 options|empty option|placeholder|to critique|No steps/.test(w));
+  const suggested = suggestFamily(s.title, s.notes);
 
-  const go = (step: Step) => set({ step });
+  const go = (step: Step) => {
+    // First visit to the Activity step: start from the suggested preset.
+    if (step === 2 && !s.steps) set({ step, family: suggested.id, steps: suggested.steps(), edited: false });
+    else set({ step });
+  };
+  // A draft saved on the Activity step before its steps were picked.
+  useEffect(() => {
+    if (s.step === 2 && !s.steps) set({ family: suggested.id, steps: suggested.steps(), edited: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.step, s.steps]);
+  const pickFamily = (id: string) => {
+    if (id === s.family) return;
+    if (s.edited && !confirm('Replace your edited steps with this preset?')) return;
+    set({ family: id, steps: id === 'video' ? videoSteps(s.questionCount) : familyById(id)!.steps(), edited: false });
+  };
 
   // Re-check against the latest jobs, in case one was created in another tab.
   const freshProblem = async () => {
@@ -99,6 +140,7 @@ export default function NewJobWizard() {
     if (problem) { toast(problem, 'bad'); return; }
     go(2);
   };
+  const promptNext = () => go(3);
 
   const create = async (goLive = false) => {
     setBusy(true);
@@ -117,15 +159,15 @@ export default function NewJobWizard() {
           ...DEFAULT_ACTIVITY,
           answer_min: ansMin,
           answer_max: ansMax,
-          require_transcript: s.requireTranscript,
+          require_transcript: s.requireTranscript && hasVideo,
           hidden_code: codeWord || '',
-          extra: 'Title each video **Q1 – Your Name**, **Q2 – Your Name**, and so on, and set sharing so anyone with the link can watch it.',
+          extra: hasVideo ? 'Title each video **Q1 – Your Name**, **Q2 – Your Name**, and so on, and set sharing so anyone with the link can watch it.' : '',
         },
-        questions: s.skippedAi ? [] : parsed.questions.slice(0, 8),
+        questions: finalSteps,
         interview: s.skippedAi ? [] : parsed.interview,
         rubric: s.skippedAi ? [] : parsed.rubric,
       });
-      if (goLive && job.questions.length) {
+      if (goLive && job.questions.length && !stepIssues.length) {
         await updateJob(job.id, { status: 'published', published_at: new Date().toISOString() });
         job.status = 'published';
       }
@@ -160,7 +202,7 @@ export default function NewJobWizard() {
       <h1 className="font-display text-4xl sm:text-5xl leading-none">From notes to posting.</h1>
       <p className="text-sm text-muted mt-2">Your progress saves as you go, so you can switch to your AI tool and come back.</p>
 
-      <ol className="mt-6 mb-6 grid grid-cols-5 gap-1.5">
+      <ol className="mt-6 mb-6 grid grid-cols-6 gap-1.5">
         {STEPS.map((label, i) => (
           <li key={label}>
             <button type="button" disabled={i > s.step} onClick={() => go(i as Step)} className="w-full text-left disabled:cursor-default">
@@ -184,28 +226,6 @@ export default function NewJobWizard() {
               <Field label="Job title (optional)" hint="Leave blank and the AI suggests one.">
                 <Input value={s.title} onChange={(e) => set({ title: e.target.value })} placeholder="e.g. Executive Assistant to the CEO" />
               </Field>
-            </div>
-          </Card>
-          <Card>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Video questions">
-                <Segmented value={String(s.questionCount)} onChange={(v) => set({ questionCount: Number(v) })}
-                  options={['3', '4', '5', '6'].map((n) => ({ id: n, label: n }))} />
-              </Field>
-              <Field label="Answer length">
-                <Segmented value={s.answer} onChange={(v) => set({ answer: v })}
-                  options={[{ id: '60-120', label: '1–2 min' }, { id: '60-180', label: '1–3 min' }, { id: '120-240', label: '2–4 min' }]} />
-              </Field>
-            </div>
-            <div className="mt-5 space-y-4">
-              <Toggle checked={s.useCodeWord} onChange={(v) => set({ useCodeWord: v })}
-                label={<>Hidden code-word test {s.useCodeWord && <span className="font-mono text-accent">“{s.codeWord}”</span>}</>}
-                hint="The posting asks candidates to put this word in every video title. Submissions are checked for it automatically." />
-              {s.useCodeWord && (
-                <button className="text-[12px] text-muted underline underline-offset-2 -mt-2 ml-[52px]" onClick={() => set({ codeWord: randomWord(s.codeWord) })}>Pick another word</button>
-              )}
-              <Toggle checked={s.requireTranscript} onChange={(v) => set({ requireTranscript: v })}
-                label="Ask for video transcripts" hint="Candidates paste Loom's transcript under each answer, so AI exports can read what they said." />
             </div>
           </Card>
           <div className="flex flex-wrap items-center gap-3">
@@ -266,12 +286,76 @@ export default function NewJobWizard() {
           </Card>
           <div className="flex gap-3">
             <Button variant="ghost" onClick={() => go(0)}>Back</Button>
-            <Button variant="primary" size="lg" disabled={!!slugProblem} onClick={checkSlugThenNext}>Next: AI prompt →</Button>
+            <Button variant="primary" size="lg" disabled={!!slugProblem} onClick={checkSlugThenNext}>Next: the activity →</Button>
           </div>
         </div>
       )}
 
       {s.step === 2 && (
+        <div className="space-y-5">
+          <Card>
+            <h2 className="font-semibold">What candidates will do</h2>
+            <p className="text-sm text-muted mt-1">
+              Pick the kind of role and you get a set of steps that tests what matters for it. Change, add or remove steps below; the AI writes them for this job on the next step.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {FAMILIES.map((f) => (
+                <button key={f.id} onClick={() => pickFamily(f.id)} title={f.examples}
+                  className={cx('rounded-full border px-3 py-1.5 text-[13px] transition', s.family === f.id ? 'bg-ink text-white border-ink' : 'border-line hover:border-ink/30')}>
+                  {f.label}{f.id === suggested.id && s.family !== f.id && <span className="ml-1 text-accent">•</span>}
+                </button>
+              ))}
+              <button onClick={() => pickFamily('video')}
+                className={cx('rounded-full border px-3 py-1.5 text-[13px] transition', s.family === 'video' ? 'bg-ink text-white border-ink' : 'border-line border-dashed hover:border-ink/30')}>
+                Video questions only
+              </button>
+            </div>
+            {s.family && s.family !== 'video' && (
+              <p className="text-[13px] text-ink-2 mt-3">
+                {s.family === suggested.id ? 'Suggested from your notes. ' : ''}Tests <strong>{familyById(s.family)?.shows.toLowerCase()}</strong>.
+                {' '}<span className="text-muted">Examples: {familyById(s.family)?.examples}.</span>
+              </p>
+            )}
+            {s.family === 'video' && (
+              <div className="mt-3 flex items-center gap-3 text-sm">
+                How many?
+                <Segmented size="sm" value={String(s.questionCount)} onChange={(v) => set({ questionCount: Number(v), steps: videoSteps(Number(v)), edited: false })}
+                  options={['2', '3', '4', '5', '6'].map((n) => ({ id: n, label: n }))} />
+              </div>
+            )}
+          </Card>
+          <StepsEditor steps={steps} compact aiFills title={s.title} notes={s.notes} activity={{ answer_max: ansMax }}
+            onChange={(next) => set({ steps: next, edited: true })} />
+          <Card>
+            <div className="space-y-4">
+              {hasVideo && (
+                <Field label="Video answer length">
+                  <Segmented value={s.answer} onChange={(v) => set({ answer: v })}
+                    options={[{ id: '60-120', label: '1–2 min' }, { id: '60-180', label: '1–3 min' }, { id: '120-240', label: '2–4 min' }]} />
+                </Field>
+              )}
+              <Toggle checked={s.useCodeWord} onChange={(v) => set({ useCodeWord: v })}
+                label={<>Hidden code-word test {s.useCodeWord && <span className="font-mono text-accent">“{s.codeWord}”</span>}</>}
+                hint={video ? 'The posting asks candidates to put this word in every video title. Submissions are checked for it automatically.'
+                  : 'The posting asks candidates to use this word in a written answer. Submissions are checked for it automatically.'} />
+              {s.useCodeWord && (
+                <button className="text-[12px] text-muted underline underline-offset-2 -mt-2 ml-[52px]" onClick={() => set({ codeWord: randomWord(s.codeWord) })}>Pick another word</button>
+              )}
+              {hasVideo && (
+                <Toggle checked={s.requireTranscript} onChange={(v) => set({ requireTranscript: v })}
+                  label="Ask for video transcripts" hint="Candidates paste Loom's transcript under each video, so AI exports can read what they said." />
+              )}
+            </div>
+          </Card>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="ghost" onClick={() => go(1)}>Back</Button>
+            <Button variant="primary" size="lg" disabled={!steps.length} onClick={promptNext}>Next: AI prompt →</Button>
+            <span className="text-sm text-muted">{steps.length} steps · about {activityMinutes(steps, { answer_max: ansMax })} min for candidates</span>
+          </div>
+        </div>
+      )}
+
+      {s.step === 3 && (
         <div className="space-y-5">
           <Card>
             <h2 className="font-semibold">Let AI draft the job</h2>
@@ -290,23 +374,28 @@ export default function NewJobWizard() {
             </details>
           </Card>
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="ghost" onClick={() => go(1)}>Back</Button>
-            <Button variant="primary" size="lg" onClick={() => { set({ skippedAi: false }); go(3); }}>I have the reply →</Button>
-            <button className="text-sm text-muted underline underline-offset-2" onClick={() => { set({ skippedAi: true }); go(4); }}>Skip: I'll write it myself</button>
+            <Button variant="ghost" onClick={() => go(2)}>Back</Button>
+            <Button variant="primary" size="lg" onClick={() => { set({ skippedAi: false }); go(4); }}>I have the reply →</Button>
+            <button className="text-sm text-muted underline underline-offset-2" onClick={() => { set({ skippedAi: true }); go(5); }}>Skip: I'll write it myself</button>
           </div>
         </div>
       )}
 
-      {s.step === 3 && (
+      {s.step === 4 && (
         <div className="space-y-5">
           <Card>
             <h2 className="font-semibold">Paste the AI's reply</h2>
-            <p className="text-sm text-muted mt-1">Paste all of it. The app splits it into the title, posting, questions, interview kit and rubric.</p>
+            <p className="text-sm text-muted mt-1">Paste all of it. The app splits it into the title, posting, activity steps, interview kit and rubric.</p>
             <Textarea rows={10} autoGrow={false} className="mt-3 font-mono text-[13px]" value={s.aiText}
-              placeholder={'# TITLE\n…\n\n# POSTING\n…\n\n# SCREENING QUESTIONS\n…'} onChange={(e) => set({ aiText: e.target.value })} />
+              placeholder={'# TITLE\n…\n\n# POSTING\n…\n\n# ACTIVITY STEPS\n…'} onChange={(e) => set({ aiText: e.target.value })} />
             {s.aiText.trim() && parsed.sections.length === 0 && (
               <p className="mt-3 rounded-xl bg-warn-soft text-warn text-sm px-4 py-3">
-                No section headings found, so this will be used as the posting only. For the full import, the reply needs the headings # TITLE, # POSTING, # SCREENING QUESTIONS, # INTERVIEW QUESTIONS and # RUBRIC. Try asking the AI to “use the exact format from my prompt”.
+                No section headings found, so this will be used as the posting only. For the full import, the reply needs the headings # TITLE, # POSTING, # ACTIVITY STEPS, # INTERVIEW QUESTIONS and # RUBRIC. Try asking the AI to “use the exact format from my prompt”.
+              </p>
+            )}
+            {s.aiText.trim() && parsed.sections.length > 0 && !parsed.steps.length && steps.some((q) => stepType(q) !== 'video') && (
+              <p className="mt-3 rounded-xl bg-warn-soft text-warn text-sm px-4 py-3">
+                The reply has no # ACTIVITY STEPS section, so your steps keep their preset wording. You can edit them after creating the job.
               </p>
             )}
           </Card>
@@ -317,13 +406,13 @@ export default function NewJobWizard() {
             </Card>
           )}
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => go(2)}>Back</Button>
-            <Button variant="primary" size="lg" disabled={!s.aiText.trim()} onClick={() => go(4)}>Next: review →</Button>
+            <Button variant="ghost" onClick={() => go(3)}>Back</Button>
+            <Button variant="primary" size="lg" disabled={!s.aiText.trim()} onClick={() => go(5)}>Next: review →</Button>
           </div>
         </div>
       )}
 
-      {s.step === 4 && (
+      {s.step === 5 && (
         <div className="space-y-5">
           <Card>
             <Field label="Job title">
@@ -332,11 +421,23 @@ export default function NewJobWizard() {
             <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <Fact k="Link" v={<span className="font-mono break-all">{url}</span>} />
               <Fact k="Pieces in posting" v={`${fragments.length}`} />
-              <Fact k="Video questions" v={s.skippedAi ? 'Add later' : `${parsed.questions.length}`} warn={!s.skippedAi && !parsed.questions.length} />
-              <Fact k="Answer length" v={range} />
+              <Fact k="Activity" v={`${finalSteps.length} steps · about ${activityMinutes(finalSteps, { answer_max: ansMax })} min`} warn={!finalSteps.length} />
+              {hasVideo ? <Fact k="Video length" v={range} /> : <Fact k="Video" v="None required" />}
               <Fact k="Interview questions" v={s.skippedAi ? 'Add later' : `${parsed.interview.length}`} />
               <Fact k="Code word" v={codeWord ? <span className="font-mono">{codeWord}</span> : 'Off'} />
             </dl>
+          </Card>
+          <Card>
+            <p className="text-sm font-medium mb-2">Activity steps</p>
+            <ol className="space-y-1.5">
+              {finalSteps.map((q, i) => (
+                <li key={q.id} className="flex gap-2.5 text-sm">
+                  <StepIcon type={stepType(q)} className="h-4 w-4 mt-0.5 text-muted shrink-0" />
+                  <span className="min-w-0 line-clamp-2"><span className="text-muted font-mono text-[12px] mr-1">{i + 1}</span>{q.text.replace(/```[\s\S]*?```/g, '[code]') || <em className="text-muted">No question yet</em>}</span>
+                </li>
+              ))}
+            </ol>
+            {stepIssues.length > 0 && <p className="text-xs text-warn mt-3">{stepIssues.join(' ')} Fix these on the job’s Steps tab before going live.</p>}
           </Card>
           {placeholders.length > 0 && (
             <Card className="border-warn/30 bg-warn-soft/40">
@@ -355,9 +456,9 @@ export default function NewJobWizard() {
             </details>
           </Card>
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="ghost" onClick={() => go(s.skippedAi ? 2 : 3)}>Back</Button>
+            <Button variant="ghost" onClick={() => go(s.skippedAi ? 3 : 4)}>Back</Button>
             <Button variant="primary" size="lg" disabled={busy} onClick={() => create(false)}>Create as draft</Button>
-            <Button variant="accent" size="lg" disabled={busy || placeholders.length > 0 || (!s.skippedAi && !parsed.questions.length) || s.skippedAi}
+            <Button variant="accent" size="lg" disabled={busy || placeholders.length > 0 || !finalSteps.length || stepIssues.length > 0 || s.skippedAi}
               onClick={() => create(true)}>Create and go live</Button>
           </div>
           <p className="text-xs text-muted">Drafts aren't visible to candidates. You can preview them while signed in.</p>
@@ -381,6 +482,8 @@ function Launched({ job, placeholders, onLive }: { job: Job; placeholders: strin
   const live = job.status === 'published';
   const plain = () => `${job.title}\n\n` + postingPlain(job.posting, job.fragments, job.hint_format);
   const html = () => `<h1>${job.title}</h1>` + mdToHtml(job.posting, undefined, job.fragments, job.hint_format);
+  const stepsUnfinished = activityWarnings(job.questions).some((w) => /placeholder|no question yet|empty option|to critique/.test(w));
+  const extra = stepsUnfinished ? 1 : 0;
   return (
     <div className="rise max-w-2xl">
       <p className="font-mono text-sm text-good">✓ {live ? 'Created and live' : 'Created as a draft'}</p>
@@ -389,20 +492,25 @@ function Launched({ job, placeholders, onLive }: { job: Job; placeholders: strin
         <Step n={1} title="Check the activity page" body="See exactly what candidates see after they find the link.">
           <a href={`${window.location.origin}/${job.slug}`} target="_blank" rel="noreferrer"><Button>Preview as candidate ↗</Button></a>
         </Step>
-        <Step n={2} title={placeholders.length ? 'Finish the posting' : 'Review the posting'}
+        {stepsUnfinished && (
+          <Step n={2} title="Finish the activity steps" body="Some steps still have [placeholders] or missing parts.">
+            <Link to={`/admin/jobs/${job.id}?tab=questions`}><Button>Open steps</Button></Link>
+          </Step>
+        )}
+        <Step n={2 + extra} title={placeholders.length ? 'Finish the posting' : 'Review the posting'}
           body={placeholders.length ? `Still to fill in: ${placeholders.join(', ')}.` : 'Tweak wording, then save a version.'}>
           <Link to={`/admin/jobs/${job.id}?tab=posting`}><Button>Open posting</Button></Link>
         </Step>
-        <Step n={3} title="Go live" body="Opens the activity page to candidates.">
+        <Step n={3 + extra} title="Go live" body="Opens the activity page to candidates.">
           {live ? <Pill tone="good">Live</Pill> : (
-            <Button variant="accent" disabled={placeholders.length > 0 || !job.questions.length} onClick={async () => {
+            <Button variant="accent" disabled={placeholders.length > 0 || !job.questions.length || stepsUnfinished} onClick={async () => {
               const err = await updateJob(job.id, { status: 'published', published_at: new Date().toISOString() });
               if (err) toast(err.message, 'bad'); else { toast('Live'); onLive({ ...job, status: 'published' }); }
             }}>Go live</Button>
           )}
-          {!live && placeholders.length > 0 && <p className="text-xs text-muted mt-2">Fill in the placeholders first.</p>}
+          {!live && (placeholders.length > 0 || stepsUnfinished) && <p className="text-xs text-muted mt-2">Fill in the placeholders first.</p>}
         </Step>
-        <Step n={4} title="Post it on job boards" body="The pieces of the link are filled in. Paste it into Indeed, LinkedIn or anywhere else.">
+        <Step n={4 + extra} title="Post it on job boards" body="The pieces of the link are filled in. Paste it into Indeed, LinkedIn or anywhere else.">
           <div className="flex flex-wrap gap-2">
             <CopyButton variant="primary" label="Copy formatted" text={plain} html={html} done="Posting copied" />
             <CopyButton label="Copy plain text" text={plain} />

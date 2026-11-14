@@ -22,7 +22,7 @@ const CORS = {
 
 const DEFAULT_CONFIRM_SUBJECT = 'We got your answers for {role}';
 const DEFAULT_CONFIRM_BODY =
-  'Hi {first},\n\nThanks for completing the activity for the {role} role. Your video answers came through, and a person on our team will watch every one.\n\nWhat happens next: if your answers are a good fit, we\'ll email you to set up a short interview. Either way, we\'ll let you know.\n\nYou don\'t need to do anything else. If something went wrong with your submission, just reply to this email.\n';
+  'Hi {first},\n\nThanks for completing the activity for the {role} role. Your answers came through, and a person on our team will review every one.\n\nWhat happens next: if your answers are a good fit, we\'ll email you to set up a short interview. Either way, we\'ll let you know.\n\nYou don\'t need to do anything else. If something went wrong with your submission, just reply to this email.\n';
 
 const KIND_LABEL: Record<string, string> = { bug: 'Something isn\'t working', question: 'Question about the role', other: 'Other' };
 
@@ -113,8 +113,8 @@ Deno.serve(async (req) => {
     const first = String(a.name || '').trim().split(/\s+/)[0];
     const editor = a.role === 'editor';
     const what = editor
-      ? `You can edit the ${role} job and manage its candidates: watch their video answers, score them, move them through the stages and email them.`
-      : `You can watch each candidate's video answers, fill in your own scorecard and leave notes for the hiring team.`;
+      ? `You can edit the ${role} job and manage its candidates: review their answers, score them, move them through the stages and email them.`
+      : `You can review each candidate's answers, fill in your own scorecard and leave notes for the hiring team.`;
     const steps = [
       `Open <a href="${SITE}/admin" style="color:${INK};">apply1234.com/admin</a>`,
       `Choose <b>First time? Create your login</b> and sign up with <b>${esc(a.email)}</b>`,
@@ -185,13 +185,21 @@ Deno.serve(async (req) => {
       v === true ? `✓ ${yes}` : v === false ? `<span style="color:#c0352b">✗ ${no}</span>` : unknown;
     const files = Array.isArray(app.attachments) ? app.attachments : [];
     const link = `${SITE}/admin/candidates/${app.id}`;
-    const answered = Array.isArray(app.answers) ? app.answers.length : 0;
+    const answers: { type?: string; skipped?: boolean }[] = Array.isArray(app.answers) ? app.answers : [];
+    const answered = answers.filter((a) => !a.skipped).length;
+    const videoOnly = !answers.some((a) => a.type && a.type !== 'video');
+    const hasVideo = videoOnly || f.all_loom_links != null;
+    const ai = app.metrics?.ai_use as { used?: boolean; how?: string } | undefined;
     const summary = (showEmail: boolean) => table(
       (showEmail ? row('Email', `<a href="mailto:${esc(app.email)}" style="color:${INK}">${esc(app.email)}</a>`) : '') +
-      row('Answers', `${answered} video${answered === 1 ? '' : 's'}`) +
-      row('Code word', mark(f.hidden_code_ok, 'In video titles', 'Missing from titles', 'Not used')) +
-      row('Video lengths', mark(f.lengths_in_range, 'In range', 'Outside the suggested range', 'Not shared by Loom')) +
-      row('Transcripts', mark(f.transcripts_ok, 'Included', 'Missing')) +
+      row('Answers', videoOnly ? `${answered} video${answered === 1 ? '' : 's'}` : `${answered} of ${answers.length} steps`) +
+      (f.musthave_ok != null ? row('Must-haves', mark(f.musthave_ok, 'All as needed', 'At least one doesn’t match')) : '') +
+      (f.quiz_total ? row('Quick scenarios', `${f.quiz_right || 0} of ${f.quiz_total} best answers`) : '') +
+      row('Code word', mark(f.hidden_code_ok, hasVideo ? 'Found' : 'Found in their answers', 'Missing', 'Not used')) +
+      (hasVideo ? row('Video lengths', mark(f.lengths_in_range, 'In range', 'Outside the suggested range', 'Not shared by Loom')) : '') +
+      (hasVideo && f.transcripts_ok != null ? row('Transcripts', mark(f.transcripts_ok, 'Included', 'Missing')) : '') +
+      (f.pasted ? row('Writing', '<span style="color:#b26a00">A written answer was mostly pasted in</span>') : '') +
+      (ai ? row('AI use', ai.used ? `Used AI${ai.how ? `: “${esc(String(ai.how).slice(0, 160))}”` : ''}` : 'Didn’t use AI') : '') +
       (f.duplicate_email ? row('Note', '<span style="color:#b26a00">Applied before with this email</span>') : '') +
       row('Résumé / letter', files.length || app.cover_letter
         ? [files.length ? `${files.length} file${files.length === 1 ? '' : 's'}` : '', app.cover_letter ? 'cover letter' : ''].filter(Boolean).join(' + ')
@@ -222,9 +230,9 @@ Deno.serve(async (req) => {
         return send(key, {
           to: [r.email],
           subject: `New candidate for ${role}: ${app.name}`,
-          text: `${app.name} applied for ${role}. Watch their answers and add your scorecard: ${link}\n`,
+          text: `${app.name} applied for ${role}. Review their answers and add your scorecard: ${link}\n`,
           html: layout(heading(`New candidate: ${app.name}`, sub) + summary(showEmail) +
-            button(link, r.role === 'editor' ? 'Open their answers' : 'Watch and score') +
+            button(link, r.role === 'editor' ? 'Open their answers' : 'Review and score') +
             `<p style="margin:14px 0 0;font-size:12px;color:${MUTED};">You get these because you have access to ${esc(role)}. Ask the hiring team to switch them off.</p>`,
             `${app.name} applied for ${role}.`),
           reply_to: fallbackReply || undefined,

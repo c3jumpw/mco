@@ -1,5 +1,5 @@
 import { supabase, DEFAULT_DOMAIN } from '../lib/supabase';
-import type { Activity, Application, Dashboard, HEvent, HMessage, Job, JobStats, Note, Review, Template } from '../lib/types';
+import type { Activity, Application, Dashboard, HEvent, HMessage, Job, JobStats, Note, Question, Review, Template } from '../lib/types';
 import { DEFAULT_POSTING, fullUrl, splitUrl } from '../lib/posting';
 import { randomCode, sourceCode, uid } from '../lib/util';
 
@@ -25,7 +25,7 @@ export const DEFAULT_SETTINGS = {
 
 export const DEFAULT_CONFIRM = {
   confirm_subject: 'We got your answers for {role}',
-  confirm_body: 'Hi {first},\n\nThanks for completing the activity for the {role} role. Your video answers came through, and a person on our team will watch every one.\n\nWhat happens next: if your answers are a good fit, we\'ll email you to set up a short interview. Either way, we\'ll let you know.\n\nYou don\'t need to do anything else. If something went wrong with your submission, just reply to this email.\n',
+  confirm_body: 'Hi {first},\n\nThanks for completing the activity for the {role} role. Your answers came through, and a person on our team will review every one.\n\nWhat happens next: if your answers are a good fit, we\'ll email you to set up a short interview. Either way, we\'ll let you know.\n\nYou don\'t need to do anything else. If something went wrong with your submission, just reply to this email.\n',
 };
 
 export async function getDashboard(days: number): Promise<Dashboard | null> {
@@ -159,7 +159,7 @@ export interface NewJobInput {
   parts: number;
   hint_format: string;
   activity: Activity;
-  questions: { text: string; guidance?: string }[];
+  questions: (Partial<Question> & { text: string })[];
   interview: { text: string; kind: 'general' | 'custom' }[];
   rubric: string[];
 }
@@ -178,7 +178,7 @@ export async function createJobFromWizard(i: NewJobInput): Promise<Job> {
       fragments,
       hint_format: i.hint_format,
       activity: i.activity,
-      questions: i.questions.map((q) => ({ id: uid('q'), text: q.text, guidance: q.guidance || '' })),
+      questions: i.questions.map((q) => ({ ...q, id: q.id || uid('q'), text: q.text, guidance: q.guidance || '' })),
       interview_questions: i.interview.map((q) => ({ id: uid('q'), text: q.text, kind: q.kind })),
       ...(i.rubric.length ? { rubric: i.rubric } : {}),
       settings: DEFAULT_SETTINGS,

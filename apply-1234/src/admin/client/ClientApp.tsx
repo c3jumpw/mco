@@ -136,7 +136,7 @@ function ClientJobPage({ jobs }: { jobs: ClientJob[] }) {
       </div>
 
       <div className="mt-4 rounded-xl bg-paper-2 px-4 py-3 text-sm text-ink-2 leading-relaxed">
-        Open a candidate to watch their video answers, fill in your scorecard and add notes. Your scores are saved as you click, and the hiring team sees them right away.
+        Open a candidate to go through their answers, fill in your scorecard and add notes. Your scores are saved as you click, and the hiring team sees them right away.
       </div>
 
       {apps.length === 0 ? (

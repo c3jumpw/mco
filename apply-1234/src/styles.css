@@ -50,3 +50,17 @@ body {
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 /* backwards, not both: once finished the animation must leave no transform behind, or fixed pop-ups inside get placed against the page instead of the screen. */
 .rise { animation: rise .45s cubic-bezier(.2,.7,.2,1) backwards; }
+
+/* Code and tables inside step material and postings */
+.prose-posting pre, .md-step pre { @apply my-3 p-3 rounded-lg bg-ink text-paper text-[13px] leading-relaxed overflow-x-auto font-mono; }
+.prose-posting code, .md-step code { @apply font-mono text-[0.92em]; }
+.prose-posting :not(pre) > code, .md-step :not(pre) > code { @apply bg-paper-2 px-1 py-0.5 rounded; }
+.md-table { @apply my-3 overflow-x-auto; }
+.md-table table { @apply w-full text-sm border-collapse; }
+.md-table th { @apply text-left font-semibold px-2.5 py-1.5 border-b-2 border-line bg-paper-2; }
+.md-table td { @apply px-2.5 py-1.5 border-b border-line tabular-nums; }
+.md-step p { @apply my-2 leading-relaxed; }
+.md-step ul { @apply my-2 pl-5 list-disc space-y-1; }
+.md-step ol { @apply my-2 pl-5 list-decimal space-y-1; }
+.md-step h1, .md-step h2, .md-step h3 { @apply font-semibold mt-3 mb-1; }
+.md-step a { @apply underline decoration-accent underline-offset-2; }

@@ -4,14 +4,14 @@ import { supabase } from '../lib/supabase';
 import type { Application, ClientJob, HEvent, Job, Note, Review, Stage } from '../lib/types';
 import { STAGES } from '../lib/types';
 import { behavior, EVENT_LABELS } from '../lib/metrics';
-import { embedUrl, fetchLoomInfo, knownDuration, loomId, type LoomInfo } from '../lib/loom';
-import { fmtDate, fmtDuration, fmtSpan, fromLocalInput, rangeLabel, relTime, toLocalInput } from '../lib/util';
-import { reviewAverage } from '../lib/export';
+import { fmtDate, fmtSpan, fromLocalInput, relTime, toLocalInput } from '../lib/util';
+import { followUpPrompt, reviewAverage } from '../lib/export';
 import { DEFAULT_SETTINGS, fillTemplate, getApplication, getJob, updateApplication } from './data';
 import { fileLink, fmtSize } from '../lib/files';
-import { Button, Card, Input, Loading, Pill, SectionTitle, Select, Stars, Textarea, cx, useToast } from '../ui';
+import { Button, Card, CopyButton, Input, Loading, Pill, SectionTitle, Select, Stars, Textarea, cx, useToast } from '../ui';
 import { Flags, stageLabel, stageTone } from './Pipeline';
 import ExportModal from './ExportModal';
+import { AiUseCard, AnswerCard } from './StepAnswer';
 import { BEFORE_REFRESH } from './refresh';
 import { useRole } from './role';
 
@@ -169,6 +169,8 @@ export default function CandidateDetail({ client }: { client?: ClientJob[] } = {
               score={myReview?.scores?.[ans.question_id]}
               onScore={(v) => upsertReview(me, app.id, myReview, { scores: { ...(myReview?.scores || {}), [ans.question_id]: v } }, setReviews, toast)} />
           ))}
+
+          <AiUseCard metrics={app.metrics} />
 
           {((app.attachments || []).length > 0 || (app.cover_letter || '').trim()) && <ExtrasCard app={app} />}
 
@@ -330,58 +332,6 @@ function Metric({ k, v, tone }: { k: string; v: string; tone?: 'good' | 'warn' }
   );
 }
 
-function AnswerCard({ n, ans, job, score, onScore }:
-  { n: number; ans: Application['answers'][number]; job: Job | null; score?: number; onScore: (v: number) => void }) {
-  const [live, setLive] = useState<LoomInfo | null>(null);
-  const [showTx, setShowTx] = useState(false);
-  const id = ans.loom_id || loomId(ans.url);
-  useEffect(() => { if (id) fetchLoomInfo(ans.url).then(setLive); }, [ans.url, id]);
-  const a = job?.activity || {};
-  const dur = knownDuration(live) ?? (ans.duration_sec && ans.duration_sec >= 1 ? ans.duration_sec : null);
-  const out = dur != null && ((a.answer_min && dur < a.answer_min) || (a.answer_max && dur > a.answer_max));
-
-  return (
-    <Card pad={false} className="overflow-hidden">
-      <div className="p-4 sm:p-5">
-        <p className="font-mono text-[12px] text-muted">QUESTION {n}</p>
-        <p className="font-medium leading-snug mt-1">{ans.question}</p>
-      </div>
-      {id ? (
-        <div className="aspect-video bg-ink">
-          <iframe src={embedUrl(id)} className="w-full h-full" allow="fullscreen; picture-in-picture" allowFullScreen loading="lazy" title={`Answer ${n}`} />
-        </div>
-      ) : (
-        <div className="mx-4 sm:mx-5 rounded-xl bg-warn-soft text-warn text-sm px-4 py-3">Not a Loom link, so it can’t be embedded. Open it below.</div>
-      )}
-      <div className="p-4 sm:p-5 space-y-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <a href={ans.url} target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] text-muted hover:text-ink truncate max-w-full">{ans.url}</a>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Pill tone={dur == null ? 'neutral' : out ? 'warn' : 'good'}>{fmtDuration(dur)}{rangeLabel(a.answer_min, a.answer_max) ? ` · asked ${rangeLabel(a.answer_min, a.answer_max)}` : ''}</Pill>
-          {(live?.title || ans.title) && <Pill tone="neutral">“{live?.title || ans.title}”</Pill>}
-          {live && !live.ok && live.reason !== 'not_loom' && <Pill tone="bad">Video is private or removed</Pill>}
-          {live?.ok && dur == null && <Pill tone="neutral">Loom didn't share the length</Pill>}
-          {a.hidden_code && (live?.title || ans.title) && (
-            (live?.title || ans.title || '').toLowerCase().includes(a.hidden_code.toLowerCase())
-              ? <Pill tone="good">Code word ✓</Pill> : <Pill tone="bad">No code word</Pill>
-          )}
-        </div>
-        {ans.transcript && (
-          <div>
-            <button className="text-sm text-muted hover:text-ink" onClick={() => setShowTx(!showTx)}>{showTx ? 'Hide' : 'Show'} transcript</button>
-            {showTx && <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap bg-paper rounded-xl p-3 max-h-80 overflow-auto">{ans.transcript}</p>}
-          </div>
-        )}
-        <div className="flex items-center justify-between gap-3 pt-3 border-t border-line">
-          <span className="text-sm text-muted">Your score</span>
-          <Stars size="sm" value={score} onChange={onScore} />
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 function NotesPanel({ appId, notes, setNotes, canDelete }:
   { appId: string; notes: Note[]; setNotes: React.Dispatch<React.SetStateAction<Note[]>>; canDelete: (n: Note) => boolean }) {
   const [body, setBody] = useState('');
@@ -428,6 +378,19 @@ function InterviewPanel({ app, job, save }: { app: Application; job: Job | null;
         <Input type="datetime-local" className="w-auto h-9 text-sm" value={toLocalInput(app.interview_at)}
           onChange={(e) => save({ interview_at: fromLocalInput(e.target.value) || null }, true)} />
       </div>
+      {job && (app.answers || []).length > 0 && (
+        <div className="rounded-xl bg-paper-2/60 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">Follow-ups from their answers</p>
+              <p className="text-[12px] text-muted">Questions about what this person actually wrote and made. Hard to answer if someone else did the work.</p>
+            </div>
+            <CopyButton label="Copy AI prompt" done="Copied. Paste the AI’s questions below." text={() => followUpPrompt(job, app)} />
+          </div>
+          <Textarea rows={3} className="mt-2 text-sm" placeholder="Paste the follow-up questions here, then note what they said."
+            value={ia._followups?.notes || ''} onChange={(e) => setQ('_followups', { notes: e.target.value })} />
+        </div>
+      )}
       {qs.length === 0 && <p className="text-sm text-muted">Add interview questions on the job’s Interview tab to get a scorecard here.</p>}
       {qs.map((q, i) => (
         <div key={q.id} className="rounded-xl border border-line p-3">

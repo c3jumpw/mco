@@ -4,13 +4,15 @@ import type { Activity as ActivityT, Question } from '../lib/types';
 import { fetchLoomInfo, knownDuration, loomId, looksLikeUrl, type LoomInfo } from '../lib/loom';
 import SetupStep from './SetupArt';
 import HelpButton from './HelpButton';
+import { StepCard, emptyDraft, stepMissing, stepPayload, stepSummary, type StepCtx, type StepDraft } from './StepCards';
 import { ACCEPT, fileProblem, fmtSize, notify, uploadFile, type UploadedFile } from '../lib/files';
 import { fmtDate, fmtDuration, isPreviewBrowser, rangeLabel, storeJson, visitorId } from '../lib/util';
 import { mdToHtml } from '../lib/posting';
+import { activityMinutes, aiMessage, needsLoomSetup, stepMix, stepType, usesLoom } from '../lib/steps';
 import { Button, Field, Input, Spinner, Textarea, Wordmark, cx } from '../ui';
 
 type Step = 0 | 1 | 2 | 3 | 4;
-interface AnswerDraft { url: string; transcript: string; info?: LoomInfo | null; checking?: boolean }
+type AnswerDraft = StepDraft;
 interface Draft {
   step: Step;
   name: string;
@@ -25,9 +27,10 @@ interface Draft {
   coverLetter?: string;
   files?: UploadedFile[];
   confirmTo?: string;
+  aiUsed?: boolean | null;
+  aiHow?: string;
+  pledge?: boolean;
 }
-
-const STEP_LABELS = ['Welcome', 'Set up', 'Answers', 'Submit'];
 
 export default function Activity({ jobId, title, activity, questions, source }:
   { jobId: string; title: string; activity: ActivityT; questions: Question[]; source?: { code: string; label: string } | null }) {
@@ -46,6 +49,14 @@ export default function Activity({ jobId, title, activity, questions, source }:
   });
   const dRef = useRef(d);
   dRef.current = d;
+
+  // Which screens this activity needs: the Loom set-up screen only when a step requires a recording.
+  const loomSetup = useMemo(() => needsLoomSetup(questions), [questions]);
+  const anyLoom = useMemo(() => questions.some(usesLoom), [questions]);
+  const allVideo = useMemo(() => questions.length > 0 && questions.every((q) => stepType(q) === 'video'), [questions]);
+  const labels = loomSetup ? ['Welcome', 'Set up', 'Answers', 'Submit'] : ['Welcome', 'Answers', 'Submit'];
+  const screen = (step: Step) => (loomSetup ? step : step === 0 ? 0 : step - 1); // position in `labels`
+  const aiNote = aiMessage(activity);
 
   const set = useCallback((patch: Partial<Draft> | ((d: Draft) => Partial<Draft>)) => {
     setD((prev) => {
@@ -101,7 +112,8 @@ export default function Activity({ jobId, title, activity, questions, source }:
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [d.step]);
 
-  const go = (step: Step) => {
+  const go = (to: Step) => {
+    const step: Step = to === 1 && !loomSetup ? (dRef.current.step === 0 ? 2 : 0) : to;
     if (step === 1) track('instructions_view', {}, 'instructions_view');
     if (step === 2) { track('instructions_done', {}, 'instructions_done'); track('form_start', {}, 'form_start'); }
     set({ step });
@@ -147,22 +159,22 @@ export default function Activity({ jobId, title, activity, questions, source }:
     return () => Object.values(timers).forEach(clearTimeout);
   }, []);
 
-  const answer = (qid: string) => d.answers[qid] || { url: '', transcript: '' };
-  const allLinked = questions.every((q) => looksLikeUrl(answer(q.id).url));
-  const needsTranscript = !!activity.require_transcript;
-  const allTranscripts = !needsTranscript || questions.every((q) => (answer(q.id).transcript || '').trim().length >= 20);
-  const stillNeeded: string[] = [];
-  questions.forEach((q, i) => {
-    const a = answer(q.id);
-    if (!a.url.trim()) stillNeeded.push(`a video link for question ${i + 1}`);
-    else if (!looksLikeUrl(a.url)) stillNeeded.push(`a full link (starting with https://) for question ${i + 1}`);
-    if (needsTranscript && (a.transcript || '').trim().length < 20) stillNeeded.push(`the transcript for question ${i + 1}`);
-  });
+  const answer = (qid: string): StepDraft => d.answers[qid] || emptyDraft();
+  const updaters = useRef<Record<string, (patch: Partial<StepDraft> | ((a: StepDraft) => Partial<StepDraft>)) => void>>({});
+  const updater = (qid: string) => (updaters.current[qid] ||= (patch) => set((p) => {
+    const cur = p.answers[qid] || emptyDraft();
+    return { answers: { ...p.answers, [qid]: { ...cur, ...(typeof patch === 'function' ? patch(cur) : patch) } } };
+  }));
+  const stillNeeded = questions.map((q, i) => stepMissing(q, answer(q.id), i + 1, activity)).filter((x): x is string => !!x);
+  const ctx: StepCtx = { jobId, vid, activity, range: rangeLabel(activity.answer_min, activity.answer_max), track, checkLink };
 
   // ── submit ──
   const submitMissing = [
     ...(d.name.trim().length < 2 ? ['your full name'] : []),
     ...(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email.trim()) ? ['a valid email'] : []),
+    ...(aiNote && d.aiUsed == null ? ['whether you used AI'] : []),
+    ...(aiNote && d.aiUsed && (d.aiHow || '').trim().length < 5 ? ['a few words on how you used AI'] : []),
+    ...(activity.pledge && !d.pledge ? ['a tick to confirm the work is your own'] : []),
     ...(activity.consent_text && !d.consent ? ['a tick in the consent box'] : []),
   ];
   const [busy, setBusy] = useState(false);
@@ -171,17 +183,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
     setErr('');
     track('submit_attempt');
     setBusy(true);
-    const payload = questions.map((q) => {
-      const a = answer(q.id);
-      return {
-        question_id: q.id,
-        url: a.url.trim(),
-        loom_id: loomId(a.url) || '',
-        title: a.info?.ok ? a.info.title || '' : '',
-        duration_sec: knownDuration(a.info),
-        transcript: a.transcript || '',
-      };
-    });
+    const payload = questions.map((q) => stepPayload(q, answer(q.id)));
     const { data, error } = await supabase.rpc('hiring_submit', {
       p_job: jobId, p_visitor: vid, p_name: d.name, p_email: d.email, p_answers: payload, p_consent: d.consent,
       p_meta: {
@@ -193,10 +195,12 @@ export default function Activity({ jobId, title, activity, questions, source }:
         visits: d.visits,
         first_arrival_local: d.firstArrival,
         preview,
+        ...(aiNote && d.aiUsed != null ? { ai_use: { used: d.aiUsed, how: d.aiUsed ? (d.aiHow || '').trim().slice(0, 1000) : '' } } : {}),
+        ...(activity.pledge ? { pledge: !!d.pledge } : {}),
         ...(source ? { source: source.code, source_label: source.label } : {}),
       },
     });
-    const res = data as { ok: boolean; id?: string; error?: string } | null;
+    const res = data as { ok: boolean; id?: string; error?: string; question_id?: string } | null;
     if (error || !res?.ok) {
       setBusy(false);
       const code = res?.error || 'network';
@@ -206,7 +210,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
         name: 'Please enter your full name.',
         email: 'Please enter a valid email address.',
         consent: 'Please tick the consent box to submit.',
-        answer_missing: 'Every question needs a video link before you can submit.',
+        answer_missing: `Step ${questions.findIndex((q) => q.id === res?.question_id) + 1 || ''} needs an answer before you can submit.`.replace('Step  ', 'A step '),
         answers: 'Something is missing from your answers. Please check each question.',
       }[code] || 'We couldn’t submit right now. Check your connection and try again. Your answers are saved on this device.');
       return;
@@ -226,8 +230,9 @@ export default function Activity({ jobId, title, activity, questions, source }:
     }
   };
 
-  const range = rangeLabel(activity.answer_min, activity.answer_max);
+  const range = ctx.range;
   const steps = (activity.loom_steps || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  const minutes = activityMinutes(questions, activity);
 
   return (
     <div className="min-h-dvh">
@@ -236,9 +241,9 @@ export default function Activity({ jobId, title, activity, questions, source }:
           <Wordmark className="text-[15px]" />
           {d.step < 4 && (
             <ol className="flex items-center gap-1.5" aria-label="Progress">
-              {STEP_LABELS.map((l, i) => (
+              {labels.map((l, i) => (
                 <li key={l} className="flex items-center gap-1.5">
-                  <span className={cx('h-1.5 rounded-full transition-all', i < d.step ? 'w-5 bg-ink' : i === d.step ? 'w-8 bg-accent' : 'w-5 bg-line')} />
+                  <span className={cx('h-1.5 rounded-full transition-all', i < screen(d.step) ? 'w-5 bg-ink' : i === screen(d.step) ? 'w-8 bg-accent' : 'w-5 bg-line')} />
                   <span className="sr-only">{l}</span>
                 </li>
               ))}
@@ -257,11 +262,22 @@ export default function Activity({ jobId, title, activity, questions, source }:
             <h1 className="font-display text-[56px] sm:text-[80px] leading-[.95] mt-4">{activity.headline || 'You found it.'}</h1>
             {activity.intro && <p className="text-lg text-ink-2 leading-relaxed mt-6 max-w-xl">{activity.intro}</p>}
             <div className="mt-10 grid gap-px bg-line rounded-2xl overflow-hidden border border-line">
-              <Fact k="Questions" v={`${questions.length} short video answer${questions.length === 1 ? '' : 's'}`} />
-              {range && <Fact k="Length" v={`${range} per answer`} />}
-              <Fact k="Tool" v="Loom (free) for recording" />
+              {allVideo
+                ? <Fact k="Questions" v={`${questions.length} short video answer${questions.length === 1 ? '' : 's'}`} />
+                : <Fact k="Steps" v={`${questions.length} short step${questions.length === 1 ? '' : 's'}`} />}
+              {allVideo ? range && <Fact k="Length" v={`${range} per answer`} /> : minutes > 0 && <Fact k="Time" v={`About ${minutes} minutes`} />}
+              {anyLoom && <Fact k="Tool" v={loomSetup ? 'Loom (free) for recording' : 'Loom (free), if you choose to record'} />}
               {activity.deadline && <Fact k="Deadline" v={fmtDate(activity.deadline)} />}
             </div>
+            {!allVideo && questions.length > 0 && (
+              <p className="mt-4 text-[15px] text-ink-2 leading-relaxed">Includes {stepMix(questions)}.</p>
+            )}
+            {aiNote && (
+              <p className="mt-4 flex items-start gap-2.5 text-[15px] text-ink-2 leading-relaxed">
+                <span aria-hidden className="mt-0.5 grid place-items-center h-5 w-5 rounded-full bg-accent-soft text-accent text-[11px] font-bold shrink-0">AI</span>
+                {aiNote}
+              </p>
+            )}
             <div className="mt-10 flex items-center gap-4">
               <Button variant="primary" size="lg" onClick={() => go(1)}>Begin</Button>
               {d.visits > 1 && <span className="text-sm text-muted">Welcome back. Your progress is saved on this device.</span>}
@@ -271,7 +287,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
 
         {d.step === 1 && (
           <section className="pt-12 rise">
-            <StepLabel n={1} label="Set up" />
+            <StepLabel n={1} of={labels.length - 1} label="Set up" />
             <h2 className="font-display text-5xl leading-none mt-3">Get Loom ready.</h2>
             <p className="text-ink-2 leading-relaxed mt-4">
               You'll answer each question on video using Loom, a free screen and camera recorder. Learning a new tool
@@ -312,50 +328,27 @@ export default function Activity({ jobId, title, activity, questions, source }:
 
         {d.step === 2 && (
           <section className="pt-12 rise">
-            <StepLabel n={2} label="Answers" />
-            <h2 className="font-display text-5xl leading-none mt-3">Record your answers.</h2>
+            <StepLabel n={screen(2)} of={labels.length - 1} label="Answers" />
+            <h2 className="font-display text-5xl leading-none mt-3">{allVideo ? 'Record your answers.' : 'Your activity.'}</h2>
             <p className="text-ink-2 leading-relaxed mt-4">
-              Record one Loom per question{range ? `, ${range} each` : ''}. Paste each share link in its box. We check the link as you go.
+              {allVideo
+                ? `Record one Loom per question${range ? `, ${range} each` : ''}. Paste each share link in its box. We check the link as you go.`
+                : 'Work through each step below, in any order. Everything saves on this device as you go, so you can take a break and come back.'}
             </p>
             <div className="mt-8 space-y-5">
-              {questions.map((q, i) => {
-                const a = answer(q.id);
-                return (
-                  <div key={q.id} className="rounded-2xl bg-card border border-line p-5 sm:p-6"
-                    onFocusCapture={() => track('question_focus', { question_id: q.id }, `qf_${q.id}`)}>
-                    <p className="text-[12px] font-mono text-muted">QUESTION {i + 1} OF {questions.length}</p>
-                    <p className="text-[19px] leading-snug font-medium mt-2">{q.text}</p>
-                    {q.guidance && <p className="text-sm text-muted mt-2 leading-relaxed">{q.guidance}</p>}
-                    <div className="mt-4">
-                      <Input inputMode="url" autoComplete="off" spellCheck={false} placeholder="https://www.loom.com/share/…" mono
-                        value={a.url}
-                        onChange={(e) => set((p) => ({ answers: { ...p.answers, [q.id]: { ...a, url: e.target.value, info: null } } }))}
-                        onBlur={(e) => checkLink(q.id, e.target.value)}
-                        onPaste={(e) => { const v = e.clipboardData.getData('text'); setTimeout(() => checkLink(q.id, v), 0); }} />
-                      <LinkStatus a={a} min={activity.answer_min} max={activity.answer_max} range={range} />
-                    </div>
-                    {needsTranscript && (
-                      <div className="mt-4">
-                        <Field label="Transcript" hint="In Loom, open the video, click Transcript, copy all of the text and paste it here.">
-                          <Textarea rows={3} value={a.transcript}
-                            onChange={(e) => set((p) => ({ answers: { ...p.answers, [q.id]: { ...a, transcript: e.target.value } } }))}
-                            onBlur={(e) => e.target.value.trim().length >= 20 && track('transcript_added', { question_id: q.id }, `tx_${q.id}`)} />
-                        </Field>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {questions.map((q, i) => (
+                <StepCard key={q.id} q={q} i={i} total={questions.length} a={answer(q.id)} update={updater(q.id)} ctx={ctx} />
+              ))}
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button variant="ghost" onClick={() => go(1)}>Back</Button>
-              <Button variant="primary" size="lg" disabled={!allLinked || !allTranscripts} onClick={() => go(3)}>Continue</Button>
+              <Button variant="primary" size="lg" disabled={stillNeeded.length > 0} onClick={() => go(3)}>Continue</Button>
             </div>
             {stillNeeded.length > 0 && (
               <div className="mt-3 rounded-xl bg-paper-2 px-4 py-3 text-sm">
                 <p className="font-medium">To continue, add:</p>
                 <ul className="mt-1 list-disc pl-5 text-ink-2 space-y-0.5">{stillNeeded.slice(0, 6).map((x) => <li key={x}>{x}</li>)}</ul>
-                <p className="text-xs text-muted mt-2">Video length is only a guideline. It never stops you from submitting.</p>
+                {questions.some((q) => stepType(q) === 'video') && <p className="text-xs text-muted mt-2">Video length is only a guideline. It never stops you from submitting.</p>}
               </div>
             )}
           </section>
@@ -363,7 +356,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
 
         {d.step === 3 && (
           <section className="pt-12 rise">
-            <StepLabel n={3} label="Submit" />
+            <StepLabel n={screen(3)} of={labels.length - 1} label="Submit" />
             <h2 className="font-display text-5xl leading-none mt-3">Last step.</h2>
             <div className="mt-8 grid gap-4">
               <Field label="Full name"><Input autoComplete="name" value={d.name} onChange={(e) => set({ name: e.target.value })} /></Field>
@@ -375,9 +368,9 @@ export default function Activity({ jobId, title, activity, questions, source }:
                 return (
                   <div key={q.id} className="p-4 flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-[12px] font-mono text-muted">Q{i + 1}</p>
-                      <p className="text-sm leading-snug mt-0.5 line-clamp-2">{q.text}</p>
-                      <p className="font-mono text-[12px] text-muted truncate mt-1">{a.url}</p>
+                      <p className="text-[12px] font-mono text-muted">{allVideo ? `Q${i + 1}` : `STEP ${i + 1}`}</p>
+                      <p className="text-sm leading-snug mt-0.5 line-clamp-2">{stepType(q) === 'quiz' && !a.started_at ? 'A quick scenario' : q.text.replace(/```[\s\S]*?```/g, '').replace(/[#*|`]/g, '')}</p>
+                      <p className="font-mono text-[12px] text-muted truncate mt-1">{stepSummary(q, a)}</p>
                     </div>
                     <span className="text-sm font-mono shrink-0">{knownDuration(a.info) != null ? fmtDuration(knownDuration(a.info)) : ''}</span>
                   </div>
@@ -386,6 +379,30 @@ export default function Activity({ jobId, title, activity, questions, source }:
             </div>
             <Extras jobId={jobId} visitor={vid} files={d.files || []} cover={d.coverLetter || ''}
               onFiles={(files) => set({ files })} onCover={(coverLetter) => set({ coverLetter })} track={track} />
+            {aiNote && (
+              <div className="mt-6 rounded-2xl border border-line bg-card p-5">
+                <p className="font-medium">Did you use AI for any of this?</p>
+                <p className="text-sm text-muted mt-0.5">{aiNote} An honest answer counts for more than the answer itself.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {([[false, 'No, I didn’t'], [true, 'Yes, I did']] as const).map(([v, l]) => (
+                    <button key={l} aria-pressed={d.aiUsed === v} onClick={() => set({ aiUsed: v })}
+                      className={cx('h-10 px-4 rounded-lg border text-sm font-medium transition', d.aiUsed === v ? 'bg-ink text-white border-ink' : 'bg-card border-line hover:border-ink/30')}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+                {d.aiUsed && (
+                  <Textarea className="mt-3" rows={2} value={d.aiHow || ''} placeholder="Which tool, and for what? For example: “ChatGPT to check my grammar on step 2.”"
+                    onChange={(e) => set({ aiHow: e.target.value })} />
+                )}
+              </div>
+            )}
+            {activity.pledge && (
+              <label className="mt-6 flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" className="mt-1 h-5 w-5 accent-ink" checked={!!d.pledge} onChange={(e) => set({ pledge: e.target.checked })} />
+                <span className="text-sm leading-relaxed text-ink-2">I confirm these answers are my own work{aiNote ? ', and what I’ve said about AI is accurate' : ''}.</span>
+              </label>
+            )}
             {activity.consent_text && (
               <label className="mt-6 flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" className="mt-1 h-5 w-5 accent-ink" checked={d.consent} onChange={(e) => set({ consent: e.target.checked })} />
@@ -427,7 +444,7 @@ export default function Activity({ jobId, title, activity, questions, source }:
           </p>
         )}
       </main>
-      <HelpButton jobId={jobId} visitor={vid} step={STEP_LABELS[Math.min(d.step, 3)] + (d.step === 4 ? ' (after submitting)' : '')}
+      <HelpButton jobId={jobId} visitor={vid} step={labels[Math.min(screen(d.step), labels.length - 1)] + (d.step === 4 ? ' (after submitting)' : '')}
         name={d.name} email={d.email} lastError={err} preview={preview} />
     </div>
   );
@@ -442,30 +459,8 @@ function Fact({ k, v }: { k: string; v: string }) {
   );
 }
 
-function StepLabel({ n, label }: { n: number; label: string }) {
-  return <p className="text-[12px] font-mono text-muted tracking-wide">STEP {n} OF 3 · {label.toUpperCase()}</p>;
-}
-
-function LinkStatus({ a, min, max, range }: { a: AnswerDraft; min?: number | null; max?: number | null; range: string }) {
-  if (!a.url.trim()) return null;
-  if (a.checking) return <p className="mt-2 text-sm text-muted flex items-center gap-2"><Spinner className="h-3 w-3" /> Checking link…</p>;
-  const info = a.info;
-  if (!info) return null;
-  if (info.ok) {
-    const d = knownDuration(info);
-    const out = d != null && ((min && d < min) || (max && d > max));
-    return (
-      <div className="mt-2 text-sm">
-        <p className="text-good">✓ {info.title ? `“${info.title}”` : 'Loom video found'}{d != null ? ` · ${fmtDuration(d)}` : ''}</p>
-        {out && <p className="text-muted mt-1">Loom says this video is {fmtDuration(d)}. The suggested length is {range}, but that's only a guide.</p>}
-      </div>
-    );
-  }
-  if (info.reason === 'not_loom')
-    return <p className="mt-2 text-sm text-warn">{looksLikeUrl(a.url) ? 'This doesn’t look like a Loom share link (loom.com/share/…). Check that you copied the right link.' : 'Paste the full link, starting with https://'}</p>;
-  if (info.reason === 'private_or_unavailable' || info.reason === 'not_found')
-    return <p className="mt-2 text-sm text-warn">We couldn’t open this video. In Loom, set sharing to “Anyone with the link”, then paste it again.</p>;
-  return <p className="mt-2 text-sm text-muted">Link saved. We couldn’t verify it right now.</p>;
+function StepLabel({ n, of, label }: { n: number; of: number; label: string }) {
+  return <p className="text-[12px] font-mono text-muted tracking-wide">STEP {n} OF {of} · {label.toUpperCase()}</p>;
 }
 
 function Extras({ jobId, visitor, files, cover, onFiles, onCover, track }: {
@@ -521,7 +516,7 @@ function Extras({ jobId, visitor, files, cover, onFiles, onCover, track }: {
       <button onClick={() => setOpen(true)}
         className="mt-6 w-full text-left rounded-2xl border border-dashed border-line px-5 py-4 hover:border-ink/40 transition">
         <p className="font-medium">Add a résumé or cover letter <span className="text-muted font-normal">(optional)</span></p>
-        <p className="text-sm text-muted mt-0.5">PDF or Word, up to 5 MB. Your video answers are what we look at first.</p>
+        <p className="text-sm text-muted mt-0.5">PDF or Word, up to 5 MB. Your answers above are what we look at first.</p>
       </button>
     );
   }

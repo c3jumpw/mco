@@ -46,7 +46,7 @@ export default function Dashboard({ jobs }: { jobs: Job[] }) {
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
           <h1 className="font-display text-4xl sm:text-5xl leading-none">Overview</h1>
-          <p className="text-sm text-muted mt-2">Your own test visits are left out. {d ? `Times in ${d.tz.replace(/_/g, ' ')}.` : ''}{' '}
+          <p className="text-sm text-muted mt-2">Your own test visits are left out. {d?.tz ? `Times in ${d.tz.replace(/_/g, ' ')}.` : ''}{' '}
             <Link to="/admin/guide" className="underline underline-offset-2 hover:text-ink">New here? Read the guide</Link>
           </p>
         </div>

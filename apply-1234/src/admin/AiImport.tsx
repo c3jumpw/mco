@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Fragment, Job } from '../lib/types';
-import { ensureCodeWord, insertMissingTokens, mdToHtml, parseAiJob, placedParts, type ParsedJob } from '../lib/posting';
+import { ensureCodeWord, insertMissingTokens, mdToHtml, parseAiJob, placedParts, stepsHaveVideo, type ParsedJob } from '../lib/posting';
+import { applyAiSteps, newStep } from '../lib/steps';
 import { newQuestionId } from './data';
 import { Button, Modal, Pill, Textarea, Toggle, cx } from '../ui';
 import type { Patch } from './JobEditor';
@@ -36,11 +37,17 @@ export function ParsedSummary({ parsed, parts, fragments, hintFormat, codeWord }
             dangerouslySetInnerHTML={{ __html: mdToHtml(ensureCodeWord(insertMissingTokens(parsed.posting, parts), codeWord), 'hint', fragments, hintFormat) }} />
         )}
       </Row>
-      <Row ok={parsed.questions.length > 0} label={`Screening questions (${parsed.questions.length})`}>
-        {parsed.questions.length ? (
-          <ol className="list-decimal pl-4 space-y-1 text-ink-2">{parsed.questions.map((q, i) => <li key={i}>{q.text}</li>)}</ol>
-        ) : 'None found. You can add them later on the Questions tab.'}
-      </Row>
+      {parsed.steps.length > 0 ? (
+        <Row ok label={`Activity steps (${parsed.steps.length})`}>
+          <ol className="list-decimal pl-4 space-y-1 text-ink-2">{parsed.steps.map((q, i) => <li key={i} className="line-clamp-2">{(q.text || '(no question)').replace(/```[\s\S]*?```/g, '[code]')}</li>)}</ol>
+        </Row>
+      ) : (
+        <Row ok={parsed.questions.length > 0} label={`Screening questions (${parsed.questions.length})`}>
+          {parsed.questions.length ? (
+            <ol className="list-decimal pl-4 space-y-1 text-ink-2">{parsed.questions.map((q, i) => <li key={i}>{q.text}</li>)}</ol>
+          ) : 'None found. You can add them later on the Steps tab.'}
+        </Row>
+      )}
       <Row ok={parsed.interview.length > 0} label={`Interview questions (${parsed.interview.length})`}>
         {parsed.interview.length ? `${parsed.interview.filter((q) => q.kind === 'custom').length} custom, ${parsed.interview.filter((q) => q.kind === 'general').length} general` : 'None found. You can add them later.'}
       </Row>
@@ -62,8 +69,11 @@ export function ImportAiModal({ open, onClose, job, patch }: { open: boolean; on
   const apply = () => {
     const p: Partial<Job> = {};
     if (use.title && parsed.title) p.title = parsed.title;
-    if (use.posting && parsed.posting) p.posting = ensureCodeWord(insertMissingTokens(parsed.posting, parts), code);
-    if (use.questions && parsed.questions.length) p.questions = parsed.questions.map((q) => ({ id: newQuestionId(), text: q.text, guidance: q.guidance }));
+    if (use.posting && parsed.posting) p.posting = ensureCodeWord(insertMissingTokens(parsed.posting, parts), code, stepsHaveVideo(job.questions));
+    if (use.questions && parsed.steps.length) {
+      p.questions = job.questions.length ? applyAiSteps(job.questions, parsed.steps)
+        : parsed.steps.filter((x) => x.text).map((x) => newStep('video', x.text!, { guidance: x.guidance || '' }));
+    } else if (use.questions && parsed.questions.length) p.questions = parsed.questions.map((q) => ({ id: newQuestionId(), text: q.text, guidance: q.guidance }));
     if (use.interview && parsed.interview.length) p.interview_questions = parsed.interview.map((q) => ({ id: newQuestionId(), text: q.text, kind: q.kind }));
     if (use.rubric && parsed.rubric.length) p.rubric = parsed.rubric;
     patch(p);
@@ -85,12 +95,12 @@ export function ImportAiModal({ open, onClose, job, patch }: { open: boolean; on
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {([['title', 'Replace title', !!parsed.title], ['posting', 'Replace posting', !!parsed.posting],
-              ['questions', 'Replace screening questions', parsed.questions.length > 0], ['interview', 'Replace interview questions', parsed.interview.length > 0],
+              ['questions', parsed.steps.length ? 'Update activity steps' : 'Replace screening questions', parsed.questions.length > 0 || parsed.steps.length > 0], ['interview', 'Replace interview questions', parsed.interview.length > 0],
               ['rubric', 'Replace rubric', parsed.rubric.length > 0]] as const).filter(([, , has]) => has).map(([k, label]) => (
               <Toggle key={k} checked={use[k]} onChange={(v) => setUse((u) => ({ ...u, [k]: v }))} label={label} />
             ))}
           </div>
-          {job.status === 'published' && use.questions && parsed.questions.length > 0 && (
+          {job.status === 'published' && use.questions && (parsed.questions.length > 0 || parsed.steps.length > 0) && (
             <div className="mt-3"><Pill tone="warn">This job is live. Candidates mid-application will see the new questions.</Pill></div>
           )}
         </>

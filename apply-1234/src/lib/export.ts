@@ -3,6 +3,70 @@ import { STAGES } from './types';
 import { behavior } from './metrics';
 import { fmtDuration, fmtSpan, rangeLabel } from './util';
 import { mdToHtml, postingMarkdown } from './posting';
+import { stepInfo, stepType } from './steps';
+import type { Answer, Question, WriteSig } from './types';
+
+/** Typing signals in words, for exports. */
+function sigText(sig?: WriteSig): string {
+  if (!sig) return '';
+  const typed = sig.typed || 0, pasted = sig.pasted || 0;
+  const parts: string[] = [];
+  if (typed + pasted) parts.push(`${Math.round((typed / (typed + pasted)) * 100)}% typed`);
+  if (sig.pastes) parts.push(`pasted ${sig.pastes}× (${pasted} characters)`);
+  if (sig.blocked) parts.push(`tried to paste ${sig.blocked}× where pasting was off`);
+  if (sig.ms) parts.push(`${fmtSpan(sig.ms)} writing`);
+  if (sig.blurs) parts.push(`left the page ${sig.blurs}× while writing`);
+  return parts.join(', ');
+}
+
+/** One step answer as Markdown lines. */
+function answerLines(ans: Answer, q: Question | undefined, opts: ExportOpts): string[] {
+  const t = ans.type || (q ? stepType(q) : 'video');
+  const out: string[] = [];
+  const video = (url: string, dur?: number | null, title?: string, transcript?: string) => {
+    const meta = [dur != null ? `length ${fmtDuration(dur)}` : '', title ? `titled "${title}"` : ''].filter(Boolean).join(', ');
+    out.push(`- Video: ${url}${meta ? ` (${meta})` : ''}`);
+    if (opts.transcripts) {
+      if (transcript?.trim()) out.push('- Transcript:', '', quote(transcript));
+      else out.push('- Transcript: not provided');
+    }
+  };
+  const written = (label: string, text?: string, sig?: WriteSig) => {
+    out.push(`- ${label}:`, '', quote(text || ''));
+    if (opts.signals && sigText(sig)) out.push('', `- How it was written: ${sigText(sig)}`);
+  };
+  if (ans.skipped) { out.push('- Skipped (optional step)'); return out; }
+  if (t === 'video' || ans.mode === 'video') { video(ans.url, ans.duration_sec, ans.title, ans.transcript); return out; }
+  if (ans.mode === 'written') { written('Written answer', ans.text, ans.sig); return out; }
+  switch (t) {
+    case 'voice': out.push(`- Voice note${ans.voice?.seconds ? ` (${fmtDuration(ans.voice.seconds)})` : ''}: listen on the candidate's page; no transcript is included.`); break;
+    case 'work':
+      for (const l of ans.links || []) out.push(`- Work sample: ${l.url}${l.note ? ` — ${l.note.replace(/\n+/g, ' ')}` : ''}`);
+      for (const f of ans.files || []) out.push(`- Work sample file: ${f.name}${f.note ? ` — ${f.note.replace(/\n+/g, ' ')}` : ''} (open it from the candidate's page)`);
+      break;
+    case 'brief':
+      if (ans.deliverable) out.push(`- Their work: ${ans.deliverable}`);
+      for (const f of ans.files || []) out.push(`- Their work (file): ${f.name} (open it from the candidate's page)`);
+      if (ans.seconds != null) out.push(`- Time from opening the brief to finishing: ${fmtSpan(ans.seconds * 1000)}${q?.minutes ? ` (suggested ${q.minutes} min)` : ''}`);
+      if (ans.text?.trim()) out.push('- Their note:', '', quote(ans.text));
+      if (ans.walk_url) out.push(`- Walkthrough video: ${ans.walk_url}${ans.walk_title ? ` (titled "${ans.walk_title}")` : ''}`);
+      break;
+    case 'rank':
+      out.push(`- Their order: ${(ans.order || []).map((i, pos) => `${pos + 1}. ${q?.options?.[i] ?? `item ${i + 1}`}`).join('; ')}`);
+      if (ans.reason?.trim()) written('Why', ans.reason, ans.sig);
+      break;
+    case 'quiz': {
+      const opts2 = q?.options || [];
+      out.push(`- Options: ${opts2.map((o, i) => `(${String.fromCharCode(65 + i)}) ${o}`).join(' ')}`);
+      out.push(`- Their answer: ${ans.choice != null ? `(${String.fromCharCode(65 + ans.choice)}) ${opts2[ans.choice] ?? ''}` : 'none (time ran out)'}${ans.correct === true ? ' — the best answer' : ans.correct === false && q?.correct != null ? ` — best answer was (${String.fromCharCode(65 + q.correct)})` : ''}`);
+      if (ans.seconds != null) out.push(`- Time taken: ${fmtSpan(ans.seconds * 1000)}${q?.time_limit ? ` of ${fmtSpan(q.time_limit * 1000)}` : ''}`);
+      if (ans.reason?.trim()) written('Their reasoning', ans.reason, ans.sig);
+      break;
+    }
+    case 'musthave': out.push(`- Answer: ${ans.yesno || '—'}${ans.ok === false ? ` (you need "${q?.expected}")` : ''}`); break;
+  }
+  return out;
+}
 
 export interface ExportOpts {
   anonymize: boolean;
@@ -43,7 +107,8 @@ _Exported ${iso(new Date().toISOString())} from apply1234 · ${count} candidate$
 ## Instructions for the AI reviewer
 You are helping a hiring manager review candidates for the role below.
 
-- Use only the evidence in this document: answer transcripts, process signals, reviewer scores and notes.
+- Use only the evidence in this document: answers, transcripts, process signals, reviewer scores and notes.
+- Written answers note how they were written (typed or pasted, time taken). Treat heavy pasting as something to ask about in the interview, not as proof of anything. Where the job asked, each candidate's own account of their AI use is included.
 - Score each candidate against the rubric, citing specific moments from their answers.
 - Do not infer or weigh age, gender, race, ethnicity, nationality, accent, disability, or any other protected characteristic.
 - If a transcript is missing, say so instead of guessing what the video contains.
@@ -102,17 +167,21 @@ export function candidateMarkdown(job: Job, item: ExportItem, index: number, opt
     lines.push(`- Links that failed the format check while answering: ${b.invalidLinks}`);
     const f = app.flags || {};
     lines.push(`- Auto-checks: all Loom links ${yn(f.all_loom_links)} · answer lengths in range ${yn(f.lengths_in_range)} · transcripts complete ${yn(f.transcripts_ok)} · hidden code found ${yn(f.hidden_code_ok)} · duplicate email ${yn(f.duplicate_email)}`);
+    if (f.musthave_ok != null) lines.push(`- Must-haves all as needed: ${yn(f.musthave_ok)}`);
+    if (f.quiz_total) lines.push(`- Quick scenarios with the best answer: ${f.quiz_right || 0} of ${f.quiz_total}`);
+    if (f.pasted) lines.push('- At least one written answer was mostly pasted in rather than typed');
   }
+  const ai = (app.metrics as any)?.ai_use as { used?: boolean; how?: string } | undefined;
+  if (ai) lines.push(`- AI use, in their words: ${ai.used ? `used AI${ai.how ? ` — "${ai.how.replace(/\n+/g, ' ')}"` : ''}` : 'didn’t use AI'}`);
 
   lines.push('', '### Answers');
+  const qById = new Map((job.questions || []).map((q) => [q.id, q]));
   for (const ans of app.answers || []) {
     const n = qIndex.get(ans.question_id);
-    lines.push('', `**Q${n ?? '?'}. ${ans.question}**`);
-    lines.push(`- Video: ${ans.url} (length ${fmtDuration(ans.duration_sec)}${ans.title ? `, titled "${ans.title}"` : ''})`);
-    if (opts.transcripts) {
-      if (ans.transcript?.trim()) lines.push('- Transcript:', '', quote(ans.transcript));
-      else lines.push('- Transcript: not provided');
-    }
+    const q = qById.get(ans.question_id);
+    const t = ans.type || (q ? stepType(q) : 'video');
+    lines.push('', `**Q${n ?? '?'}${t !== 'video' ? ` (${stepInfo(t).label})` : ''}. ${ans.question.replace(/\n+/g, ' ')}**`);
+    lines.push(...answerLines(ans, q, opts));
   }
 
   const files = app.attachments || [];
@@ -139,10 +208,12 @@ export function candidateMarkdown(job: Job, item: ExportItem, index: number, opt
 
   const ia = app.interview_answers || {};
   const iq = (job.interview_questions || []).filter((q) => ia[q.id]?.notes || ia[q.id]?.score);
-  if (app.interview_at || iq.length || app.interview_summary) {
+  const fu = (ia._followups?.notes || '').trim();
+  if (app.interview_at || iq.length || app.interview_summary || fu) {
     lines.push('', '### Interview');
     if (app.interview_at) lines.push(`- Scheduled: ${iso(app.interview_at)}`);
     iq.forEach((q) => lines.push(`- ${q.text} — ${ia[q.id]?.notes || '(no notes)'}${ia[q.id]?.score ? ` (score ${ia[q.id]!.score}/5)` : ''}`));
+    if (fu) lines.push('- Follow-ups from their answers:', '', quote(fu));
     if (app.interview_summary) lines.push(`- Summary: ${app.interview_summary}`);
   }
   return lines.join('\n');
@@ -172,4 +243,30 @@ p{margin:8px 0}ul{padding-left:20px}li{margin:3px 0}code{background:#f5f3ee;padd
 </style></head><body>
 ${body.replace(/<p>&gt; /g, '<p class="q">').replace(/<br>&gt; /g, '<br>')}
 </body></html>`;
+}
+
+/** A prompt for interview follow-ups drawn from one candidate's own answers. */
+export function followUpPrompt(job: Job, app: Application): string {
+  const opts: ExportOpts = { anonymize: true, transcripts: true, signals: true, notes: false };
+  const qById = new Map((job.questions || []).map((q) => [q.id, q]));
+  const body = (app.answers || []).map((ans, i) => {
+    const q = qById.get(ans.question_id);
+    const t = ans.type || (q ? stepType(q) : 'video');
+    return [`**Step ${i + 1} (${stepInfo(t).label}). ${ans.question.replace(/\n+/g, ' ')}**`, ...answerLines(ans, q, opts)].join('\n');
+  }).join('\n\n');
+  const ai = (app.metrics as any)?.ai_use as { used?: boolean; how?: string } | undefined;
+  return `You are helping me prepare a 30-minute interview for the ${job.title} role. Below are one candidate's answers to our application activity.
+
+Write 6 follow-up questions for this person that:
+- dig into specifics they mentioned (names, numbers, decisions) and ask for the detail behind them;
+- check they can explain and extend their own work: what they'd change, what they'd do with half the time or budget, why they chose one option over another. Someone who did the work answers easily; someone who leaned on AI or copied it will struggle;
+- kindly probe any answer that was mostly pasted${ai?.used ? ', and how they used AI' : ''};
+- for quick scenarios where they missed the best answer, ask them to talk through how they'd handle it.
+
+Return only the questions, one per line, as "- the question (what it checks, in a few words)".
+
+${ai ? `They said: ${ai.used ? `I used AI${ai.how ? ` — "${ai.how}"` : ''}` : 'I didn’t use AI'}.\n\n` : ''}Their answers:
+
+${body || '(no answers)'}
+`;
 }

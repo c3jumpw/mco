@@ -57,7 +57,7 @@ function inviteText(job: Job, a: Pick<JobAccess, 'email' | 'name' | 'role'>) {
   const first = a.name.trim().split(/\s+/)[0];
   const what = a.role === 'editor'
     ? `manage the ${job.title} job on apply1234: edit it, and review and move its candidates`
-    : `review candidates for the ${job.title} role on apply1234: watch their video answers, score them and leave notes`;
+    : `review candidates for the ${job.title} role on apply1234: go through their answers, score them and leave notes`;
   return `Hi${first ? ` ${first}` : ''},\n\nYou're invited to ${what}.\n\n1. Open ${SIGN_IN}\n2. Choose "First time? Create your login" and sign up with ${a.email}\n3. Confirm your email from the message you receive, then sign in.\n\nAlready have a login? Just sign in.`;
 }
 

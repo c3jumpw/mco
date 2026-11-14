@@ -90,4 +90,13 @@ export const EVENT_LABELS: Record<string, string> = {
   submitted: 'Submitted',
   posting_view: 'Viewed the shared posting',
   posting_copy: 'Copied from the posting',
+  file_added: 'Uploaded a file',
+  not_url: 'Typed something that isn’t a link',
+  step_start: 'Started a timed step',
+  step_answer: 'Answered a step',
+  paste: 'Pasted into a written answer',
+  paste_blocked: 'Tried to paste where pasting is off',
+  brief_opened: 'Opened the brief',
+  voice_recorded: 'Saved a voice note',
+  timed_out: 'Ran out of time on a step',
 };
