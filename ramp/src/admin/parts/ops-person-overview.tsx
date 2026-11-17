@@ -29,6 +29,7 @@ export interface PersonData {
 
 export const SOURCE_LABEL: Record<Member['source'], string> = {
   manual: 'Invited in RAMP', hiring: 'Hiring app', staff: 'Staff records', request: 'Access request', seed: 'Set up with RAMP',
+  signup: 'Signed up for RAMP', support: 'RAMP Support', agency: 'Placed by the agency',
 };
 
 // ───────── admin actions ─────────

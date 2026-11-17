@@ -47,8 +47,13 @@ export interface Member {
   department_id: string | null;
   mentor_id: string | null;
   status: MemberStatus;
-  source: 'manual' | 'hiring' | 'staff' | 'request' | 'seed';
+  source: 'manual' | 'hiring' | 'staff' | 'request' | 'seed' | 'signup' | 'support' | 'agency';
   source_ref: string | null;
+  /** Hidden RAMP Support row for a platform admin inside this workspace. */
+  support?: boolean;
+  /** Set on an agency assistant mirrored into a client's own workspace. */
+  agency_placement_id?: string | null;
+  workspace_id?: string;
   start_date: string | null;
   onboarded_at: string | null;
   practice_done_at: string | null;
@@ -294,6 +299,8 @@ export interface Client {
   net_days: number;
   currency: string;
   stripe_customer_id: string | null;
+  /** The client's own RAMP workspace, if they have one (set from the platform console). */
+  linked_workspace_id?: string | null;
   notes: string;
   created_by: string | null;
   created_at: string;
@@ -514,7 +521,11 @@ export interface ClientRequest {
 }
 
 /** rpc('ramp_my_roles') */
-export interface MyRoles { work: boolean; coaching: number; client: { id: string; name: string } | null }
+export interface MyRoles {
+  work: boolean; coaching: number;
+  /** linked: the caller is an owner or admin of this client's own workspace (not a client contact in the agency's). */
+  client: { id: string; name: string; linked?: boolean } | null;
+}
 
 /** rpc('ramp_my_work') — an assistant's own placements. Never contains bill rates. */
 export interface MyWork {
@@ -622,4 +633,64 @@ export interface LaunchGet {
   placement: { id: string; title: string; status: PlacementStatus; start_date: string | null; hours_per_week: number; schedule: string;
     client: { id: string; name: string; timezone: string }; va: { id: string; name: string }; coach: { id: string | null; name: string | null };
     tier: { name: string; level: number } | null };
+}
+
+
+// ───────── workspaces, accounts and the platform (migration 007–009) ─────────
+
+export type AccountPlan = 'comp' | 'trial' | 'paid';
+export type AccountStatus = 'pending' | 'active' | 'paused' | 'closed';
+export type WorkspaceStatus = 'active' | 'paused' | 'closed';
+
+/** rpc('ramp_my_workspaces') — the workspace switcher. Super admins see every workspace. */
+export interface WorkspaceRow {
+  id: string; name: string; slug: string; status: WorkspaceStatus; setup_done: boolean;
+  account_id: string; account_name: string; plan: AccountPlan; account_status: AccountStatus; trial_ends: string | null;
+  level: Level | null; member_status: MemberStatus | null; support: boolean; is_owner: boolean; is_current: boolean;
+}
+export interface SessionWorkspace { id: string; name: string; slug: string; status: WorkspaceStatus; setup_done: boolean }
+export interface SessionAccount {
+  id: string; name: string; plan: AccountPlan; status: AccountStatus; trial_ends: string | null; seat_limit: number | null; is_owner: boolean;
+}
+/** A company's request to start using RAMP (ramp_account_requests, as the session returns it). */
+export interface AccountRequestLite { id: string; company: string; name: string; status: 'pending' | 'approved' | 'declined'; decision_note: string; created_at: string }
+export interface AccountRequest extends AccountRequestLite {
+  auth_user_id: string; email: string; phone: string; team_size: string; note: string;
+  account_id: string | null; decided_at: string | null; decided_by: string | null;
+}
+/** One Stripe price offered to accounts (ramp_platform.stripe_prices). seats: seat limit it buys; omitted = unlimited. */
+export interface PlatformPrice { id: string; label: string; amount: number; interval: 'month' | 'year'; seats?: number | null }
+export interface Platform {
+  id: true; library_workspace_id: string | null; agency_workspace_id: string | null; brand_name: string; brand_color: string;
+  default_trial_days: number; default_seat_limit: number | null; workspace_limit: number | null; stripe_prices: PlatformPrice[]; updated_at: string;
+}
+export interface SuperWorkspace { id: string; name: string; slug: string; status: WorkspaceStatus; setup_done: boolean; created_at: string; members: number }
+export interface SuperAccount {
+  id: string; name: string; status: AccountStatus; pause_reason: 'admin' | 'billing' | null; plan: AccountPlan; trial_ends: string | null;
+  seat_limit: number | null; notes: string; created_at: string; approved_at: string | null; owner_auth_id: string | null; owner_email: string | null;
+  subscription_status: string | null; current_period_end: string | null; stripe_customer_id: string | null;
+  seats_used: number; workspaces: number; members: number; placements: number; workspace_list: SuperWorkspace[];
+}
+/** rpc('ramp_super_accounts') */
+export interface SuperData { accounts: SuperAccount[]; requests: AccountRequest[]; platform: Platform }
+/** rpc('ramp_seats') */
+export interface Seats { used: number; limit: number | null; plan: AccountPlan }
+/** ramp_accounts as its own members read it. */
+export interface Account {
+  id: string; name: string; owner_auth_id: string | null; status: AccountStatus; pause_reason: 'admin' | 'billing' | null; plan: AccountPlan;
+  trial_ends: string | null; seat_limit: number | null; notes: string; stripe_customer_id: string | null; stripe_subscription_id: string | null;
+  subscription_status: string | null; current_period_end: string | null; stripe_price_id?: string | null; created_at: string;
+}
+/** rpc('ramp_client_invoices') — issued invoices for a client contact or a linked client workspace. */
+export interface ClientInvoiceRow {
+  id: string; client_id: string; number: string; status: InvoiceStatus; period_start: string | null; period_end: string | null;
+  issue_date: string | null; due_date: string | null; currency: string; total: number; paid_at: string | null;
+  stripe_url: string | null; stripe_pdf: string | null; sent_at: string | null; created_at: string;
+}
+/** rpc('ramp_client_invoice', { p_id }) */
+export interface ClientInvoiceFull {
+  invoice: Omit<Invoice, 'created_by'>;
+  lines: { id: string; kind: InvoiceLine['kind']; description: string; quantity: number; unit_price: number; amount: number; period_start: string | null; period_end: string | null; sort: number }[];
+  client: { name: string; billing_name: string; billing_email: string; billing_address: string; net_days: number };
+  issuer: { name: string; brand_color: string };
 }

@@ -5,9 +5,10 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, errText } from '../../../lib/supabase';
 import { useMe } from '../../../lib/session';
+import { q, useAsync } from '../../../lib/hooks';
 import { CLIENT_STATUS, INVOICE_STATUS, ago, cx, displayName, fmtDate, fmtDateTime, money, plural, todayISO } from '../../../lib/util';
-import type { Client, ClientModule, ClientRequest, Invoice, Module, Placement } from '../../../lib/types';
-import { Avatar, Button, Card, CardHeader, Checkbox, Chip, EmptyState, Field, Icon, IconButton, Input, LinkButton, Notice, Pills, Sheet, Textarea, useConfirm, useToast } from '../../../ui';
+import type { Client, ClientModule, ClientRequest, Invoice, Module, Placement, SuperData } from '../../../lib/types';
+import { Avatar, Button, Card, CardHeader, Checkbox, Chip, EmptyState, Field, Icon, IconButton, Input, LinkButton, Notice, Pills, Select, Sheet, Textarea, useConfirm, useToast } from '../../../ui';
 import { FormError, copyText, focusInvalid } from '../../parts/ops-common';
 import { joinLink } from '../../parts/ops-invite';
 import { SaveBar, same, useLeaveGuard } from '../../parts/setup-kit';
@@ -93,6 +94,7 @@ export function OverviewTab({ client, openPlacements, onSaved }: { client: Clien
           </p>
         </Card>
       </div>
+      <LinkedWorkspaceCard client={client} onSaved={onSaved} />
       {error && <Notice tone="bad" icon="alert">{error}</Notice>}
       <SaveBar dirty={dirty} saving={busy}>
         {dirty && <Button variant="ghost" onClick={() => { setF(saved); setShow(false); }} disabled={busy}>Discard</Button>}
@@ -100,6 +102,48 @@ export function OverviewTab({ client, openPlacements, onSaved }: { client: Clien
       </SaveBar>
       {dialog}
     </form>
+  );
+}
+
+// ───────── The client's own RAMP workspace ─────────
+
+function LinkedWorkspaceCard({ client, onSaved }: { client: Client; onSaved: (c: Client) => void }) {
+  const { isSuper, workspace } = useMe();
+  const toast = useToast();
+  const [sel, setSel] = useState(client.linked_workspace_id || '');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const { data } = useAsync(async () => (isSuper ? q<SuperData>(supabase.rpc('ramp_super_accounts')) : null), [isSuper]);
+  if (client.linked_workspace_id === undefined) return null; // older database without workspaces
+  const options = (data?.accounts || []).flatMap((a) => a.workspace_list.filter((w) => w.id !== workspace?.id).map((w) => ({ id: w.id, label: w.name === a.name ? w.name : `${w.name} (${a.name})` })));
+  const linkedName = options.find((o) => o.id === client.linked_workspace_id)?.label;
+  async function save() {
+    setBusy(true); setErr('');
+    const { error } = await supabase.rpc('ramp_client_link', { p_client: client.id, p_workspace: sel || null });
+    setBusy(false);
+    if (error) { setErr(errText(error)); return; }
+    onSaved({ ...client, linked_workspace_id: sel || null });
+    toast(sel ? `${client.name} is linked. Their assistants now show in their workspace.` : `${client.name} is unlinked.`);
+  }
+  return (
+    <Card className="flex flex-col gap-3">
+      <CardHeader title="Their own RAMP workspace"
+        subtitle={`If ${client.name} uses RAMP for their own team, link their workspace. Their admins then approve hours, see invoices and follow launch plans from inside it, and your assistants appear on their team list.`} />
+      {isSuper ? (
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="Linked workspace" className="flex-1 min-w-56">
+            <Select value={sel} onChange={(e) => setSel(e.target.value)}>
+              <option value="">Not linked</option>
+              {options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </Select>
+          </Field>
+          <Button loading={busy} disabled={sel === (client.linked_workspace_id || '')} onClick={save}>{sel ? 'Save link' : 'Unlink'}</Button>
+        </div>
+      ) : (
+        <p className="text-sm text-ink-2">{client.linked_workspace_id ? `Linked${linkedName ? ` to ${linkedName}` : ''}.` : 'Not linked. The platform admin can link it from here once the client has a RAMP account.'}</p>
+      )}
+      {err && <Notice tone="bad" icon="alert">{err}</Notice>}
+    </Card>
   );
 }
 

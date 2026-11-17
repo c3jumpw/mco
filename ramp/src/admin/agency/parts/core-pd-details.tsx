@@ -120,7 +120,7 @@ const FEE_STATUS: Record<Placement['setup_fee_status'], { label: string; tone: '
   waived: { label: 'Waived', tone: 'dark' },
 };
 
-export function DetailsTab({ placement: p, people, client, onSaved }: { placement: Placement; people: MemberLite[]; client: { id: string; name: string }; onSaved: () => void }) {
+export function DetailsTab({ placement: p, people, client, onSaved }: { placement: Placement; people: MemberLite[]; client: { id: string; name: string; linked_workspace_id?: string | null }; onSaved: () => void }) {
   const toast = useToast();
   const { confirm, dialog } = useConfirm();
   const saved = useMemo(() => formOf(p), [p]);
@@ -234,6 +234,7 @@ export function DetailsTab({ placement: p, people, client, onSaved }: { placemen
           <CardHeader title="Notes" subtitle="Only admins see these." />
           <Textarea rows={6} aria-label="Notes" value={f.notes} maxLength={4000} onChange={(e) => set('notes', e.target.value)} placeholder="How the match came about, client preferences, anything to remember." />
         </Card>
+        {client.linked_workspace_id && <SyncCard placementId={p.id} client={client.name} />}
       </div>
       {error && <Notice tone="bad" icon="alert">{error}</Notice>}
       <SaveBar dirty={dirty} saving={busy}>
@@ -242,5 +243,23 @@ export function DetailsTab({ placement: p, people, client, onSaved }: { placemen
       </SaveBar>
       {dialog}
     </div>
+  );
+}
+
+/** For a client with their own RAMP workspace: the assistant is mirrored there and kept in sync automatically. */
+function SyncCard({ placementId, client }: { placementId: string; client: string }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  return (
+    <Card className="flex flex-col gap-3">
+      <CardHeader title={`In ${client}’s workspace`} subtitle={`${client} has their own RAMP workspace. This assistant appears on their team there, and status changes sync automatically.`} />
+      <Button className="self-start" icon="refresh" loading={busy} onClick={async () => {
+        setBusy(true);
+        const { data, error } = await supabase.rpc('ramp_placement_sync', { p_placement: placementId });
+        setBusy(false);
+        if (error) toast(errText(error), 'bad');
+        else toast(Number(data) ? 'Synced. Their workspace is up to date.' : 'Already up to date.');
+      }}>Sync now</Button>
+    </Card>
   );
 }

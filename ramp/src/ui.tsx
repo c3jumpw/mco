@@ -15,7 +15,7 @@ const PATHS: Record<string, string> = {
   userPlus: 'M9 5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z|M3 20a6 6 0 0 1 12 0|M19 8v6M16 11h6',
   shield: 'M12 3 4.5 6v5.5c0 4.6 3.2 7.9 7.5 9.5 4.3-1.6 7.5-4.9 7.5-9.5V6z|m9 12 2.2 2.2L15.5 10',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
-  chevronDown: 'm6 9 6 6 6-6', chevronUp: 'm6 15 6-6 6 6', chevronRight: 'm9 6 6 6-6 6', chevronLeft: 'm15 6-6 6 6 6',
+  chevronDown: 'm6 9 6 6 6-6', chevronUp: 'm6 15 6-6 6 6', chevronRight: 'm9 6 6 6-6 6', chevronLeft: 'm15 6-6 6 6 6', chevrons: 'm8 9 4-4 4 4|m8 15 4 4 4-4',
   plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6 6 18', check: 'm5 12.5 4.5 4.5L19 7.5',
   lock: 'M6.5 10.5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z|M8 10.5V7.5a4 4 0 0 1 8 0v3',
   search: 'M11 4.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13z|m20 20-4.2-4.2',

@@ -1,8 +1,10 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { supabase, errText } from '../lib/supabase';
-import { useSession } from '../lib/session';
+import { useSession, type BlockKind } from '../lib/session';
+import type { AccountRequestLite } from '../lib/types';
+import { PlanPicker } from '../components/PlanPicker';
 import { useTitle } from '../lib/hooks';
-import { Button, Field, Icon, Input, Logo, Notice, Segmented, Textarea } from '../ui';
+import { Button, Field, Icon, Input, Logo, Notice, Pills, Segmented, Textarea } from '../ui';
 
 function useBrandName() {
   const [name, setName] = useState('');
@@ -98,7 +100,7 @@ export default function Login() {
     <AuthFrame
       title={mode === 'signin' ? 'Welcome back' : mode === 'signup' ? 'Create your login' : 'Reset your password'}
       subtitle={mode === 'signin' ? 'Sign in to pick up where you left off.'
-        : mode === 'signup' ? 'Invited to the team? Use the email address your invitation went to.'
+        : mode === 'signup' ? 'Invited to a team? Use the email your invitation went to. Starting RAMP for your business? Create a login first, then tell us about your company.'
         : 'We’ll email you a link to choose a new password.'}>
       {mode !== 'forgot' && (
         <Segmented label="Sign in or create a login" value={mode} onChange={(v) => { setMode(v); setError(''); }}
@@ -163,9 +165,26 @@ export function ResetPassword() {
   );
 }
 
-export function NoAccess({ email, requested }: { email: string; requested: boolean }) {
-  useTitle('Request access');
+type NoAccessMode = 'join' | 'company';
+
+export function NoAccess({ email, requested, request }: { email: string; requested: boolean; request: AccountRequestLite | null }) {
+  useTitle('Get started');
   const { signOut } = useSession();
+  const declined = request?.status === 'declined';
+  const [mode, setMode] = useState<NoAccessMode>(request ? 'company' : 'join');
+  return (
+    <AuthFrame title="Welcome to RAMP" subtitle={<>You’re signed in as <strong className="text-ink">{email}</strong>, but you’re not part of a team yet.</>}>
+      <Segmented label="What brings you here" value={mode} onChange={setMode}
+        options={[{ value: 'join', label: 'Join my team' }, { value: 'company', label: 'Start for my business' }]} />
+      {mode === 'join'
+        ? <JoinTeam email={email} requested={requested} />
+        : <CompanyRequest request={request} declined={declined} />}
+      <Button variant="ghost" onClick={signOut} icon="logout">Use a different email</Button>
+    </AuthFrame>
+  );
+}
+
+function JoinTeam({ email, requested }: { email: string; requested: boolean }) {
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
   const [done, setDone] = useState(requested);
@@ -182,24 +201,106 @@ export function NoAccess({ email, requested }: { email: string; requested: boole
   }
   if (done) {
     return (
-      <AuthFrame title="Request sent" subtitle={<>HR will see your request for <strong className="text-ink">{email}</strong>. Once you’re invited, sign in again and RAMP will open.</>}>
-        <Notice tone="good" icon="check">You don’t need to do anything else right now.</Notice>
-        <div className="flex flex-wrap gap-2.5">
-          <Button variant="primary" onClick={() => window.location.reload()} icon="refresh">Check again</Button>
-          <Button onClick={signOut} icon="logout">Sign out</Button>
-        </div>
-      </AuthFrame>
+      <div className="flex flex-col gap-4">
+        <Notice tone="good" icon="check">Request sent. HR will see it for <strong>{email}</strong>. Once you’re invited, RAMP opens when you sign in.</Notice>
+        <Button variant="primary" onClick={() => window.location.reload()} icon="refresh">Check again</Button>
+      </div>
     );
   }
   return (
-    <AuthFrame title="You’re not on the team list yet" subtitle={<>No invitation matches <strong className="text-ink">{email}</strong>. If HR invited you at another address, sign out and use that one. Otherwise, ask for access below.</>}>
-      <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-        <Field label="Your full name"><Input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></Field>
-        <Field label="Note for HR" hint="Optional. For example, the role you applied for or your start date."><Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-        {error && <Notice tone="bad" icon="alert">{error}</Notice>}
-        <Button type="submit" variant="primary" size="lg" loading={busy}>Request access</Button>
-        <Button variant="ghost" onClick={signOut} icon="logout">Use a different email</Button>
-      </form>
+    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+      <p className="text-[15px] text-muted leading-relaxed">No invitation matches this email. If you were invited at another address, sign out and use that one. Otherwise, ask for access.</p>
+      <Field label="Your full name"><Input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></Field>
+      <Field label="Note for HR" hint="Optional. For example, the role you applied for or your start date."><Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+      {error && <Notice tone="bad" icon="alert">{error}</Notice>}
+      <Button type="submit" variant="primary" size="lg" loading={busy}>Request access</Button>
+    </form>
+  );
+}
+
+const TEAM_SIZES = ['Just me', '2–5', '6–20', '21–50', '51+'];
+
+function CompanyRequest({ request, declined }: { request: AccountRequestLite | null; declined: boolean }) {
+  const [company, setCompany] = useState(request?.company || '');
+  const [name, setName] = useState(request?.name || '');
+  const [phone, setPhone] = useState('');
+  const [size, setSize] = useState('');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (!company.trim()) { setError('Add your company’s name.'); return; }
+    if (!name.trim()) { setError('Add your name.'); return; }
+    setBusy(true);
+    const { error } = await supabase.rpc('ramp_account_request', {
+      p_company: company.trim(), p_name: name.trim(), p_phone: phone.trim(), p_team_size: size, p_note: note.trim(),
+    });
+    setBusy(false);
+    if (error) setError(errText(error));
+    else window.location.reload();
+  }
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+      {declined
+        ? <Notice tone="warn" icon="alert">Your last request wasn’t approved.{request?.decision_note ? <> Note from the RAMP team: “{request.decision_note}”</> : null} You can update it and send it again.</Notice>
+        : <p className="text-[15px] text-muted leading-relaxed">Tell us about your business. We review every new account and you’ll get your own private RAMP workspace, set up with our training library.</p>}
+      <Field label="Company name" required><Input value={company} onChange={(e) => setCompany(e.target.value)} autoComplete="organization" /></Field>
+      <Field label="Your name" required><Input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></Field>
+      <Field label="Phone" hint="Optional. In case we need to reach you quickly."><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" /></Field>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[13px] font-semibold text-ink-2">How many people will use RAMP?</span>
+        <Pills label="Team size" size="sm" value={size || null} onChange={setSize} options={TEAM_SIZES.map((t) => ({ value: t, label: t }))} />
+      </div>
+      <Field label="Anything we should know?" hint="Optional. For example, the roles you’re hiring or training for."><Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+      {error && <Notice tone="bad" icon="alert">{error}</Notice>}
+      <Button type="submit" variant="primary" size="lg" loading={busy}>{declined ? 'Send again' : 'Request my workspace'}</Button>
+    </form>
+  );
+}
+
+export function AccountPending({ email, request }: { email: string; request: AccountRequestLite | null }) {
+  useTitle('Account in review');
+  const { signOut } = useSession();
+  return (
+    <AuthFrame title="We’re reviewing your account"
+      subtitle={<>Thanks{request?.name ? `, ${request.name.split(' ')[0]}` : ''}. We got the request{request?.company ? <> for <strong className="text-ink">{request.company}</strong></> : null}. Once it’s approved, your workspace opens the next time you sign in as <strong className="text-ink">{email}</strong>.</>}>
+      <Notice icon="clock">Most requests are reviewed within one business day.</Notice>
+      <div className="flex flex-wrap gap-2.5">
+        <Button variant="primary" onClick={() => window.location.reload()} icon="refresh">Check again</Button>
+        <Button onClick={signOut} icon="logout">Sign out</Button>
+      </div>
+    </AuthFrame>
+  );
+}
+
+export function AccountBlocked({ kind, email }: { kind: BlockKind; email: string }) {
+  useTitle(kind === 'trial_ended' ? 'Trial ended' : kind === 'closed' ? 'Workspace closed' : 'Workspace paused');
+  const { signOut, account, workspace, workspaces, switchWorkspace } = useSession();
+  const [busy, setBusy] = useState('');
+  const others = workspaces.filter((w) => w.id !== workspace?.id && w.member_status === 'active');
+  const owner = !!account?.is_owner;
+  const title = kind === 'trial_ended' ? 'Your free trial has ended' : kind === 'closed' ? 'This workspace is closed' : 'This workspace is paused';
+  const body = kind === 'trial_ended'
+    ? (owner ? 'Choose a plan to keep using RAMP. Everything your team set up is still here.' : 'Your company’s free trial has ended. Ask the account owner to choose a plan; everything is still here.')
+    : kind === 'closed'
+      ? 'This RAMP workspace has been closed. If you think that’s a mistake, contact the RAMP team.'
+      : (owner ? 'Access is paused, usually because of a billing problem. Update your payment details or choose a plan to turn it back on.' : 'Your company’s access is paused for now. The account owner can turn it back on.');
+  return (
+    <AuthFrame title={title} subtitle={<>{workspace?.name ? <><strong className="text-ink">{workspace.name}</strong> · </> : null}{body}</>}>
+      {owner && account && kind !== 'closed' && <PlanPicker accountId={account.id} compact />}
+      {others.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-[13px] font-semibold text-ink-2">Your other workspaces</p>
+          {others.map((w) => (
+            <Button key={w.id} className="justify-start" icon="building" loading={busy === w.id} disabled={!!busy}
+              onClick={async () => { setBusy(w.id); try { await switchWorkspace(w.id); } catch { setBusy(''); } }}>{w.name}</Button>
+          ))}
+        </div>
+      )}
+      <p className="text-sm text-muted">Signed in as {email}.</p>
+      <Button onClick={signOut} size="lg" icon="logout">Sign out</Button>
     </AuthFrame>
   );
 }

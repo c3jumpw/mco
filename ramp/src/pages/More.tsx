@@ -7,7 +7,7 @@ import { Avatar, Card, Icon, PageHeader } from '../ui';
 
 export default function More() {
   useTitle('More');
-  const { me, isAdmin, signOut } = useMe();
+  const { me, isAdmin, isSuper, signOut } = useMe();
   const { main, mobile } = useNav();
   const b = useBadges();
   const extra = main.filter((i) => !mobile.some((m) => m.to === i.to));
@@ -36,6 +36,7 @@ export default function More() {
       {isAdmin && (
         <Card padded={false} className="overflow-hidden">
           <Link to="/admin" className={row}><Icon name="shield" size={22} className="text-brand-ink" />Admin portal<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></Link>
+          {isSuper && <Link to="/platform" className={row}><Icon name="building" size={22} className="text-brand-ink" />Client accounts<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></Link>}
         </Card>
       )}
       <Card padded={false} className="overflow-hidden">

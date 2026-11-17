@@ -1,17 +1,29 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { supabase } from './supabase';
 import { rankOf } from './util';
-import type { Department, JobRole, Member, MyRoles, Org } from './types';
+import type { AccountRequestLite, Department, JobRole, Member, MyRoles, Org, SessionAccount, SessionWorkspace, WorkspaceRow } from './types';
 
+export type BlockKind = 'paused' | 'closed' | 'trial_ended';
 export type GateState =
   | { status: 'loading' }
   | { status: 'signed_out' }
   | { status: 'recovery' }
-  | { status: 'no_access'; email: string; requested: boolean }
+  | { status: 'no_access'; email: string; requested: boolean; request: AccountRequestLite | null }
+  | { status: 'account_pending'; email: string; request: AccountRequestLite | null }
+  | { status: 'account_blocked'; kind: BlockKind; email: string }
   | { status: 'inactive'; email: string }
   | { status: 'expired'; email: string }
   | { status: 'error'; message: string }
+  /** A platform admin with no workspace of their own yet: only the console. */
+  | { status: 'console' }
   | { status: 'ok' };
+
+/** What ramp_session_start returns (older databases send only state, email, requested and member_id). */
+interface StartResult {
+  state: string; email?: string; requested?: boolean; member_id?: string | null; super?: boolean; support?: boolean;
+  request?: AccountRequestLite | null; workspaces?: WorkspaceRow[]; workspace_id?: string | null;
+  workspace?: SessionWorkspace | null; account?: SessionAccount | null;
+}
 
 export interface Session {
   state: GateState;
@@ -32,6 +44,17 @@ export interface Session {
   roles: MyRoles;
   /** Agency features are on (Admin › System). */
   agencyOn: boolean;
+  /** The current workspace and its account (null on older databases). */
+  workspace: SessionWorkspace | null;
+  account: SessionAccount | null;
+  /** Every workspace this person can switch to (platform admins: all of them). */
+  workspaces: WorkspaceRow[];
+  /** Platform (super) admin: manages client accounts in the console. */
+  isSuper: boolean;
+  /** A platform admin viewing someone else's workspace as RAMP Support. */
+  support: boolean;
+  /** Make another workspace current, then reload the app in it. */
+  switchWorkspace: (id: string) => Promise<void>;
   /** Reload the signed-in member, org, role and department (after profile or settings changes). */
   refresh: () => Promise<void>;
   /** Replace the org locally after saving it (avoids a reload flash). */
@@ -70,6 +93,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<JobRole | null>(null);
   const [dept, setDept] = useState<Department | null>(null);
   const [roles, setRoles] = useState<MyRoles>({ work: false, coaching: 0, client: null });
+  const [ctx, setCtx] = useState<Pick<StartResult, 'workspace' | 'account' | 'workspaces' | 'super' | 'support'>>({});
+  const wsRef = useRef<string | null>(null);
 
   const loadMember = useCallback(async (memberId: string) => {
     const [m, o] = await Promise.all([
@@ -103,12 +128,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (recovering) { setState({ status: 'recovery' }); return; }
       const { data, error } = await supabase.rpc('ramp_session_start');
       if (error) throw error;
-      const r = data as { state: string; email?: string; requested?: boolean; member_id?: string };
+      const r = data as StartResult;
+      setCtx({ workspace: r.workspace?.id ? r.workspace : null, account: r.account?.id ? r.account : null,
+        workspaces: r.workspaces || [], super: !!r.super, support: !!r.support });
+      wsRef.current = r.workspace_id || null;
       if (r.state === 'ok' && r.member_id) {
         await loadMember(r.member_id);
         setState({ status: 'ok' });
+      } else if (r.state === 'ok' && r.super && !r.workspace_id) {
+        setState({ status: 'console' });
       } else if (r.state === 'no_access') {
-        setState({ status: 'no_access', email: r.email || '', requested: !!r.requested });
+        setState({ status: 'no_access', email: r.email || '', requested: !!r.requested, request: r.request || null });
+      } else if (r.state === 'account_pending') {
+        setState({ status: 'account_pending', email: r.email || '', request: r.request || null });
+      } else if (r.state === 'account_paused' || r.state === 'account_closed' || r.state === 'trial_ended') {
+        const kind: BlockKind = r.state === 'account_paused' ? 'paused' : r.state === 'account_closed' ? 'closed' : 'trial_ended';
+        setState({ status: 'account_blocked', kind, email: r.email || '' });
       } else if (r.state === 'inactive') {
         setState({ status: 'inactive', email: r.email || '' });
       } else if (r.state === 'expired') {
@@ -140,6 +175,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, [start]);
 
+  // The current workspace is saved per person, so a switch in another tab or device changes this one too: reload when it moves.
+  useEffect(() => {
+    let last = 0;
+    const check = async () => {
+      if (!wsRef.current || Date.now() - last < 30000) return;
+      last = Date.now();
+      const { data, error } = await supabase.rpc('ramp_ws');
+      if (!error && data && data !== wsRef.current) window.location.reload();
+    };
+    window.addEventListener('focus', check);
+    return () => window.removeEventListener('focus', check);
+  }, []);
+
+  const switchWorkspace = useCallback(async (id: string) => {
+    const { error } = await supabase.rpc('ramp_set_workspace', { p_ws: id });
+    if (error) throw error;
+    wsRef.current = id;
+    // A full reload drops every cached list and realtime channel from the old workspace.
+    window.location.assign('/');
+  }, []);
+
   const refresh = useCallback(async () => {
     if (me) await loadMember(me.id);
     else await start();
@@ -167,12 +223,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       isClient: rank === 8,
       roles,
       agencyOn: org?.flags?.agency !== false,
+      workspace: ctx.workspace || null,
+      account: ctx.account || null,
+      workspaces: ctx.workspaces || [],
+      isSuper: !!ctx.super,
+      support: !!ctx.support,
+      switchWorkspace,
       refresh,
       setOrg: (o: Org) => { setOrg(o); applyBrand(o.brand_color); },
       signOut,
       finishRecovery,
     };
-  }, [state, me, org, role, dept, roles, refresh, signOut, finishRecovery]);
+  }, [state, me, org, role, dept, roles, ctx, switchWorkspace, refresh, signOut, finishRecovery]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

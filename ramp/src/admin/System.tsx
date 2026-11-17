@@ -162,7 +162,8 @@ function AuditLog() {
   const nameOf = useCallback((id: string | null) => {
     if (!id) return 'System';
     const p = byId.get(id);
-    return p ? personName(p) : people.data ? 'Removed person' : '…';
+    // Support rows are hidden from the workspace, so an actor we can't see is almost always RAMP Support.
+    return p ? personName(p) : people.data ? 'RAMP Support' : '…';
   }, [byId, people.data]);
 
   const log = useAuditLog({ search: debounced, person });

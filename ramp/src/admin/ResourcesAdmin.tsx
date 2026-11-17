@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react';
 import { FILES_BUCKET, errText, openFile, supabase } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
+import { useMe } from '../lib/session';
 import type { JobRole, Resource } from '../lib/types';
 import { Button, Card, Checkbox, Chip, EmptyState, ErrorBox, Field, Icon, IconButton, Input, PageHeader, Pills, Select, Sheet, Skeleton, Textarea, useConfirm, useToast } from '../ui';
 import { ADMIN_BACK, FormError, cleanFileName, fmtSize, focusInvalid, groupOf } from './parts/ops-common';
@@ -162,6 +163,7 @@ function EditSheet(props: { item: Resource | 'new' | null; roles: JobRole[]; nex
 }
 
 function EditBody({ item, roles, nextSort, onClose, onSaved, onDelete }: { item: Resource | 'new'; roles: JobRole[]; nextSort: number; onClose: () => void; onSaved: (r: Resource, isNew: boolean) => void; onDelete: (r: Resource) => Promise<boolean> }) {
+  const { workspace } = useMe();
   const toast = useToast();
   const cur = item === 'new' ? null : item;
   const [title, setTitle] = useState(cur?.title || '');
@@ -207,7 +209,8 @@ function EditBody({ item, roles, nextSort, onClose, onSaved, onDelete }: { item:
     try {
       if (file) {
         const clean = file.name.replace(/[^\w.\-]+/g, '-').slice(-80) || 'file';
-        uploaded = `resources/${crypto.randomUUID()}-${clean}`;
+        // Resource files live under the workspace's own folder (older databases: the shared resources folder).
+        uploaded = workspace?.id ? `resources/${workspace.id}/${crypto.randomUUID()}-${clean}` : `resources/${crypto.randomUUID()}-${clean}`;
         const { error: upErr } = await supabase.storage.from(FILES_BUCKET).upload(uploaded, file, { upsert: false, contentType: file.type || undefined });
         if (upErr) { uploaded = null; throw upErr; }
       }

@@ -3,7 +3,8 @@ import { NavLink, Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useMe } from '../lib/session';
 import { LEVELS, cx, displayName } from '../lib/util';
-import { Avatar, Icon, Logo } from '../ui';
+import { Avatar, Icon, IconButton, Logo } from '../ui';
+import { SupportBanner, TrialBanner, WorkspaceSheet, useCanSwitch } from './Workspace';
 
 // ───────── navigation model (shared with More and the admin hub) ─────────
 
@@ -33,6 +34,11 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
   }
   const main: NavItem[] = [
     { to: '/', label: 'Home', icon: 'home' },
+    // An owner or admin of a client company's own workspace: the assistants the agency placed with them.
+    ...(roles.client?.linked ? [
+      { to: '/client', label: 'Our assistants', icon: 'userPlus', badge: 'hours' as const },
+      { to: '/client/invoices', label: 'Assistant invoices', icon: 'fileText' },
+    ] : []),
     ...(agencyOn && roles.work ? [{ to: '/work', label: 'My work', icon: 'clock' }] : []),
     { to: '/training', label: 'Training', icon: 'book' },
     ...(flags.tasks ? [{ to: '/tasks', label: 'Tasks', icon: 'tasks' }] : []),
@@ -70,6 +76,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { to: '/admin/metrics', label: 'Metrics', icon: 'chart', desc: 'Onboarding and training progress across the team', group: 'People' },
   { to: '/admin/news', label: 'Announcements', icon: 'megaphone', desc: 'Post news and track who has read it', group: 'Communicate' },
   { to: '/admin/resources', label: 'Resources', icon: 'folder', desc: 'Policies, SOPs, guides and tools', group: 'Communicate' },
+  { to: '/admin/account', label: 'Account and billing', icon: 'key', desc: 'Your plan, seats and the other organizations in your account', group: 'System' },
   { to: '/admin/system', label: 'System and audit', icon: 'shield', desc: 'Feature switches, IP recording and the audit log', group: 'System' },
   { to: '/guide?view=admin', label: 'Admin guide', icon: 'lifebuoy', desc: 'How every admin page and setting works, with screenshots', group: 'System' },
 ];
@@ -87,18 +94,18 @@ const BadgeCtx = createContext<Badges>({ news: 0, review: 0, hours: 0, agency: 0
 export const useBadges = () => useContext(BadgeCtx);
 
 function useBadgeState(): Badges {
-  const { me, rank, canReview, isAdmin, isClient, agencyOn } = useMe();
+  const { me, rank, canReview, isAdmin, isClient, agencyOn, roles } = useMe();
   const [news, setNews] = useState(0);
   const [review, setReview] = useState(0);
   const [hrs, setHrs] = useState(0);
   const [agency, setAgency] = useState(0);
   const refresh = useCallback(async () => {
-    if (isClient) {
+    if (isClient || roles.client?.linked) {
       // Hours waiting for this client's approval.
       const { data } = await supabase.rpc('ramp_client_portal');
       const ts = ((data as { timesheets?: { status: string }[] } | null)?.timesheets || []);
       setHrs(ts.filter((t) => t.status === 'submitted').length);
-      return;
+      if (isClient) return;
     }
     if (rank > 6) return;
     const [a, k, r, ag] = await Promise.all([
@@ -119,7 +126,7 @@ function useBadgeState(): Badges {
     setNews(((a.data || []) as { id: string; audience: string; department_id: string | null }[]).filter((x) => forMe(x) && !acked.has(x.id)).length);
     setReview((r as { count: number | null }).count || 0);
     setAgency(ag);
-  }, [me.id, me.level, me.department_id, rank, canReview, isAdmin, isClient, agencyOn]);
+  }, [me.id, me.level, me.department_id, rank, canReview, isAdmin, isClient, agencyOn, roles.client?.linked]);
   useEffect(() => {
     refresh();
     const t = setInterval(refresh, 90_000);
@@ -135,11 +142,13 @@ function useBadgeState(): Badges {
 const FULL_BLEED = ['/chat'];
 
 export default function AppShell() {
-  const { me, rank } = useMe();
+  const { me, rank, isAdmin, workspace, support } = useMe();
   const loc = useLocation();
   const badges = useBadgeState();
   const { main, mobile } = useNav();
 
+  // A brand-new workspace: its admins set it up first (they can skip).
+  if (workspace && !workspace.setup_done && isAdmin && !support) return <Navigate to="/setup" replace />;
   // Team members go through the welcome flow before anything else. Owners and admins can preview it from Home.
   if (!me.onboarded_at && rank >= 3 && rank <= 6) return <Navigate to="/welcome" replace />;
 
@@ -148,6 +157,7 @@ export default function AppShell() {
   return (
     <BadgeCtx.Provider value={badges}>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[70] focus:bg-white focus:px-4 focus:py-2 focus:rounded-lg">Skip to content</a>
+      <SupportBanner />
       <div className="min-h-dvh md:flex">
         <Sidebar items={main} />
         <div className="flex-1 min-w-0 flex flex-col">
@@ -155,6 +165,7 @@ export default function AppShell() {
           <main id="main" className={cx(full
             ? 'shrink-0 overflow-hidden h-[calc(100dvh-56px-64px-env(safe-area-inset-bottom))] md:h-dvh'
             : 'flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 pt-5 md:pt-8 pb-28 md:pb-12')}>
+            {!full && <TrialBanner />}
             <Outlet />
           </main>
         </div>
@@ -172,21 +183,27 @@ function Badge({ kind }: { kind?: NavItem['badge'] }) {
 }
 
 function Sidebar({ items }: { items: NavItem[] }) {
-  const { me, org, isAdmin, signOut } = useMe();
+  const { me, org, isAdmin, isSuper, signOut } = useMe();
   const adminSections = useAdminSections();
+  const canSwitch = useCanSwitch();
+  const [switching, setSwitching] = useState(false);
   const loc = useLocation();
   const inAdmin = loc.pathname.startsWith('/admin');
   const link = (active: boolean) => cx('flex items-center gap-3 min-h-11 px-3 rounded-xl text-[15px] font-semibold no-underline transition-colors',
     active ? 'bg-brand-soft text-brand-ink' : 'text-ink-2 hover:bg-chip');
   return (
     <aside className="hidden md:flex w-64 shrink-0 h-dvh sticky top-0 flex-col border-r border-line bg-white">
-      <Link to="/" className="flex items-center gap-3 px-5 h-16 no-underline text-ink shrink-0">
-        <Logo size={30} />
-        <span className="leading-tight min-w-0">
-          <span className="block font-display font-bold tracking-[0.08em]">RAMP</span>
-          <span className="block text-xs text-muted truncate">{org.name}</span>
-        </span>
-      </Link>
+      <div className="flex items-center gap-1 pl-5 pr-2 h-16 shrink-0">
+        <Link to="/" className="flex-1 min-w-0 flex items-center gap-3 no-underline text-ink">
+          <Logo size={30} />
+          <span className="leading-tight min-w-0">
+            <span className="block font-display font-bold tracking-[0.08em]">RAMP</span>
+            <span className="block text-xs text-muted truncate">{org.name}</span>
+          </span>
+        </Link>
+        {canSwitch && <IconButton icon="chevrons" label="Switch workspace" onClick={() => setSwitching(true)} />}
+      </div>
+      <WorkspaceSheet open={switching} onClose={() => setSwitching(false)} />
       <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-0.5">
         {items.map((i) => (
           <NavLink key={i.to} to={i.to} end={i.to === '/' || i.to === '/client'} className={({ isActive }) => link(isActive)}>
@@ -197,6 +214,7 @@ function Sidebar({ items }: { items: NavItem[] }) {
           <>
             <p className="px-3 pt-5 pb-1.5 text-[11px] font-bold tracking-[0.1em] uppercase text-muted">Admin</p>
             <NavLink to="/admin" end className={({ isActive }) => link(isActive)}><Icon name="shield" size={20} />Admin portal<Badge kind="agency" /></NavLink>
+            {isSuper && <NavLink to="/platform" className={({ isActive }) => link(isActive)}><Icon name="building" size={20} />Client accounts</NavLink>}
             {inAdmin && adminSections.map((s) => (
               <NavLink key={s.to} to={s.to} className={({ isActive }) => cx(link(isActive), 'min-h-10 text-sm pl-10')}>{s.label}</NavLink>
             ))}
@@ -221,13 +239,17 @@ function Sidebar({ items }: { items: NavItem[] }) {
 
 function MobileTop() {
   const { me, org } = useMe();
+  const canSwitch = useCanSwitch();
+  const [switching, setSwitching] = useState(false);
   return (
-    <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-3 px-4 bg-bg/95 backdrop-blur border-b border-line">
+    <header className="md:hidden sticky top-0 z-30 h-14 flex items-center gap-1 px-4 bg-bg/95 backdrop-blur border-b border-line">
       <Link to="/" className="flex items-center gap-2.5 no-underline text-ink min-w-0 flex-1">
         <Logo size={28} />
         <span className="font-display font-bold tracking-[0.08em]">RAMP</span>
         <span className="text-xs text-muted truncate">{org.name}</span>
       </Link>
+      {canSwitch && <IconButton icon="chevrons" label="Switch workspace" onClick={() => setSwitching(true)} />}
+      <WorkspaceSheet open={switching} onClose={() => setSwitching(false)} />
       <Link to="/me" aria-label="Your profile" className="w-11 h-11 flex items-center justify-center -mr-1.5"><Avatar name={displayName(me)} size={32} /></Link>
     </header>
   );

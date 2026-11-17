@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
 import { INVOICE_STATUS, daysUntil, fmtDate, money } from '../lib/util';
-import type { Client, Invoice, InvoiceLine } from '../lib/types';
+import type { Client, ClientInvoiceFull, Invoice, InvoiceLine } from '../lib/types';
 import { BackLink, Button, Card, Chip, EmptyState, ErrorBox, Notice, PageHeader, Skeleton } from '../ui';
 import { InvoiceDoc, InvoicePrint, printInvoice } from '../components/InvoiceDoc';
 import { ExternalButton, invoicePeriod } from './parts/portal-common';
@@ -15,13 +15,22 @@ export default function ClientInvoice() {
   const { id = '' } = useParams();
   const { org, roles } = useMe();
   const { data, error, reload } = useAsync(async () => {
+    const { data: full, error: e } = await supabase.rpc('ramp_client_invoice', { p_id: id });
+    if (!e) {
+      const f = full as ClientInvoiceFull;
+      const lines = f.lines.map((l) => ({ ...l, invoice_id: f.invoice.id, placement_id: null, reconciled_at: null })) as InvoiceLine[];
+      return { invoice: { ...f.invoice, created_by: null } as Invoice, lines, client: f.client as BillTo | null, issuer: f.issuer?.name || '' };
+    }
+    if (/not found/i.test(e.message || '')) return null;
+    if (e.code !== 'PGRST202') throw e;
+    // Older database: read the tables directly (row-level security limits them to this client).
     const invoice = await q<Invoice | null>(supabase.from('ramp_invoices').select('*').eq('id', id).neq('status', 'draft').maybeSingle());
     if (!invoice) return null;
     const [lines, client] = await Promise.all([
       q<InvoiceLine[]>(supabase.from('ramp_invoice_lines').select('*').eq('invoice_id', id).order('sort')),
       q<BillTo | null>(supabase.from('ramp_clients').select('name, billing_name, billing_email, billing_address, net_days').eq('id', invoice.client_id).maybeSingle()),
     ]);
-    return { invoice, lines, client };
+    return { invoice, lines, client, issuer: '' };
   }, [id]);
   useTitle(data?.invoice ? `Invoice ${data.invoice.number}` : 'Invoice');
 
@@ -71,9 +80,9 @@ export default function ClientInvoice() {
         )}
       </div>
 
-      <InvoiceDoc invoice={inv} lines={data.lines} client={client} from={org.name} terms={terms} hidePayLink className="print:hidden" />
+      <InvoiceDoc invoice={inv} lines={data.lines} client={client} from={data.issuer || org.name} terms={terms} hidePayLink className="print:hidden" />
       {/* The printed copy keeps the online payment link. */}
-      <InvoicePrint invoice={inv} lines={data.lines} client={client} from={org.name} terms={terms} />
+      <InvoicePrint invoice={inv} lines={data.lines} client={client} from={data.issuer || org.name} terms={terms} />
 
       {payable && (
         <div className="md:hidden print:hidden sticky bottom-[calc(76px+env(safe-area-inset-bottom))] z-20 rounded-2xl bg-white border border-line shadow-lg p-3 flex items-center gap-3">

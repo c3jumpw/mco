@@ -11,6 +11,15 @@ import { ExternalButton, invoicePeriod } from './parts/portal-common';
 const INV_COLS = 'id, client_id, number, status, period_start, period_end, issue_date, due_date, currency, total, paid_at, stripe_url, stripe_pdf, sent_at';
 type Row = Pick<Invoice, 'id' | 'client_id' | 'number' | 'status' | 'period_start' | 'period_end' | 'issue_date' | 'due_date' | 'currency' | 'total' | 'paid_at' | 'stripe_url' | 'stripe_pdf' | 'sent_at'>;
 
+/** Issued invoices through ramp_client_invoices (works from a linked client workspace too); older databases read the table. */
+async function loadInvoices(): Promise<Row[]> {
+  const { data, error } = await supabase.rpc('ramp_client_invoices');
+  if (!error) return (data as Row[]) || [];
+  if (error.code !== 'PGRST202') throw error;
+  return q<Row[]>(supabase.from('ramp_invoices').select(INV_COLS).neq('status', 'draft')
+    .order('issue_date', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }));
+}
+
 function DueText({ inv }: { inv: Row }) {
   if (inv.status === 'paid') return <span className="text-muted">Paid {fmtDate(inv.paid_at)}</span>;
   if (inv.status === 'void') return <span className="text-muted">Voided</span>;
@@ -25,8 +34,7 @@ export default function ClientInvoices() {
   const navigate = useNavigate();
   const { data, error, reload } = useAsync(async () => {
     const [invoices, client] = await Promise.all([
-      q<Row[]>(supabase.from('ramp_invoices').select(INV_COLS).neq('status', 'draft')
-        .order('issue_date', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false })),
+      loadInvoices(),
       roles.client?.id
         ? q<Pick<Client, 'billing_email' | 'net_days'> | null>(supabase.from('ramp_clients').select('billing_email, net_days').eq('id', roles.client.id).maybeSingle()).catch(() => null)
         : Promise.resolve(null),

@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './styles.css';
 import { SessionProvider, useSession } from './lib/session';
 import { Loading, ToastProvider } from './ui';
-import Login, { Blocked, LoadError, NoAccess, ResetPassword } from './auth/Login';
+import Login, { AccountBlocked, AccountPending, Blocked, LoadError, NoAccess, ResetPassword } from './auth/Login';
 import AppShell from './shell/AppShell';
 import More from './pages/More';
 
@@ -53,6 +53,9 @@ const InvoiceDetail = page(() => import('./admin/agency/InvoiceDetail'));
 const Payouts = page(() => import('./admin/agency/Payouts'));
 const PayoutDetail = page(() => import('./admin/agency/PayoutDetail'));
 
+const Setup = page(() => import('./admin/Setup'));
+const Account = page(() => import('./admin/Account'));
+const PlatformConsole = lazy(() => import('./platform/Console'));
 const AdminHome = page(() => import('./admin/AdminHome'));
 const Org = page(() => import('./admin/Org'));
 const Roles = page(() => import('./admin/Roles'));
@@ -70,17 +73,22 @@ const ResourcesAdmin = page(() => import('./admin/ResourcesAdmin'));
 const System = page(() => import('./admin/System'));
 
 function Root() {
-  const { state, rank, isAdmin, isClient, org, roles } = useSession();
+  const { state, rank, isAdmin, isClient, isSuper, org, roles } = useSession();
   if (state.status === 'loading') return <Loading full label="Opening RAMP…" />;
   if (state.status === 'signed_out') return <Login />;
   if (state.status === 'recovery') return <ResetPassword />;
-  if (state.status === 'no_access') return <NoAccess email={state.email} requested={state.requested} />;
+  if (state.status === 'no_access') return <NoAccess email={state.email} requested={state.requested} request={state.request} />;
+  if (state.status === 'account_pending') return <AccountPending email={state.email} request={state.request} />;
+  if (state.status === 'account_blocked') return <AccountBlocked kind={state.kind} email={state.email} />;
+  if (state.status === 'console') return <Suspense fallback={<Loading full />}><PlatformConsole standalone /></Suspense>;
   if (state.status === 'inactive' || state.status === 'expired') return <Blocked kind={state.status} email={state.email} />;
   if (state.status === 'error') return <LoadError message={state.message} />;
   sessionStorage.removeItem('ramp-reloaded');
   const staff = rank <= 6;
   const flags = org?.flags || { chat: true, tasks: true, certificates: false, record_ip: true };
   const agency = flags.agency !== false;
+  // Client pages: client contacts in the agency's workspace, or owners and admins of a client's own linked workspace.
+  const clientView = (isClient && agency) || !!roles.client?.linked;
   return (
     <Suspense fallback={<Loading full />}>
       <Routes>
@@ -88,14 +96,16 @@ function Root() {
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/training/:id" element={<ModulePlayer />} />
         <Route path="/practice" element={<Practice />} />
+        {isAdmin && <Route path="/setup" element={<Setup />} />}
 
         <Route element={<AppShell />}>
           <Route index element={isClient ? <Navigate to="/client" replace /> : <Home />} />
-          {isClient && agency && <Route path="client" element={<ClientHome />} />}
-          {isClient && agency && <Route path="client/hours" element={<ClientHours />} />}
-          {isClient && agency && <Route path="client/invoices" element={<ClientInvoices />} />}
-          {isClient && agency && <Route path="client/invoices/:id" element={<ClientInvoice />} />}
-          {agency && (isClient || staff) && <Route path="launch/:id" element={<Launch />} />}
+          {clientView && <Route path="client" element={<ClientHome />} />}
+          {clientView && <Route path="client/hours" element={<ClientHours />} />}
+          {clientView && <Route path="client/invoices" element={<ClientInvoices />} />}
+          {clientView && <Route path="client/invoices/:id" element={<ClientInvoice />} />}
+          {(clientView || (agency && staff)) && <Route path="launch/:id" element={<Launch />} />}
+          {isSuper && <Route path="platform" element={<PlatformConsole />} />}
           {staff && agency && roles.work && <Route path="work" element={<Work />} />}
           {staff && agency && rank <= 4 && <Route path="coaching" element={<Coaching />} />}
           {staff && agency && rank <= 4 && <Route path="coaching/:id" element={<CoachingPlacement />} />}
@@ -130,6 +140,7 @@ function Root() {
               <Route path="news" element={<NewsAdmin />} />
               <Route path="resources" element={<ResourcesAdmin />} />
               <Route path="system" element={<System />} />
+              <Route path="account" element={<Account />} />
               {agency && <Route path="agency" element={<AgencyHome />} />}
               {agency && <Route path="agency/settings" element={<AgencySettings />} />}
               {agency && <Route path="clients" element={<Clients />} />}

@@ -5,7 +5,7 @@ import { q, useAsync, useIsMobile, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
 import { planFor, type PlanItem } from '../lib/plan';
 import { LEVELS, LEVEL_ORDER, ago, cx, fmtDate, fmtDateTime, plural } from '../lib/util';
-import type { AccessRequest, Department, JobRole, Level, Member, MemberStatus, Module, PotentialStaff, Progress, RoleModule } from '../lib/types';
+import type { AccessRequest, Department, JobRole, Level, Member, MemberStatus, Module, PotentialStaff, Progress, RoleModule, Seats } from '../lib/types';
 import { Avatar, Button, Card, Chip, EmptyState, ErrorBox, Icon, PageHeader, Pills, RowLink, SearchInput, Select, Skeleton, useConfirm, useToast } from '../ui';
 import { ADMIN_BACK, LevelChip, TabBar, groupOf, loadLookups, personName, stageOf, type Stage } from './parts/ops-common';
 import { BulkInviteSheet, InviteSheet, type InvitePrefill } from './parts/ops-invite';
@@ -59,6 +59,7 @@ export default function People() {
       <PageHeader back={ADMIN_BACK} eyebrow={groupOf('/admin/people')} title="People"
         subtitle={<>Invite people, bring in staff from your other tools and manage everyone’s access.{agencyOn && <> Client contacts are on each <Link to="/admin/clients" className="font-semibold text-brand-ink">client’s page</Link>.</>}</>}
         actions={<Button variant="primary" icon="userPlus" onClick={() => setInvite({})} disabled={!team.data}>Invite someone</Button>} />
+      <SeatsLine />
       <TabBar options={options} value={tab} onChange={setTab} label="People lists" />
 
       {tab === 'team' && (
@@ -377,5 +378,21 @@ function RequestsTab({ rows, setRows, onInvite, onChanged }: {
       </Card>
       {dialog}
     </div>
+  );
+}
+
+/** Seats used on the account's plan (shown once workspaces are on). */
+function SeatsLine() {
+  const { data } = useAsync(async () => {
+    const { data: d, error } = await supabase.rpc('ramp_seats');
+    return error ? null : (d as Seats | null);
+  }, []);
+  if (!data) return null;
+  const full = data.limit != null && data.used >= data.limit;
+  return (
+    <p className={full ? 'text-sm font-semibold text-warn' : 'text-sm text-ink-2'}>
+      {data.limit == null ? `${data.used} seats in use on your plan.` : `${data.used} of ${data.limit} seats in use.`}
+      {full && <> Every seat is taken. <Link to="/admin/account" className="underline">Change your plan</Link> or pause someone’s access to invite more.</>}
+    </p>
   );
 }

@@ -1,5 +1,6 @@
-// Stripe → RAMP: marks RAMP invoices paid or void when Stripe says so.
-// Needs the STRIPE_WEBHOOK_SECRET secret; point a Stripe webhook for invoice.paid and invoice.voided here.
+// Stripe → RAMP: marks RAMP invoices paid or void when Stripe says so, and keeps account subscriptions in step.
+// Needs the STRIPE_WEBHOOK_SECRET secret. Point a Stripe webhook here for invoice.paid, invoice.voided and
+// customer.subscription.created / updated / deleted.
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
@@ -38,9 +39,24 @@ Deno.serve(async (req) => {
   if (!(await verify(payload, req.headers.get('stripe-signature') || ''))) return new Response('Bad signature', { status: 400 });
 
   const event = JSON.parse(payload);
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
   if (event.type === 'invoice.paid' || event.type === 'invoice.voided') {
-    const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+    // Invoices RAMP sent to agency clients; subscription invoices aren't RAMP invoices and are ignored by the RPC.
     const { error } = await admin.rpc('ramp_invoice_stripe_event', { p_stripe_id: event.data?.object?.id, p_event: event.type });
+    if (error) return new Response('Could not update RAMP', { status: 500 });
+  } else if (event.type?.startsWith('customer.subscription.')) {
+    const sub = event.data?.object || {};
+    const item = sub.items?.data?.[0];
+    // current_period_end moved from the subscription to its items in newer Stripe API versions.
+    const end = sub.current_period_end ?? item?.current_period_end;
+    const status = event.type === 'customer.subscription.deleted' ? 'canceled' : sub.status;
+    const { error } = await admin.rpc('ramp_account_subscription_event', {
+      p_customer: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
+      p_subscription: sub.id ?? null,
+      p_status: status ?? null,
+      p_period_end: end ? new Date(end * 1000).toISOString() : null,
+      p_price: item?.price?.id ?? null,
+    });
     if (error) return new Response('Could not update RAMP', { status: 500 });
   }
   return new Response(JSON.stringify({ received: true }), { headers: { 'Content-Type': 'application/json' } });

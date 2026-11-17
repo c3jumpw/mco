@@ -55,6 +55,10 @@ Deno.serve(async (req) => {
   if (!STRIPE_KEY) return json({ error: 'Stripe isn’t connected yet. Add the STRIPE_SECRET_KEY secret in Supabase.' }, 400);
 
   if (body.action === 'send') {
+    // The invoice must be readable by the caller (same workspace) before the service key touches it.
+    if (typeof body.invoice_id !== 'string') return json({ error: 'Invoice not found.' }, 404);
+    const { data: own } = await asUser.from('ramp_invoices').select('id').eq('id', body.invoice_id).maybeSingle();
+    if (!own) return json({ error: 'Invoice not found.' }, 404);
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data, error } = await admin.rpc('ramp_stripe_invoice_payload', { p_invoice: body.invoice_id });
     const p = data as Payload | null;
