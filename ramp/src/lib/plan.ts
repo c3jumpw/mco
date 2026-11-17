@@ -4,9 +4,9 @@
 import { supabase } from './supabase';
 import { q } from './hooks';
 import { rankOf } from './util';
-import type { Block, Member, Module, Progress, ProgressStatus, RoleModule, Submission, Template } from './types';
+import type { Block, ClientModule, Member, Module, Progress, ProgressStatus, RoleModule, Submission, Template } from './types';
 
-export type AssignKind = 'required' | 'role' | 'continued' | 'optional';
+export type AssignKind = 'required' | 'role' | 'client' | 'continued' | 'optional';
 
 export interface PlanItem {
   module: Module;
@@ -38,8 +38,12 @@ function addDays(iso: string, n: number) {
  * - Continued: everyone who has graduated (employee and above).
  * - Company-wide, not required: optional library for staff.
  */
-export function planFor(member: Member, modules: Module[], roleModules: RoleModule[], progress: Progress[]): PlanItem[] {
+export function planFor(member: Member, modules: Module[], roleModules: RoleModule[], progress: Progress[],
+  /** Training tracks of the clients this person is placed with (ramp_client_modules). */
+  clientModules: { module_id: string; sort: number }[] = []): PlanItem[] {
   const rank = rankOf(member.level);
+  const clientIds = new Set(clientModules.map((c) => c.module_id));
+  const clientSort = new Map(clientModules.map((c) => [c.module_id, c.sort]));
   const published = modules.filter((m) => m.status === 'published');
   const roleIds = new Set(roleModules.filter((r) => r.job_role_id === member.job_role_id).map((r) => r.module_id));
   const roleSort = new Map(roleModules.filter((r) => r.job_role_id === member.job_role_id).map((r) => [r.module_id, r.sort]));
@@ -50,7 +54,7 @@ export function planFor(member: Member, modules: Module[], roleModules: RoleModu
     let kind: AssignKind | null = null;
     if (rank === 7) kind = m.guest_visible ? 'optional' : null;
     else if (m.track === 'company') kind = m.required ? 'required' : 'optional';
-    else if (m.track === 'role') kind = roleIds.has(m.id) ? 'role' : null;
+    else if (m.track === 'role') kind = roleIds.has(m.id) ? 'role' : clientIds.has(m.id) ? 'client' : null;
     else if (m.track === 'continued') kind = rank <= 5 ? 'continued' : null;
     if (!kind) continue;
     const p = mine.find((x) => x.module_id === m.id) || null;
@@ -65,9 +69,10 @@ export function planFor(member: Member, modules: Module[], roleModules: RoleModu
       pct,
     });
   }
-  const order: Record<AssignKind, number> = { required: 0, role: 1, continued: 2, optional: 3 };
+  const order: Record<AssignKind, number> = { required: 0, role: 1, client: 2, continued: 3, optional: 4 };
   return out.sort((a, b) => order[a.kind] - order[b.kind]
     || (a.kind === 'role' ? (roleSort.get(a.module.id) ?? 0) - (roleSort.get(b.module.id) ?? 0) : 0)
+    || (a.kind === 'client' ? (clientSort.get(a.module.id) ?? 0) - (clientSort.get(b.module.id) ?? 0) : 0)
     || a.module.sort - b.module.sort);
 }
 
@@ -136,6 +141,7 @@ export function docsFor(member: Member, templates: Template[]) {
 }
 
 export function appliesTo(t: Template, member: Member) {
+  if (member.level === 'client') return false;
   if (t.audience === 'candidates') return member.level === 'guest';
   if (t.audience === 'role') return !!member.job_role_id && t.job_role_id === member.job_role_id;
   return member.level !== 'guest' || t.stage === 'before';
@@ -151,10 +157,24 @@ export function latestFor(templateId: string, subs: Submission[]) {
 export const SUBMISSION_COLS = 'id, member_id, template_id, template_title, template_version, answers, secure_fields, files, signed_name, ip, user_agent, created_at';
 
 export async function loadTrainingFor(member: Member) {
-  const [modules, roleModules, progress] = await Promise.all([
+  const [modules, roleModules, progress, clientModules] = await Promise.all([
     q<Module[]>(supabase.from('ramp_modules').select('*').order('sort')),
     q<RoleModule[]>(supabase.from('ramp_role_modules').select('*')),
     q<Progress[]>(supabase.from('ramp_progress').select('*').eq('member_id', member.id)),
+    // Tracks of the clients the signed-in person is placed with.
+    member.level === 'client' ? Promise.resolve([] as ClientModule[]) : loadMyClientModules(),
   ]);
-  return { modules, roleModules, progress, plan: planFor(member, modules, roleModules, progress) };
+  const mine = clientModules;
+  return { modules, roleModules, progress, clientModules: mine, plan: planFor(member, modules, roleModules, progress, mine) };
+}
+
+/** Client training tracks for the signed-in person's own placements (admins can read every track, so filter by placement). */
+export async function loadMyClientModules(): Promise<ClientModule[]> {
+  try {
+    const ids = await q<string[]>(supabase.rpc('ramp_my_client_ids'));
+    if (!ids?.length) return [];
+    return await q<ClientModule[]>(supabase.from('ramp_client_modules').select('*').in('client_id', ids));
+  } catch {
+    return [];
+  }
 }

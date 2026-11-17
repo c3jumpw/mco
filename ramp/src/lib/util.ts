@@ -94,6 +94,7 @@ export const LEVELS: Record<Level, { rank: number; label: string; who: string; s
   employee: { rank: 5, label: 'Employee', who: 'Graduated team members', scope: 'Continued training, resources, notebooks, chat and their own tasks.', backend: false },
   trainee: { rank: 6, label: 'Trainee', who: 'New hires in training', scope: 'Onboarding, assigned training and documents, notebooks, practice tasks and chat.', backend: false },
   guest: { rank: 7, label: 'Guest', who: 'Contractors, candidates', scope: 'Only the modules, forms and resources shared with guests. Time-limited.', backend: false },
+  client: { rank: 8, label: 'Client', who: 'Contacts at client companies', scope: 'Their own assistants: onboarding, training progress, hours to approve, invoices and feedback.', backend: false },
 };
 export const LEVEL_ORDER: Level[] = ['owner', 'admin', 'lead', 'mentor', 'employee', 'trainee', 'guest'];
 export const rankOf = (l: Level | null | undefined) => (l ? LEVELS[l].rank : 99);
@@ -166,3 +167,89 @@ export function uid() {
 export function slugKey(label: string) {
   return (label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 24) || 'field') + '_' + uid().slice(0, 4);
 }
+
+// ───────── agency ─────────
+
+/** $1,234.50 — always two decimals for money. */
+export function money(n: number | string | null | undefined, currency = 'USD') {
+  const v = Number(n || 0);
+  try { return v.toLocaleString('en-US', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  catch { return `${currency} ${v.toFixed(2)}`; }
+}
+/** 37.5 h */
+export const hours = (n: number | string | null | undefined) => `${Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} h`;
+
+export function addDays(iso: string, n: number) {
+  const d = new Date(iso.slice(0, 10) + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toLocaleDateString('en-CA');
+}
+/** Monday of the week that contains the date (yyyy-mm-dd). */
+export function weekStart(iso: string = todayISO()) {
+  const d = new Date(iso.slice(0, 10) + 'T12:00:00');
+  const dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow);
+  return d.toLocaleDateString('en-CA');
+}
+/** “Nov 10 – 16” */
+export function weekLabel(mondayISO: string) {
+  const end = addDays(mondayISO, 6);
+  const a = fmtDate(mondayISO);
+  const sameMonth = mondayISO.slice(5, 7) === end.slice(5, 7);
+  return `${a} – ${sameMonth ? new Date(end + 'T12:00:00').getDate() : fmtDate(end)}`;
+}
+export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+export const PLACEMENT_STATUS: Record<import('./types').PlacementStatus, { label: string; tone: Tone }> = {
+  proposed: { label: 'Proposed', tone: 'neutral' },
+  onboarding: { label: 'Onboarding', tone: 'brand' },
+  active: { label: 'Active', tone: 'good' },
+  paused: { label: 'Paused', tone: 'warn' },
+  ended: { label: 'Ended', tone: 'dark' },
+};
+export const CLIENT_STATUS: Record<import('./types').ClientStatus, { label: string; tone: Tone }> = {
+  prospect: { label: 'Prospect', tone: 'neutral' },
+  active: { label: 'Active', tone: 'good' },
+  paused: { label: 'Paused', tone: 'warn' },
+  ended: { label: 'Ended', tone: 'dark' },
+};
+export const TIMESHEET_STATUS: Record<import('./types').TimesheetStatus, { label: string; tone: Tone }> = {
+  draft: { label: 'Not sent', tone: 'neutral' },
+  submitted: { label: 'Waiting for approval', tone: 'warn' },
+  approved: { label: 'Approved', tone: 'good' },
+  rejected: { label: 'Needs changes', tone: 'bad' },
+};
+export const INVOICE_STATUS: Record<import('./types').InvoiceStatus, { label: string; tone: Tone }> = {
+  draft: { label: 'Draft', tone: 'neutral' },
+  open: { label: 'Open', tone: 'warn' },
+  paid: { label: 'Paid', tone: 'good' },
+  void: { label: 'Void', tone: 'dark' },
+};
+export const PAYOUT_STATUS: Record<'draft' | 'exported' | 'sent', { label: string; tone: Tone }> = {
+  draft: { label: 'Draft', tone: 'neutral' },
+  exported: { label: 'Exported', tone: 'warn' },
+  sent: { label: 'Sent', tone: 'good' },
+};
+export const STEP_OWNER: Record<import('./types').StepOwner, { label: string; tone: Tone }> = {
+  agency: { label: 'Us', tone: 'brand' },
+  client: { label: 'Client', tone: 'warn' },
+  va: { label: 'Assistant', tone: 'good' },
+};
+export const REQUEST_KIND: Record<import('./types').ClientRequest['kind'], string> = {
+  support: 'Help or coaching', replacement: 'Replacement', hours: 'Change hours', new_va: 'Another assistant', other: 'Something else',
+};
+export const PAYEE_METHOD: Record<import('./types').PayeeMethod, { label: string; hint: string }> = {
+  wise_email: { label: 'Wise, by email', hint: 'Wise emails a secure link to collect bank details. Easiest to start.' },
+  wise_recipient: { label: 'Wise saved recipient', hint: 'Already saved in our Wise account. Needs the recipient ID.' },
+  bank: { label: 'Bank transfer', hint: 'Bank details are encrypted. Only admins can open them, and every view is logged.' },
+  other: { label: 'Other', hint: 'Agreed separately with us.' },
+};
+export const LAUNCH_SECTIONS: { id: import('./types').LaunchSection; label: string; prep: string }[] = [
+  { id: 'company', label: 'Company intro', prep: 'A short company intro anyone can follow in 15 minutes, with public and internal information.' },
+  { id: 'values', label: 'Core values', prep: 'The principles every team member practices daily, with how to practice each.' },
+  { id: 'projects', label: 'Major projects', prep: 'Each project with priority, status, progress and challenges, broken into mini objectives with quick steps.' },
+  { id: 'checklists', label: 'Role checklists', prep: 'Daily and weekly checklists, with quick steps for every item.' },
+  { id: 'tools', label: 'Tools and access', prep: 'Every tool the role uses, its purpose and how to get access, as an access log.' },
+  { id: 'milestones', label: 'Milestones', prep: 'Individual and team milestones with dates, why they matter and the reward, as a success path from probation to promotion.' },
+  { id: 'schedules', label: 'Time-blocks', prep: 'Time-blocked focus schedules for training probation, after training, and as staff.' },
+];

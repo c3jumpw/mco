@@ -32,6 +32,26 @@ const Team = page(() => import('./pages/Team'));
 const TeamMember = page(() => import('./pages/TeamMember'));
 const Me = page(() => import('./pages/Me'));
 const Guide = page(() => import('./pages/Guide'));
+const Work = page(() => import('./pages/Work'));
+const Coaching = page(() => import('./pages/Coaching'));
+const CoachingPlacement = page(() => import('./pages/CoachingPlacement'));
+const Launch = page(() => import('./launch/Launch'));
+const ClientHome = page(() => import('./client/ClientHome'));
+const ClientHours = page(() => import('./client/ClientHours'));
+const ClientInvoices = page(() => import('./client/ClientInvoices'));
+const ClientInvoice = page(() => import('./client/ClientInvoice'));
+const AgencyHome = page(() => import('./admin/agency/AgencyHome'));
+const Clients = page(() => import('./admin/agency/Clients'));
+const ClientDetail = page(() => import('./admin/agency/ClientDetail'));
+const Placements = page(() => import('./admin/agency/Placements'));
+const PlacementDetail = page(() => import('./admin/agency/PlacementDetail'));
+const Tiers = page(() => import('./admin/agency/Tiers'));
+const AgencySettings = page(() => import('./admin/agency/AgencySettings'));
+const Timesheets = page(() => import('./admin/agency/Timesheets'));
+const Invoices = page(() => import('./admin/agency/Invoices'));
+const InvoiceDetail = page(() => import('./admin/agency/InvoiceDetail'));
+const Payouts = page(() => import('./admin/agency/Payouts'));
+const PayoutDetail = page(() => import('./admin/agency/PayoutDetail'));
 
 const AdminHome = page(() => import('./admin/AdminHome'));
 const Org = page(() => import('./admin/Org'));
@@ -50,7 +70,7 @@ const ResourcesAdmin = page(() => import('./admin/ResourcesAdmin'));
 const System = page(() => import('./admin/System'));
 
 function Root() {
-  const { state, rank, isAdmin, org } = useSession();
+  const { state, rank, isAdmin, isClient, org, roles } = useSession();
   if (state.status === 'loading') return <Loading full label="Opening RAMP…" />;
   if (state.status === 'signed_out') return <Login />;
   if (state.status === 'recovery') return <ResetPassword />;
@@ -60,6 +80,7 @@ function Root() {
   sessionStorage.removeItem('ramp-reloaded');
   const staff = rank <= 6;
   const flags = org?.flags || { chat: true, tasks: true, certificates: false, record_ip: true };
+  const agency = flags.agency !== false;
   return (
     <Suspense fallback={<Loading full />}>
       <Routes>
@@ -69,11 +90,19 @@ function Root() {
         <Route path="/practice" element={<Practice />} />
 
         <Route element={<AppShell />}>
-          <Route index element={<Home />} />
-          <Route path="training" element={<Training />} />
-          <Route path="resources" element={<Resources />} />
+          <Route index element={isClient ? <Navigate to="/client" replace /> : <Home />} />
+          {isClient && agency && <Route path="client" element={<ClientHome />} />}
+          {isClient && agency && <Route path="client/hours" element={<ClientHours />} />}
+          {isClient && agency && <Route path="client/invoices" element={<ClientInvoices />} />}
+          {isClient && agency && <Route path="client/invoices/:id" element={<ClientInvoice />} />}
+          {agency && (isClient || staff) && <Route path="launch/:id" element={<Launch />} />}
+          {staff && agency && roles.work && <Route path="work" element={<Work />} />}
+          {staff && agency && rank <= 4 && <Route path="coaching" element={<Coaching />} />}
+          {staff && agency && rank <= 4 && <Route path="coaching/:id" element={<CoachingPlacement />} />}
+          {!isClient && <Route path="training" element={<Training />} />}
+          {!isClient && <Route path="resources" element={<Resources />} />}
           <Route path="me" element={<Me />} />
-          <Route path="guide" element={<Guide />} />
+          {!isClient && <Route path="guide" element={<Guide />} />}
           {staff && <Route path="more" element={<More />} />}
           {staff && flags.tasks && <Route path="tasks" element={<Tasks />} />}
           {staff && <Route path="notes" element={<Notes />} />}
@@ -101,6 +130,18 @@ function Root() {
               <Route path="news" element={<NewsAdmin />} />
               <Route path="resources" element={<ResourcesAdmin />} />
               <Route path="system" element={<System />} />
+              {agency && <Route path="agency" element={<AgencyHome />} />}
+              {agency && <Route path="agency/settings" element={<AgencySettings />} />}
+              {agency && <Route path="clients" element={<Clients />} />}
+              {agency && <Route path="clients/:id" element={<ClientDetail />} />}
+              {agency && <Route path="placements" element={<Placements />} />}
+              {agency && <Route path="placements/:id" element={<PlacementDetail />} />}
+              {agency && <Route path="tiers" element={<Tiers />} />}
+              {agency && <Route path="timesheets" element={<Timesheets />} />}
+              {agency && <Route path="invoices" element={<Invoices />} />}
+              {agency && <Route path="invoices/:id" element={<InvoiceDetail />} />}
+              {agency && <Route path="payouts" element={<Payouts />} />}
+              {agency && <Route path="payouts/:id" element={<PayoutDetail />} />}
             </Route>
           )}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -17,7 +17,7 @@ export function groupOf(path: string) {
 }
 
 export const LEVEL_TONE: Record<Level, Tone> = {
-  owner: 'dark', admin: 'dark', lead: 'brand', mentor: 'brand', employee: 'good', trainee: 'warn', guest: 'neutral',
+  owner: 'dark', admin: 'dark', lead: 'brand', mentor: 'brand', employee: 'good', trainee: 'warn', guest: 'neutral', client: 'neutral',
 };
 
 export function LevelChip({ level }: { level: Level }) {
@@ -30,7 +30,7 @@ export function personName(m: { full_name?: string; preferred_name?: string; ema
   return m.full_name?.trim() || m.preferred_name?.trim() || m.email || 'Someone';
 }
 
-export type StageKey = 'invited' | 'onboarding' | 'training' | 'graduated' | 'paused' | 'guest' | 'ended';
+export type StageKey = 'invited' | 'onboarding' | 'training' | 'graduated' | 'paused' | 'guest' | 'ended' | 'client';
 export interface Stage { key: StageKey; label: string; tone: Tone; icon?: string; pct?: number }
 
 /**
@@ -40,6 +40,8 @@ export interface Stage { key: StageKey; label: string; tone: Tone; icon?: string
 export function stageOf(m: Member, plan: PlanItem[] | null | undefined): Stage {
   if (m.status === 'inactive') return { key: 'paused', label: 'Paused', tone: 'bad', icon: 'lock' };
   if (!m.auth_user_id) return { key: 'invited', label: 'Invited', tone: 'neutral', icon: 'mail' };
+  // Client contacts have no welcome flow or training; they're managed under Clients.
+  if (m.level === 'client') return { key: 'client', label: 'Client contact', tone: 'neutral', icon: 'building' };
   const rank = rankOf(m.level);
   if (m.level === 'guest') {
     const left = daysUntil(m.access_until);

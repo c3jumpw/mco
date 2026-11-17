@@ -7,11 +7,20 @@ import { Avatar, Icon, Logo } from '../ui';
 
 // ───────── navigation model (shared with More and the admin hub) ─────────
 
-export interface NavItem { to: string; label: string; icon: string; badge?: 'news' | 'review' }
+export interface NavItem { to: string; label: string; icon: string; badge?: 'news' | 'review' | 'hours' | 'agency' }
 
 export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
-  const { org, rank, isGuest } = useMe();
+  const { org, rank, isGuest, isClient, roles, agencyOn } = useMe();
   const flags = org.flags || { chat: true, tasks: true, certificates: false, record_ip: true };
+  if (isClient) {
+    const items: NavItem[] = [
+      { to: '/client', label: 'Overview', icon: 'home' },
+      { to: '/client/hours', label: 'Hours', icon: 'clock', badge: 'hours' },
+      { to: '/client/invoices', label: 'Invoices', icon: 'fileText' },
+      { to: '/me', label: 'Profile', icon: 'users' },
+    ];
+    return { main: items, mobile: items };
+  }
   if (isGuest) {
     const items: NavItem[] = [
       { to: '/', label: 'Home', icon: 'home' },
@@ -24,6 +33,7 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
   }
   const main: NavItem[] = [
     { to: '/', label: 'Home', icon: 'home' },
+    ...(agencyOn && roles.work ? [{ to: '/work', label: 'My work', icon: 'clock' }] : []),
     { to: '/training', label: 'Training', icon: 'book' },
     ...(flags.tasks ? [{ to: '/tasks', label: 'Tasks', icon: 'tasks' }] : []),
     { to: '/notes', label: 'Notebook', icon: 'notes' },
@@ -31,16 +41,25 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
     { to: '/resources', label: 'Resources', icon: 'folder' },
     { to: '/news', label: 'News', icon: 'megaphone', badge: 'news' as const },
     ...(rank <= 4 ? [{ to: '/team', label: rank <= 2 ? 'Team progress' : 'My team', icon: 'users', badge: 'review' as const }] : []),
+    ...(agencyOn && roles.coaching > 0 ? [{ to: '/coaching', label: 'Coaching', icon: 'target' }] : []),
     { to: '/guide', label: 'Guide', icon: 'lifebuoy' },
   ];
   const pick = (to: string) => main.find((m) => m.to === to);
-  const mobile = [pick('/'), pick('/training'), pick('/tasks') || pick('/notes'), pick('/chat') || pick('/resources'),
+  const mobile = [pick('/'), pick('/training'), pick('/work') || pick('/tasks') || pick('/notes'), pick('/chat') || pick('/resources'),
     { to: '/more', label: 'More', icon: 'more' }].filter(Boolean) as NavItem[];
   return { main, mobile };
 }
 
-export interface AdminSection { to: string; label: string; icon: string; desc: string; group: 'Set up' | 'People' | 'Communicate' | 'System'; ownerOnly?: boolean }
+export interface AdminSection { to: string; label: string; icon: string; desc: string; group: 'Agency' | 'Set up' | 'People' | 'Communicate' | 'System'; ownerOnly?: boolean; agency?: boolean }
 export const ADMIN_SECTIONS: AdminSection[] = [
+  { to: '/admin/agency', label: 'Agency dashboard', icon: 'chart', desc: 'Revenue, margin and everything that needs you today', group: 'Agency', agency: true },
+  { to: '/admin/clients', label: 'Clients', icon: 'building', desc: 'Client companies, contacts, billing and their training tracks', group: 'Agency', agency: true },
+  { to: '/admin/placements', label: 'Placements', icon: 'link', desc: 'Assistants placed with clients: rates, checklists, check-ins and launch plans', group: 'Agency', agency: true },
+  { to: '/admin/timesheets', label: 'Timesheets', icon: 'clock', desc: 'Approve hours and enter them for anyone', group: 'Agency', agency: true },
+  { to: '/admin/invoices', label: 'Invoices', icon: 'fileText', desc: 'Bill clients for hours, prepayments and setup fees; send through Stripe', group: 'Agency', agency: true },
+  { to: '/admin/payouts', label: 'Payouts', icon: 'send', desc: 'Pay assistants for approved hours and export Wise batch files', group: 'Agency', agency: true },
+  { to: '/admin/tiers', label: 'Tiers', icon: 'star', desc: 'Skill tiers with default rates and what it takes to move up', group: 'Agency', agency: true },
+  { to: '/admin/agency/settings', label: 'Agency settings', icon: 'sliders', desc: 'Checklist, check-in schedule, guarantee, invoicing, Stripe and the Day 1 agenda', group: 'Agency', agency: true },
   { to: '/admin/org', label: 'Organization', icon: 'building', desc: 'Name, brand color, time zone and welcome message', group: 'Set up' },
   { to: '/admin/roles', label: 'Roles and departments', icon: 'sliders', desc: 'Job roles, departments and the access each role graduates to', group: 'Set up' },
   { to: '/admin/flow', label: 'Welcome flow', icon: 'list', desc: 'The onboarding steps a new person goes through', group: 'Set up' },
@@ -55,22 +74,43 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { to: '/guide?view=admin', label: 'Admin guide', icon: 'lifebuoy', desc: 'How every admin page and setting works, with screenshots', group: 'System' },
 ];
 
+/** Admin sections this person can open, with Agency hidden when it's switched off. */
+export function useAdminSections() {
+  const { rank, agencyOn } = useMe();
+  return ADMIN_SECTIONS.filter((s) => (!s.ownerOnly || rank === 1) && (!s.agency || agencyOn));
+}
+
 // ───────── badges (unread news, work waiting for review) ─────────
 
-interface Badges { news: number; review: number; refresh: () => void }
-const BadgeCtx = createContext<Badges>({ news: 0, review: 0, refresh: () => {} });
+interface Badges { news: number; review: number; hours: number; agency: number; refresh: () => void }
+const BadgeCtx = createContext<Badges>({ news: 0, review: 0, hours: 0, agency: 0, refresh: () => {} });
 export const useBadges = () => useContext(BadgeCtx);
 
 function useBadgeState(): Badges {
-  const { me, rank, canReview, isAdmin } = useMe();
+  const { me, rank, canReview, isAdmin, isClient, agencyOn } = useMe();
   const [news, setNews] = useState(0);
   const [review, setReview] = useState(0);
+  const [hrs, setHrs] = useState(0);
+  const [agency, setAgency] = useState(0);
   const refresh = useCallback(async () => {
+    if (isClient) {
+      // Hours waiting for this client's approval.
+      const { data } = await supabase.rpc('ramp_client_portal');
+      const ts = ((data as { timesheets?: { status: string }[] } | null)?.timesheets || []);
+      setHrs(ts.filter((t) => t.status === 'submitted').length);
+      return;
+    }
     if (rank > 6) return;
-    const [a, k, r] = await Promise.all([
+    const [a, k, r, ag] = await Promise.all([
       supabase.from('ramp_announcements').select('id, audience, department_id').eq('require_ack', true),
       supabase.from('ramp_acks').select('announcement_id').eq('member_id', me.id),
       canReview ? supabase.from('ramp_progress').select('member_id', { count: 'exact', head: true }).eq('status', 'submitted').neq('member_id', me.id) : Promise.resolve({ count: 0 }),
+      isAdmin && agencyOn
+        ? Promise.all([
+            supabase.from('ramp_timesheets').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+            supabase.from('ramp_client_requests').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+          ]).then(([x, y]) => (x.count || 0) + (y.count || 0))
+        : Promise.resolve(0),
     ]);
     const acked = new Set(((k.data || []) as { announcement_id: string }[]).map((x) => x.announcement_id));
     const forMe = (x: { audience: string; department_id: string | null }) => isAdmin || x.audience === 'everyone'
@@ -78,7 +118,8 @@ function useBadgeState(): Badges {
       || (x.audience === 'department' && !!me.department_id && x.department_id === me.department_id);
     setNews(((a.data || []) as { id: string; audience: string; department_id: string | null }[]).filter((x) => forMe(x) && !acked.has(x.id)).length);
     setReview((r as { count: number | null }).count || 0);
-  }, [me.id, me.level, me.department_id, rank, canReview, isAdmin]);
+    setAgency(ag);
+  }, [me.id, me.level, me.department_id, rank, canReview, isAdmin, isClient, agencyOn]);
   useEffect(() => {
     refresh();
     const t = setInterval(refresh, 90_000);
@@ -86,7 +127,7 @@ function useBadgeState(): Badges {
     window.addEventListener('focus', onFocus);
     return () => { clearInterval(t); window.removeEventListener('focus', onFocus); };
   }, [refresh]);
-  return { news, review, refresh };
+  return { news, review, hours: hrs, agency, refresh };
 }
 
 // ───────── shell ─────────
@@ -123,7 +164,7 @@ export default function AppShell() {
   );
 }
 
-function Badge({ kind }: { kind?: 'news' | 'review' }) {
+function Badge({ kind }: { kind?: NavItem['badge'] }) {
   const b = useBadges();
   const n = kind ? b[kind] : 0;
   if (!n) return null;
@@ -131,7 +172,8 @@ function Badge({ kind }: { kind?: 'news' | 'review' }) {
 }
 
 function Sidebar({ items }: { items: NavItem[] }) {
-  const { me, org, rank, isAdmin, signOut } = useMe();
+  const { me, org, isAdmin, signOut } = useMe();
+  const adminSections = useAdminSections();
   const loc = useLocation();
   const inAdmin = loc.pathname.startsWith('/admin');
   const link = (active: boolean) => cx('flex items-center gap-3 min-h-11 px-3 rounded-xl text-[15px] font-semibold no-underline transition-colors',
@@ -147,15 +189,15 @@ function Sidebar({ items }: { items: NavItem[] }) {
       </Link>
       <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-0.5">
         {items.map((i) => (
-          <NavLink key={i.to} to={i.to} end={i.to === '/'} className={({ isActive }) => link(isActive)}>
+          <NavLink key={i.to} to={i.to} end={i.to === '/' || i.to === '/client'} className={({ isActive }) => link(isActive)}>
             <Icon name={i.icon} size={20} />{i.label}<Badge kind={i.badge} />
           </NavLink>
         ))}
         {isAdmin && (
           <>
             <p className="px-3 pt-5 pb-1.5 text-[11px] font-bold tracking-[0.1em] uppercase text-muted">Admin</p>
-            <NavLink to="/admin" end className={({ isActive }) => link(isActive)}><Icon name="shield" size={20} />Admin portal</NavLink>
-            {inAdmin && ADMIN_SECTIONS.filter((s) => !s.ownerOnly || rank === 1).map((s) => (
+            <NavLink to="/admin" end className={({ isActive }) => link(isActive)}><Icon name="shield" size={20} />Admin portal<Badge kind="agency" /></NavLink>
+            {inAdmin && adminSections.map((s) => (
               <NavLink key={s.to} to={s.to} className={({ isActive }) => cx(link(isActive), 'min-h-10 text-sm pl-10')}>{s.label}</NavLink>
             ))}
           </>
@@ -193,18 +235,18 @@ function MobileTop() {
 
 function BottomNav({ items }: { items: NavItem[] }) {
   const b = useBadges();
-  const moreBadge = b.news + b.review;
+  const moreBadge = b.news + b.review + b.agency;
   return (
     <nav aria-label="Main" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-line pb-safe">
       <div className="grid h-16" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((i) => (
-          <NavLink key={i.to} to={i.to} end={i.to === '/'}
+          <NavLink key={i.to} to={i.to} end={i.to === '/' || i.to === '/client'}
             className={({ isActive }) => cx('relative flex flex-col items-center justify-center gap-1 text-[11px] font-semibold no-underline', isActive ? 'text-brand-ink' : 'text-muted')}>
             {({ isActive }) => (
               <>
                 <span className={cx('w-14 h-8 rounded-full flex items-center justify-center transition-colors', isActive && 'bg-brand-soft')}><Icon name={i.icon} size={22} /></span>
                 {i.label}
-                {i.to === '/more' && moreBadge > 0 && <span className="absolute top-1.5 right-[calc(50%-22px)] w-2.5 h-2.5 rounded-full bg-amber ring-2 ring-white" aria-label="New items" />}
+                {((i.to === '/more' && moreBadge > 0) || (i.badge && b[i.badge] > 0)) && <span className="absolute top-1.5 right-[calc(50%-22px)] w-2.5 h-2.5 rounded-full bg-amber ring-2 ring-white" aria-label="New items" />}
               </>
             )}
           </NavLink>

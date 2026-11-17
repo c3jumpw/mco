@@ -19,42 +19,50 @@ function timeZones(): string[] {
 
 export default function Me() {
   useTitle('Profile');
-  const { me, org, role, dept, signOut } = useMe();
+  const { me, org, role, dept, signOut, isClient, roles } = useMe();
   const dir = useDirectory();
+  // Client contacts see their company instead of staff details (role, department, mentor, documents).
+  const company = roles.client?.name || '';
   const mentor = me.mentor_id ? dir.byId(me.mentor_id) : null;
   const level = LEVELS[me.level];
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Profile" subtitle="Your details, documents and account security." />
+      <PageHeader title="Profile" subtitle={isClient ? 'Your details and account security.' : 'Your details, documents and account security.'} />
 
       <div className="flex items-center gap-4 rise">
         <Avatar name={displayName(me)} size={60} />
         <div className="min-w-0">
           <p className="font-display text-xl font-semibold truncate">{displayName(me)}</p>
-          <p className="text-sm text-muted">{level.label}{role ? ` · ${role.title}` : ''}</p>
+          <p className="text-sm text-muted">{isClient ? (company || level.label) : <>{level.label}{role ? ` · ${role.title}` : ''}</>}</p>
         </div>
       </div>
 
       <ProfileCard />
 
       <Card padded={false}>
-        <CardHeader title="Your account" subtitle="Set by your admins. Ask them if anything here is wrong." className="px-5 pt-5 pb-2" />
+        <CardHeader title="Your account" subtitle={isClient ? 'Set by our team. Ask us if anything here is wrong.' : 'Set by your admins. Ask them if anything here is wrong.'} className="px-5 pt-5 pb-2" />
         <dl className="px-5 pb-4">
           <Row label="Email">{me.email}</Row>
           <Row label="Access level">
             <span className="font-semibold">{level.label}</span>
             <span className="block text-sm text-muted leading-relaxed mt-0.5">{level.scope}</span>
           </Row>
-          <Row label="Job role">{role?.title || 'Not set yet'}</Row>
-          <Row label="Department">{dept?.name || 'Not set yet'}</Row>
-          {me.level !== 'guest' && <Row label="Mentor">{mentor ? displayName(mentor) : me.mentor_id ? 'Assigned' : 'No mentor yet'}</Row>}
-          <Row label="Start date">{me.start_date ? fmtDate(me.start_date, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set yet'}</Row>
+          {isClient ? (
+            <Row label="Company">{company || 'Not linked yet'}</Row>
+          ) : (
+            <>
+              <Row label="Job role">{role?.title || 'Not set yet'}</Row>
+              <Row label="Department">{dept?.name || 'Not set yet'}</Row>
+              {me.level !== 'guest' && <Row label="Mentor">{mentor ? displayName(mentor) : me.mentor_id ? 'Assigned' : 'No mentor yet'}</Row>}
+              <Row label="Start date">{me.start_date ? fmtDate(me.start_date, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set yet'}</Row>
+            </>
+          )}
           {me.access_until && <Row label="Access until">{fmtDate(me.access_until, { month: 'long', day: 'numeric', year: 'numeric' })}</Row>}
         </dl>
       </Card>
 
-      <DocumentsCard />
+      {!isClient && <DocumentsCard />}
       <SignInsCard />
       <PasswordCard />
 
@@ -82,7 +90,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 // ───────── profile ─────────
 
 function ProfileCard() {
-  const { me, org, refresh } = useMe();
+  const { me, org, refresh, isClient } = useMe();
   const toast = useToast();
   const zones = useMemo(timeZones, []);
   const [full, setFull] = useState(me.full_name);
@@ -118,7 +126,7 @@ function ProfileCard() {
   return (
     <Card>
       <form onSubmit={save} className="flex flex-col gap-4" noValidate>
-        <CardHeader title="Your details" subtitle="How you show up to the rest of the team." />
+        <CardHeader title="Your details" subtitle={isClient ? 'How you show up to our team.' : 'How you show up to the rest of the team.'} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Full name" required error={nameErr}>
             <Input value={full} maxLength={120} autoComplete="name" onChange={(e) => { setFull(e.target.value); setNameErr(''); }} />
@@ -126,7 +134,7 @@ function ProfileCard() {
           <Field label="Preferred name" hint="What people call you. Shown instead of your full name.">
             <Input value={preferred} maxLength={60} autoComplete="nickname" onChange={(e) => setPreferred(e.target.value)} />
           </Field>
-          <Field label="Mobile phone" hint="Only you, your mentor, your lead and admins can see this.">
+          <Field label="Mobile phone" hint={isClient ? 'Only you and our admins can see this.' : 'Only you, your mentor, your lead and admins can see this.'}>
             <Input value={phone} maxLength={40} type="tel" autoComplete="tel" inputMode="tel" onChange={(e) => setPhone(e.target.value)} />
           </Field>
           <Field label="Time zone" hint={(tz || org.timezone) !== deviceTz ? <>This device is set to {deviceTz}. <button type="button" className="font-semibold text-brand-ink underline cursor-pointer" onClick={() => setTz(deviceTz)}>Use it</button></> : undefined}>

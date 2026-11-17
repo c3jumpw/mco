@@ -4,7 +4,7 @@ import { useMe } from '../lib/session';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { cx, plural } from '../lib/util';
 import type { Member, Module, Template } from '../lib/types';
-import { ADMIN_SECTIONS, type AdminSection } from '../shell/AppShell';
+import { useAdminSections, type AdminSection } from '../shell/AppShell';
 import { Card, Chip, ErrorBox, Icon, LinkButton, PageHeader, Progress, Skeleton, Stat } from '../ui';
 import { moduleTexts, placeholdersIn, templateTexts } from './parts/setup-kit';
 
@@ -32,7 +32,7 @@ const names = (list: { title: string }[]) => {
 
 export default function AdminHome() {
   useTitle('Admin');
-  const { me, org, rank } = useMe();
+  const { me, org } = useMe();
 
   const { data, error, loading, reload } = useAsync<Data>(async () => {
     const [roles, depts, templates, modules, people, requests, waiting, audit] = await Promise.all([
@@ -52,7 +52,7 @@ export default function AdminHome() {
     };
   }, []);
 
-  const sections = ADMIN_SECTIONS.filter((s) => !s.ownerOnly || rank === 1);
+  const sections = useAdminSections();
   const groups = sections.reduce<Record<string, AdminSection[]>>((acc, s) => { (acc[s.group] ||= []).push(s); return acc; }, {});
 
   let checks: Check[] = [];

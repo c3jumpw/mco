@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase, errText } from '../lib/supabase';
 import { q, useAsync, useIsMobile, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
@@ -21,6 +21,7 @@ interface TeamData {
 
 export default function People() {
   useTitle('People');
+  const { agencyOn } = useMe();
   const isMobile = useIsMobile();
   const [params, setParams] = useSearchParams();
   const tab: Tab = (['team', 'potential', 'requests'] as Tab[]).includes(params.get('tab') as Tab) ? (params.get('tab') as Tab) : 'team';
@@ -28,7 +29,8 @@ export default function People() {
 
   const team = useAsync<TeamData>(async () => {
     const [members, lookups, modules, roleModules, progress] = await Promise.all([
-      q<Member[]>(supabase.from('ramp_members').select('*').order('full_name')),
+      // Client contacts (level 'client') are managed on each client's page, not here.
+      q<Member[]>(supabase.from('ramp_members').select('*').neq('level', 'client').order('full_name')),
       loadLookups(),
       q<Module[]>(supabase.from('ramp_modules').select('*').order('sort')),
       q<RoleModule[]>(supabase.from('ramp_role_modules').select('*')),
@@ -55,7 +57,7 @@ export default function People() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={ADMIN_BACK} eyebrow={groupOf('/admin/people')} title="People"
-        subtitle="Invite people, bring in staff from your other tools and manage everyone’s access."
+        subtitle={<>Invite people, bring in staff from your other tools and manage everyone’s access.{agencyOn && <> Client contacts are on each <Link to="/admin/clients" className="font-semibold text-brand-ink">client’s page</Link>.</>}</>}
         actions={<Button variant="primary" icon="userPlus" onClick={() => setInvite({})} disabled={!team.data}>Invite someone</Button>} />
       <TabBar options={options} value={tab} onChange={setTab} label="People lists" />
 

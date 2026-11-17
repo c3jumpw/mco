@@ -38,6 +38,7 @@ export function greeting(d = new Date()) {
 export const KIND_LABEL: Record<AssignKind, string> = {
   required: 'Required',
   role: 'Role track',
+  client: 'Client track',
   continued: 'Continued training',
   optional: 'Optional',
 };

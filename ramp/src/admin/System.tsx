@@ -8,9 +8,14 @@ import { Button, Card, CardHeader, EmptyState, ErrorBox, Icon, Notice, PageHeade
 import { ADMIN_BACK, csvTime, downloadCsv, groupOf, personName, stamp } from './parts/ops-common';
 import { AuditList, actionText, useAuditLog } from './parts/ops-audit';
 
-const DEFAULT_FLAGS: OrgFlags = { chat: true, tasks: true, certificates: false, record_ip: true };
+const DEFAULT_FLAGS: OrgFlags = { chat: true, tasks: true, certificates: false, record_ip: true, agency: true };
 
 const FLAGS: { k: keyof OrgFlags; label: string; desc: string; off: string }[] = [
+  {
+    k: 'agency', label: 'Clients and placements',
+    desc: 'Staffing: client companies, placements with bill and pay rates, timesheets, invoices, payouts, launch plans and the client portal.',
+    off: 'When off, the Agency section, My work and the client portal disappear. Nothing is deleted.',
+  },
   {
     k: 'chat', label: 'Chat',
     desc: 'Company and department channels, plus direct messages between team members.',
@@ -89,7 +94,7 @@ function FeatureSwitches() {
       {!canEdit && <Notice tone="brand" icon="lock" className="mb-2">Only an owner can change feature switches.</Notice>}
       <ul>
         {FLAGS.map((f) => {
-          const on = draft[f.k];
+          const on = !!draft[f.k];
           const changed = on !== saved[f.k];
           return (
             <li key={f.k} className="flex items-start gap-4 py-4 border-t border-line-2 first:border-t-0">

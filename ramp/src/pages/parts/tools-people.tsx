@@ -16,6 +16,7 @@ export function stageOf(m: Member, pct: number): { label: string; tone: Tone } {
 export const KIND_LABEL: Record<AssignKind, string> = {
   required: 'Required',
   role: 'Role track',
+  client: 'Client track',
   continued: 'Continued',
   optional: 'Optional',
 };

@@ -14,6 +14,7 @@ import { ProgressSummary, greeting, isOverdue } from './parts/journey-common';
 import {
   AdminCard, ChecklistCard, DueSoonCard, HomeSection, ModuleRows, NewsCard, NextUpCard, ReviewCard, type AdminCounts, type CheckItem,
 } from './parts/journey-home';
+import { WeekHoursCard } from './parts/work-home';
 
 async function countOf(p: PromiseLike<{ count: number | null; error: unknown }>) {
   const { count, error } = await p;
@@ -32,7 +33,7 @@ function forMe(a: Announcement, me: Member, rank: number) {
 
 export default function Home() {
   useTitle('Home');
-  const { me, org, role, rank, isAdmin, canReview, isGuest } = useMe();
+  const { me, org, role, rank, isAdmin, canReview, isGuest, roles, agencyOn } = useMe();
   const badges = useBadges();
   const toast = useToast();
   const navigate = useNavigate();
@@ -216,6 +217,8 @@ export default function Home() {
           </>
         )}
       </div>
+
+      {agencyOn && roles.work && <WeekHoursCard />}
 
       {(canReview || isAdmin) && (
         <div className={cx('grid gap-4 items-start', isAdmin && 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]')}>

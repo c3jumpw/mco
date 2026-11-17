@@ -11,6 +11,7 @@ import type { Department, FlowStepId, JobRole, Level, Member, Module, Progress, 
 import { Button, Card, CardHeader, Field, Icon, Input, Notice, Pills, Progress as Bar, Select, Sheet, useConfirm, useToast } from '../../ui';
 import { ActionRow, DefList, FormError, LevelChip, personName } from './ops-common';
 import { mentorOptions } from './ops-invite';
+import { PersonPlacementsCard } from '../agency/parts/core-person-placements';
 
 export type PersonLite = Pick<Member, 'id' | 'full_name' | 'preferred_name' | 'email' | 'level' | 'status'>;
 
@@ -229,6 +230,8 @@ export function OverviewTab({ d, plan, actions }: { d: PersonData; plan: PlanIte
               action={<Button size="sm" onClick={() => setEdit('access_until')} aria-label="Change guest access end date">Change</Button>} />
           )}
         </Card>
+
+        <PersonPlacementsCard memberId={m.id} />
 
         {m.level === 'trainee' && m.status !== 'inactive' && !!m.auth_user_id && (
           <Card>

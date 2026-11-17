@@ -45,7 +45,7 @@ export default function Metrics() {
 
   const res = useAsync<Data>(async () => {
     const [members, lookups, modules, roleModules, progress, templates, subs] = await Promise.all([
-      q<Member[]>(supabase.from('ramp_members').select('*')),
+      q<Member[]>(supabase.from('ramp_members').select('*').neq('level', 'client')),
       loadLookups(),
       q<Module[]>(supabase.from('ramp_modules').select('*').order('sort')),
       q<RoleModule[]>(supabase.from('ramp_role_modules').select('*')),

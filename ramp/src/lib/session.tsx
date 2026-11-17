@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { supabase } from './supabase';
 import { rankOf } from './util';
-import type { Department, JobRole, Member, Org } from './types';
+import type { Department, JobRole, Member, MyRoles, Org } from './types';
 
 export type GateState =
   | { status: 'loading' }
@@ -26,6 +26,12 @@ export interface Session {
   /** Mentor, lead, admin or owner: can review and assign work to the people they look after. */
   canReview: boolean;
   isGuest: boolean;
+  /** Client contact (rank 8): sees only the client portal. */
+  isClient: boolean;
+  /** Placements this person works on (work), coaches (coaching) or, for client contacts, their company (client). */
+  roles: MyRoles;
+  /** Agency features are on (Admin › System). */
+  agencyOn: boolean;
   /** Reload the signed-in member, org, role and department (after profile or settings changes). */
   refresh: () => Promise<void>;
   /** Replace the org locally after saving it (avoids a reload flash). */
@@ -63,6 +69,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [org, setOrg] = useState<Org | null>(null);
   const [role, setRole] = useState<JobRole | null>(null);
   const [dept, setDept] = useState<Department | null>(null);
+  const [roles, setRoles] = useState<MyRoles>({ work: false, coaching: 0, client: null });
 
   const loadMember = useCallback(async (memberId: string) => {
     const [m, o] = await Promise.all([
@@ -72,10 +79,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (m.error) throw m.error;
     if (o.error) throw o.error;
     const member = m.data as Member;
-    const [r, d] = await Promise.all([
+    const [r, d, ro] = await Promise.all([
       member.job_role_id ? supabase.from('ramp_job_roles').select('*').eq('id', member.job_role_id).maybeSingle() : Promise.resolve({ data: null }),
       member.department_id ? supabase.from('ramp_departments').select('*').eq('id', member.department_id).maybeSingle() : Promise.resolve({ data: null }),
+      supabase.rpc('ramp_my_roles'),
     ]);
+    setRoles((ro.data as MyRoles) || { work: false, coaching: 0, client: null });
     setMe(member);
     setOrg(o.data as Org);
     setRole((r.data as JobRole) || null);
@@ -155,12 +164,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       isAdmin: rank <= 2,
       canReview: rank <= 4,
       isGuest: rank === 7,
+      isClient: rank === 8,
+      roles,
+      agencyOn: org?.flags?.agency !== false,
       refresh,
       setOrg: (o: Org) => { setOrg(o); applyBrand(o.brand_color); },
       signOut,
       finishRecovery,
     };
-  }, [state, me, org, role, dept, refresh, signOut, finishRecovery]);
+  }, [state, me, org, role, dept, roles, refresh, signOut, finishRecovery]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
