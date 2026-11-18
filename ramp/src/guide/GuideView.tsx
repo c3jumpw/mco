@@ -6,12 +6,21 @@ import { AUDIENCE_RANK, GROUPS, type GuideAudience, type GuideData, type GuideSe
 export type GuideViewMode = 'member' | 'reviewer' | 'admin';
 const VIEW_MAX: Record<GuideViewMode, number> = { member: 5, reviewer: 3, admin: 1 };
 const VIEW_LABEL: Record<GuideViewMode, string> = { member: 'Members', reviewer: 'Mentors', admin: 'Admins' };
-const AUD_LABEL: Record<GuideAudience, string> = { everyone: 'Everyone', staff: 'Team members', reviewers: 'Mentors, leads, admins', admins: 'Admins and owners' };
+const AUD_LABEL: Record<GuideAudience, string> = { everyone: 'Everyone', staff: 'Team members', reviewers: 'Mentors, leads, admins', admins: 'Admins and owners',
+  agency: 'Agency admins', clients: 'Clients', platform: 'Platform admin' };
 
 export interface GuideViewProps {
   data: GuideData;
-  /** Viewer's rank (1 owner … 7 guest). Sections above it are never shown. */
+  /** Viewer's rank (1 owner … 7 guest, 8 client). Sections above it are never shown. */
   rank: number;
+  /** Client contacts (or admins of a client's own workspace) see the client sections. */
+  isClient?: boolean;
+  /** Agency features are on: show the agency sections to admins. */
+  agencyOn?: boolean;
+  /** Platform admin: show the platform sections. */
+  isSuper?: boolean;
+  /** Extra controls in the header (for example, Take the tour). */
+  actions?: ReactNode;
   initialView?: GuideViewMode;
   /** Resolve an image path from guide.json. */
   media?: (src: string) => string;
@@ -40,16 +49,20 @@ function sectionText(s: GuideSection) {
     ...(s.settings || []).flatMap((x) => [x.name, x.where, x.effect])].join(' ').toLowerCase().replace(/\*\*/g, '');
 }
 
-export default function GuideView({ data, rank, initialView, media = (s) => s, openRoute, appUrl, stickyTop = 0, standalone }: GuideViewProps) {
+export default function GuideView({ data, rank, initialView, media = (s) => s, openRoute, appUrl, stickyTop = 0, standalone, isClient, agencyOn, isSuper, actions }: GuideViewProps) {
   const views = (['member', 'reviewer', 'admin'] as GuideViewMode[]).filter((v) => rank <= VIEW_MAX[v] || (v === 'member'));
   const [view, setView] = useState<GuideViewMode>(() => (initialView && views.includes(initialView) ? initialView : defaultView(rank)));
   const [query, setQuery] = useState('');
   const limit = Math.max(rank, VIEW_MAX[view]);
   const q = query.trim().toLowerCase();
 
-  const visible = useMemo(() => data.sections.filter((s) => limit <= AUDIENCE_RANK[s.audience]), [data, limit]);
+  const allowed = (a: GuideAudience) => (a === 'clients' ? !!isClient || view === 'admin'
+    : a === 'platform' ? !!isSuper
+    : a === 'agency' ? agencyOn !== false && !isClient && limit <= AUDIENCE_RANK.agency
+    : !isClient && limit <= AUDIENCE_RANK[a]);
+  const visible = useMemo(() => data.sections.filter((s) => allowed(s.audience)), [data, limit, isClient, agencyOn, isSuper, view]); // eslint-disable-line react-hooks/exhaustive-deps
   const shown = useMemo(() => (q ? visible.filter((s) => sectionText(s).includes(q)) : visible), [visible, q]);
-  const faqs = FAQ.filter((f) => limit <= AUDIENCE_RANK[f.audience] && (!q || (f.q + ' ' + f.a).toLowerCase().includes(q)));
+  const faqs = FAQ.filter((f) => allowed(f.audience) && (!q || (f.q + ' ' + f.a).toLowerCase().includes(q)));
 
   const go = (id: string) => {
     const el = document.getElementById(`s-${id}`);
@@ -67,7 +80,7 @@ export default function GuideView({ data, rank, initialView, media = (s) => s, o
   return (
     <div className="flex flex-col gap-8 guide-root min-w-0">
       <style>{PRINT_CSS}</style>
-      <Hero view={view} views={views} setView={setView} query={query} setQuery={setQuery} count={shown.length} searching={!!q} standalone={standalone} />
+      <Hero view={view} views={views} setView={setView} query={query} setQuery={setQuery} count={shown.length} searching={!!q} standalone={standalone} actions={actions} />
 
       {!q && <QuickStart view={view} visible={visible} go={go} />}
 
@@ -103,8 +116,9 @@ export default function GuideView({ data, rank, initialView, media = (s) => s, o
 
 // ───────────────────────── hero ─────────────────────────
 
-function Hero({ view, views, setView, query, setQuery, count, searching, standalone }: {
+function Hero({ view, views, setView, query, setQuery, count, searching, standalone, actions }: {
   view: GuideViewMode; views: GuideViewMode[]; setView: (v: GuideViewMode) => void; query: string; setQuery: (v: string) => void; count: number; searching: boolean; standalone?: boolean;
+  actions?: ReactNode;
 }) {
   return (
     <header className="rise relative overflow-hidden rounded-3xl bg-ink text-white px-5 py-7 md:px-9 md:py-10">
@@ -121,6 +135,7 @@ function Hero({ view, views, setView, query, setQuery, count, searching, standal
             <span className="text-white/60"> Mentors includes department leads; Admins shows everything.</span>
           </p>
         </div>
+        {actions && <div className="guide-noprint flex flex-wrap gap-2.5">{actions}</div>}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           {views.length > 1 && (
             <div className="guide-noprint [&_[role=group]]:bg-white/10 [&_button]:text-white/85 [&_button[aria-pressed=true]]:bg-white [&_button[aria-pressed=true]]:text-ink">

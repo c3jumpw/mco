@@ -75,7 +75,7 @@
             {
               "n": 1,
               "x": 31.5,
-              "y": 39.3,
+              "y": 42.2,
               "w": 26.8,
               "h": 5.7,
               "label": "New here",
@@ -84,7 +84,7 @@
             {
               "n": 2,
               "x": 9.5,
-              "y": 49.9,
+              "y": 52.8,
               "w": 81,
               "h": 6.4,
               "label": "Invited email",
@@ -93,7 +93,7 @@
             {
               "n": 3,
               "x": 9.5,
-              "y": 57.3,
+              "y": 60.1,
               "w": 81,
               "h": 14.8,
               "label": "New password",
@@ -102,7 +102,7 @@
             {
               "n": 4,
               "x": 9.5,
-              "y": 73,
+              "y": 75.8,
               "w": 81,
               "h": 6.6,
               "label": "Create login",
@@ -177,7 +177,7 @@
             {
               "n": 3,
               "x": 0.6,
-              "y": 54.5,
+              "y": 60.3,
               "w": 18.7,
               "h": 6.5,
               "label": "Guide",
@@ -186,7 +186,7 @@
             {
               "n": 4,
               "x": 0.6,
-              "y": 65.8,
+              "y": 71.6,
               "w": 18.7,
               "h": 6.5,
               "label": "Admin portal",
@@ -218,7 +218,7 @@
           "h": 1688,
           "device": "phone",
           "caption": "On a phone: the bottom bar and More",
-          "alt": "The More page on a phone, with the bottom bar showing Home, Training, Tasks, Chat and More. More lists the profile, Notebook, Resources, News, Guide, Vault, Replay the platform tour and Sign out.",
+          "alt": "The More page on a phone, with the bottom bar showing Home, Training, Tasks, Chat and More. More lists the profile, Notebook, Resources, News, Guide, Vault, Getting-started tour, Practice in the sandbox and Sign out.",
           "hotspots": [
             {
               "n": 1,
@@ -243,14 +243,14 @@
               "x": 3.3,
               "y": 63,
               "w": 93.3,
-              "h": 7.6,
-              "label": "Replay the platform tour",
-              "text": "Run the practice sandbox again any time."
+              "h": 14.2,
+              "label": "Tour and sandbox",
+              "text": "Replay the getting-started slides, or try things in the practice sandbox without touching real work."
             },
             {
               "n": 4,
               "x": 3.3,
-              "y": 69.7,
+              "y": 76.3,
               "w": 93.3,
               "h": 7.6,
               "label": "Sign out",
@@ -461,7 +461,7 @@
       "steps": [
         {
           "title": "Open the practice",
-          "text": "Tap **Start practice** in the welcome flow, or **Replay the platform tour** in More."
+          "text": "Tap **Start practice** in the welcome flow, or **Practice in the sandbox** in More."
         },
         {
           "title": "Read the mission",
@@ -1799,7 +1799,7 @@
           "h": 1920,
           "device": "desktop",
           "caption": "The Admin portal",
-          "alt": "The Admin portal on a computer: the setup checklist at 78 percent with Fix buttons on two items, quick stats, and the Set up section cards. The sidebar shows the admin pages.",
+          "alt": "The Admin portal on a computer: the setup checklist at 78 percent with Fix buttons on two items, quick stats, and the first admin page cards. The sidebar shows the admin pages.",
           "hotspots": [
             {
               "n": 1,
@@ -1812,21 +1812,21 @@
             },
             {
               "n": 2,
-              "x": 0.6,
-              "y": 44.7,
-              "w": 18.7,
-              "h": 40,
-              "label": "Admin menu",
-              "text": "Inside the portal, the sidebar lists every admin page."
-            },
-            {
-              "n": 3,
               "x": 91.2,
               "y": 45.7,
               "w": 4.9,
               "h": 4.1,
               "label": "Fix",
               "text": "Opens the page that finishes that step."
+            },
+            {
+              "n": 3,
+              "x": 0.6,
+              "y": 48.3,
+              "w": 18.7,
+              "h": 43.6,
+              "label": "Admin menu",
+              "text": "Inside the portal, the sidebar lists every admin page."
             },
             {
               "n": 4,
@@ -1842,9 +1842,9 @@
               "x": 22.2,
               "y": 78.3,
               "w": 75.6,
-              "h": 21.7,
+              "h": 2.8,
               "label": "Admin pages",
-              "text": "Every admin page, grouped by Set up, People, Communicate and System."
+              "text": "Every admin page as a card, grouped by Agency (when it’s on), Set up, People, Communicate and System."
             }
           ]
         }
@@ -2885,7 +2885,7 @@
             {
               "n": 1,
               "x": 83.9,
-              "y": 10.1,
+              "y": 12.2,
               "w": 13.9,
               "h": 4.4,
               "label": "Invite someone",
@@ -2894,7 +2894,7 @@
             {
               "n": 2,
               "x": 22.2,
-              "y": 15.9,
+              "y": 21.7,
               "w": 34,
               "h": 4.7,
               "label": "Tabs",
@@ -2903,7 +2903,7 @@
             {
               "n": 3,
               "x": 22.2,
-              "y": 22,
+              "y": 27.8,
               "w": 75.6,
               "h": 9.2,
               "label": "Search and filter",
@@ -2912,7 +2912,7 @@
             {
               "n": 4,
               "x": 27.6,
-              "y": 57.7,
+              "y": 63.5,
               "w": 57.9,
               "h": 4.7,
               "label": "A person",
@@ -2921,7 +2921,7 @@
             {
               "n": 5,
               "x": 85.8,
-              "y": 57.8,
+              "y": 63.6,
               "w": 8.3,
               "h": 4.4,
               "label": "Stage",
@@ -2940,7 +2940,7 @@
             {
               "n": 1,
               "x": 22.2,
-              "y": 32.6,
+              "y": 38.3,
               "w": 75.6,
               "h": 4.1,
               "label": "Sources",
@@ -2949,7 +2949,7 @@
             {
               "n": 2,
               "x": 22.3,
-              "y": 37.4,
+              "y": 43.2,
               "w": 75.5,
               "h": 4.7,
               "label": "Select all",
@@ -2958,7 +2958,7 @@
             {
               "n": 3,
               "x": 89.2,
-              "y": 42.5,
+              "y": 48.3,
               "w": 7.3,
               "h": 4.1,
               "label": "One at a time",
@@ -2967,7 +2967,7 @@
             {
               "n": 4,
               "x": 22.3,
-              "y": 51.5,
+              "y": 57.3,
               "w": 75.5,
               "h": 10.8,
               "label": "Tick several",
@@ -3578,7 +3578,7 @@
             {
               "n": 1,
               "x": 91.2,
-              "y": 28.4,
+              "y": 36.6,
               "w": 5,
               "h": 13.4,
               "label": "Chat and Tasks",
@@ -3587,7 +3587,7 @@
             {
               "n": 2,
               "x": 91.2,
-              "y": 44.8,
+              "y": 53.1,
               "w": 5,
               "h": 5.2,
               "label": "Certificates",
@@ -3596,7 +3596,7 @@
             {
               "n": 3,
               "x": 23.8,
-              "y": 51.4,
+              "y": 59.6,
               "w": 72.3,
               "h": 14.2,
               "label": "Record IP address and device",
@@ -3605,7 +3605,7 @@
             {
               "n": 4,
               "x": 84.7,
-              "y": 66,
+              "y": 74.3,
               "w": 11.4,
               "h": 5.2,
               "label": "Save switches",
@@ -3614,7 +3614,7 @@
             {
               "n": 5,
               "x": 23.8,
-              "y": 77,
+              "y": 85.3,
               "w": 72.3,
               "h": 3.3,
               "label": "How RAMP protects records",
@@ -3642,7 +3642,7 @@
             {
               "n": 2,
               "x": 23.8,
-              "y": 9.2,
+              "y": 9.1,
               "w": 51.7,
               "h": 5.1,
               "label": "Search",
@@ -3651,7 +3651,7 @@
             {
               "n": 3,
               "x": 75.5,
-              "y": 9.2,
+              "y": 9.1,
               "w": 20.6,
               "h": 5.1,
               "label": "Person",
@@ -3669,7 +3669,7 @@
             {
               "n": 5,
               "x": 22.3,
-              "y": 28.8,
+              "y": 28.7,
               "w": 77.7,
               "h": 6.6,
               "label": "Sensitive actions",
@@ -3729,6 +3729,740 @@
           "name": "Record IP address and device",
           "where": "Admin › System and audit",
           "effect": "Saved with every sign-in, signature and submission. Off: new records don’t include them; existing records keep theirs."
+        }
+      ]
+    },
+    {
+      "id": "work",
+      "group": "daily",
+      "audience": "staff",
+      "title": "My work",
+      "icon": "clock",
+      "summary": "For team members placed with a client: weekly hours, payout details, your placement checklist, tier and pay.",
+      "route": "/work",
+      "shots": [
+        {
+          "src": "guide-media/tour-work-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "My work on a phone",
+          "alt": "My work on a phone: a note that one week of hours was returned, and the placement card with schedule, coach, start date and the launch plan button.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Log your hours",
+          "text": "Enter each day’s hours for the week, then tap **Send for approval**. Your client or an admin approves them."
+        },
+        {
+          "title": "Fix returned hours",
+          "text": "If hours come back with a note, update the week and send it again."
+        },
+        {
+          "title": "Add payout details",
+          "text": "Choose how you’re paid. Bank details are encrypted, and only admins can open them."
+        },
+        {
+          "title": "Your placement",
+          "text": "Schedule, coach, check-ins, your onboarding checklist and the launch plan for Day 1."
+        }
+      ],
+      "tips": [
+        "My work only appears if you’re placed with a client."
+      ]
+    },
+    {
+      "id": "coaching",
+      "group": "team",
+      "audience": "reviewers",
+      "title": "Coaching placed team members",
+      "icon": "target",
+      "summary": "Check-ins, onboarding checklists and training for the team members you coach at clients.",
+      "route": "/coaching",
+      "shots": [
+        {
+          "src": "guide-media/tour-coaching-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Coaching",
+          "alt": "The Coaching page: overdue and due-this-week check-in counts and a card for each team member with checklist and training progress.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-coaching-2.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "One placement",
+          "alt": "A coached placement: status chips, start date, coach, time zones, the check-ins card with an overdue check-in and the onboarding checklist.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "See who needs you",
+          "text": "Overdue and upcoming check-ins are counted at the top, and each card shows checklist and training progress."
+        },
+        {
+          "title": "Record a check-in",
+          "text": "Open a team member, choose **Record a check-in**, score it from 1 to 5 and note what went well and what to improve."
+        },
+        {
+          "title": "Tick checklist steps",
+          "text": "Steps for the agency and the team member can be ticked as they’re done."
+        }
+      ]
+    },
+    {
+      "id": "account",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Account and billing",
+      "icon": "key",
+      "summary": "Your RAMP plan and seats, the organizations in your account, and billing.",
+      "route": "/admin/account",
+      "shots": [
+        {
+          "src": "guide-media/tour-account-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Account and billing",
+          "alt": "Account and billing: the plan chip, seats in use, the plan description and the list of organizations with Add organization and Switch.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Seats",
+          "text": "Everyone with access across your organizations counts once. Client contacts and placed team members are free."
+        },
+        {
+          "title": "Add an organization",
+          "text": "Owners can add another company or brand. It gets its own people, training and settings, starting from the RAMP library."
+        },
+        {
+          "title": "Choose a plan",
+          "text": "Owners on a trial or paid plan pick a plan here and manage billing through Stripe."
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Setting up a new workspace",
+      "icon": "sparkle",
+      "summary": "The short wizard a new workspace’s admins see first.",
+      "route": "/setup",
+      "shots": [
+        {
+          "src": "guide-media/tour-setup-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Setup, step 1",
+          "alt": "The setup wizard’s first step: company name, brand color choices and time zone, with Save and continue.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Your company",
+          "text": "Name, brand color and time zone."
+        },
+        {
+          "title": "What’s included",
+          "text": "The training modules, documents, roles and departments copied from the RAMP library."
+        },
+        {
+          "title": "Your team",
+          "text": "Invite the first people. RAMP gives you a message to send them."
+        }
+      ],
+      "tips": [
+        "**Set up later** skips the wizard; everything is in the Admin portal afterwards."
+      ]
+    },
+    {
+      "id": "agency-home",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Agency dashboard",
+      "icon": "chart",
+      "summary": "Revenue, margin and what needs you today across clients and placements.",
+      "route": "/admin/agency",
+      "shots": [
+        {
+          "src": "guide-media/tour-agency-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Agency dashboard",
+          "alt": "The Agency dashboard: active placements, weekly revenue, gross margin, open invoices and unpaid approved hours, then a Needs you list with hours waiting and client requests.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Numbers at a glance",
+          "text": "Active placements, weekly revenue, margin, open invoices and approved hours not yet paid."
+        },
+        {
+          "title": "Needs you",
+          "text": "Hours waiting for approval, client requests and anything overdue, each with a link to deal with it."
+        },
+        {
+          "title": "Place a team member",
+          "text": "Starts a new placement with a client."
+        }
+      ]
+    },
+    {
+      "id": "clients-admin",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Clients",
+      "icon": "building",
+      "summary": "The companies you place team members with: contacts, billing, training track, invoices and requests.",
+      "route": "/admin/clients",
+      "shots": [
+        {
+          "src": "guide-media/tour-client-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "A client",
+          "alt": "A client page: tabs for Overview, Placements, Contacts, Training track, Invoices and Requests, with the company and billing forms.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Add a client",
+          "text": "Company details, time zone and how and when they’re billed."
+        },
+        {
+          "title": "Invite contacts",
+          "text": "Client contacts get their own portal: their team members, hours to approve and invoices. They never see pay rates."
+        },
+        {
+          "title": "Training track",
+          "text": "Extra modules every team member placed with this client takes."
+        },
+        {
+          "title": "Their own workspace",
+          "text": "If the client uses RAMP for their own team, the platform admin can link it so their admins work from inside it."
+        }
+      ]
+    },
+    {
+      "id": "placements",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Placements",
+      "icon": "link",
+      "summary": "Each team member placed with a client: rates, onboarding checklist, check-ins, hours, launch plan and details.",
+      "route": "/admin/placements",
+      "shots": [
+        {
+          "src": "guide-media/tour-placement-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "A placement",
+          "alt": "A placement: bill and pay rates with margin, the replacement guarantee and tabs for the checklist, check-ins, hours, rates and tier, launch plan and details.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Place a team member",
+          "text": "Pick a trained person, the client, the rates and a start date. RAMP sets up the checklist, check-ins and guarantee."
+        },
+        {
+          "title": "Rates and tiers",
+          "text": "Change rates from a date, or promote someone to the next tier."
+        },
+        {
+          "title": "Replacement",
+          "text": "Start a replacement while the guarantee runs; the client, role and rates are copied over."
+        }
+      ]
+    },
+    {
+      "id": "launch",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Launch plans",
+      "icon": "calendar",
+      "summary": "A guided prep plan and Day 1 run sheet for every placement, filled in with the client.",
+      "route": null,
+      "shots": [
+        {
+          "src": "guide-media/tour-launch-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Prepare",
+          "alt": "The Prepare tab: percent ready, the list of sections from company intro to time-blocks, and the Core values step with an example.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-launch-2.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Day 1",
+          "alt": "The Day 1 tab: date, start time and end time, Start Day 1 and the timed agenda with tick boxes.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-launch-3.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "The plan",
+          "alt": "The plan tab: everything in one printable document, with jump links to each section.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Prepare",
+          "text": "Seven short steps with examples: company, values, projects, checklists, tools, milestones and time-blocks. Review shows anything missing."
+        },
+        {
+          "title": "Day 1",
+          "text": "A timed run sheet in the client’s time zone. Start the day, tick items off and finish with the check-in links."
+        },
+        {
+          "title": "The plan",
+          "text": "The whole plan as one document to read or print. The team member sees it once it’s marked ready."
+        }
+      ]
+    },
+    {
+      "id": "timesheets",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Timesheets",
+      "icon": "clock",
+      "summary": "Approve the hours team members send, or enter hours for someone.",
+      "route": "/admin/timesheets",
+      "shots": [
+        {
+          "src": "guide-media/tour-timesheets-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Timesheets",
+          "alt": "Timesheets waiting for approval, grouped by client, with each day’s hours, notes, Approve, Return and Edit hours.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Approve or return",
+          "text": "Approve hours so they can be invoiced and paid, or return them with a note."
+        },
+        {
+          "title": "Enter hours for someone",
+          "text": "Log or correct a week when someone couldn’t send it."
+        },
+        {
+          "title": "Missing hours",
+          "text": "Active placements that haven’t sent last week’s hours are listed so you can remind them."
+        }
+      ]
+    },
+    {
+      "id": "invoices",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Invoices",
+      "icon": "fileText",
+      "summary": "Bill clients for approved hours, prepayments and setup fees; print them or send them through Stripe.",
+      "route": "/admin/invoices",
+      "shots": [
+        {
+          "src": "guide-media/tour-invoices-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "An invoice",
+          "alt": "An open invoice with the printable document, Mark paid, Copy Stripe link and Void, and the Stripe invoice page and PDF links.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Create a draft",
+          "text": "Pick a client and period. RAMP adds approved hours, prepayments and setup fees."
+        },
+        {
+          "title": "Issue and send",
+          "text": "Issue it yourself or send it through Stripe, which emails the client a Pay link."
+        },
+        {
+          "title": "Mark paid",
+          "text": "Paid through Stripe updates automatically; mark other payments yourself."
+        }
+      ]
+    },
+    {
+      "id": "payouts",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Payouts",
+      "icon": "send",
+      "summary": "Pay team members for approved hours and export the Wise batch file.",
+      "route": "/admin/payouts",
+      "shots": [
+        {
+          "src": "guide-media/tour-payouts-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Payouts",
+          "alt": "Payouts: ready to pay, waiting on clients, not sent and sent totals, the list of payouts and approved hours not paid out yet.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Create a payout",
+          "text": "Pick a period. By default only hours the client has paid are included."
+        },
+        {
+          "title": "Export for Wise",
+          "text": "Download the Wise batch file and a summary, then upload it in Wise."
+        },
+        {
+          "title": "Mark sent",
+          "text": "Record the Wise reference. Team members see the payout in My work."
+        }
+      ]
+    },
+    {
+      "id": "tiers",
+      "group": "agency",
+      "audience": "agency",
+      "title": "Tiers and agency settings",
+      "icon": "star",
+      "summary": "Skill tiers with default rates, plus the onboarding checklist, check-in schedule, invoicing and Day 1 agenda.",
+      "route": "/admin/tiers",
+      "shots": [
+        {
+          "src": "guide-media/tour-tiers-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Tiers",
+          "alt": "Tiers: each level with its default bill and pay rates, margin, requirements and how many placements use it.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-agency-settings-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Agency settings",
+          "alt": "Agency settings: the onboarding checklist steps, each owned by the agency, the client or the team member.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Tiers",
+          "text": "Levels people grow into, each with default rates and what it takes to reach it."
+        },
+        {
+          "title": "Settings",
+          "text": "The checklist every placement starts with, check-in timing, the replacement guarantee, invoice numbering, payout currency and the Day 1 agenda."
+        }
+      ]
+    },
+    {
+      "id": "client-home",
+      "group": "clients",
+      "audience": "clients",
+      "title": "Your overview",
+      "icon": "home",
+      "summary": "Your team members, their onboarding and training, this week’s hours and anything waiting for you.",
+      "route": "/client",
+      "shots": [
+        {
+          "src": "guide-media/tour-client-home-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Overview",
+          "alt": "The client overview on a phone: hours waiting for approval and a card for each team member with their status and schedule.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-client-home-2.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Requests",
+          "alt": "Your requests: questions and changes you’ve sent, with replies.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Hours waiting",
+          "text": "Shown at the top until you approve them."
+        },
+        {
+          "title": "Each team member",
+          "text": "Onboarding steps, training progress, schedule, coach and their launch plan."
+        },
+        {
+          "title": "Ask for help",
+          "text": "Send feedback after a check-in, or ask for help, different hours or another team member."
+        }
+      ]
+    },
+    {
+      "id": "client-launch",
+      "group": "clients",
+      "audience": "clients",
+      "title": "Preparing for Day 1",
+      "icon": "calendar",
+      "summary": "Your launch plan: the prep, the Day 1 run sheet and the finished plan.",
+      "route": null,
+      "shots": [
+        {
+          "src": "guide-media/tour-launch-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Prepare",
+          "alt": "The Prepare tab with the steps from company intro to time-blocks and an example for each.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-launch-2.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Day 1",
+          "alt": "The Day 1 run sheet with times and tick boxes.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Prepare",
+          "text": "Fill in each step; examples show what good looks like. You can stop and come back."
+        },
+        {
+          "title": "Mark ready",
+          "text": "When it’s ready, mark it so your team member can read it before Day 1."
+        },
+        {
+          "title": "Run Day 1",
+          "text": "Start Day 1 to run the timed agenda and tick items off."
+        }
+      ]
+    },
+    {
+      "id": "client-hours",
+      "group": "clients",
+      "audience": "clients",
+      "title": "Approving hours",
+      "icon": "clock",
+      "summary": "Team members send their hours each week for you to approve.",
+      "route": "/client/hours",
+      "shots": [
+        {
+          "src": "guide-media/tour-client-hours-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Hours",
+          "alt": "Hours waiting for approval on a phone: Approve all, and a week with each day’s hours, notes and the cost.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Approve",
+          "text": "Approved hours go on your next invoice."
+        },
+        {
+          "title": "Return",
+          "text": "Send hours back with a note if something isn’t right."
+        }
+      ]
+    },
+    {
+      "id": "client-invoices",
+      "group": "clients",
+      "audience": "clients",
+      "title": "Invoices",
+      "icon": "fileText",
+      "summary": "Every invoice, what’s due and when.",
+      "route": "/client/invoices",
+      "shots": [
+        {
+          "src": "guide-media/tour-client-invoices-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Invoices",
+          "alt": "The client’s invoices on a phone: the open balance and each invoice with its period, amount and status.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Pay online",
+          "text": "Invoices sent through Stripe have a Pay button."
+        },
+        {
+          "title": "Print or save",
+          "text": "Open any invoice to print it or save it as a PDF."
+        }
+      ]
+    },
+    {
+      "id": "console",
+      "group": "platform",
+      "audience": "platform",
+      "title": "Client accounts",
+      "icon": "building",
+      "summary": "Approve companies that sign up, give free access while you test, and manage every account.",
+      "route": "/platform",
+      "shots": [
+        {
+          "src": "guide-media/tour-console-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Requests",
+          "alt": "Client accounts: counts at the top and the requests waiting for approval, each with Approve and Decline.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-console-2.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Approving",
+          "alt": "The Approve sheet: plan (Free access, Trial or Paid) and seats.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-console-3.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Managing an account",
+          "alt": "An account’s sheet: its workspaces with Open as support, plan, trial end, access and seats.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-console-4.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Settings",
+          "alt": "Platform settings: trial length, seats and organizations per account, the training library to copy and the agency workspace.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Approve or decline",
+          "text": "Free access while you test, a trial, or paid; and how many seats. Their workspace starts with a copy of your library."
+        },
+        {
+          "title": "Manage accounts",
+          "text": "Change the plan or seats, pause or close an account, or open a workspace as RAMP Support."
+        },
+        {
+          "title": "Settings",
+          "text": "Defaults for new accounts, the sign-in brand and the Stripe plans owners can choose."
+        }
+      ]
+    },
+    {
+      "id": "workspaces",
+      "group": "platform",
+      "audience": "platform",
+      "title": "Switching workspaces",
+      "icon": "chevrons",
+      "summary": "Move between your workspace and any client’s.",
+      "route": null,
+      "shots": [
+        {
+          "src": "guide-media/tour-switcher-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Switch workspace",
+          "alt": "The Switch workspace sheet, with the RAMP Support banner across the top.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Switch",
+          "text": "Use the arrows next to your company name."
+        },
+        {
+          "title": "RAMP Support",
+          "text": "In someone else’s workspace a banner says so, and your visit is in their audit log."
+        }
+      ]
+    },
+    {
+      "id": "signup",
+      "group": "platform",
+      "audience": "platform",
+      "title": "How new companies join",
+      "icon": "userPlus",
+      "summary": "What a company sees from sign-up to its own workspace.",
+      "route": null,
+      "shots": [
+        {
+          "src": "guide-media/tour-signup-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Start for my business",
+          "alt": "The sign-up request form on a phone: company name, your name, phone, team size and a note.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-pending-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "Waiting for approval",
+          "alt": "The waiting screen after a company asks for a workspace.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Create a login",
+          "text": "They choose New here on the sign-in screen."
+        },
+        {
+          "title": "Ask for a workspace",
+          "text": "Start for my business sends you the request."
+        },
+        {
+          "title": "Approved",
+          "text": "Their workspace opens with a short setup wizard."
         }
       ]
     }

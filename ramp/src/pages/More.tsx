@@ -4,6 +4,7 @@ import { useTitle } from '../lib/hooks';
 import { LEVELS, displayName } from '../lib/util';
 import { useBadges, useNav } from '../shell/AppShell';
 import { Avatar, Card, Icon, PageHeader } from '../ui';
+import { startTour } from '../guide/Tour';
 
 export default function More() {
   useTitle('More');
@@ -40,7 +41,8 @@ export default function More() {
         </Card>
       )}
       <Card padded={false} className="overflow-hidden">
-        <Link to="/practice" className={row}><Icon name="replay" size={22} className="text-brand-ink" />Replay the platform tour<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></Link>
+        <button type="button" onClick={() => startTour()} className={row + ' w-full text-left cursor-pointer bg-white'}><Icon name="play" size={22} className="text-brand-ink" />Getting-started tour<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></button>
+        <Link to="/practice" className={row}><Icon name="replay" size={22} className="text-brand-ink" />Practice in the sandbox<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></Link>
         <button type="button" onClick={signOut} className={row + ' w-full text-left cursor-pointer bg-white text-bad'}><Icon name="logout" size={22} />Sign out</button>
       </Card>
     </div>

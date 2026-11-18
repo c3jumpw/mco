@@ -1,0 +1,67 @@
+# Keeps RAMP's getting-started tours, What's new slides and Guide screenshots in step with the app.
+# On every push to main that changes RAMP, it checks that every page has Guide coverage, retakes the
+# screenshots from the sample-data preview (only screens that really changed are rewritten) and commits
+# them. Vercel then deploys them. See ramp/tools/guide/README.md.
+name: RAMP guide
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ramp/src/**'
+      - 'ramp/tools/guide/**'
+      - 'ramp/package.json'
+      - '.github/workflows/ramp-guide.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ramp-guide
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Check coverage and retake screenshots
+    runs-on: ubuntu-24.04  # pinned: the Playwright version in package.json supports it
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ramp
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ramp/package-lock.json
+
+      - name: Install
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Check every page has a Guide section and every image a screenshot recipe
+        run: npm run guide:check
+
+      - name: Retake screenshots
+        run: npm run guide:shots
+        env:
+          CI: 'true'
+
+      - name: Check again and type-check
+        run: |
+          npm run guide:check
+          npm run typecheck
+
+      - name: Commit the refreshed screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/guide-media src/guide/guide.json
+          if git diff --cached --quiet; then echo "Screenshots were already current"; exit 0; fi
+          git commit -m "RAMP: refresh guide and tour screenshots"
+          git pull --rebase origin main
+          git push origin HEAD:main

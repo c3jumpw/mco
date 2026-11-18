@@ -23,7 +23,7 @@ export function AuthFrame({ children, title, subtitle }: { children: ReactNode; 
           <Logo size={40} />
           <div className="leading-tight">
             <p className="font-display font-bold tracking-[0.08em] text-lg">RAMP</p>
-            <p className="text-[13px] text-muted">{org ? `${org} · training and onboarding` : 'Training and onboarding'}</p>
+            <p className="text-[13px] text-muted">{org && org.trim().toUpperCase() !== 'RAMP' ? `${org} · training and onboarding` : 'Training and onboarding'}</p>
           </div>
         </div>
         <section className="bg-card border border-line rounded-3xl p-6 flex flex-col gap-5 shadow-[0_1px_2px_rgba(17,24,39,.04)]">

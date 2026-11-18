@@ -5,6 +5,7 @@ import { useMe } from '../lib/session';
 import { LEVELS, cx, displayName } from '../lib/util';
 import { Avatar, Icon, IconButton, Logo } from '../ui';
 import { SupportBanner, TrialBanner, WorkspaceSheet, useCanSwitch } from './Workspace';
+import { TourHost } from '../guide/Tour';
 
 // ───────── navigation model (shared with More and the admin hub) ─────────
 
@@ -18,6 +19,7 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
       { to: '/client', label: 'Overview', icon: 'home' },
       { to: '/client/hours', label: 'Hours', icon: 'clock', badge: 'hours' },
       { to: '/client/invoices', label: 'Invoices', icon: 'fileText' },
+      { to: '/guide', label: 'Guide', icon: 'lifebuoy' },
       { to: '/me', label: 'Profile', icon: 'users' },
     ];
     return { main: items, mobile: items };
@@ -171,6 +173,7 @@ export default function AppShell() {
         </div>
         <BottomNav items={mobile} />
       </div>
+      <TourHost />
     </BadgeCtx.Provider>
   );
 }

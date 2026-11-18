@@ -38,7 +38,7 @@
   p { text-wrap: pretty; }
 }
 
-:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+:where(button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 3px solid color-mix(in oklab, var(--brand, #4338CA) 45%, white);
   outline-offset: 2px;
 }

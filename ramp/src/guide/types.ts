@@ -1,7 +1,7 @@
 // Shape of src/guide/guide.json: the written guide plus annotated screenshots of the real app.
 
-export type GuideAudience = 'everyone' | 'staff' | 'reviewers' | 'admins';
-export type GuideGroup = 'start' | 'daily' | 'team' | 'admin';
+export type GuideAudience = 'everyone' | 'staff' | 'reviewers' | 'admins' | 'agency' | 'clients' | 'platform';
+export type GuideGroup = 'start' | 'daily' | 'team' | 'admin' | 'agency' | 'clients' | 'platform';
 
 export interface GuideHotspot {
   n: number;
@@ -41,11 +41,14 @@ export interface GuideSection {
 export interface GuideData { sections: GuideSection[] }
 
 /** Highest rank (1 owner … 7 guest) that can see a section. */
-export const AUDIENCE_RANK: Record<GuideAudience, number> = { everyone: 7, staff: 6, reviewers: 4, admins: 2 };
+export const AUDIENCE_RANK: Record<GuideAudience, number> = { everyone: 7, staff: 6, reviewers: 4, admins: 2, agency: 2, clients: 8, platform: 2 };
 
 export const GROUPS: { id: GuideGroup; title: string; blurb: string }[] = [
   { id: 'start', title: 'Getting started', blurb: 'Signing in, finding your way around and your first days.' },
   { id: 'daily', title: 'Everyday tools', blurb: 'Training, documents, tasks, notes, chat and everything you use day to day.' },
   { id: 'team', title: 'Mentors and leads', blurb: 'Following your people’s progress, reviewing work and assigning tasks.' },
   { id: 'admin', title: 'Admin portal', blurb: 'Setting up the organization, building training and documents, managing people and records.' },
+  { id: 'agency', title: 'Agency', blurb: 'Clients, placements, launch plans, hours, invoices and payouts for team members you place with other companies.' },
+  { id: 'clients', title: 'For clients', blurb: 'What client contacts see: their team members, Day 1 prep, hours to approve and invoices.' },
+  { id: 'platform', title: 'Platform', blurb: 'Running RAMP for other companies: sign-ups, free access, plans and support.' },
 ];
