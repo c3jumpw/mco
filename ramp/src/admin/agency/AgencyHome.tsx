@@ -75,7 +75,7 @@ export default function AgencyHome() {
         subtitle="Revenue, margin and everything that needs you today."
         actions={<>
           <LinkButton to="/admin/agency/settings" icon="sliders" variant="ghost">Settings</LinkButton>
-          <Button variant="primary" icon="plus" onClick={() => setPlacing(true)}>Place an assistant</Button>
+          <Button variant="primary" icon="plus" onClick={() => setPlacing(true)}>Place a team member</Button>
         </>} />
 
       {res.error && !res.data && <ErrorBox error={res.error} onRetry={res.reload} />}
@@ -168,7 +168,7 @@ function Dashboard({ d, today, payWhenPaid, onPromote, onRequestSaved }: {
         <Stat label="Weekly revenue" value={money(revenue)} hint={`Cost ${money(cost)} a week`} />
         <Stat label="Gross margin" value={money(margin)} hint={revenue ? `${pctText(margin / revenue)} of revenue, weekly` : 'Weekly, at scheduled hours'} tone={margin > 0 ? 'good' : undefined} />
         <Stat label="Open invoices" value={money(openTotal)} hint={overdue.length ? <span className="font-semibold text-bad">{plural(overdue.length, 'overdue invoice')}</span> : `${plural(openInv.length, 'invoice')}, none overdue`} />
-        <div className="col-span-2 lg:col-span-1"><Stat label="Unpaid approved hours" value={hoursText(unpaidHours)} hint={`${money(unpaidOwed)} to pay assistants`} /></div>
+        <div className="col-span-2 lg:col-span-1"><Stat label="Unpaid approved hours" value={hoursText(unpaidHours)} hint={`${money(unpaidOwed)} to pay team members`} /></div>
       </section>
       <p className="text-xs text-muted -mt-3">Weekly numbers use each onboarding and active placement’s scheduled hours and current rates.</p>
 
@@ -216,8 +216,8 @@ function Dashboard({ d, today, payWhenPaid, onPromote, onRequestSaved }: {
               const l = label(c.placement_id);
               const late = (daysUntil(c.due_date) ?? 0) < 0;
               return (
-                <Item key={c.id} to={`/admin/placements/${c.placement_id}?tab=checkins`} name={l?.who || 'Assistant'}
-                  line={`${l?.where || ''} · ${c.kind === 'client' ? 'with the client' : 'with the assistant'}`}
+                <Item key={c.id} to={`/admin/placements/${c.placement_id}?tab=checkins`} name={l?.who || 'Team member'}
+                  line={`${l?.where || ''} · ${c.kind === 'client' ? 'with the client' : 'with the team member'}`}
                   right={<Chip tone={late ? 'bad' : 'warn'}>{dueLabel(c.due_date)}</Chip>} />
               );
             })}
@@ -280,7 +280,7 @@ function Dashboard({ d, today, payWhenPaid, onPromote, onRequestSaved }: {
           <Group icon="send" title="Payouts ready to create" count={1}>
             <li className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3.5">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[15px]">{money(readyOwed)} for {plural(readyPeople, 'assistant')}</p>
+                <p className="font-semibold text-[15px]">{money(readyOwed)} for {plural(readyPeople, 'team member')}</p>
                 <p className="text-[13px] text-muted">{hoursText(readyHours)} of approved hours {payWhenPaid ? 'from paid invoices' : 'not paid out yet'}.</p>
               </div>
               <LinkButton to="/admin/payouts" variant="primary" size="sm" icon="send">Create a payout</LinkButton>
@@ -302,7 +302,7 @@ function Dashboard({ d, today, payWhenPaid, onPromote, onRequestSaved }: {
                   <Link to={`/admin/clients/${x.c.id}`} className="grid grid-cols-2 sm:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] gap-x-3 gap-y-1 px-4 py-3 no-underline text-ink hover:bg-[#FAFBFC] tabular-nums">
                     <span className="col-span-2 sm:col-span-1 min-w-0">
                       <span className="block font-semibold text-[15px] truncate">{x.c.name}</span>
-                      <span className="block text-xs text-muted">{plural(x.n, 'assistant')}</span>
+                      <span className="block text-xs text-muted">{plural(x.n, 'team member')}</span>
                     </span>
                     <span className="sm:text-right text-sm"><span className="sm:hidden text-muted">Revenue </span>{money(x.rev, x.c.currency)}</span>
                     <span className="text-right text-sm"><span className="sm:hidden text-muted">Cost </span>{money(x.pay, x.c.currency)}</span>
@@ -369,7 +369,7 @@ function FirstRun({ tiers, clients }: { tiers: number; clients: number }) {
   const steps = [
     { done: tiers > 0, title: 'Set your tiers', body: tiers > 0 ? `You have ${plural(tiers, 'tier')}. Check the default rates and what it takes to move up.` : 'Skill levels with default bill and pay rates, so every placement starts at the right price.', to: '/admin/tiers', action: tiers > 0 ? 'Review tiers' : 'Set up tiers' },
     { done: clients > 0, title: 'Add a client', body: clients > 0 ? `You have ${plural(clients, 'client')}. Invite their contacts so they can approve hours.` : 'The company you staff, with how and how often you bill them.', to: clients > 0 ? '/admin/clients' : '/admin/clients?new=1', action: clients > 0 ? 'Go to clients' : 'Add a client' },
-    { done: false, title: 'Place an assistant', body: 'Pick a trained assistant, the client and the rates. RAMP sets up the checklist, check-ins, guarantee and launch plan.', to: '/admin/placements?new=1', action: 'Place an assistant' },
+    { done: false, title: 'Place a team member', body: 'Pick a trained team member, the client and the rates. RAMP sets up the checklist, check-ins, guarantee and launch plan.', to: '/admin/placements?new=1', action: 'Place a team member' },
   ];
   const done = steps.filter((s) => s.done).length;
   const next = steps.findIndex((s) => !s.done);

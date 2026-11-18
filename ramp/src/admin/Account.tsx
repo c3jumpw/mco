@@ -59,7 +59,7 @@ export default function Account() {
                 {seats.limit != null && <Progress value={pct} tone={pct >= 90 ? 'amber' : 'brand'} label="Seats used" />}
               </>
             ) : <span className="text-muted">—</span>}
-            <span className="text-[13px] text-muted">Everyone with access across your organizations, counted once. Client contacts and placed assistants are free.</span>
+            <span className="text-[13px] text-muted">Everyone with access across your organizations, counted once. Client contacts and placed team members are free.</span>
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-[13px] font-semibold text-muted">Plan</span>

@@ -225,7 +225,7 @@ export function DetailsTab({ placement: p, people, client, onSaved }: { placemen
           </div>
           {p.setup_fee_status === 'unbilled' && <Button className="self-start" onClick={() => setFeeStatus(true)}>Waive the fee</Button>}
           {p.setup_fee_status === 'waived' && num(p.setup_fee) > 0 && <Button className="self-start" onClick={() => setFeeStatus(false)}>Bill it after all</Button>}
-          <Field label="Replacement guarantee until" hint="If it doesn’t work out before this date, you replace the assistant at no extra charge.">
+          <Field label="Replacement guarantee until" hint="If it doesn’t work out before this date, you replace the team member at no extra charge.">
             <Input type="date" value={f.guarantee} onChange={(e) => set('guarantee', e.target.value)} />
           </Field>
         </Card>
@@ -252,7 +252,7 @@ function SyncCard({ placementId, client }: { placementId: string; client: string
   const [busy, setBusy] = useState(false);
   return (
     <Card className="flex flex-col gap-3">
-      <CardHeader title={`In ${client}’s workspace`} subtitle={`${client} has their own RAMP workspace. This assistant appears on their team there, and status changes sync automatically.`} />
+      <CardHeader title={`In ${client}’s workspace`} subtitle={`${client} has their own RAMP workspace. This team member appears on their team there, and status changes sync automatically.`} />
       <Button className="self-start" icon="refresh" loading={busy} onClick={async () => {
         setBusy(true);
         const { data, error } = await supabase.rpc('ramp_placement_sync', { p_placement: placementId });

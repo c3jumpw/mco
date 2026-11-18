@@ -184,11 +184,11 @@ function EnterHoursSheet({ placement, timesheets, week: week0, assistant, onClos
           </Button>
           <Button size="sm" variant="ghost" disabled={locked} onClick={() => setDays(['', '', '', '', '', '', ''])}>Clear</Button>
         </div>
-        <Field label="Notes" hint="Shown to the assistant and the client.">
+        <Field label="Notes" hint="Shown to the team member and the client.">
           <Textarea rows={2} value={notes} maxLength={2000} onChange={(e) => setNotes(e.target.value)} disabled={locked} />
         </Field>
         <Checkbox checked={approveNow} onChange={setApproveNow} disabled={locked} label="Approve these hours now"
-          hint={approveNow ? 'They’re ready to invoice and pay right away.' : 'They wait for the client to approve, like hours the assistant sends.'} />
+          hint={approveNow ? 'They’re ready to invoice and pay right away.' : 'They wait for the client to approve, like hours the team member sends.'} />
         <FormError error={error} />
       </form>
     </Sheet>
@@ -202,7 +202,7 @@ function ReturnSheet({ t, assistant, onClose, onDone }: { t: Timesheet; assistan
   const [error, setError] = useState('');
   async function save(e?: FormEvent) {
     e?.preventDefault();
-    if (!note.trim()) { setError('Add a note so the assistant knows what to fix.'); return; }
+    if (!note.trim()) { setError('Add a note so the team member knows what to fix.'); return; }
     setBusy(true);
     const { error: err } = await supabase.rpc('ramp_timesheet_review', { p_timesheet: t.id, p_approve: false, p_note: note.trim() });
     if (err) { setError(errText(err)); setBusy(false); return; }

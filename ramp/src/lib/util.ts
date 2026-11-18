@@ -94,7 +94,7 @@ export const LEVELS: Record<Level, { rank: number; label: string; who: string; s
   employee: { rank: 5, label: 'Employee', who: 'Graduated team members', scope: 'Continued training, resources, notebooks, chat and their own tasks.', backend: false },
   trainee: { rank: 6, label: 'Trainee', who: 'New hires in training', scope: 'Onboarding, assigned training and documents, notebooks, practice tasks and chat.', backend: false },
   guest: { rank: 7, label: 'Guest', who: 'Contractors, candidates', scope: 'Only the modules, forms and resources shared with guests. Time-limited.', backend: false },
-  client: { rank: 8, label: 'Client', who: 'Contacts at client companies', scope: 'Their own assistants: onboarding, training progress, hours to approve, invoices and feedback.', backend: false },
+  client: { rank: 8, label: 'Client', who: 'Contacts at client companies', scope: 'Their own team members: onboarding, training progress, hours to approve, invoices and feedback.', backend: false },
 };
 export const LEVEL_ORDER: Level[] = ['owner', 'admin', 'lead', 'mentor', 'employee', 'trainee', 'guest'];
 export const rankOf = (l: Level | null | undefined) => (l ? LEVELS[l].rank : 99);
@@ -233,10 +233,10 @@ export const PAYOUT_STATUS: Record<'draft' | 'exported' | 'sent', { label: strin
 export const STEP_OWNER: Record<import('./types').StepOwner, { label: string; tone: Tone }> = {
   agency: { label: 'Us', tone: 'brand' },
   client: { label: 'Client', tone: 'warn' },
-  va: { label: 'Assistant', tone: 'good' },
+  va: { label: 'Team member', tone: 'good' },
 };
 export const REQUEST_KIND: Record<import('./types').ClientRequest['kind'], string> = {
-  support: 'Help or coaching', replacement: 'Replacement', hours: 'Change hours', new_va: 'Another assistant', other: 'Something else',
+  support: 'Help or coaching', replacement: 'Replacement', hours: 'Change hours', new_va: 'Another team member', other: 'Something else',
 };
 export const PAYEE_METHOD: Record<import('./types').PayeeMethod, { label: string; hint: string }> = {
   wise_email: { label: 'Wise, by email', hint: 'Wise emails a secure link to collect bank details. Easiest to start.' },

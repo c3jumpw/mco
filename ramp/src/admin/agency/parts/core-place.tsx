@@ -23,7 +23,7 @@ export interface PlacePrefill {
 
 const NEW_STATUSES: PlacementStatus[] = ['proposed', 'onboarding', 'active'];
 const STATUS_HINT: Record<string, string> = {
-  proposed: 'Shared with the client but not confirmed yet. The assistant and client don’t see it.',
+  proposed: 'Shared with the client but not confirmed yet. The team member and client don’t see it.',
   onboarding: 'Confirmed. The checklist and launch plan are being worked through before day 1.',
   active: 'Working with the client and logging hours.',
 };
@@ -71,7 +71,7 @@ function PlaceBody({ onClose, prefill }: { onClose: () => void; prefill: PlacePr
     };
   }, []);
 
-  const title = prefill.replaces ? 'Start a replacement' : 'Place an assistant';
+  const title = prefill.replaces ? 'Start a replacement' : 'Place a team member';
   if (res.error && !res.data) {
     return <Sheet open onClose={onClose} title={title}><ErrorBox error={res.error} onRetry={res.reload} /></Sheet>;
   }
@@ -91,7 +91,7 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
   const [picking, setPicking] = useState(true);
   const [search, setSearch] = useState('');
   const [clientId, setClientId] = useState(prefill.clientId || r?.client_id || '');
-  const [jobTitle, setJobTitle] = useState(r?.title || 'Virtual assistant');
+  const [jobTitle, setJobTitle] = useState(r?.title || '');
   const firstTier = data.tiers[0];
   const [tierId, setTierId] = useState(r ? r.tier_id || '' : firstTier?.id || '');
   const [bill, setBill] = useState(r ? String(num(r.bill_rate)) : firstTier ? String(num(firstTier.bill_rate)) : '');
@@ -156,9 +156,9 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
     ev?.preventDefault();
     setError('');
     const x: Record<string, string> = {};
-    if (!member) x.member = 'Pick the assistant.';
+    if (!member) x.member = 'Pick the team member.';
     if (!client) x.client = 'Pick the client.';
-    if (!jobTitle.trim()) x.title = 'Add a job title, like Executive assistant.';
+    if (!jobTitle.trim()) x.title = 'Add a job title, like Operations coordinator.';
     if (billN === null || billN < 0) x.bill = 'Enter the hourly bill rate.';
     if (payN === null || payN < 0) x.pay = 'Enter the hourly pay rate.';
     if (hoursN === null || hoursN < 0 || hoursN > 80) x.hours = 'Enter 0 to 80 hours a week.';
@@ -197,7 +197,7 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
 
   return (
     <Sheet open wide onClose={() => (busy ? undefined : onClose())} title={title}
-      subtitle={r ? <>Replaces {prefill.replacesName || 'the current assistant'}. Client, role, rates and people are copied over; pick the new assistant.</>
+      subtitle={r ? <>Replaces {prefill.replacesName || 'the current team member'}. Client, role, rates and people are copied over; pick the new team member.</>
         : 'Pick who, where and at what rates. The checklist, check-ins and guarantee are set up for you.'}
       footer={
         <>
@@ -206,11 +206,11 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
             <span className="text-muted"> · {money(e.week.margin, currency)}/week</span>
           </span>
           <Button onClick={onClose} disabled={busy}>Cancel</Button>
-          <Button variant="primary" type="submit" form="core-place-form" loading={busy} icon="check">{r ? 'Create replacement' : 'Place assistant'}</Button>
+          <Button variant="primary" type="submit" form="core-place-form" loading={busy} icon="check">{r ? 'Create replacement' : 'Place team member'}</Button>
         </>
       }>
       <form id="core-place-form" onSubmit={save} noValidate className="flex flex-col gap-4">
-        {section(1, 'Assistant')}
+        {section(1, 'Team member')}
         {member && !picking ? (
           <div className="flex items-center gap-3 rounded-2xl border border-line px-4 py-3">
             <Avatar name={personName(member)} size={40} />
@@ -221,13 +221,13 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
             <Button size="sm" onClick={() => setPicking(true)}>Change</Button>
           </div>
         ) : (
-          <div className="flex flex-col gap-2" role="group" aria-label="Pick the assistant">
+          <div className="flex flex-col gap-2" role="group" aria-label="Pick the team member">
             <SearchInput value={search} onChange={setSearch} placeholder="Search staff by name or email" label="Search staff" />
             {errs.member && <p className="text-xs font-semibold text-bad" role="alert">{errs.member}</p>}
             {staffRows.length === 0 ? (
-              <p className="text-sm text-muted py-3 text-center">{data.staff.length ? 'No one matches that search.' : 'No active staff yet. Invite your assistants in Admin › People first.'}</p>
+              <p className="text-sm text-muted py-3 text-center">{data.staff.length ? 'No one matches that search.' : 'No active staff yet. Invite your team members in Admin › People first.'}</p>
             ) : (
-              <ul role="radiogroup" aria-label="Assistant" className="rounded-2xl border border-line divide-y divide-line-2 max-h-72 overflow-y-auto">
+              <ul role="radiogroup" aria-label="Team member" className="rounded-2xl border border-line divide-y divide-line-2 max-h-72 overflow-y-auto">
                 {staffRows.map(({ m, pct, at }) => (
                   <li key={m.id}>
                     <button type="button" role="radio" aria-checked={m.id === memberId} aria-invalid={!!errs.member && !memberId} onClick={() => pickMember(m)}
@@ -261,7 +261,7 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
 
         {section(3, 'Role and rates')}
         <Field label="Job title" required error={errs.title}>
-          <Input value={jobTitle} maxLength={120} onChange={(ev) => setJobTitle(ev.target.value)} aria-invalid={!!errs.title} placeholder="Executive assistant" />
+          <Input value={jobTitle} maxLength={120} onChange={(ev) => setJobTitle(ev.target.value)} aria-invalid={!!errs.title} placeholder="Operations coordinator" />
         </Field>
         <Field label="Tier" hint={tier ? `${tier.description || tier.name}. Picking a tier fills in its default rates.` : 'Picking a tier fills in its default rates.'}>
           <Select value={tierId} onChange={(ev) => pickTier(ev.target.value)}>
@@ -273,7 +273,7 @@ function PlaceForm({ data, prefill, onClose, title }: { data: PlaceData; prefill
           <Field label="Bill rate per hour" required error={errs.bill} hint="What the client pays.">
             <MoneyInput value={bill} onChange={setBill} currency={currency} aria-invalid={!!errs.bill} />
           </Field>
-          <Field label="Pay rate per hour" required error={errs.pay} hint="What the assistant gets.">
+          <Field label="Pay rate per hour" required error={errs.pay} hint="What the team member gets.">
             <MoneyInput value={pay} onChange={setPay} currency={currency} aria-invalid={!!errs.pay} />
           </Field>
         </div>

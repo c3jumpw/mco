@@ -93,7 +93,7 @@ export default function PayoutDetail() {
   async function doExport() {
     const ok = await confirm({
       title: po.status === 'exported' ? 'Export again?' : 'Export this payout?',
-      body: `Creates the Wise batch files and a summary for ${plural(people, 'assistant')}, ${money(po.total, cur)} in total. Bank details are decrypted for the export, and the export is logged. The payout is marked exported; you can still go back to draft.`,
+      body: `Creates the Wise batch files and a summary for ${plural(people, 'team member')}, ${money(po.total, cur)} in total. Bank details are decrypted for the export, and the export is logged. The payout is marked exported; you can still go back to draft.`,
       action: 'Export',
     });
     if (!ok) return;
@@ -132,7 +132,7 @@ export default function PayoutDetail() {
   async function discard() {
     const ok = await confirm({
       title: 'Discard this payout?',
-      body: 'Its hours go back to unpaid so they can go on another payout. Bonus and adjustment lines are dropped, and it disappears from assistants’ My work pages.',
+      body: 'Its hours go back to unpaid so they can go on another payout. Bonus and adjustment lines are dropped, and it disappears from team members’ My work pages.',
       action: 'Discard payout', danger: true,
     });
     if (!ok) return;
@@ -179,7 +179,7 @@ export default function PayoutDetail() {
           <Card>
             <PayoutChip payout={po} />
             <p className="mt-3 font-display text-[32px] leading-none font-bold tabular-nums">{money(po.total, cur)}</p>
-            <p className="mt-1 text-sm text-muted">{plural(people, 'assistant')}</p>
+            <p className="mt-1 text-sm text-muted">{plural(people, 'team member')}</p>
             <dl className="mt-3 border-t border-line-2 pt-2">
               <Line label="Created">{fmtDateTime(po.created_at, tz)}</Line>
               {po.exported_at && <Line label="Exported">{fmtDateTime(po.exported_at, tz)}</Line>}
@@ -188,11 +188,11 @@ export default function PayoutDetail() {
             </dl>
 
             {po.status === 'sent' ? (
-              <Notice tone="good" icon="check" className="mt-3">Assistants can see this payout in My work.</Notice>
+              <Notice tone="good" icon="check" className="mt-3">Team members can see this payout in My work.</Notice>
             ) : (
               <div className="mt-4 flex flex-col gap-2">
                 {missing.length > 0 && (
-                  <Notice tone="warn" icon="alert">{plural(missing.length, 'assistant is', 'assistants are')} missing payout details. Fix them below before you pay.</Notice>
+                  <Notice tone="warn" icon="alert">{plural(missing.length, 'team member is', 'team members are')} missing payout details. Fix them below before you pay.</Notice>
                 )}
                 {stale && <Notice tone="warn" icon="refresh">You changed this payout after exporting. Export again so the files match.</Notice>}
                 {po.status === 'draft' && (
@@ -215,7 +215,7 @@ export default function PayoutDetail() {
             <p className="text-sm text-muted leading-relaxed px-1">
               {po.status === 'draft'
                 ? 'Next: check each person’s lines and payout details, then export. You’ll get a Wise batch file to upload, and a list of anyone you need to pay by bank.'
-                : 'Next: upload the Wise files and pay. Then mark the payout as sent so assistants can see it.'}
+                : 'Next: upload the Wise files and pay. Then mark the payout as sent so team members can see it.'}
             </p>
           )}
         </div>
@@ -286,7 +286,7 @@ export default function PayoutDetail() {
           })}
           {groups.length > 0 && (
             <div className="flex items-center justify-between gap-3 rounded-2xl bg-ink text-white px-5 py-4">
-              <span className="font-semibold">Total for {plural(people, 'assistant')}</span>
+              <span className="font-semibold">Total for {plural(people, 'team member')}</span>
               <span className="font-display text-xl font-bold tabular-nums">{money(po.total, cur)}</span>
             </div>
           )}

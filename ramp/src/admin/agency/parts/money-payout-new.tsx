@@ -72,10 +72,10 @@ export function WaitingCard({ data, currency, onNew }: { data: WaitingData; curr
       ) : (
         <>
           <table className="hidden md:table w-full text-[15px]">
-            <caption className="sr-only">Approved hours not paid out, by assistant</caption>
+            <caption className="sr-only">Approved hours not paid out, by team member</caption>
             <thead>
               <tr className="text-left text-[13px] text-muted border-y border-line">
-                <th scope="col" className="font-semibold px-5 py-2.5">Assistant</th>
+                <th scope="col" className="font-semibold px-5 py-2.5">Team member</th>
                 <th scope="col" className="font-semibold px-3 py-2.5 text-right">Ready to pay</th>
                 <th scope="col" className="font-semibold px-3 py-2.5 text-right">Waiting on the client</th>
                 <th scope="col" className="font-semibold px-5 py-2.5">Oldest week</th>
@@ -222,13 +222,13 @@ export function NewPayoutSheet({ open, onClose, today, waiting, defaultOnlyPaid,
         <div className={cx('rounded-2xl border px-4 py-3 flex items-center gap-3', preview.h > 0 ? 'border-line bg-white' : 'border-line bg-bg')}>
           <Icon name={preview.h > 0 ? 'users' : 'info'} size={20} className="text-muted" />
           <p className="flex-1 text-[15px] leading-snug">
-            {preview.h > 0 ? <>About <span className="font-semibold">{plural(preview.people, 'assistant')}</span>, {hours(preview.h)}</> : 'Nothing to pay with these settings yet.'}
+            {preview.h > 0 ? <>About <span className="font-semibold">{plural(preview.people, 'team member')}</span>, {hours(preview.h)}</> : 'Nothing to pay with these settings yet.'}
           </p>
           {preview.h > 0 && <span className="font-display text-lg font-bold tabular-nums">≈ {money(preview.amt, currency)}</span>}
         </div>
       )}
       {preview && preview.leftH > 0 && (
-        <p className="text-sm text-muted">{hours(preview.leftH)} for {plural(preview.leftPeople, 'assistant')} in this period {preview.leftH === 1 ? 'is' : 'are'} left out because the client hasn’t paid yet.</p>
+        <p className="text-sm text-muted">{hours(preview.leftH)} for {plural(preview.leftPeople, 'team member')} in this period {preview.leftH === 1 ? 'is' : 'are'} left out because the client hasn’t paid yet.</p>
       )}
       {nothing && (
         <Notice tone="warn">

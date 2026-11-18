@@ -73,7 +73,7 @@ export function OverviewTab({ client, openPlacements, onSaved }: { client: Clien
             </Field>
             <Field label="Industry"><Input value={f.industry} maxLength={80} onChange={(e) => set('industry', e.target.value)} /></Field>
           </div>
-          <Field label="Time zone" hint="Where the client works. Assistants’ schedules follow it.">
+          <Field label="Time zone" hint="Where the client works. Team members’ schedules follow it.">
             <TimezonePicker value={f.timezone} onChange={(tz) => set('timezone', tz)} />
           </Field>
           <Field label="Notes" hint="Only admins see these.">
@@ -123,12 +123,12 @@ function LinkedWorkspaceCard({ client, onSaved }: { client: Client; onSaved: (c:
     setBusy(false);
     if (error) { setErr(errText(error)); return; }
     onSaved({ ...client, linked_workspace_id: sel || null });
-    toast(sel ? `${client.name} is linked. Their assistants now show in their workspace.` : `${client.name} is unlinked.`);
+    toast(sel ? `${client.name} is linked. Their team members now show in their workspace.` : `${client.name} is unlinked.`);
   }
   return (
     <Card className="flex flex-col gap-3">
       <CardHeader title="Their own RAMP workspace"
-        subtitle={`If ${client.name} uses RAMP for their own team, link their workspace. Their admins then approve hours, see invoices and follow launch plans from inside it, and your assistants appear on their team list.`} />
+        subtitle={`If ${client.name} uses RAMP for their own team, link their workspace. Their admins then approve hours, see invoices and follow launch plans from inside it, and your team members appear on their team list.`} />
       {isSuper ? (
         <div className="flex flex-wrap items-end gap-3">
           <Field label="Linked workspace" className="flex-1 min-w-56">
@@ -154,11 +154,11 @@ function clientInviteText(o: { name: string; email: string; orgName: string; cli
   return [
     `Hi${first ? ` ${first}` : ''},`,
     '',
-    `${o.orgName} uses RAMP to keep ${o.clientName} up to date on your assistant: their onboarding and training, the hours to approve each week, and invoices.`,
+    `${o.orgName} uses RAMP to keep ${o.clientName} up to date on your team member: their onboarding and training, the hours to approve each week, and invoices.`,
     '',
     `1. Open ${joinLink()}`,
     `2. Create a login with this email address: ${o.email}`,
-    '3. You’ll land on your overview, with your assistant and anything waiting for you.',
+    '3. You’ll land on your overview, with your team member and anything waiting for you.',
     '',
     'Use exactly that email address. RAMP matches your login to your invite by email, so a different one won’t work.',
     '',
@@ -227,13 +227,13 @@ export function ContactsTab({ client, contacts, placements, assistantName, onCha
       <Card className="flex flex-wrap items-center gap-3 justify-between">
         <div className="min-w-0 flex-1 basis-64">
           <p className="font-display text-lg font-semibold">Client contacts</p>
-          <p className="text-sm text-muted">They sign in to a portal that shows only {client.name}: their assistants’ onboarding and training, hours to approve and invoices. They never see pay rates.</p>
+          <p className="text-sm text-muted">They sign in to a portal that shows only {client.name}: their team members’ onboarding and training, hours to approve and invoices. They never see pay rates.</p>
         </div>
         <Button variant="primary" icon="userPlus" onClick={() => setInviting(true)}>Invite a contact</Button>
       </Card>
       <Card padded={false} className="overflow-hidden">
         {sorted.length === 0 ? (
-          <EmptyState icon="users" title="No contacts yet" body={`Invite the person at ${client.name} who approves hours and works with your assistants.`}
+          <EmptyState icon="users" title="No contacts yet" body={`Invite the person at ${client.name} who approves hours and works with your team members.`}
             action={<Button variant="primary" icon="userPlus" onClick={() => setInviting(true)}>Invite a contact</Button>} />
         ) : (
           <ul>
@@ -355,7 +355,7 @@ export function TrainingTrackTab({ client, track, modules, onChanged }: { client
 
   async function remove(t: ClientModule) {
     const m = modOf(t.module_id);
-    const ok = await confirm({ title: `Remove ${m?.title || 'this module'} from the track?`, body: `Assistants placed with ${client.name} won’t be assigned it any more. Progress they’ve made is kept.`, action: 'Remove module', danger: true });
+    const ok = await confirm({ title: `Remove ${m?.title || 'this module'} from the track?`, body: `Team members placed with ${client.name} won’t be assigned it any more. Progress they’ve made is kept.`, action: 'Remove module', danger: true });
     if (!ok) return;
     const before = track;
     onChanged(track.filter((x) => x.module_id !== t.module_id));
@@ -381,7 +381,7 @@ export function TrainingTrackTab({ client, track, modules, onChanged }: { client
       <Card className="flex flex-wrap items-center gap-3 justify-between">
         <div className="min-w-0 flex-1 basis-64">
           <p className="font-display text-lg font-semibold">{client.name} training track</p>
-          <p className="text-sm text-muted">Every assistant placed here is assigned these, in this order, after the company-wide modules and their role track.{ordered.length ? ` About ${minutes} min in total.` : ''}</p>
+          <p className="text-sm text-muted">Every team member placed here is assigned these, in this order, after the company-wide modules and their role track.{ordered.length ? ` About ${minutes} min in total.` : ''}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <LinkButton to="/admin/training" variant="ghost" icon="plus">Build a new module</LinkButton>
@@ -512,7 +512,7 @@ export function RequestsTab({ client, requests, nameOf, assistantOf, onSaved }: 
 }) {
   const rows = [...requests].sort((a, b) => REQ_ORDER.indexOf(a.status) - REQ_ORDER.indexOf(b.status) || b.created_at.localeCompare(a.created_at));
   if (!rows.length) {
-    return <Card><EmptyState icon="chat" title="No requests" body={`When someone at ${client.name} asks for help, a replacement, different hours or another assistant in their portal, it shows up here.`} /></Card>;
+    return <Card><EmptyState icon="chat" title="No requests" body={`When someone at ${client.name} asks for help, a replacement, different hours or another team member in their portal, it shows up here.`} /></Card>;
   }
   return (
     <ul className="flex flex-col gap-3">

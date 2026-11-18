@@ -117,7 +117,7 @@ function NewClientBody({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Sheet open onClose={() => (busy ? undefined : onClose())} title="New client" subtitle="The company you place assistants with. You can change any of this later."
+    <Sheet open onClose={() => (busy ? undefined : onClose())} title="New client" subtitle="The company you place team members with. You can change any of this later."
       footer={<><Button onClick={onClose} disabled={busy}>Cancel</Button><Button variant="primary" type="submit" form="core-client-new" loading={busy} icon="check">Add client</Button></>}>
       <form id="core-client-new" onSubmit={save} noValidate className="flex flex-col gap-4">
         <Field label="Company name" required error={errs.name}>
@@ -127,7 +127,7 @@ function NewClientBody({ onClose }: { onClose: () => void }) {
           <Field label="Website"><Input type="url" inputMode="url" autoCapitalize="none" value={f.website} maxLength={200} onChange={(e) => set('website', e.target.value)} placeholder="company.com" /></Field>
           <Field label="Industry"><Input value={f.industry} maxLength={80} onChange={(e) => set('industry', e.target.value)} placeholder="Real estate" /></Field>
         </div>
-        <Field label="Time zone" hint="Where the client works. Assistants’ schedules follow it.">
+        <Field label="Time zone" hint="Where the client works. Team members’ schedules follow it.">
           <TimezoneSelect value={f.timezone} onChange={(tz) => set('timezone', tz)} />
         </Field>
         <p className="text-xs font-bold tracking-[0.08em] uppercase text-muted mt-1">Billing</p>

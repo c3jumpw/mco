@@ -65,7 +65,7 @@ export default function Tiers() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={AGENCY_BACK} eyebrow={EYEBROW} title="Tiers"
-        subtitle="Skill levels on the way up, with default rates and what it takes to reach each one. RAMP flags assistants who are ready to move up."
+        subtitle="Skill levels on the way up, with default rates and what it takes to reach each one. RAMP flags team members who are ready to move up."
         actions={<Button variant="primary" icon="plus" onClick={() => setEditing('new')} disabled={!res.data}>Add tier</Button>} />
 
       <Notice tone="brand" icon="info">
@@ -76,7 +76,7 @@ export default function Tiers() {
       {!res.data && !res.error && <Skeleton rows={4} />}
 
       {res.data && res.data.tiers.length === 0 && (
-        <Card><EmptyState icon="star" title="No tiers yet" body="Start with an entry tier for newly trained assistants, then add the levels they can grow into."
+        <Card><EmptyState icon="star" title="No tiers yet" body="Start with an entry tier for newly trained team members, then add the levels they can grow into."
           action={<Button variant="primary" icon="plus" onClick={() => setEditing('new')}>Add tier</Button>} /></Card>
       )}
 
@@ -159,7 +159,7 @@ function TierSheet({ tier, tiers, modules, onClose, onDone }: { tier: Tier | nul
     setError('');
     const x: Record<string, string> = {};
     const lv = Number(level), d = Number(days), sc = Number(score);
-    if (!name.trim()) x.name = 'Name the tier, like Skilled VA.';
+    if (!name.trim()) x.name = 'Name the tier, like Skilled specialist.';
     if (!Number.isInteger(lv) || lv < 1 || lv > 20) x.level = 'Use a whole number from 1 to 20.';
     if (billN === null || billN < 0) x.bill = 'Enter the default bill rate.';
     if (payN === null || payN < 0) x.pay = 'Enter the default pay rate.';
@@ -185,17 +185,17 @@ function TierSheet({ tier, tiers, modules, onClose, onDone }: { tier: Tier | nul
       footer={<><Button onClick={onClose} disabled={busy}>Cancel</Button><Button variant="primary" type="submit" form="core-tier-form" loading={busy} icon="check">{tier ? 'Save tier' : 'Add tier'}</Button></>}>
       <form id="core-tier-form" onSubmit={save} noValidate className="flex flex-col gap-4">
         <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3">
-          <Field label="Name" required error={errs.name}><Input value={name} maxLength={60} onChange={(ev) => setName(ev.target.value)} aria-invalid={!!errs.name} placeholder="Skilled VA" /></Field>
+          <Field label="Name" required error={errs.name}><Input value={name} maxLength={60} onChange={(ev) => setName(ev.target.value)} aria-invalid={!!errs.name} placeholder="Skilled specialist" /></Field>
           <Field label="Level" required error={errs.level} hint="Higher is more senior.">
             <Input type="number" inputMode="numeric" min={1} max={20} step={1} value={level} onChange={(ev) => setLevel(ev.target.value)} aria-invalid={!!errs.level} className="tabular-nums" />
           </Field>
         </div>
-        <Field label="Description" hint="What someone at this tier can do. Clients see it on their portal; assistants see it on My work.">
+        <Field label="Description" hint="What someone at this tier can do. Clients see it on their portal; team members see it on My work.">
           <Textarea rows={2} value={desc} maxLength={500} onChange={(ev) => setDesc(ev.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Default bill rate" required error={errs.bill} hint="Per hour, to the client."><MoneyInput value={bill} onChange={setBill} aria-invalid={!!errs.bill} /></Field>
-          <Field label="Default pay rate" required error={errs.pay} hint="Per hour, to the assistant."><MoneyInput value={pay} onChange={setPay} aria-invalid={!!errs.pay} /></Field>
+          <Field label="Default pay rate" required error={errs.pay} hint="Per hour, to the team member."><MoneyInput value={pay} onChange={setPay} aria-invalid={!!errs.pay} /></Field>
         </div>
         <p className={cx('text-sm font-semibold tabular-nums -mt-1', e.margin < 0 ? 'text-bad' : 'text-good')} aria-live="polite">
           {money(e.margin)}/h margin ({pctText(e.pct)} of the bill rate){e.margin < 0 ? '. The pay rate is higher than the bill rate.' : ''}

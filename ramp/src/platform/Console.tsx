@@ -138,7 +138,7 @@ function SeatInput({ mode, setMode, n, setN, defaultLimit }: { mode: SeatMode; s
       {mode === 'number' && (
         <span className="inline-flex w-36"><Input type="number" min={1} max={10000} inputMode="numeric" value={n} onChange={(e) => setN(e.target.value)} aria-label="Number of seats" /></span>
       )}
-      <span className="text-[13px] text-muted">Seats count team members across all of the account’s workspaces. Client contacts and placed assistants don’t use seats.</span>
+      <span className="text-[13px] text-muted">Seats count team members across all of the account’s workspaces. Client contacts and placed team members don’t use seats.</span>
     </div>
   );
 }
@@ -412,7 +412,7 @@ function Settings({ data, reload }: { data: SuperData; reload: () => void }) {
             {allWs.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}
           </Select>
         </Field>
-        <Field label="Agency workspace" hint="Where your placed assistants, clients and access requests from people with no team live.">
+        <Field label="Agency workspace" hint="Where your placed team members, clients and access requests from people with no team live.">
           <Select value={agency} onChange={(e) => setAgency(e.target.value)}>
             <option value="">None</option>
             {allWs.map((w) => <option key={w.id} value={w.id}>{w.label}</option>)}

@@ -195,7 +195,7 @@ function Detail({ d, assistant, reload, setData }: {
 
 const STATUS_ORDER: PlacementStatus[] = ['proposed', 'onboarding', 'active', 'paused', 'ended'];
 const STATUS_DESC: Record<PlacementStatus, string> = {
-  proposed: 'Not confirmed yet. The assistant and the client don’t see it.',
+  proposed: 'Not confirmed yet. The team member and the client don’t see it.',
   onboarding: 'Confirmed. Working through the checklist and launch plan before day 1.',
   active: 'Working with the client and logging hours.',
   paused: 'On hold. Nothing is prepaid for paused placements.',
@@ -259,7 +259,7 @@ function StatusSheet({ p, assistant, client, inGuarantee, onClose, onDone }: {
           <>
             <Field label="Last day" required><Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} /></Field>
             <Field label="Why it ended" required hint="Only admins see this.">
-              <Textarea rows={3} value={reason} maxLength={500} onChange={(e) => setReason(e.target.value)} placeholder="Client reduced hours; assistant moved to another client." />
+              <Textarea rows={3} value={reason} maxLength={500} onChange={(e) => setReason(e.target.value)} placeholder="Client reduced hours; team member moved to another client." />
             </Field>
             {inGuarantee && <Notice tone="warn" icon="alert">This placement is still inside its replacement guarantee. If {client} wants someone new, use Start a replacement on the placement page.</Notice>}
           </>

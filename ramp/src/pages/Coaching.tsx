@@ -25,7 +25,7 @@ export default function Coaching() {
   const shown = (f === 'due' ? dueSoon : list)
     .filter((p) => !needle || `${p.va.name} ${p.client.name} ${p.title}`.toLowerCase().includes(needle));
 
-  const header = <PageHeader title="Coaching" subtitle="The assistants you coach: check-ins, onboarding checklists and training." />;
+  const header = <PageHeader title="Coaching" subtitle="The team members you coach: check-ins, onboarding checklists and training." />;
   if (error && !data) return <div className="flex flex-col gap-6">{header}<ErrorBox error={error} onRetry={reload} /></div>;
   if (!data) return <div className="flex flex-col gap-6">{header}<Skeleton rows={1} /><Skeleton rows={4} /></div>;
 
@@ -52,7 +52,7 @@ export default function Coaching() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Segmented label="Show" value={f} onChange={setFilter}
           options={[{ value: 'due', label: `Due soon (${dueSoon.length})` }, { value: 'all', label: `All (${list.length})` }]} />
-        {list.length > 6 && <div className="sm:ml-auto sm:w-72"><SearchInput value={search} onChange={setSearch} placeholder="Search assistants or clients" /></div>}
+        {list.length > 6 && <div className="sm:ml-auto sm:w-72"><SearchInput value={search} onChange={setSearch} placeholder="Search team members or clients" /></div>}
       </div>
       {shown.length === 0 ? (
         <Card>

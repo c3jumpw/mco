@@ -22,7 +22,7 @@ export default function ClientHours() {
   const [returning, setReturning] = useState<PortalTimesheet | null>(null);
   const [who, setWho] = useState('all');
 
-  const header = <PageHeader title="Hours" subtitle="Review your assistants’ weekly hours. Approved hours go on your next invoice." />;
+  const header = <PageHeader title="Hours" subtitle="Review your team members’ weekly hours. Approved hours go on your next invoice." />;
   if (error && !data) return <div className="flex flex-col gap-6">{header}<ErrorBox error={error} onRetry={reload} /></div>;
   if (!data) return <div className="flex flex-col gap-6">{header}<Skeleton rows={2} /><Skeleton rows={3} /></div>;
 
@@ -97,13 +97,13 @@ export default function ClientHours() {
         {waiting.length === 0 ? (
           <Card>
             <EmptyState icon="check" title="You’re all caught up"
-              body="New hours show up here when your assistant sends them, usually at the end of each week." />
+              body="New hours show up here when your team member sends them, usually at the end of each week." />
           </Card>
         ) : waiting.map((t) => (
           <WaitingCard key={t.id} t={t} p={byId.get(t.placement_id)} busy={bulk || busy.includes(t.id)}
             onApprove={() => approve(t)} onReturn={() => setReturning(t)} />
         ))}
-        {waiting.length > 0 && <p className="text-[13px] text-muted">{billNote} Costs use each assistant’s current rate; your invoice shows the final amount.</p>}
+        {waiting.length > 0 && <p className="text-[13px] text-muted">{billNote} Costs use each team member’s current rate; your invoice shows the final amount.</p>}
       </section>
 
       <Card padded={false} className="overflow-hidden">
@@ -215,7 +215,7 @@ function ReturnSheet({ t, onClose, onDone }: { t: PortalTimesheet | null; onClos
         <Button variant="primary" type="submit" form="return-form" loading={busy} icon="send">Return hours</Button>
       </>}>
       <form id="return-form" onSubmit={submit} noValidate className="flex flex-col gap-4">
-        <Field label="What needs to change?" required error={err || undefined} hint="Your note goes to your assistant and our team.">
+        <Field label="What needs to change?" required error={err || undefined} hint="Your note goes to your team member and our team.">
           <Textarea rows={4} maxLength={1000} value={note} onChange={(e) => { setNote(e.target.value); setErr(''); }}
             placeholder="For example: Thursday should be 6 hours, not 8." />
         </Field>

@@ -61,11 +61,11 @@ export function PayoutLineSheet({ target, payout, assistants, nextSort, onClose,
 
   return (
     <Sheet open onClose={onClose} title={editing ? 'Edit line' : 'Add a bonus or adjustment'}
-      subtitle="It’s added to this payout. The assistant sees it on their My work page."
+      subtitle="It’s added to this payout. The team member sees it on their My work page."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" icon="check" loading={busy} onClick={save}>{editing ? 'Save line' : 'Add to payout'}</Button></>}>
-      <Field label="Assistant" required>
+      <Field label="Team member" required>
         <Select value={memberId} onChange={(e) => setMemberId(e.target.value)}>
-          <option value="">Pick an assistant…</option>
+          <option value="">Pick a team member…</option>
           {assistants.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
         </Select>
       </Field>
@@ -73,7 +73,7 @@ export function PayoutLineSheet({ target, payout, assistants, nextSort, onClose,
         <legend className="text-[13px] font-semibold text-ink-2 mb-1.5">Type</legend>
         <Pills label="Type" size="sm" value={kind} onChange={setKind} options={[{ value: 'bonus', label: 'Bonus' }, { value: 'adjustment', label: 'Adjustment' }]} />
       </fieldset>
-      <Field label="Description" required hint="The assistant sees this.">
+      <Field label="Description" required hint="The team member sees this.">
         <Input value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500}
           placeholder={kind === 'bonus' ? 'Performance bonus, October' : 'Correction for Nov 4 hours'} />
       </Field>
@@ -118,7 +118,7 @@ export function MarkSentSheet({ open, payout, people, onClose, onDone }:
     <Sheet open={open} onClose={onClose} title="Mark this payout as sent?"
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="success" icon="check" loading={busy} disabled={!sure} onClick={submit}>Mark as sent</Button></>}>
       <p className="text-[15px] text-ink-2 leading-relaxed">
-        Records that {money(payout.total, payout.currency)} went to {plural(people, 'assistant')}. The payout locks, and each assistant sees it as paid in My work.
+        Records that {money(payout.total, payout.currency)} went to {plural(people, 'team member')}. The payout locks, and each team member sees it as paid in My work.
       </p>
       <Field label="Reference" hint="Optional, for your records. For example the Wise batch number.">
         <Input value={reference} onChange={(e) => setReference(e.target.value)} maxLength={200} placeholder="Wise batch #12345" />

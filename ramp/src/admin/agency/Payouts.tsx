@@ -43,7 +43,7 @@ export default function Payouts() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={AGENCY_BACK} eyebrow={AGENCY_EYEBROW} title="Payouts"
-        subtitle="Pay assistants for approved hours. Create a payout, export the Wise batch files, then mark it sent."
+        subtitle="Pay team members for approved hours. Create a payout, export the Wise batch files, then mark it sent."
         actions={<Button variant="primary" icon="plus" onClick={() => setCreating(true)}>New payout</Button>} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -70,7 +70,7 @@ export default function Payouts() {
                       <tr className="text-left text-[13px] text-muted border-b border-line">
                         <th scope="col" className="font-semibold pl-5 pr-3 py-3">Payout</th>
                         <th scope="col" className="font-semibold px-3 py-3">Weeks</th>
-                        <th scope="col" className="font-semibold px-3 py-3 text-right">Assistants</th>
+                        <th scope="col" className="font-semibold px-3 py-3 text-right">Team members</th>
                         <th scope="col" className="font-semibold px-3 py-3 text-right">Total</th>
                         <th scope="col" className="font-semibold px-3 py-3">Status</th>
                         <th scope="col" className="font-semibold pl-3 pr-5 py-3">Sent</th>
@@ -101,7 +101,7 @@ export default function Payouts() {
                           </span>
                           <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
                             <PayoutChip payout={p} />
-                            <span>{plural(list.data!.people.get(p.id)?.size || 0, 'assistant')}</span>
+                            <span>{plural(list.data!.people.get(p.id)?.size || 0, 'team member')}</span>
                             {p.sent_at && <span>· sent {dayIn(p.sent_at, org.timezone)}</span>}
                           </span>
                         </Link>

@@ -97,7 +97,7 @@ export default function Clients() {
           <Card padded={false} className="overflow-hidden">
             {rows.length === 0 ? (
               total === 0
-                ? <EmptyState icon="building" title="No clients yet" body="Add the first company you place assistants with. Then invite their contacts and place an assistant."
+                ? <EmptyState icon="building" title="No clients yet" body="Add the first company you place team members with. Then invite their contacts and place a team member."
                   action={<Button variant="primary" icon="plus" onClick={() => setCreating(true)}>New client</Button>} />
                 : <EmptyState icon="search" title="No clients match" body="Try a different search or status."
                   action={<Button onClick={() => { setSearch(''); setStatus('all'); }}>Show all clients</Button>} />
@@ -113,7 +113,7 @@ export default function Clients() {
                           <ClientStatusChip status={r.c.status} />
                         </span>
                         <span className="text-sm text-muted">
-                          {[r.c.industry, r.working ? plural(r.working, 'working assistant') : 'No working assistants', r.proposed ? `${r.proposed} proposed` : '', plural(r.contacts, 'contact')].filter(Boolean).join(' · ')}
+                          {[r.c.industry, r.working ? plural(r.working, 'working team member') : 'No working team members', r.proposed ? `${r.proposed} proposed` : '', plural(r.contacts, 'contact')].filter(Boolean).join(' · ')}
                         </span>
                         <span className="sm:hidden text-[13px] tabular-nums flex flex-wrap gap-x-2">
                           <span className={cx(r.overdue ? 'text-bad font-semibold' : 'text-ink-2')}>{money(r.balance, r.c.currency)} open{r.overdue ? ` · ${r.overdue} overdue` : ''}</span>

@@ -24,8 +24,8 @@ export default function ClientHome() {
   const header = (
     <PageHeader eyebrow={company || undefined} title={`${greeting()}, ${firstName(me)}`}
       subtitle={data && data.placements.some((p) => p.status !== 'ended')
-        ? `Here’s how your ${data.placements.filter((p) => p.status !== 'ended').length === 1 ? 'assistant is' : 'assistants are'} doing this week.`
-        : 'Everything about your assistants, in one place.'}
+        ? `Here’s how your ${data.placements.filter((p) => p.status !== 'ended').length === 1 ? 'team member is' : 'team members are'} doing this week.`
+        : 'Everything about your team members, in one place.'}
       actions={data && <Button icon="lifebuoy" onClick={() => setHelp({ placementId: null })}>Ask for help</Button>} />
   );
 
@@ -47,7 +47,7 @@ export default function ClientHome() {
           <span className="w-11 h-11 rounded-xl bg-white text-warn flex items-center justify-center shrink-0"><Icon name="clock" size={22} /></span>
           <div className="min-w-0 flex-1">
             <p className="text-[16px] font-semibold text-ink">{plural(waiting.length, 'week')} of hours {waiting.length === 1 ? 'is' : 'are'} waiting for your approval</p>
-            <p className="text-sm text-warn tabular-nums">{waitingHours.toLocaleString('en-US', { maximumFractionDigits: 2 })} h in total. Approve them so they can be billed and your assistant can be paid.</p>
+            <p className="text-sm text-warn tabular-nums">{waitingHours.toLocaleString('en-US', { maximumFractionDigits: 2 })} h in total. Approve them so they can be billed and your team member can be paid.</p>
           </div>
           <LinkButton to="/client/hours" variant="primary" iconRight="chevronRight" className="w-full sm:w-auto">Review hours</LinkButton>
         </section>
@@ -55,8 +55,8 @@ export default function ClientHome() {
 
       {current.length === 0 ? (
         <Card>
-          <EmptyState icon="users" title="Your assistant is on the way"
-            body="We’re matching and training your assistant now. As soon as they’re placed with you, their onboarding, training and hours show up here."
+          <EmptyState icon="users" title="Your team member is on the way"
+            body="We’re matching and training your team member now. As soon as they’re placed with you, their onboarding, training and hours show up here."
             action={<Button variant="primary" icon="send" onClick={() => setHelp({ placementId: null })}>Send us a message</Button>} />
         </Card>
       ) : (
@@ -70,7 +70,7 @@ export default function ClientHome() {
 
       {past.length > 0 && (
         <p className="text-[13px] text-muted">
-          Past assistants: {past.map((p) => `${p.va.name}${p.end_date ? ` (until ${fmtDate(p.end_date)})` : ''}`).join(', ')}.
+          Past team members: {past.map((p) => `${p.va.name}${p.end_date ? ` (until ${fmtDate(p.end_date)})` : ''}`).join(', ')}.
         </p>
       )}
 
@@ -80,7 +80,7 @@ export default function ClientHome() {
             action={<Button size="sm" icon="plus" onClick={() => setHelp({ placementId: null })}>New request</Button>} />
         </div>
         {data.requests.length === 0 ? (
-          <p className="px-5 pb-5 text-[15px] text-muted">No requests yet. Ask us for coaching help, a change in hours or another assistant any time.</p>
+          <p className="px-5 pb-5 text-[15px] text-muted">No requests yet. Ask us for coaching help, a change in hours or another team member any time.</p>
         ) : (
           <ul className="border-t border-line-2">
             {data.requests.map((r) => {

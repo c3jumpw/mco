@@ -36,8 +36,8 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
     { to: '/', label: 'Home', icon: 'home' },
     // An owner or admin of a client company's own workspace: the assistants the agency placed with them.
     ...(roles.client?.linked ? [
-      { to: '/client', label: 'Our assistants', icon: 'userPlus', badge: 'hours' as const },
-      { to: '/client/invoices', label: 'Assistant invoices', icon: 'fileText' },
+      { to: '/client', label: 'Our team members', icon: 'userPlus', badge: 'hours' as const },
+      { to: '/client/invoices', label: 'Agency invoices', icon: 'fileText' },
     ] : []),
     ...(agencyOn && roles.work ? [{ to: '/work', label: 'My work', icon: 'clock' }] : []),
     { to: '/training', label: 'Training', icon: 'book' },
@@ -60,10 +60,10 @@ export interface AdminSection { to: string; label: string; icon: string; desc: s
 export const ADMIN_SECTIONS: AdminSection[] = [
   { to: '/admin/agency', label: 'Agency dashboard', icon: 'chart', desc: 'Revenue, margin and everything that needs you today', group: 'Agency', agency: true },
   { to: '/admin/clients', label: 'Clients', icon: 'building', desc: 'Client companies, contacts, billing and their training tracks', group: 'Agency', agency: true },
-  { to: '/admin/placements', label: 'Placements', icon: 'link', desc: 'Assistants placed with clients: rates, checklists, check-ins and launch plans', group: 'Agency', agency: true },
+  { to: '/admin/placements', label: 'Placements', icon: 'link', desc: 'Team members placed with clients: rates, checklists, check-ins and launch plans', group: 'Agency', agency: true },
   { to: '/admin/timesheets', label: 'Timesheets', icon: 'clock', desc: 'Approve hours and enter them for anyone', group: 'Agency', agency: true },
   { to: '/admin/invoices', label: 'Invoices', icon: 'fileText', desc: 'Bill clients for hours, prepayments and setup fees; send through Stripe', group: 'Agency', agency: true },
-  { to: '/admin/payouts', label: 'Payouts', icon: 'send', desc: 'Pay assistants for approved hours and export Wise batch files', group: 'Agency', agency: true },
+  { to: '/admin/payouts', label: 'Payouts', icon: 'send', desc: 'Pay team members for approved hours and export Wise batch files', group: 'Agency', agency: true },
   { to: '/admin/tiers', label: 'Tiers', icon: 'star', desc: 'Skill tiers with default rates and what it takes to move up', group: 'Agency', agency: true },
   { to: '/admin/agency/settings', label: 'Agency settings', icon: 'sliders', desc: 'Checklist, check-in schedule, guarantee, invoicing, Stripe and the Day 1 agenda', group: 'Agency', agency: true },
   { to: '/admin/org', label: 'Organization', icon: 'building', desc: 'Name, brand color, time zone and welcome message', group: 'Set up' },

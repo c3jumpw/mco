@@ -120,7 +120,7 @@ export default function AgencySettings() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={AGENCY_BACK} eyebrow={EYEBROW} title="Agency settings"
-        subtitle="How new placements are set up, when check-ins happen, how invoices are numbered and how assistants get paid." />
+        subtitle="How new placements are set up, when check-ins happen, how invoices are numbered and how team members get paid." />
 
       <Card className="flex flex-col gap-4">
         <SectionHead title="Onboarding checklist" subtitle="Every new placement starts with these steps. Changing them doesn’t touch placements that already exist." />
@@ -131,7 +131,7 @@ export default function AgencySettings() {
         <SectionHead title="Check-ins and guarantee" />
         <div className="flex flex-col gap-2">
           <span className="text-[13px] font-semibold text-ink-2">First check-ins, in days after the start date</span>
-          <p className="text-[13px] text-muted -mt-1">Each day gets two check-ins: one with the assistant and one with the client.</p>
+          <p className="text-[13px] text-muted -mt-1">Each day gets two check-ins: one with the team member and one with the client.</p>
           <DayChips days={f.checkin_days} onChange={(d) => set('checkin_days', d)} />
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -141,7 +141,7 @@ export default function AgencySettings() {
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" aria-hidden="true">days</span>
             </span>
           </Field>
-          <Field label="Replacement guarantee" error={errs.replacement_days} hint="From the start date. If it doesn’t work out within this time, you replace the assistant at no extra charge.">
+          <Field label="Replacement guarantee" error={errs.replacement_days} hint="From the start date. If it doesn’t work out within this time, you replace the team member at no extra charge.">
             <span className="relative block">
               <Input type="number" inputMode="numeric" min={0} max={365} value={f.replacement_days} onChange={(e) => set('replacement_days', e.target.value)} className="pr-14 tabular-nums" aria-invalid={!!errs.replacement_days} />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" aria-hidden="true">days</span>
@@ -172,7 +172,7 @@ export default function AgencySettings() {
       </Card>
 
       <Card className="flex flex-col gap-5">
-        <SectionHead title="Paying assistants" />
+        <SectionHead title="Paying team members" />
         <div className="flex items-start gap-4">
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-semibold">Pay only for hours the client has paid for</p>
@@ -183,7 +183,7 @@ export default function AgencySettings() {
           </div>
           <Switch checked={f.pay_when_paid} onChange={(v) => set('pay_when_paid', v)} label="Pay only for hours the client has paid for" />
         </div>
-        <Field label="Payout currency" error={errs.payout_currency} hint="The currency payouts are calculated and exported in. Wise converts to each assistant’s own currency." className="max-w-xs">
+        <Field label="Payout currency" error={errs.payout_currency} hint="The currency payouts are calculated and exported in. Wise converts to each team member’s own currency." className="max-w-xs">
           <Input value={f.payout_currency} maxLength={3} onChange={(e) => set('payout_currency', e.target.value.toUpperCase())} className="font-mono uppercase" aria-invalid={!!errs.payout_currency} />
         </Field>
       </Card>

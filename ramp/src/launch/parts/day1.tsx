@@ -66,7 +66,7 @@ export function Day1({ draft, update, canEdit, role, placement, tz, template, on
   const setRun = (patch: Partial<Data['run']>) => update((d) => ({ ...d, data: { ...d.data, run: { ...d.data.run, ...patch } } }));
 
   const checkinLink = role === 'admin' ? `/admin/placements/${placement.id}` : role === 'coach' ? `/coaching/${placement.id}` : role === 'client' ? '/client' : null;
-  const vaFirst = placement.va.name?.split(' ')[0] || 'your assistant';
+  const vaFirst = placement.va.name?.split(' ')[0] || 'your team member';
 
   return (
     <div className="flex flex-col gap-5">

@@ -76,7 +76,7 @@ export function FeedbackSheet({ placement, onClose, onDone }: { placement: Porta
 
   return (
     <Sheet open={!!placement} onClose={onClose} title={`How is ${name} doing?`}
-      subtitle="Your feedback goes to your coach, who uses it in their next session with your assistant."
+      subtitle="Your feedback goes to your coach, who uses it in their next session with your team member."
       footer={<>
         <Button onClick={onClose} disabled={busy}>Cancel</Button>
         <Button variant="primary" type="submit" form="feedback-form" loading={busy} icon="send">Send feedback</Button>
@@ -105,7 +105,7 @@ const PROMPTS: Record<ClientRequest['kind'], string> = {
   support: 'What’s going on, and how can we help?',
   replacement: 'Tell us what isn’t working. We’ll talk it through with you before anything changes.',
   hours: 'How many hours a week would you like, and from when?',
-  new_va: 'What would the new assistant help with, and how many hours a week?',
+  new_va: 'What would the new team member help with, and how many hours a week?',
   other: 'What do you need?',
 };
 
@@ -155,9 +155,9 @@ export function RequestSheet({ open, placements, placementId, onClose, onDone }:
           <Pills label="What the request is about" options={KINDS} value={kind} onChange={(k) => { setKind(k); setErr(''); }} size="sm" />
         </div>
         {placements.length > 1 && kind !== 'new_va' && (
-          <Field label="Which assistant?">
+          <Field label="Which team member?">
             <Select value={pid} onChange={(e) => setPid(e.target.value)}>
-              <option value="">Not about one assistant</option>
+              <option value="">Not about one team member</option>
               {placements.map((p) => <option key={p.id} value={p.id}>{p.va.name} · {p.title}</option>)}
             </Select>
           </Field>

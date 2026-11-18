@@ -49,7 +49,7 @@ export default function CoachingPlacement() {
   async function skip(c: CheckinRow) {
     const ok = await confirm({
       title: 'Skip this check-in?',
-      body: `The ${c.kind === 'va' ? 'assistant' : 'client'} check-in due ${fmtDate(c.due_date, { month: 'long', day: 'numeric' })} is marked as skipped. No new one is scheduled, so schedule another if you still need it.`,
+      body: `The ${c.kind === 'va' ? 'team member' : 'client'} check-in due ${fmtDate(c.due_date, { month: 'long', day: 'numeric' })} is marked as skipped. No new one is scheduled, so schedule another if you still need it.`,
       action: 'Skip check-in',
     });
     if (!ok) return;
@@ -78,8 +78,8 @@ export default function CoachingPlacement() {
           <Fact label="Start date">{p.start_date ? fmtDate(p.start_date, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}</Fact>
           {p.end_date && <Fact label="End date">{fmtDate(p.end_date, { month: 'short', day: 'numeric', year: 'numeric' })}</Fact>}
           <Fact label="Coach">{p.coach.name || 'Not assigned'}</Fact>
-          <Fact label="Assistant’s email" className="col-span-2 sm:col-span-1"><a href={`mailto:${p.va.email}`} className="text-brand-ink break-all">{p.va.email}</a></Fact>
-          {p.va.timezone && <Fact label="Assistant’s time zone">{p.va.timezone.replace(/_/g, ' ')}</Fact>}
+          <Fact label="Team member’s email" className="col-span-2 sm:col-span-1"><a href={`mailto:${p.va.email}`} className="text-brand-ink break-all">{p.va.email}</a></Fact>
+          {p.va.timezone && <Fact label="Team member’s time zone">{p.va.timezone.replace(/_/g, ' ')}</Fact>}
           {p.client.timezone && <Fact label="Client’s time zone">{p.client.timezone.replace(/_/g, ' ')}</Fact>}
           {p.client.website && <Fact label="Client website" className="col-span-2 sm:col-span-1"><a href={/^https?:\/\//.test(p.client.website) ? p.client.website : `https://${p.client.website}`} target="_blank" rel="noreferrer" className="text-brand-ink break-all">{p.client.website.replace(/^https?:\/\//, '')}</a></Fact>}
         </Facts>

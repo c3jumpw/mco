@@ -83,7 +83,7 @@ export function AssistantCard({ p, busy, onToggle, onFeedback, onHelp }: {
           </ul>
         )}
         {(allDone ? p.steps.length > 0 : others.length > 0) && (
-          <Disclosure label={allDone ? 'See every step' : 'See our steps and your assistant’s'} openLabel="Hide steps" className="border-t border-line-2">
+          <Disclosure label={allDone ? 'See every step' : 'See our steps and your team member’s'} openLabel="Hide steps" className="border-t border-line-2">
             <ul className="border-t border-line-2">
               {(allDone ? p.steps : others).map((s) => (
                 <li key={s.id} className="border-t border-line-2 first:border-t-0"><StepRow step={s} audience="client" vaFirst={fn} editable={false} /></li>

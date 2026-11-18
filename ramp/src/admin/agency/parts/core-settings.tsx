@@ -222,16 +222,16 @@ export function WiseCard({ payWhenPaid, currency }: { payWhenPaid: boolean; curr
   const steps = [
     'Hours are approved each week, by the client or by you on Timesheets.',
     payWhenPaid ? 'On Payouts, create a payout for a period. Only hours from paid invoices (or paid prepaid periods) are included.' : 'On Payouts, create a payout for a period. Every approved hour not paid yet is included.',
-    `Export the Wise batch file. It lists each assistant once with their total in ${currency || 'USD'} and their payout details. The export is logged.`,
+    `Export the Wise batch file. It lists each team member once with their total in ${currency || 'USD'} and their payout details. The export is logged.`,
     'In Wise, start a batch payment and upload the file. Check the amounts, then pay.',
-    'Back in RAMP, mark the payout sent with the Wise reference. Assistants see it on My work.',
+    'Back in RAMP, mark the payout sent with the Wise reference. Team members see it on My work.',
   ];
   return (
     <Card className="flex flex-col gap-4">
-      <SectionHead title="Wise payouts" subtitle="Assistants are paid in batches through Wise. There’s nothing to connect: RAMP makes the file and you upload it."
+      <SectionHead title="Wise payouts" subtitle="Team members are paid in batches through Wise. There’s nothing to connect: RAMP makes the file and you upload it."
         action={<Link to="/admin/payouts" className="text-sm font-semibold text-brand-ink min-h-11 inline-flex items-center">Go to payouts</Link>} />
       <ol className="flex flex-col gap-3">{steps.map((st, i) => <Step key={i} n={i + 1}>{st}</Step>)}</ol>
-      <p className={cx('text-[13px] text-muted')}>Assistants add their payout details on My work. Bank details are encrypted, and only admins can open them.</p>
+      <p className={cx('text-[13px] text-muted')}>Team members add their payout details on My work. Bank details are encrypted, and only admins can open them.</p>
     </Card>
   );
 }

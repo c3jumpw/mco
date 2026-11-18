@@ -120,7 +120,7 @@ export function ExportSheet({ open, rows, payout, payees, onClose, onMarkSent }:
 
   return (
     <Sheet open={open} onClose={onClose} wide title="Payout files"
-      subtitle={`${payout.label} · ${plural(rows.length, 'assistant')} · ${money(total, cur)}`}
+      subtitle={`${payout.label} · ${plural(rows.length, 'team member')} · ${money(total, cur)}`}
       footer={<>
         <Button onClick={onClose}>Done</Button>
         {onMarkSent && <Button variant="success" icon="check" onClick={onMarkSent}>I’ve sent the money</Button>}

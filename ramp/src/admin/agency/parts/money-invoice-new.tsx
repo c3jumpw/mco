@@ -225,8 +225,8 @@ function Preview({ sum, client, start, end }: { sum: Summary; client: BillingCli
   return (
     <div className="flex flex-col gap-3">
       <div className={cx('rounded-2xl border border-line divide-y divide-line-2 bg-white', empty && 'opacity-80')} aria-label="What this invoice will include">
-        {sum.approvedHours > 0 && row('clock', 'Approved hours', hours(sum.approvedHours), plural(sum.approvedPeople, 'assistant'))}
-        {sum.prepayHours > 0 && row('calendar', `Prepayment for ${rangeLabel(start, end)}`, hours(sum.prepayHours), `${plural(sum.prepayPeople, 'assistant')}, scheduled hours`)}
+        {sum.approvedHours > 0 && row('clock', 'Approved hours', hours(sum.approvedHours), plural(sum.approvedPeople, 'team member'))}
+        {sum.prepayHours > 0 && row('calendar', `Prepayment for ${rangeLabel(start, end)}`, hours(sum.prepayHours), `${plural(sum.prepayPeople, 'team member')}, scheduled hours`)}
         {sum.setupCount > 0 && row('star', plural(sum.setupCount, 'setup fee'), money(sum.setupTotal, cur))}
         {empty
           ? <p className="px-4 py-3 text-[15px] text-muted">Nothing is waiting to bill for this period yet.</p>

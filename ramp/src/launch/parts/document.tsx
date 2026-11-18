@@ -49,7 +49,7 @@ export function PlanDocument({ draft, placement, tz, isVa }: { draft: Draft; pla
   const sched = schedule(agenda, data.run.start);
   const abbr = tzShort(tz, draft.day1 ? zonedInstant(draft.day1, data.run.start, tz) : new Date());
   const st = PLAN_STATUS[draft.status];
-  const vaName = placement.va.name || 'Your assistant';
+  const vaName = placement.va.name || 'Your team member';
   const jump = [{ id: 'day1', label: 'Day 1' }, ...LAUNCH_SECTIONS.map((s) => ({ id: s.id, label: s.label }))];
   const go = (id: string) => document.getElementById(`plan-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 

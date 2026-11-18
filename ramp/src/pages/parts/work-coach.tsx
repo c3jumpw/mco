@@ -8,7 +8,7 @@ import { Avatar, Button, Checkbox, Chip, Field, Icon, Input, Notice, Progress, S
 import { ScoreButtons, ScoreChip, TierChip } from './work-common';
 
 export const KIND_WORDS: Record<Checkin['kind'], { short: string; with: string }> = {
-  va: { short: 'Assistant', with: 'With the assistant' },
+  va: { short: 'Team member', with: 'With the team member' },
   client: { short: 'Client', with: 'With the client' },
 };
 

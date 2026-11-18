@@ -224,7 +224,7 @@ function Review({ draft, setDay1, setStart, placement, tz, onReady, onUnready, g
         <CardHeader title="Readiness check"
           subtitle={r.gaps.length
             ? `${plural(r.gaps.length, 'thing')} still to fill in. You can mark the plan ready anyway and keep editing after.`
-            : 'Everything is filled in. Your assistant is going to have a great start.'} />
+            : 'Everything is filled in. Your team member is going to have a great start.'} />
         {r.gaps.length === 0 && <Notice tone="good" icon="check">All seven sections are complete.</Notice>}
         {bySection.length > 0 && (
           <ul className="flex flex-col divide-y divide-line-2 -mx-1">

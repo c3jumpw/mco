@@ -217,7 +217,7 @@ export function ProjectsStep({ data, set, placementId }: StepProps) {
             <div className="flex flex-col gap-2 rounded-2xl bg-bg p-2.5 sm:p-4 -mx-1 sm:mx-0">
               <div>
                 <p className="font-display text-base font-semibold">Mini objectives</p>
-                <p className="text-sm text-muted leading-relaxed">Break the project into small wins. Give each one quick steps your assistant can follow on their own.</p>
+                <p className="text-sm text-muted leading-relaxed">Break the project into small wins. Give each one quick steps your team member can follow on their own.</p>
               </div>
               <StepsCards items={p.objectives} onChange={(o) => put(p.id, { objectives: o })} noun="objective" titleLabel="Objective"
                 titleEx={OBJ_TITLES} stepEx={OBJ_STEPS} addLabel={p.objectives.length ? 'Add another objective' : 'Add an objective'}

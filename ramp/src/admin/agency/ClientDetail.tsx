@@ -113,12 +113,12 @@ function Detail({ d, reload, setData }: { d: Data; reload: () => Promise<void>; 
         title={<span className="flex items-center gap-3 min-w-0"><Avatar name={client.name} size={48} tone={client.status === 'ended' ? 'ink' : 'brand'} /><span className="min-w-0 break-words">{client.name}</span></span>}
         subtitle={[client.industry, `Billed ${CYCLE_LABEL[client.billing_cycle].toLowerCase()}, ${client.billing_mode === 'advance' ? 'up front' : 'after the work'}`,
           client.net_days ? `invoices due in ${plural(client.net_days, 'day')}` : 'invoices due on receipt'].filter(Boolean).join(' · ')}
-        actions={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client.id })}>Place an assistant</Button>} />
+        actions={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client.id })}>Place a team member</Button>} />
 
       <div className="flex flex-wrap items-center gap-2 -mt-3">
         <ClientStatusChip status={client.status} />
         <span className="text-sm text-muted">
-          {plural(working.length, 'working assistant')} · {money(weekBill, client.currency)} billed and {money(weekMargin, client.currency)} margin a week · {money(balance, client.currency)} open
+          {plural(working.length, 'working team member')} · {money(weekBill, client.currency)} billed and {money(weekMargin, client.currency)} margin a week · {money(balance, client.currency)} open
         </span>
       </div>
 
@@ -128,8 +128,8 @@ function Detail({ d, reload, setData }: { d: Data; reload: () => Promise<void>; 
       {tab === 'placements' && (
         <Card padded={false} className="overflow-hidden">
           {rows.length === 0 ? (
-            <EmptyState icon="link" title="No placements yet" body={`Place a trained assistant with ${client.name}. RAMP sets up the checklist, check-ins and guarantee.`}
-              action={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client.id })}>Place an assistant</Button>} />
+            <EmptyState icon="link" title="No placements yet" body={`Place a trained team member with ${client.name}. RAMP sets up the checklist, check-ins and guarantee.`}
+              action={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client.id })}>Place a team member</Button>} />
           ) : (
             <ul>{rows.map((r) => <PlacementRow key={r.p.id} row={r} showClient={false} />)}</ul>
           )}

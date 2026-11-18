@@ -45,7 +45,7 @@ export default function Launch() {
   const { id = '' } = useParams();
   const { isClient, roles } = useMe();
   const { data, error, reload } = useAsync(() => loadLaunch(id), [id]);
-  useTitle(data ? (data.role === 'va' ? 'Your launch plan' : `Launch plan for ${data.placement.va.name || 'assistant'}`) : 'Launch plan');
+  useTitle(data ? (data.role === 'va' ? 'Your launch plan' : `Launch plan for ${data.placement.va.name || 'team member'}`) : 'Launch plan');
 
   if (error) {
     const back = isClient ? { to: '/client', label: 'Overview' } : roles.work ? { to: '/work', label: 'My work' } : { to: '/', label: 'Home' };
@@ -80,7 +80,7 @@ function LaunchBody({ got }: { got: LaunchGet }) {
   const draftRef = useRef(draft);
   draftRef.current = draft;
   const tz = validTz(placement.client.timezone) ? placement.client.timezone : validTz(org.timezone) ? org.timezone : localTz();
-  const vaFirst = (placement.va.name || '').trim().split(' ')[0] || 'your assistant';
+  const vaFirst = (placement.va.name || '').trim().split(' ')[0] || 'your team member';
 
   // ───────── saving: debounced autosave, one save at a time, skip when nothing changed ─────────
   const lastSaved = useRef(JSON.stringify(draft));
@@ -222,7 +222,7 @@ function LaunchBody({ got }: { got: LaunchGet }) {
   const hidden = role === 'va' && (!got.plan || draft.status === 'preparing');
   const header = (
     <PageHeader eyebrow="Launch plan" back={back}
-      title={role === 'va' ? 'Your launch plan' : placement.va.name || 'Assistant'}
+      title={role === 'va' ? 'Your launch plan' : placement.va.name || 'Team member'}
       subtitle={<>
         {placement.title} at {placement.client.name}
         <span aria-hidden="true"> · </span>

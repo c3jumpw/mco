@@ -9,7 +9,7 @@ import { Button, Card, Checkbox, Chip, EmptyState, Field, Icon, Input, Notice, P
 import { FormError } from '../../parts/ops-common';
 import { ScorePicker, recentScore, scoreText } from './core-common';
 
-const KIND_LABEL: Record<Checkin['kind'], string> = { va: 'With the assistant', client: 'With the client' };
+const KIND_LABEL: Record<Checkin['kind'], string> = { va: 'With the team member', client: 'With the client' };
 
 type SheetState =
   | { mode: 'record'; checkin: Checkin | null; kind: Checkin['kind'] }
@@ -184,7 +184,7 @@ function RecordSheet({ placementId, checkin, kind: kind0, upcoming, assistant, c
           <div className="flex flex-col gap-2">
             <span className="text-[13px] font-semibold text-ink-2">Who was it with?</span>
             <Pills label="Who the check-in was with" value={kind} onChange={setKind}
-              options={[{ value: 'va', label: `The assistant` }, { value: 'client', label: 'The client' }]} />
+              options={[{ value: 'va', label: `The team member` }, { value: 'client', label: 'The client' }]} />
           </div>
         )}
         {scheduled && (
@@ -248,7 +248,7 @@ function ScheduleSheet({ placementId, checkin, kind: kind0, onClose, onDone }: {
         {!checkin && (
           <div className="flex flex-col gap-2">
             <span className="text-[13px] font-semibold text-ink-2">Who is it with?</span>
-            <Pills label="Who the check-in is with" value={kind} onChange={setKind} options={[{ value: 'va', label: 'The assistant' }, { value: 'client', label: 'The client' }]} />
+            <Pills label="Who the check-in is with" value={kind} onChange={setKind} options={[{ value: 'va', label: 'The team member' }, { value: 'client', label: 'The client' }]} />
           </div>
         )}
         <Field label="Due date" required>

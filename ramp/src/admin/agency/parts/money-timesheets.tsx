@@ -145,7 +145,7 @@ export function EntrySheet({ open, onClose, placements, today, prefill, onSaved 
     try {
       await q(supabase.rpc('ramp_timesheet_admin_save', { p_placement: placementId, p_week: week, p_days: r.days, p_notes: notes.trim(), p_approve: approve }));
       const total = r.days.reduce((a, b) => a + b, 0);
-      toast(`${approve ? 'Approved' : 'Saved'} ${hours(total)} for ${ref?.name || 'the assistant'}, ${weekLabel(week)}.`);
+      toast(`${approve ? 'Approved' : 'Saved'} ${hours(total)} for ${ref?.name || 'the team member'}, ${weekLabel(week)}.`);
       onSaved();
       onClose();
     } catch (e) {
@@ -159,14 +159,14 @@ export function EntrySheet({ open, onClose, placements, today, prefill, onSaved 
 
   return (
     <Sheet open={open} onClose={onClose} title="Enter hours for someone"
-      subtitle="Log or correct a week for an assistant, for example when they couldn’t send it themselves."
+      subtitle="Log or correct a week for a team member, for example when they couldn’t send it themselves."
       footer={<>
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="primary" icon="check" loading={saving} disabled={locked || existing.loading} onClick={save}>{approve ? 'Save and approve' : 'Save for approval'}</Button>
       </>}>
-      <Field label="Assistant and placement" required>
+      <Field label="Team member and placement" required>
         <Select value={placementId} onChange={(e) => setPlacementId(e.target.value)}>
-          <option value="">Pick an assistant…</option>
+          <option value="">Pick a team member…</option>
           {byClient.map(([client, list]) => (
             <optgroup key={client} label={client}>
               {list.map((r) => (
@@ -218,7 +218,7 @@ export function EntrySheet({ open, onClose, placements, today, prefill, onSaved 
               </button>
             )}
           </fieldset>
-          <Field label="Notes" hint="Optional. The assistant can see these.">
+          <Field label="Notes" hint="Optional. The team member can see these.">
             <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} placeholder="For example: entered from the client’s report" />
           </Field>
           <div className="flex items-start justify-between gap-4 rounded-2xl border border-line px-4 py-3">
@@ -247,7 +247,7 @@ export function ReturnSheet({ target, onClose, onReturn }:
   useEffect(() => { setNote(''); setErr(''); }, [target]);
   if (!target) return null;
   const submit = async () => {
-    if (!note.trim()) return setErr('Add a note so the assistant knows what to fix.');
+    if (!note.trim()) return setErr('Add a note so the team member knows what to fix.');
     setBusy(true);
     const ok = await onReturn(target.ts, note.trim());
     setBusy(false);
@@ -289,7 +289,7 @@ export function TimesheetSheet({ ts, data, tz, onClose, onApprove, onReturn, onE
         <BillingChips ts={ts} link={link} />
       </div>
       <DaysGrid days={ts.days} total={ts.total} />
-      {ts.notes && <p className="text-[15px] bg-chip rounded-xl px-3.5 py-2.5 whitespace-pre-line"><span className="font-semibold">Assistant’s note: </span>{ts.notes}</p>}
+      {ts.notes && <p className="text-[15px] bg-chip rounded-xl px-3.5 py-2.5 whitespace-pre-line"><span className="font-semibold">Team member’s note: </span>{ts.notes}</p>}
       {ts.review_note && <p className="text-[15px] bg-warn-soft text-warn rounded-xl px-3.5 py-2.5 whitespace-pre-line"><span className="font-semibold">Review note: </span>{ts.review_note}</p>}
       <dl className="text-sm grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
         {ts.submitted_at && <><dt className="text-muted">Sent</dt><dd>{fmtDateTime(ts.submitted_at, tz)}</dd></>}

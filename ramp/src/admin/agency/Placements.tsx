@@ -72,8 +72,8 @@ export default function Placements() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={AGENCY_BACK} eyebrow={EYEBROW} title="Placements"
-        subtitle="Assistants working with your clients: rates, onboarding checklists, check-ins and launch plans."
-        actions={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client !== 'all' ? client : undefined })}>Place an assistant</Button>} />
+        subtitle="Team members working with your clients: rates, onboarding checklists, check-ins and launch plans."
+        actions={<Button variant="primary" icon="plus" onClick={() => setPlace({ clientId: client !== 'all' ? client : undefined })}>Place a team member</Button>} />
 
       {res.error && !res.data && <ErrorBox error={res.error} onRetry={res.reload} />}
       {!res.data && !res.error && <Skeleton rows={6} />}
@@ -81,7 +81,7 @@ export default function Placements() {
       {res.data && (
         <>
           <div className="flex flex-col gap-2">
-            <SearchInput value={search} onChange={setSearch} placeholder="Search by assistant, client or title" label="Search placements" />
+            <SearchInput value={search} onChange={setSearch} placeholder="Search by team member, client or title" label="Search placements" />
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <Select aria-label="Status" value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)}>
                 <option value="open">Not ended ({total - (counts.ended || 0)})</option>
@@ -99,7 +99,7 @@ export default function Placements() {
               </Select>
             </div>
             <p className="text-sm text-muted flex flex-wrap items-center gap-x-2">
-              <span>{plural(rows.length, 'placement')}{working.length ? ` · ${money(weekMargin)} margin a week from ${plural(working.length, 'working assistant')}` : ''}</span>
+              <span>{plural(rows.length, 'placement')}{working.length ? ` · ${money(weekMargin)} margin a week from ${plural(working.length, 'working team member')}` : ''}</span>
               {filtered && <button type="button" onClick={clear} className="min-h-11 px-1 font-semibold text-brand-ink cursor-pointer">Clear filters</button>}
             </p>
           </div>
@@ -107,8 +107,8 @@ export default function Placements() {
           <Card padded={false} className="overflow-hidden">
             {rows.length === 0 ? (
               total === 0
-                ? <EmptyState icon="link" title="No placements yet" body="Place a trained assistant with a client. RAMP sets up their checklist, check-ins and replacement guarantee."
-                  action={<Button variant="primary" icon="plus" onClick={() => setPlace({})}>Place an assistant</Button>} />
+                ? <EmptyState icon="link" title="No placements yet" body="Place a trained team member with a client. RAMP sets up their checklist, check-ins and replacement guarantee."
+                  action={<Button variant="primary" icon="plus" onClick={() => setPlace({})}>Place a team member</Button>} />
                 : <EmptyState icon="search" title="No placements match" body="Try a different search, or clear the filters." action={<Button onClick={clear}>Clear filters</Button>} />
             ) : (
               <ul>{rows.map((r) => <PlacementRow key={r.p.id} row={r} />)}</ul>

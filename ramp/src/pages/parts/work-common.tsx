@@ -14,7 +14,7 @@ export type Audience = 'va' | 'client' | 'coach';
 /** Who owns a step, worded for the person reading it. */
 export function ownerLabel(owner: StepOwner, audience: Audience, vaFirst?: string) {
   if (audience === 'va') return owner === 'va' ? 'You' : owner === 'client' ? 'Your client' : 'Our team';
-  if (audience === 'client') return owner === 'client' ? 'You' : owner === 'va' ? vaFirst || 'Your assistant' : 'Our team';
+  if (audience === 'client') return owner === 'client' ? 'You' : owner === 'va' ? vaFirst || 'Your team member' : 'Our team';
   return STEP_OWNER[owner].label;
 }
 

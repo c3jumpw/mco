@@ -41,7 +41,7 @@ export default function Timesheets() {
     setData((d) => ({ ...d!, timesheets: (d?.timesheets || []).map((t) => (ids.includes(t.id) ? { ...t, status } : t)) }));
   }, [setData]);
 
-  const nameFor = (t: Timesheet) => data.data?.placements.get(t.placement_id)?.name || 'the assistant';
+  const nameFor = (t: Timesheet) => data.data?.placements.get(t.placement_id)?.name || 'the team member';
 
   async function approve(t: Timesheet) {
     setBusy((b) => new Set(b).add(t.id));
@@ -76,7 +76,7 @@ export default function Timesheets() {
     const people = new Set(list.map((t) => t.member_id)).size;
     const ok = await confirm({
       title: `Approve all ${plural(list.length, 'week')} for ${client}?`,
-      body: `Approves ${hours(total)} from ${plural(people, 'assistant')}. Approved hours can go on the next invoice and payout.`,
+      body: `Approves ${hours(total)} from ${plural(people, 'team member')}. Approved hours can go on the next invoice and payout.`,
       action: 'Approve all',
     });
     if (!ok) return;
@@ -103,7 +103,7 @@ export default function Timesheets() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={AGENCY_BACK} eyebrow={AGENCY_EYEBROW} title="Timesheets"
-        subtitle="Approve the hours assistants send, enter hours for anyone, and see which weeks are billed and paid."
+        subtitle="Approve the hours team members send, enter hours for anyone, and see which weeks are billed and paid."
         actions={<Button variant="primary" icon="plus" onClick={() => setEntry({})} disabled={!d}>Enter hours for someone</Button>} />
 
       <div className="overflow-x-auto scrollbar-none -mx-1 px-1">
@@ -166,7 +166,7 @@ function QueueView({ data, today, busy, onApprove, onReturn, onApproveAll, onEdi
       {groups.length === 0 ? (
         <Card>
           <EmptyState icon="check" title="Nothing waiting for approval"
-            body="When assistants send their hours, they show up here for you or the client to approve."
+            body="When team members send their hours, they show up here for you or the client to approve."
             action={<Button icon="plus" onClick={() => onEnter({})}>Enter hours for someone</Button>} />
         </Card>
       ) : groups.map((g) => {
@@ -208,7 +208,7 @@ function QueueRow({ t, ref_, busy, onApprove, onReturn, onEdit }: { t: Timesheet
       <div className="flex items-start gap-3">
         <Avatar name={ref_?.name || '?'} size={40} />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold leading-snug">{ref_?.name || 'Assistant'}</p>
+          <p className="font-semibold leading-snug">{ref_?.name || 'Team member'}</p>
           <p className="text-sm text-muted leading-snug">{ref_?.p.title || 'Placement'} · {weekLabel(t.week_start)}</p>
           {t.submitted_at && <p className="text-xs text-muted mt-0.5">Sent {ago(t.submitted_at)}</p>}
         </div>
@@ -243,7 +243,7 @@ function MissingCard({ data, today, onEnter }: { data: TsData; today: string; on
     <Card padded={false} className="overflow-hidden">
       <div className="px-4 sm:px-5 py-4 border-b border-line">
         <h2 className="font-display text-lg font-semibold">Missing hours for last week</h2>
-        <p className="text-sm text-muted mt-0.5">{weekLabel(lastMon)}. These active placements haven’t sent their hours yet. Remind the assistant, or enter the hours for them.</p>
+        <p className="text-sm text-muted mt-0.5">{weekLabel(lastMon)}. These active placements haven’t sent their hours yet. Remind the team member, or enter the hours for them.</p>
       </div>
       <ul>
         {rows.map(({ r, t }) => (
@@ -384,14 +384,14 @@ function AllView({ data, loading, onOpen, onMore }: { data: TsData; loading: boo
         {rows.length === 0 ? (
           filtered
             ? <EmptyState icon="search" title="No timesheets match" body="Try other filters, or clear them." action={<Button onClick={clear}>Clear filters</Button>} />
-            : <EmptyState icon="clock" title="No timesheets yet" body="Hours show up here once assistants log them, or when you enter them for someone." />
+            : <EmptyState icon="clock" title="No timesheets yet" body="Hours show up here once team members log them, or when you enter them for someone." />
         ) : (
           <>
             <table className="hidden md:table w-full text-[15px]">
               <thead>
                 <tr className="text-left text-[13px] text-muted border-b border-line">
                   <th scope="col" className="font-semibold px-5 py-3">Week</th>
-                  <th scope="col" className="font-semibold px-3 py-3">Assistant</th>
+                  <th scope="col" className="font-semibold px-3 py-3">Team member</th>
                   <th scope="col" className="font-semibold px-3 py-3 text-right">Hours</th>
                   <th scope="col" className="font-semibold px-3 py-3">Status</th>
                   <th scope="col" className="font-semibold px-5 py-3">Billing</th>
@@ -409,7 +409,7 @@ function AllView({ data, loading, onOpen, onMore }: { data: TsData; loading: boo
                         </button>
                       </td>
                       <td className="px-3 py-3">
-                        <p className="font-semibold leading-snug">{r?.name || 'Assistant'}</p>
+                        <p className="font-semibold leading-snug">{r?.name || 'Team member'}</p>
                         <p className="text-sm text-muted leading-snug">{r?.client} · {r?.p.title}</p>
                       </td>
                       <td className="px-3 py-3 text-right tabular-nums font-semibold">{num(t.total)}</td>
@@ -429,7 +429,7 @@ function AllView({ data, loading, onOpen, onMore }: { data: TsData; loading: boo
                     <button type="button" onClick={() => onOpen(t.id)} className="w-full text-left px-4 py-3.5 flex flex-col gap-1.5 cursor-pointer hover:bg-[#FAFBFC]">
                       <span className="flex items-start justify-between gap-3">
                         <span className="min-w-0">
-                          <span className="block font-semibold leading-snug">{r?.name || 'Assistant'}</span>
+                          <span className="block font-semibold leading-snug">{r?.name || 'Team member'}</span>
                           <span className="block text-sm text-muted leading-snug">{r?.client} · {weekLabel(t.week_start)}</span>
                         </span>
                         <span className="font-display text-lg font-bold tabular-nums">{hours(t.total)}</span>

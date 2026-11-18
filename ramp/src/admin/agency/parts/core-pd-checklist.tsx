@@ -12,7 +12,7 @@ const OWNERS: StepOwner[] = ['agency', 'client', 'va'];
 const OWNER_DESC: Record<StepOwner, string> = {
   agency: 'Things we do: agreements, kickoff, explaining hours and pay.',
   client: 'The client ticks these in their portal: access, SOPs, priorities.',
-  va: 'The assistant ticks these on My work: payout details, accounts.',
+  va: 'The team member ticks these on My work: payout details, accounts.',
 };
 
 export const sortSteps = (s: PlacementStep[]) => [...s].sort((a, b) => a.sort - b.sort || a.id.localeCompare(b.id));
@@ -92,7 +92,7 @@ export function ChecklistTab({ placementId, steps, setSteps, nameOf }: {
         <div className="flex flex-wrap items-center gap-3 justify-between">
           <div className="min-w-0">
             <p className="font-display text-lg font-semibold">{ordered.length ? `${done} of ${plural(ordered.length, 'step')} done` : 'No steps yet'}</p>
-            <p className="text-sm text-muted">Everyone on the placement sees this list. The client and the assistant tick their own steps.</p>
+            <p className="text-sm text-muted">Everyone on the placement sees this list. The client and the team member tick their own steps.</p>
           </div>
           <label className="flex items-center gap-2 text-sm font-semibold text-ink-2 cursor-pointer">
             Edit steps
