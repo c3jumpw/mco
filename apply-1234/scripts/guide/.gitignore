@@ -1,2 +1,3 @@
 shots/
 capture/__pycache__/
+capture/*.png
