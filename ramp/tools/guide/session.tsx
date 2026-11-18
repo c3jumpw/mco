@@ -50,7 +50,7 @@ const PRICES = [
 const PLATFORM = { id: true, library_workspace_id: W_MAIN.id, agency_workspace_id: W_MAIN.id, brand_name: 'RAMP', brand_color: '#4338CA',
   default_trial_days: 30, default_seat_limit: 10, workspace_limit: 5, stripe_prices: PRICES, updated_at: ago(3) };
 const REQUESTS = [
-  { id: 'r1', auth_user_id: 'u1', email: 'dana.cruz@brightsmile.example', name: 'Dana Cruz', company: 'Coastal Vet Clinics', phone: '(512) 555-0142', team_size: '6–20',
+  { id: 'r1', auth_user_id: 'u1', email: 'dana.cruz@coastalvet.example', name: 'Dana Cruz', company: 'Coastal Vet Clinics', phone: '(512) 555-0142', team_size: '6–20',
     note: 'We hire 3 to 4 front-desk staff a year and want one place to train them.', status: 'pending', account_id: null, decision_note: '', decided_at: null, decided_by: null, created_at: ago(1) },
   { id: 'r2', auth_user_id: 'u2', email: 'leo.martins@summitroof.example', name: 'Leo Martins', company: 'Summit Roofing', phone: '', team_size: '21–50',
     note: '', status: 'pending', account_id: null, decision_note: '', decided_at: null, decided_by: null, created_at: ago(2) },

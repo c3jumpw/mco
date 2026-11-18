@@ -35,7 +35,8 @@ html { scrollbar-width: none !important; }
 async function startServers(sets) {
   const procs = [];
   for (const data of sets) {
-    const p = spawn(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['vite', '--config', 'tools/guide/vite.config.mjs'], {
+    // Run Vite's own script (not through npx) so stopping the server really ends it.
+    const p = spawn(process.execPath, [path.join(ROOT, 'node_modules/vite/bin/vite.js'), '--config', 'tools/guide/vite.config.mjs'], {
       cwd: ROOT, env: { ...process.env, RAMP_DATA: data, PORT: String(PORTS[data]) }, stdio: ['ignore', 'ignore', 'inherit'],
     });
     procs.push(p);
