@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Loading } from '../ui';
+import { openTour } from './tour/Tour';
 
 // The guide is one self-contained HTML page (built by scripts/guide/build.py), loaded only when
 // someone opens it, and shown in a frame so its styles never mix with the app's.
@@ -24,8 +25,10 @@ export default function Guide() {
   if (!html) return <Loading label="Loading the guide" />;
   return (
     <div className="-mx-4 sm:-mx-6 -mt-6">
-      <div className="h-10 px-4 sm:px-6 flex items-center justify-between border-b border-line text-sm">
-        <span className="text-muted">How to use apply1234</span>
+      <div className="min-h-10 py-1.5 px-4 sm:px-6 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line text-sm">
+        <span className="text-muted mr-auto">How to use apply1234</span>
+        <button onClick={() => openTour('tour')} className="font-medium hover:text-accent">▶ Take the tour</button>
+        <button onClick={() => openTour('new')} className="text-muted hover:text-ink">What’s new</button>
         <button onClick={openTab} className="text-muted hover:text-ink underline underline-offset-2">Open in a new tab ↗</button>
       </div>
       <iframe title="apply1234 guide" srcDoc={html} className="block w-full border-0 h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-8.5rem)]" />

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { openTour } from './tour/Tour';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Template } from '../lib/types';
@@ -55,8 +56,12 @@ export default function Settings({ email }: { email: string }) {
         </Card>
 
         <Card>
-          <SectionTitle sub="Every screen, menu and setting explained with pictures. Share it with new teammates.">Guide</SectionTitle>
-          <Link to="/admin/guide"><Button>Open the guide</Button></Link>
+          <SectionTitle sub="A slide-by-slide tour of every screen, and a full guide with every setting. New teammates see the tour when they first sign in.">Help for your team</SectionTitle>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" onClick={() => openTour('tour')}>▶ Take the tour</Button>
+            <Button onClick={() => openTour('new')}>What’s new</Button>
+            <Link to="/admin/guide"><Button variant="ghost">Open the full guide</Button></Link>
+          </div>
         </Card>
 
         <Card>

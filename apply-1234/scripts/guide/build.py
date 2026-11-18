@@ -44,6 +44,10 @@ def phone(m):
             f'<figcaption class="cap"><span class="n">{n}</span><span><b>{title}</b>{text}</span></figcaption></figure>')
 
 src = (HERE / 'template.html').read_text()
+# The date shown at the top of the guide: GUIDE_DATE=YYYY-MM-DD, or today.
+import datetime, os
+day = datetime.date.fromisoformat(os.environ['GUIDE_DATE']) if os.environ.get('GUIDE_DATE') else datetime.date.today()
+src = src.replace('@@UPDATED@@', f'{day:%B} {day.day}, {day.year}')
 out = re.sub(r'@@SHOT (.+?)@@', shot, src)
 out = re.sub(r'@@PHONE (.+?)@@', phone, out)
 assert '@@' not in out, 'unexpanded placeholder'

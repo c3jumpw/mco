@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { openTour } from './tour/Tour';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Application, Dashboard as Dash, DashDay, HMessage, Job } from '../lib/types';
@@ -47,7 +48,7 @@ export default function Dashboard({ jobs }: { jobs: Job[] }) {
         <div>
           <h1 className="font-display text-4xl sm:text-5xl leading-none">Overview</h1>
           <p className="text-sm text-muted mt-2">Your own test visits are left out. {d?.tz ? `Times in ${d.tz.replace(/_/g, ' ')}.` : ''}{' '}
-            <Link to="/admin/guide" className="underline underline-offset-2 hover:text-ink">New here? Read the guide</Link>
+            <button onClick={() => openTour('tour')} className="underline underline-offset-2 hover:text-ink">New here? Take the tour</button>
           </p>
         </div>
         <Segmented value={days} onChange={setDays} options={PERIODS} />

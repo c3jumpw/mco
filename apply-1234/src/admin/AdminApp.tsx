@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -17,6 +17,7 @@ import { unreadMessages } from './data';
 import { Icon, INBOX_EVENT, PullToRefresh, REFRESH_ICON, useRefresh } from './chrome';
 import { RoleContext, type Role } from './role';
 import ClientApp from './client/ClientApp';
+import { openTour, useTour } from './tour/Tour';
 
 type Gate = 'loading' | 'signed_out' | 'not_admin' | 'admin' | 'editor' | 'client';
 
@@ -59,7 +60,7 @@ export default function AdminApp() {
   if (gate === 'client') return <ClientApp email={session?.user.email || ''} />;
   return (
     <RoleContext.Provider value={gate as Role}>
-      <Shell email={session?.user.email || ''} role={gate as Role} />
+      <Shell email={session?.user.email || ''} role={gate as Role} created={session?.user.created_at} />
     </RoleContext.Provider>
   );
 }
@@ -94,8 +95,9 @@ function Badge({ n, className }: { n: number; className?: string }) {
 // Full-access people see only the parts that work for a single job.
 const EDITOR_NAV = ['/admin', '/admin/candidates'];
 
-function Shell({ email, role }: { email: string; role: Role }) {
+function Shell({ email, role, created }: { email: string; role: Role; created?: string }) {
   const loc = useLocation();
+  const tour = useTour(email, role === 'admin' ? 'admin' : 'editor', created);
   const admin = role === 'admin';
   const unread = useUnread(admin);
   const nav = admin ? NAV : NAV.filter((n) => EDITOR_NAV.includes(n.to));
@@ -122,15 +124,13 @@ function Shell({ email, role }: { email: string; role: Role }) {
             className="ml-auto -mr-3 grid place-items-center h-9 w-9 rounded-lg text-muted hover:text-ink hover:bg-card border border-transparent hover:border-line transition disabled:opacity-100">
             <Icon d={REFRESH_ICON} className={cx('h-[18px] w-[18px]', refreshing && 'animate-spin text-accent')} />
           </button>
-          <NavLink to="/admin/guide"
-            className={({ isActive }) => cx('inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition', isActive ? 'bg-card border border-line font-medium' : 'text-muted hover:text-ink')}>
-            <span className="grid place-items-center h-5 w-5 rounded-full bg-ink text-white text-[11px] font-semibold">?</span>Guide
-          </NavLink>
+          <HelpMenu unseen={tour.unseen} active={loc.pathname.startsWith('/admin/guide')} />
           <span className="text-[12px] text-muted truncate max-w-[30vw] hidden md:block">{email}</span>
           {!admin && <button className="text-[12px] text-muted hover:text-ink underline underline-offset-2" onClick={() => supabase.auth.signOut()}>Sign out</button>}
         </div>
       </header>
       <PullToRefresh onRefresh={refresh} refreshing={refreshing} />
+      {tour.element}
       <main key={nonce} className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         <Routes>
           <Route index element={<Jobs />} />
@@ -157,6 +157,47 @@ function Shell({ email, role }: { email: string; role: Role }) {
           ))}
         </div>
       </nav>
+    </div>
+  );
+}
+
+/** Help: the getting-started tour, What's new and the full guide. */
+function HelpMenu({ unseen, active }: { unseen: boolean; active: boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: MouseEvent | TouchEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', away);
+    document.addEventListener('touchstart', away);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('touchstart', away); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  const item = 'w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-paper-2 transition';
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="menu"
+        className={cx('relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition', active || open ? 'bg-card border border-line font-medium' : 'text-muted hover:text-ink')}>
+        <span className="grid place-items-center h-5 w-5 rounded-full bg-ink text-white text-[11px] font-semibold">?</span>Help
+        {unseen && <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent" aria-label="Something new" />}
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-line bg-card shadow-lg p-1.5 z-30">
+          <button role="menuitem" className={item} onClick={() => { setOpen(false); openTour('tour'); }}>
+            <span aria-hidden className="mt-0.5">▶</span>
+            <span><span className="block text-sm font-medium">Getting-started tour</span><span className="block text-xs text-muted">Every screen in about 3 minutes, slide by slide</span></span>
+          </button>
+          <button role="menuitem" className={item} onClick={() => { setOpen(false); openTour('new'); }}>
+            <span aria-hidden className="mt-0.5">✦</span>
+            <span><span className="block text-sm font-medium">What’s new{unseen && <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-accent align-middle" />}</span><span className="block text-xs text-muted">Recent changes to apply1234</span></span>
+          </button>
+          <NavLink role="menuitem" to="/admin/guide" className={item} onClick={() => setOpen(false)}>
+            <span aria-hidden className="mt-0.5">☰</span>
+            <span><span className="block text-sm font-medium">Full guide</span><span className="block text-xs text-muted">Every setting explained, with pictures</span></span>
+          </NavLink>
+        </div>
+      )}
     </div>
   );
 }
