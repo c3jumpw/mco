@@ -24,17 +24,17 @@ concurrency:
 jobs:
   refresh:
     name: Refresh tour, guide and screenshots
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: the Playwright version below supports it
     timeout-minutes: 30
     defaults:
       run:
         working-directory: vault-leaf
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
