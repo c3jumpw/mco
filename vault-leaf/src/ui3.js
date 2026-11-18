@@ -74,12 +74,12 @@ function renderList(){
     let h;
     if(S.q) h = `<div class="empty"><h2>No matches</h2><p>Nothing matches “${esc(S.q)}”${S.filter !== 'all' ? ' in ' + esc(filterTitle()) : ''}.</p><button class="btn" data-act="clearq">Clear search</button></div>`;
     else if(S.filter === 'trash') h = `<div class="empty"><h2>Nothing deleted</h2><p>Accounts you delete stay here for 30 days.</p></div>`;
-    else if(!total) h = `<div class="empty">${MARK(52)}<h2>Your vault is empty</h2><p>Add your first account, or bring over the notes you keep your passwords in now.</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="new">${ic('plus','s')}Add an account</button><button class="btn" data-act="import-notes">${ic('import','s')}Import from Notes</button></div></div>`;
+    else if(!total) h = `<div class="empty">${MARK(52)}<h2>Your vault is empty</h2><p>Add your first account, or bring over the notes you keep your passwords in now.</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="new">${ic('plus','s')}Add an account</button><button class="btn" data-act="import-notes">${ic('import','s')}Import from Notes</button>${TOUR ? tourBtn('btn', 'Take the tour') : ''}</div></div>`;
     else h = `<div class="empty"><h2>Nothing here yet</h2><p>No accounts ${S.filter === 'fav' ? 'are marked as favorites' : 'have this label'}.</p></div>`;
     el.innerHTML = h; return;
   }
   const exN = V().accounts.filter(a => a.example && !a.trashedAt).length;
-  const banner = exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '';
+  const banner = (S.filter === 'all' && !S.q ? nudgeHTML() : '') + (exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '');
   if(view() === 'classic'){
     const s = V().settings.sort, grouped = s === 'updated' || s === 'created';
     let last = null, out = '';
@@ -113,7 +113,7 @@ function renderDetail(){
   const d = $('#detail'); if(!d) return;
   if(S.mode === 'new' || S.mode === 'edit'){ d.innerHTML = S.editKind === 'note' ? classicEditorHTML() : editorHTML(); afterEditorRender(); return; }
   const a = S.selId && acct(S.selId);
-  if(!a){ d.innerHTML = `<div class="detail-empty">${MARK(64)}<p>${V().accounts.some(x => !x.trashedAt) ? 'Pick an account to open it.' : 'Your accounts will open here.'}</p><p class="hint">Press <kbd>/</kbd> to search, <kbd>N</kbd> to add.</p>${guideLink('btn small', 'New here? Open the guide')}</div>`; return; }
+  if(!a){ d.innerHTML = `<div class="detail-empty">${MARK(64)}<p>${V().accounts.some(x => !x.trashedAt) ? 'Pick an account to open it.' : 'Your accounts will open here.'}</p><p class="hint">Press <kbd>/</kbd> to search, <kbd>N</kbd> to add.</p>${tourBtn('btn small', TOUR ? 'New here? Take the tour' : 'New here? Open the guide')}</div>`; return; }
   d.innerHTML = view() === 'classic' ? classicDetailHTML(a) : detailHTML(a);
   tickTotp();
 }

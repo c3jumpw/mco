@@ -10,7 +10,7 @@ function authShell(inner){
       </ul>
     </aside>
     <div><div class="auth-brand">${MARK(36)}<span class="wordmark">Vaultleaf</span></div>
-    <div class="auth-main"><div class="auth-card">${inner}<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a></div></div></div></div>`;
+    <div class="auth-main"><div class="auth-card">${inner}${TOUR ? `<button class="btn ghost small" style="justify-self:center" data-act="tour">${ic('question','s')}How Vaultleaf works</button>` : `<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a>`}</div></div></div></div>`;
 }
 const rkHTML = rk => String(rk).split('-').map((g, i, arr) => `<span>${esc(g)}${i < arr.length - 1 ? '-' : ''}</span>`).join('<wbr>');
 const stepsBar = (n, total = 4) => `<div class="steps" aria-label="Step ${n} of ${total}">${Array.from({length:total}, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -205,6 +205,7 @@ async function openWith(raw, header, opts = {}){
   await persist();
   if(syncOn()){ await pushNow(); watchCloud(); syncFiles(); }
   if(S.syncGoneNote){ S.syncGoneNote = false; toast('This vault stopped syncing: sync was turned off or given a new code on another device', 'cloud'); }
+  tourAfterUnlock(!!opts.fresh);
   if(opts.after) opts.after();
   if(purged) toast(`Cleared ${purged} account${purged === 1 ? '' : 's'} deleted over 30 days ago`, 'trash');
   if(opts.toast) toast(opts.toast);
@@ -228,7 +229,7 @@ async function finishSetup(){
   guard.reset();
   const dekRaw = st.dekRaw, header = st.header, vault = S.vault;
   S.setup = null;
-  await openWith(dekRaw, header, {vault, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
+  await openWith(dekRaw, header, {vault, fresh:true, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
 }
 async function finishReset(){
   const st = S.setup; st.busy = true; render();

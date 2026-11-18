@@ -1,0 +1,89 @@
+{
+  "version": "1.2",
+  "releases": [
+    {"version": "1.0", "date": "2026-10-30", "title": "First release", "summary": "Encrypted vault with Classic and Modern views, 2FA codes, history, generator, health, backups and the illustrated guide."},
+    {"version": "1.1", "date": "2026-11-08", "title": "Sync, Face ID, files and emergency kits", "summary": "Sync between devices with a sync code, Face ID and fingerprint unlock, leaked password check, encrypted file attachments and emergency kits."},
+    {"version": "1.2", "date": "2026-11-18", "title": "Guided tour", "summary": "A step-by-step tour for everyday use and for admins, a What's new tour after each update, and screenshots that refresh automatically with every release."}
+  ],
+  "features": [
+    {"id": "setup", "name": "Set up a vault with a password, then a passcode", "since": "1.0", "guide": "start"},
+    {"id": "recovery", "name": "Recovery key", "since": "1.0", "guide": "start"},
+    {"id": "lock", "name": "Unlock, lock and auto-lock", "since": "1.0", "guide": "unlock"},
+    {"id": "layout", "name": "Main screen: sections, labels, search and quick copy", "since": "1.0", "guide": "tour", "covers": ["Vault"]},
+    {"id": "account", "name": "Open an account: copy, show, open the website, 2FA codes", "since": "1.0", "guide": "account"},
+    {"id": "history", "name": "History, old passwords and copy records", "since": "1.0", "guide": "account"},
+    {"id": "views", "name": "Classic notes view and Modern card view", "since": "1.0", "guide": "views"},
+    {"id": "notes-editor", "name": "Write an account as a note", "since": "1.0", "guide": "views"},
+    {"id": "add", "name": "Add accounts from templates", "since": "1.0", "guide": "add"},
+    {"id": "fields", "name": "Keys, secret phrases, security questions and admins", "since": "1.0", "guide": "add"},
+    {"id": "labels", "name": "Labels and sub-labels", "since": "1.0", "guide": "labels"},
+    {"id": "import", "name": "Import from Notes or a CSV file", "since": "1.0", "guide": "import"},
+    {"id": "generator", "name": "Password generator", "since": "1.0", "guide": "generator", "covers": ["Generator"]},
+    {"id": "health", "name": "Password health", "since": "1.0", "guide": "health", "covers": ["Health"]},
+    {"id": "activity", "name": "Activity", "since": "1.0", "guide": "activity", "covers": ["Activity"]},
+    {"id": "settings", "name": "Settings", "since": "1.0", "guide": "settings", "covers": ["Settings", "Your account", "Security", "Appearance", "Delete this vault"]},
+    {"id": "backup", "name": "Encrypted backups and restore", "since": "1.0", "guide": "backup", "covers": ["Backup", "Sync and backup", "Import and export"]},
+    {"id": "trash", "name": "Recently deleted", "since": "1.0", "guide": "backup"},
+    {"id": "home-screen", "name": "Home screen and offline use", "since": "1.0", "guide": "phone"},
+    {"id": "sync", "name": "Sync between devices", "since": "1.1", "guide": "sync", "covers": ["Sync between devices"]},
+    {"id": "biometric", "name": "Face ID and fingerprint unlock", "since": "1.1", "guide": "biometric"},
+    {"id": "leaks", "name": "Leaked password check", "since": "1.1", "guide": "health", "covers": ["Leaked passwords"]},
+    {"id": "files", "name": "Attached files", "since": "1.1", "guide": "files"},
+    {"id": "emergency", "name": "Emergency kit", "since": "1.1", "guide": "emergency", "covers": ["Emergency access"]},
+    {"id": "tour", "name": "Guided tour and What's new", "since": "1.2", "guide": "whats-new", "covers": ["Guide"]},
+    {"id": "admin-role", "name": "What admins do", "since": "1.0", "guide": "admins", "admin": true},
+    {"id": "admin-access", "name": "Choose who can open the site", "since": "1.0", "guide": "admins", "admin": true},
+    {"id": "admin-publish", "name": "Publish an update and roll back", "since": "1.0", "guide": "admins", "admin": true},
+    {"id": "admin-storage", "name": "Look after sync storage", "since": "1.1", "guide": "admins", "admin": true},
+    {"id": "admin-support", "name": "Help someone who's locked out or changing devices", "since": "1.0", "guide": "admins", "admin": true},
+    {"id": "admin-docs", "name": "Tour and guide refresh automatically", "since": "1.2", "guide": "admins", "admin": true}
+  ],
+  "tracks": {
+    "everyone": {
+      "title": "Everyday use",
+      "desc": "Set up, find and copy passwords, organize, and keep everything safe.",
+      "slides": [
+        {"id": "welcome", "chapter": "Get started", "feature": "layout", "title": "Your passwords, on locked pages", "text": "Vaultleaf keeps every account on its own page, encrypted on your device before anything is saved. This tour takes about three minutes. Use the arrows, swipe, or press the arrow keys.", "desk": "d_main", "phone": "p_list", "marks": false},
+        {"id": "setup", "chapter": "Get started", "feature": "setup", "title": "Set up: a password, then a passcode", "text": "Choose a master password of at least 10 characters, then a 4, 6 or 8 digit passcode. Together they unlock your vault.", "points": ["A few random words make a strong password. Tap Suggest a passphrase if you like.", "Use a passcode that isn't your phone's code."], "desk": "p_setup_3", "phone": "p_setup_3"},
+        {"id": "recovery", "chapter": "Get started", "feature": "recovery", "title": "Save your recovery key", "text": "If you ever forget your password or passcode, this key is the only way back in. Nobody can reset your vault for you, not even an admin.", "points": ["Copy or download it, then keep it away from this device.", "You can make a new one later in Settings."], "desk": "p_setup_4", "phone": "p_setup_4"},
+        {"id": "unlock", "chapter": "Get started", "feature": "lock", "title": "Unlock, and it locks itself", "text": "Each time, type your password, then your passcode on the keypad. Vaultleaf locks after 5 minutes without activity, or when it's in the background for a minute.", "points": ["After 5 wrong tries you wait 30 seconds, then longer.", "Lock any time with the lock button."], "desk": "p_login2", "phone": "p_login2"},
+        {"id": "biometric", "chapter": "Get started", "feature": "biometric", "title": "Face ID or fingerprint", "text": "Turn it on in Settings, under Security, to unlock without typing on this device. Your password and passcode are still asked for every 14 days.", "desk": "d_security", "phone": "p_login1"},
+        {"id": "layout", "chapter": "Find and use accounts", "feature": "layout", "title": "Find your way around", "text": "Sections are on the left on a computer and at the bottom on a phone. Search finds names, usernames, emails, websites, labels and notes. Type #work to filter by a label.", "desk": "d_main", "phone": "p_list"},
+        {"id": "account", "chapter": "Find and use accounts", "feature": "account", "title": "Copy, show and open", "text": "Tap any line to copy it. The eye shows a hidden value and hides it again after 30 seconds. 2FA codes update every 30 seconds, ready to copy.", "desk": "d_detail", "phone": "p_detail"},
+        {"id": "history", "chapter": "Find and use accounts", "feature": "history", "title": "Every change and copy is recorded", "text": "Each account keeps its date stored, last edit, when the password was set, every copy with its time, and the old passwords and keys you replaced.", "desk": "d_history", "phone": "d_history"},
+        {"id": "views", "chapter": "Find and use accounts", "feature": "views", "title": "Classic notes, or Modern cards", "text": "Classic looks like the notes app you keep passwords in now: folders, notes by date, one detail per line. Modern shows cards with copy buttons. Switch with the two icons above the list.", "desk": "d_classic", "phone": "p_note"},
+        {"id": "notes-editor", "chapter": "Add and organize", "feature": "notes-editor", "title": "Write an account like a note", "text": "In Classic view, Add and Edit open a plain text page. The first line is the name, then one Label: value per line. Vaultleaf turns the lines into fields and hides passwords, PINs and keys.", "desk": "d_classic_edit", "phone": "d_classic_edit"},
+        {"id": "add", "chapter": "Add and organize", "feature": "add", "title": "Add an account", "text": "Pick what it is, like a website login, crypto wallet or bank card, and the right fields are ready. Generate fills in a strong password.", "desk": "d_editor", "phone": "d_templates"},
+        {"id": "fields", "chapter": "Add and organize", "feature": "fields", "title": "Keys, phrases, questions and admins", "text": "Add PINs, API keys, secret phrases and 2FA setup keys, security questions with hidden answers, and the people who manage the account with their emails and roles.", "desk": "d_editor2", "phone": "d_editor2"},
+        {"id": "labels", "chapter": "Add and organize", "feature": "labels", "title": "Labels and sub-labels", "text": "Labels work like folders, but an account can have several. Type Work/Cloud to make a sub-label. Picking a parent shows everything inside it.", "desk": "d_label", "phone": "d_editor3"},
+        {"id": "import", "chapter": "Add and organize", "feature": "import", "title": "Bring over your notes", "text": "Paste your notes into Settings, Import from Notes. Put a line with --- between notes to bring many at once. CSV files from browsers and other managers work too.", "desk": "d_import", "phone": "d_import"},
+        {"id": "files", "chapter": "Add and organize", "feature": "files", "title": "Attach files", "text": "Keep ID scans, recovery sheets or contracts on the account they belong to. Each file is encrypted, up to 5 MB, and syncs with the rest.", "desk": "d_files", "phone": "d_files"},
+        {"id": "generator", "chapter": "Stay safe", "feature": "generator", "title": "Make strong passwords", "text": "Random characters or real-word passphrases, with a strength rating. Use for an account puts the new password straight into an account.", "desk": "d_generator", "phone": "d_generator"},
+        {"id": "health", "chapter": "Stay safe", "feature": "health", "title": "Password health", "text": "Health points out weak, reused and overdue passwords. Tap one to open the account and change it.", "desk": "d_health", "phone": "p_health"},
+        {"id": "leaks", "chapter": "Stay safe", "feature": "leaks", "title": "Check for leaked passwords", "text": "On the Health page, Check my passwords looks for each one in public breach lists. Only 5 characters of a scrambled fingerprint are sent, never the password.", "desk": "d_health", "phone": "d_health"},
+        {"id": "activity", "chapter": "Stay safe", "feature": "activity", "title": "Activity", "text": "Every copy and change across all accounts, with the time. Tap an event to open its account.", "desk": "d_activity", "phone": "d_activity"},
+        {"id": "settings", "chapter": "Stay safe", "feature": "settings", "title": "Settings", "text": "Change your password, passcode or recovery key, choose when Vaultleaf locks, and pick the view and theme.", "desk": "d_settings", "phone": "p_settings"},
+        {"id": "sync", "chapter": "Across devices", "feature": "sync", "title": "Sync your phone and computer", "text": "Turn on sync in Settings and copy your sync code. On the other device, choose Use my vault from another device, paste the code and unlock as usual.", "points": ["Only encrypted data is uploaded.", "Edits on two devices are combined."], "desk": "d_synccode", "phone": "p_link"},
+        {"id": "backup", "chapter": "Across devices", "feature": "backup", "title": "Back up", "text": "Settings, Back up saves an encrypted file you can keep anywhere. Restore it on any device with the password and passcode you had, or your recovery key.", "desk": "d_backup", "phone": "d_backup"},
+        {"id": "trash", "chapter": "Across devices", "feature": "trash", "title": "Recently deleted", "text": "Deleted accounts stay here for 30 days, so you can restore them.", "desk": "d_trash", "phone": "d_trash"},
+        {"id": "emergency", "chapter": "Across devices", "feature": "emergency", "title": "Emergency kit for someone you trust", "text": "Make a file with everything, or only some labels, that opens with its own code. Give the file and the code to your trusted person separately.", "desk": "d_kit_builder", "phone": "d_kit_made"},
+        {"id": "home-screen", "chapter": "Across devices", "feature": "home-screen", "title": "Put it on your home screen", "text": "On iPhone, open Vaultleaf in Safari, tap Share, then Add to Home Screen. On Android, use Chrome's menu, then Install app. It then opens full screen and works offline.", "desk": "p_list", "phone": "p_list", "marks": false},
+        {"id": "tour", "chapter": "Across devices", "feature": "tour", "title": "Find this tour again", "text": "Take the tour any time from Settings or the Guide. After each update, What's new shows only what changed. The full illustrated guide has every detail.", "desk": "d_settings", "phone": "p_settings"}
+      ]
+    },
+    "admin": {
+      "title": "For admins",
+      "desc": "Run the Vaultleaf website: access, updates, sync storage and helping people.",
+      "slides": [
+        {"id": "a-role", "chapter": "Your role", "feature": "admin-role", "title": "You run the website, not the vaults", "text": "Admins look after the Vaultleaf site on Vercel, its code on GitHub and its sync storage on Supabase. Every vault stays with its owner: nobody, including you, can see or reset one.", "desk": "a_role", "phone": "a_role", "marks": false},
+        {"id": "a-access", "chapter": "Your role", "feature": "admin-access", "title": "Choose who can open the site", "text": "In Vercel, open mco-vault-leaf, then Settings, then Deployment Protection. With Vercel Authentication on, only people in your Vercel team can open the site. Off, anyone with the link can, and each gets their own empty vault.", "desk": "a_access", "phone": "a_access", "marks": false},
+        {"id": "a-publish", "chapter": "Updates", "feature": "admin-publish", "title": "Publish an update", "text": "Change the source in vault-leaf/src of c3jumpw/mco and push to main. Vercel deploys it, and the docs workflow then retakes every screenshot and rebuilds this tour and the guide.", "desk": "a_publish", "phone": "a_publish", "marks": false},
+        {"id": "a-rollback", "chapter": "Updates", "feature": "admin-publish", "title": "Roll back if something breaks", "text": "In Vercel, open the project's Deployments, pick the last good one and choose Instant Rollback. People's saved data is never touched by updates or rollbacks.", "desk": "a_rollback", "phone": "a_rollback", "marks": false},
+        {"id": "a-storage", "chapter": "Sync storage", "feature": "admin-storage", "title": "Look after sync storage", "text": "Synced vaults sit encrypted in the MKC-Admin Supabase project, tables vaultleaf_vaults and vaultleaf_blobs. You can see how many sync and their size, never their contents. Deleting a row stops that vault's sync.", "desk": "a_storage", "phone": "a_storage", "marks": false},
+        {"id": "a-locked", "chapter": "Helping people", "feature": "admin-support", "title": "Someone forgot their password", "text": "They choose Forgot your password or passcode on the unlock screen and enter their recovery key. Without it, a recent backup file is the only way back. You can't reset a vault.", "desk": "p_recover", "phone": "p_recover"},
+        {"id": "a-device", "chapter": "Helping people", "feature": "admin-support", "title": "Someone has a new phone", "text": "With sync on, they open Vaultleaf on the new phone, choose Use my vault from another device and enter the sync code from Settings on their old device. Without sync, they restore a backup file.", "desk": "d_restore", "phone": "p_link"},
+        {"id": "a-docs", "chapter": "Keeping docs current", "feature": "admin-docs", "title": "This tour updates itself", "text": "Each push that changes Vaultleaf runs a GitHub workflow that rebuilds the app, retakes every screenshot, rebuilds the tour and guide, and fails if a new feature has no slide or guide section.", "desk": "a_docs", "phone": "a_docs", "marks": false}
+      ]
+    }
+  }
+}

@@ -4,6 +4,8 @@ from playwright.async_api import async_playwright
 from PIL import Image
 import sys; sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from mocks import add_mocks, add_authenticator
+from admin_art import ART
+import samples
 
 U = 'http://localhost:8765/'  # localhost, not an IP, so passkeys work
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -11,8 +13,15 @@ OUT = ROOT / 'guide' / 'img'; OUT.mkdir(parents=True, exist_ok=True)
 META = {}
 PW = 'Copper-Lantern-Meadow-42'; PC = '135790'
 
+async def wait_js(pg, expr, timeout=10):
+    """Poll a JS expression (the app's CSP blocks Playwright's eval-based wait_for_function)."""
+    for _ in range(int(timeout * 20)):
+        if await pg.evaluate(expr): return
+        await pg.wait_for_timeout(50)
+    raise TimeoutError('timed out waiting for ' + expr)
+
 async def shot(pg, name, marks=(), clip=None, q=80):
-    await pg.evaluate("document.getElementById('toasts').innerHTML=''")
+    await pg.evaluate("(document.getElementById('toasts') || {}).innerHTML = ''")
     await pg.wait_for_timeout(250)
     vp = pg.viewport_size
     if clip:
@@ -62,6 +71,9 @@ async def setup(pg, name='Alex Morgan', email='alex@example.com', snap=None):
     await pg.wait_for_selector('.modal .rk', timeout=15000); await pg.wait_for_timeout(400)
     if not snap: await shot(pg, 'd_synccode', [('.modal .rk', 1, 'Code'), ('[data-act="sync-copy"]', 2, 'Copy', 2)], clip='.modal')
     await pg.click('.modal [data-act="mclose"]'); await pg.wait_for_timeout(1500)
+    await pg.wait_for_selector('.tour-nudge')
+    if not snap: await shot(pg, 'd_nudge', [('.tour-nudge [data-act="tour"]', 1, 'Take the tour', 2), ('.tour-nudge [data-act="tour-dismiss"]', 2, 'Dismiss', 2)], clip='#list .tour-nudge')
+    await pg.click('[data-act="tour-dismiss"]')
 
 async def stage(pg):
     """Add realistic accounts and history, then clear the example flags so the banner doesn't show."""
@@ -154,11 +166,17 @@ async def desktop(b):
     await pg.click('.side-nav [data-v="activity"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'd_activity', [('.page .seg', 1, 'Filter'), ('.page .log li', 2, 'Event'), ('.page .log li .when', 3, 'Time', 2)])
     await pg.click('.side-nav [data-v="settings"]'); await pg.wait_for_timeout(300)
-    await shot(pg, 'd_settings', [('.page > .banner', 1, 'Guide'), ('#p-name', 2, 'Profile'), ('[data-act="m-chpw"]', 3, 'Password', 2), ('[data-act="m-chpc"]', 4, 'Passcode', 2), ('[data-act="m-newrk"]', 5, 'Recovery key', 2), ('#set-settings-autoLockMin', 6, 'Auto-lock', 2)])
+    await shot(pg, 'd_settings', [('.page > .banner', 1, 'Tour and guide'), ('#p-name', 2, 'Profile'), ('[data-act="m-chpw"]', 3, 'Password', 2), ('[data-act="m-chpc"]', 4, 'Passcode', 2), ('[data-act="m-newrk"]', 5, 'Recovery key', 2), ('#set-settings-autoLockMin', 6, 'Auto-lock', 2)])
     await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('[data-act=\"m-backup\"]').closest('.panel').offsetTop - 120"); await pg.wait_for_timeout(200)
     await shot(pg, 'd_settings2', [('[data-act="m-backup"]', 1, 'Back up', 2), ('[data-act="m-restore"]', 2, 'Restore', 2), ('.page [data-act="import-notes"]', 3, 'Import notes', 2), ('[data-act="import-csv"]', 4, 'Import CSV', 2), ('[data-act="m-export"]', 5, 'Export', 2)])
     await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('.labels-tree').closest('.panel').offsetTop - 260"); await pg.wait_for_timeout(200)
     await shot(pg, 'd_settings3', [('.page [data-act="theme"][data-v="auto"]', 1, 'Theme', 2), ('.labels-tree', 2, 'Labels'), ('.labels-tree [data-act="label-edit"]', 3, 'Edit label', 2)])
+    await pg.click('.page > .banner [data-act="tour"]'); await pg.wait_for_selector('.tour-track'); await pg.wait_for_timeout(300)
+    await shot(pg, 'd_tour', [('[data-act="tour-go"][data-v="everyone"]', 1, 'Everyday use', 2), ('[data-act="tour-go"][data-v="admin"]', 2, 'For admins', 2), ('[data-act="tour-go"][data-v="new"]', 3, "What's new", 2), ('.tour-pick-f button', 4, 'Full guide', 4)])
+    await pg.click('[data-act="tour-go"][data-v="everyone"]'); await pg.click('[data-act="tour-next"]'); await pg.click('[data-act="tour-next"]'); await pg.click('[data-act="tour-next"]'); await pg.click('[data-act="tour-next"]'); await pg.click('[data-act="tour-next"]')
+    await wait_js(pg, "document.querySelector('.tour-fig img') && document.querySelector('.tour-fig img').complete"); await pg.wait_for_timeout(300)
+    await shot(pg, 'd_tour_slide', [('#tour-chap', 1, 'Chapters', 2), ('.tour-fig', 2, 'Screenshot', 0), ('.tour-legend', 3, 'Callouts', 4), ('.tour-prog', 4, 'Progress', 6), ('[data-act="tour-next"]', 5, 'Next', 2)])
+    await pg.click('[data-act="tour-close"]')
     await pg.click('[data-act="m-chpw"]'); await pg.wait_for_selector('#cp-pw')
     await shot(pg, 'd_chpw', [('#cp-pw', 1, 'Current'), ('#cp-pc', 2, 'Passcode'), ('#cp-new', 3, 'New')], clip='.modal')
     await pg.click('[data-act="mclose"]')
@@ -220,7 +238,12 @@ async def phone(b):
     await shot(pg, 'p_health')
     await pg.tap('#bnav [data-v="settings"]'); await pg.wait_for_timeout(300)
     await pg.tap('#s-bio'); await pg.wait_for_timeout(2500); await pg.evaluate("document.getElementById('page').scrollTop = 0"); await pg.wait_for_timeout(200)
-    await shot(pg, 'p_settings', [('.page [data-act="lock"]', 1, 'Lock', 2), ('.page > .banner', 2, 'Guide')])
+    await shot(pg, 'p_settings', [('.page [data-act="lock"]', 1, 'Lock', 2), ('.page > .banner', 2, 'Tour and guide')])
+    await pg.tap('.page > .banner [data-act="tour"]'); await pg.tap('[data-act="tour-go"][data-v="everyone"]')
+    for _ in range(6): await pg.tap('[data-act="tour-next"]')
+    await wait_js(pg, "document.querySelector('.tour-fig img') && document.querySelector('.tour-fig img').complete"); await pg.wait_for_timeout(300)
+    await shot(pg, 'p_tour', [('.tour-fig', 1, 'Screenshot', 0), ('[data-act="tour-prev"]', 2, 'Back', 2), ('[data-act="tour-next"]', 3, 'Next or swipe', 2)])
+    await pg.tap('[data-act="tour-close"]')
     await pg.tap('.page [data-act="lock"]')
     await pg.wait_for_selector('#l-pw'); await pg.fill('#l-pw', PW)
     await shot(pg, 'p_login1', [('#l-pw', 1, 'Password'), ('[data-act="l-bio"]', 2, 'Face ID', 2), ('[data-act="go-recover"]', 3, 'Forgot', 2)])
@@ -232,9 +255,20 @@ async def phone(b):
     await shot(pg, 'p_recover', [('#r-key', 1, 'Key'), ('[data-act="r-go"]', 2, 'Check', 2)])
     await ctx.close()
 
+async def admin_art(b):
+    ctx = await b.new_context(viewport={'width': 1280, 'height': 800}, device_scale_factor=1.5)
+    pg = await ctx.new_page()
+    await pg.route(U + '__admin-art/*', lambda r: r.fulfill(status=200, content_type='text/html', body=ART[r.request.url.rsplit('/', 1)[1]]))
+    for name in ART:
+        await pg.goto(U + '__admin-art/' + name); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(150)
+        await shot(pg, name, q=82)
+    await ctx.close()
+
 async def main():
+    samples.card(); samples.pdf()
     async with async_playwright() as p:
         b = await p.chromium.launch()
+        await admin_art(b)
         await desktop(b)
         await phone(b)
         await b.close()

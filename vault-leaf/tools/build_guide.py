@@ -3,6 +3,7 @@ import json, pathlib, html, datetime
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 M = json.loads((ROOT / 'tools' / 'shots.json').read_text())
 e = html.escape
+TOUR = json.loads((ROOT / 'src' / 'tour.json').read_text())
 UPDATED = datetime.date.today().strftime('%B %-d, %Y')
 
 LEG = {
@@ -29,7 +30,7 @@ LEG = {
  'd_kit_made': {1:'<b>Emergency code.</b> Shown only once. Write it down.', 2:'<b>Download the kit</b> file to give or store.', 3:'<b>Copy the code</b> if you keep it in another safe place.'},
  'p_link': {1:'<b>Sync code</b> from your other device. Dashes and spaces are optional.', 2:'<b>Find my vault,</b> then unlock it with your usual password and passcode.'},
  'd_activity': {1:'<b>Filter:</b> everything, copies only, or changes only.', 2:'<b>Each event</b> shows what happened and to which account. Click to open it.', 3:'<b>Time.</b> Hover for the full date.'},
- 'd_settings': {1:'<b>Guide.</b> Opens this page inside Vaultleaf.', 2:'<b>Name and email,</b> printed on your backups.', 3:'<b>Change master password.</b>', 4:'<b>Change passcode.</b>', 5:'<b>New recovery key.</b> The old key stops working.', 6:'<b>Security choices</b> such as auto-lock. See the table below.'},
+ 'd_settings': {1:'<b>Tour and guide.</b> Take the step-by-step tour, or open this page inside Vaultleaf.', 2:'<b>Name and email,</b> printed on your backups.', 3:'<b>Change master password.</b>', 4:'<b>Change passcode.</b>', 5:'<b>New recovery key.</b> The old key stops working.', 6:'<b>Security choices</b> such as auto-lock. See the table below.'},
  'd_settings2': {1:'<b>Back up</b> to an encrypted file.', 2:'<b>Restore</b> from a backup file.', 3:'<b>Import from Notes.</b>', 4:'<b>Import a CSV</b> from another password manager or browser.', 5:'<b>Export as CSV.</b> Not encrypted.'},
  'd_settings3': {1:'<b>Theme:</b> Auto follows your device, or choose Light or Dark.', 2:'<b>Labels,</b> with sub-labels indented and counts.', 3:'<b>Edit</b> to rename, recolor, move or delete a label.'},
  'd_chpw': {1:'<b>Current master password.</b>', 2:'<b>Current passcode.</b>', 3:'<b>New password</b> with a strength meter.'},
@@ -46,7 +47,11 @@ LEG = {
  'p_recover': {1:'<b>Recovery key.</b> Dashes and spaces are optional.', 2:'<b>Check key,</b> then choose a new password and passcode.'},
  'p_detail': {1:'<b>Back</b> to the list.', 2:'<b>Secret phrases</b> appear as a numbered word grid.', 3:'<b>Hide or copy.</b>'},
  'p_note': {1:'<b>Name</b> of the account.', 2:'<b>Tap the dots</b> to show a hidden value.'},
- 'p_settings': {1:'<b>Lock</b> from any page.', 2:'<b>Guide</b> link.'},
+ 'p_settings': {1:'<b>Lock</b> from any page.', 2:'<b>Tour and guide.</b>'},
+ 'd_tour': {1:'<b>Everyday use:</b> setting up, finding and copying, organizing, staying safe and using more than one device.', 2:'<b>For admins:</b> running the website, publishing updates, sync storage and helping people.', 3:'<b>What\'s new:</b> only what changed in recent updates.', 4:'<b>The full guide,</b> this page.'},
+ 'd_tour_slide': {1:'<b>Chapters.</b> Jump to any part of the tour.', 2:'<b>A real screenshot</b> with numbered callouts.', 3:'<b>What each number points to.</b>', 4:'<b>Progress</b> through this tour.', 5:'<b>Next.</b> Arrow keys work too, and Esc closes the tour.'},
+ 'p_tour': {1:'<b>Screenshot</b> of the phone screen for this step.', 2:'<b>Back.</b>', 3:'<b>Next,</b> or swipe left and right.'},
+ 'd_nudge': {1:'<b>Take the tour</b> or see what\'s new.', 2:'<b>Dismiss.</b> It won\'t show again until the next update.'},
  'p_classic': {1:'<b>Date group.</b>', 2:'<b>A note.</b> Tap to open it.'},
 }
 
@@ -85,10 +90,10 @@ body.append(sec('roles', 'Who does what', f'''
 <div class="roles">
   <div class="role"><div class="role-ic">{''}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 1 0 0 8zM4.5 21a7.5 7.5 0 0 1 15 0"/></svg></div>
     <h3>Everyone</h3><p>Anyone who opens Vaultleaf gets their own private vault in their own browser. They set their own password and passcode and manage their own accounts.</p>
-    <ul class="ticks"><li><a href="#start">Set up and unlock</a></li><li><a href="#tour">Find, copy and edit accounts</a></li><li><a href="#views">Use the Classic notes view</a></li><li><a href="#sync">Sync your phone and computer</a></li><li><a href="#backup">Back up, and make an emergency kit</a></li></ul></div>
+    <ul class="ticks"><li><a href="#start">Set up and unlock</a></li><li><a href="#tour">Find, copy and edit accounts</a></li><li><a href="#views">Use the Classic notes view</a></li><li><a href="#sync">Sync your phone and computer</a></li><li><a href="#backup">Back up, and make an emergency kit</a></li><li><a href="#whats-new">Take the step-by-step tour</a></li></ul></div>
   <div class="role admin"><div class="role-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg></div>
     <h3>Admins</h3><p>The person who runs the Vaultleaf website on Vercel and GitHub. Admins decide who can open the site and publish updates. They can't see or reset anyone's passwords.</p>
-    <ul class="ticks"><li><a href="#admins">Control access to the site</a></li><li><a href="#admins">Publish updates and roll back</a></li><li><a href="#admins">Help someone who's locked out</a></li><li><a href="#admins">Look after sync storage</a></li><li><a href="#security">Explain how data is protected</a></li></ul></div>
+    <ul class="ticks"><li><a href="#admins">Control access to the site</a></li><li><a href="#admins">Publish updates and roll back</a></li><li><a href="#admins">Help someone who's locked out</a></li><li><a href="#admins">Look after sync storage</a></li><li><a href="#security">Explain how data is protected</a></li><li><a href="#whats-new">Take the admin tour</a></li></ul></div>
 </div>
 <div class="table-wrap"><table class="matrix"><caption class="sr">What each role can do</caption>
 <thead><tr><th scope="col">Task</th><th scope="col">Everyone</th><th scope="col">Admin</th></tr></thead><tbody>
@@ -260,11 +265,19 @@ body.append(sec('security', 'How your data is protected', '''
 <p class="note">Vaultleaf uses the standard encryption built into your browser. It hasn't been independently audited the way large commercial password managers have.</p>''',
  'In plain terms: Vaultleaf scrambles your data with a key only you can make.'))
 
+body.append(sec('whats-new', 'Guided tour and What\'s new', fig('d_tour', 'The tour menu with Everyday use, For admins and What\'s new', 'desk') + fig('d_tour_slide', 'A tour step: a screenshot of the main screen with numbered callouts, the explanation beside it, and Back and Next buttons', 'desk') + '<div class="pair">' + shot('p_tour', 'A tour step on a phone', 'phone')[0] + f'''<div><h3>Open the tour</h3><ul class="facts"><li><b>Settings:</b> press <b>Take the tour</b> at the top.</li><li><b>Guide:</b> press <b>Take the tour</b> above this page.</li><li><b>Unlock or setup screen:</b> press <b>How Vaultleaf works</b>.</li><li><b>New vault:</b> a banner offers the tour right after setup.</li></ul>
+<h3>Move around</h3><ul class="facts"><li>Press <b>Next</b> and <b>Back</b>, use the arrow keys, or swipe on a phone.</li><li>Pick a chapter from the menu at the top to jump ahead.</li><li>Press <kbd>Esc</kbd> or the close button to leave. Nothing in your vault changes.</li></ul></div></div>
+<h3>What's new after each update</h3>''' + fig('d_nudge', 'A banner above the account list offering the tour', 'desk') + f'''<p>After an update, the next time you unlock you'll see a banner above your accounts. <b>See what's new</b> walks through only the features added since you last looked. Each device shows it once.</p>
+<p>Every screenshot in the tour and in this guide is retaken automatically each time Vaultleaf is updated, so they always match what you see.</p>
+<h3>Release history</h3><ul class="facts">{''.join(f'<li><b>{e(r["version"])}</b> <span class="muted">{datetime.date.fromisoformat(r["date"]).strftime("%B %-d, %Y")}</span>: {e(r["title"])}. {e(r["summary"])}</li>' for r in reversed(TOUR['releases']))}</ul>''',
+ 'A step-by-step tour of every feature, with real screenshots, for everyone and for admins.'))
+
 body.append(sec('admins', 'For admins', '''
 <div class="cards">
 <div class="card-a"><h3>Control who can open the site</h3><p>In Vercel, open the <b>mco-vault-leaf</b> project, then <b>Settings</b>, then <b>Deployment Protection</b>.</p><ul class="facts"><li><b>Vercel Authentication on</b> (the current setting): only people logged in to your Vercel team can open the site. This is the most private option for a personal vault.</li><li><b>Off:</b> anyone with the link can open it. Each person still gets an empty, private vault in their own browser, and can't see anyone else's.</li></ul></div>
 <div class="card-a"><h3>Publish an update</h3><p>Changes to the <code>vault-leaf</code> folder on the <code>main</code> branch of the <b>c3jumpw/mco</b> repository deploy automatically.</p><ul class="facts"><li>People get the new version the next time they open Vaultleaf online. Their saved data is untouched.</li><li>If an update misbehaves, use <b>Instant Rollback</b> on the project's Vercel page.</li></ul></div>
 <div class="card-a"><h3>Look after sync storage</h3><p>Synced vaults are stored in the <b>MKC-Admin</b> Supabase project, in the tables <code>vaultleaf_vaults</code> and <code>vaultleaf_blobs</code>.</p><ul class="facts"><li>You can see how many vaults sync and how big they are, never what's in them.</li><li>Each vault holds up to 60 MB. At most 30 new synced vaults can start per hour.</li><li>Deleting a vault's row there stops its sync on every device. Everyone keeps their own copy.</li><li>The setup script is <code>vault-leaf/supabase/migrations/001_vaultleaf_sync.sql</code>.</li></ul></div>
+<div class="card-a"><h3>Keep the tour and guide current</h3><p>The <b>Vaultleaf docs</b> workflow in GitHub Actions runs on every push to <code>main</code> that changes Vaultleaf.</p><ul class="facts"><li>It rebuilds the app, retakes every screenshot, redraws the admin pictures, and rebuilds the tour and this guide, then commits them.</li><li>It fails if a feature in <code>vault-leaf/src/tour.json</code> has no tour step or guide section, or a Settings panel or page isn't covered.</li><li>Adding a feature? Add it, a step and a release entry to <code>tour.json</code>, and a guide section. People see it in What's new.</li></ul></div>
 <div class="card-a"><h3>Keep the web address</h3><p>Each vault belongs to one web address in one browser. If you move Vaultleaf to a custom domain, everyone needs to back up on the old address first and restore on the new one.</p></div>
 <div class="card-a"><h3>Help someone who's locked out</h3><ul class="facts"><li>Forgot password or passcode: they use their recovery key on the unlock screen.</li><li>Lost the key too, but remember the password and passcode: they make a new key in Settings.</li><li>New or lost device: they restore their latest backup file.</li><li>Without any of these, the vault can't be opened. You have no way to reset it.</li></ul></div>
 <div class="card-a"><h3>Keep it private</h3><ul class="facts"><li>Leave Vercel Web Analytics and Speed Insights off. The site blocks outside scripts on purpose, and only connects to Supabase for sync and to Have I Been Pwned for leak checks.</li><li>Security headers live in <code>vault-leaf/vercel.json</code>. Keep them when you edit.</li><li>The site asks search engines not to list it.</li></ul></div>
@@ -310,10 +323,10 @@ page = f'''<!DOCTYPE html>
 <p class="lead">Vaultleaf keeps your passwords, keys, secret phrases and account details encrypted on your own device. Read accounts like your old notes, or as cards you can search and copy from. This guide shows every screen, with numbered callouts that match the notes beside each picture.</p>
 <div class="hero-art"><figure class="shot desk"><div class="frame"><img src="/guide/img/d_main.webp" width="{d_main["w"]}" height="{d_main["h"]}" alt="Vaultleaf on a computer showing the account list and an open account"></div></figure>
 <figure class="shot phone over"><div class="frame"><img src="/guide/img/p_list.webp" width="{p_list["w"]}" height="{p_list["h"]}" alt="Vaultleaf on a phone"></div></figure></div>
-<div class="quick-links"><a href="#start">Set up</a><a href="#tour">Find your way around</a><a href="#views">Classic notes view</a><a href="#sync">Sync devices</a><a href="#emergency">Emergency kit</a><a href="#admins">For admins</a></div>
+<div class="quick-links"><a href="#start">Set up</a><a href="#tour">Find your way around</a><a href="#views">Classic notes view</a><a href="#sync">Sync devices</a><a href="#emergency">Emergency kit</a><a href="#whats-new">Guided tour</a><a href="#admins">For admins</a></div>
 </section>
 {''.join(body)}
-<footer class="foot"><p>Vaultleaf guide, updated {UPDATED}. Fonts: Bricolage Grotesque and Atkinson Hyperlegible (SIL Open Font License). Passphrase words: EFF long wordlist (CC BY 3.0).</p></footer>
+<footer class="foot"><p>Vaultleaf {TOUR['version']} guide, updated {UPDATED}. Fonts: Bricolage Grotesque and Atkinson Hyperlegible (SIL Open Font License). Passphrase words: EFF long wordlist (CC BY 3.0).</p></footer>
 </main></div></body></html>'''
 (ROOT / 'guide' / 'index.html').write_text(page)
 print('guide', len(page), 'sections', len(SECTIONS))

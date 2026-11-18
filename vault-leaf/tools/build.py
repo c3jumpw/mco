@@ -7,7 +7,7 @@ import base64, hashlib, json, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent  # the vault-leaf folder
 SRC = ROOT / 'src'
 css = (SRC / 'style.css').read_text()
-js_src = '\n'.join((SRC / f).read_text() for f in ['core.js', 'ui1.js', 'ui2.js', 'ui3.js', 'ui4.js', 'ui5.js', 'ui6.js', 'zz-boot.js'])
+js_src = '\n'.join((SRC / f).read_text() for f in ['core.js', 'ui1.js', 'ui2.js', 'ui3.js', 'ui4.js', 'ui5.js', 'ui6.js', 'ui7.js', 'zz-boot.js'])
 js_src = js_src.replace('__EFF_WORDS__', (SRC / 'eff-wordlist.txt').read_text().strip())
 tpl = (SRC / 'index.html').read_text()
 
@@ -30,8 +30,36 @@ WEBHEAD = '''<meta name="description" content="Vaultleaf: an encrypted password 
 <link rel="stylesheet" href="/fonts/fonts.css">'''
 
 
+def compile_tour():
+    """Tour slides plus the callout boxes of every screenshot they use (from tools/shots.json)."""
+    t = json.loads((SRC / 'tour.json').read_text())
+    sp = ROOT / 'tools' / 'shots.json'
+    shots = json.loads(sp.read_text()) if sp.exists() else {}
+    used, slides = {}, {}
+    for k, tr in t['tracks'].items():
+        out = []
+        for s in tr['slides']:
+            o = {x: s[x] for x in ('id', 'chapter', 'feature', 'title', 'text', 'points') if x in s}
+            for key, src in (('d', 'desk'), ('p', 'phone')):
+                n = s.get(src)
+                if n and n in shots:
+                    o[key] = n; m = shots[n]
+                    used[n] = [m['w'], m['h'], [[x['n'], x['label'], x['x'], x['y'], x['w'], x['h']] for x in m['marks']]]
+                elif n:
+                    print('  ! no screenshot yet for', n, '(slide', s['id'] + ')')
+            if s.get('marks') is False: o['marks'] = False
+            out.append(o)
+        slides[k] = {'title': tr['title'], 'desc': tr['desc'], 'slides': out}
+    return {'version': t['version'], 'releases': t['releases'], 'features': {f['id']: {'since': f['since'], 'name': f['name']} for f in t['features']},
+            'tracks': slides, 'shots': used}
+
+
+TOUR = json.dumps(compile_tour(), separators=(',', ':'), ensure_ascii=False).replace('</', '<\\/')
+
+
 def page(head, web):
     js = js_src.replace('/*__WEB__*/false', 'true' if web else 'false')
+    if web: js = js.replace('/*__TOUR__*/null', TOUR)
     html = tpl.replace('<!--__HEAD__-->', head).replace('/*__CSS__*/', css).replace('/*__JS__*/', js)
     return html, js
 

@@ -464,6 +464,87 @@ a.btn{text-decoration:none;color:inherit}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+/* ---------- guided tour ---------- */
+.linkish{color:var(--leaf);font-weight:700;text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;font:inherit;font-weight:700;cursor:pointer}
+.tour-nudge{background:var(--leaf-soft)}
+.tour-nudge>svg{color:var(--leaf);flex:none}
+.tour-nudge .icon-btn{width:34px;height:34px}
+.help-banner .help-btns{display:flex;gap:8px;flex-wrap:wrap}
+html.tour-on{overflow:hidden}
+.tour{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(13,19,17,.62);overscroll-behavior:contain;animation:tourIn .18s ease-out}
+@keyframes tourIn{from{opacity:0}to{opacity:1}}
+.tour-card{width:min(1180px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--surface);color:var(--ink);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.tour-head{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 18px;border-bottom:1px solid var(--line);min-height:58px}
+.tour-head .sp{flex:1}
+.tour-crumb{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--muted);text-decoration:none}
+button.tour-crumb{color:var(--leaf)}
+select.input.tour-chap{width:auto;flex:0 1 auto;min-width:0;min-height:38px;padding:6px 30px 6px 10px;font-size:14px;max-width:46vw}
+.tour-chap-1{font-size:14px;color:var(--muted)}
+.tour-count{font-size:14px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tour-main{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;padding:22px 24px;align-items:start}
+.tour-main.is-rel{grid-template-columns:minmax(0,1fr) 300px}
+.tour-fig{position:relative;margin:0;justify-self:center;aspect-ratio:var(--ar);width:min(100%,calc((100dvh - 230px) * var(--ar)));border-radius:14px;overflow:hidden;background:var(--sunken);box-shadow:0 0 0 1px var(--line),var(--shadow)}
+.tour-fig img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tour-mk{position:absolute;border:2px solid var(--brass);border-radius:8px;box-shadow:0 0 0 2px rgba(255,255,255,.55);pointer-events:none}
+.tour-mk b{position:absolute;top:-11px;left:-11px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:var(--brass);color:#fff;font:700 12px/22px var(--font-body);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tour-text{display:grid;gap:12px;align-content:start}
+.tour-text h2{font-size:26px;line-height:1.15}
+.tour-text p{margin:0;color:var(--ink)}
+.tour-pts{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--muted)}
+.tour-mk.edge b{top:3px;left:3px}
+.tour-legend{list-style:none;margin:4px 0 0;padding:12px 0 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--muted)}
+.tour-legend li{display:inline-flex;align-items:center;gap:6px}
+.tour-legend b{min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:var(--brass);color:#fff;font-size:11px;line-height:20px;text-align:center}
+.tour-chip{justify-self:start;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);background:var(--brass-soft);padding:3px 8px;border-radius:6px}
+.tour-foot{display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--line)}
+.tour-prog{flex:1;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.tour-prog span{display:block;height:100%;background:var(--leaf);border-radius:3px;transition:width .2s}
+.tour-pick{overflow:auto;padding:28px 28px 22px;display:grid;gap:22px;justify-items:center}
+.tour-pick-h{display:grid;justify-items:center;gap:8px;text-align:center;max-width:560px}
+.tour-pick-h h2{font-size:32px}
+.tour-pick-h p{margin:0;color:var(--muted)}
+.tour-tracks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;width:100%;max-width:980px}
+.tour-track{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:18px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);transition:border-color .15s,background .15s}
+.tour-track:hover,.tour-track:focus-visible{border-color:var(--leaf);background:var(--leaf-soft)}
+.tour-track>svg{margin-top:12px;color:var(--muted);flex:none}
+.tt-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--leaf-soft);color:var(--leaf);flex:none}
+.tt-tx{display:grid;gap:4px;flex:1}
+.tt-tx b{font-family:var(--font-display);font-size:19px}
+.tt-tx span{font-size:14px;color:var(--ink)}
+.tt-tx small{font-size:13px;color:var(--muted)}
+.tour-pick-f{margin:0;color:var(--muted);font-size:15px}
+.tour-rel{display:grid;gap:12px;align-content:start}
+.rel{display:flex;gap:14px;padding:16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)}
+.rel-v{flex:none;font:800 18px/1 var(--font-display);color:var(--leaf);background:var(--leaf-soft);border-radius:10px;padding:10px 10px;height:max-content}
+.rel b{font-family:var(--font-display);font-size:18px}
+.rel small{display:block;color:var(--muted);font-size:13px;margin:2px 0 6px}
+.rel p{margin:0}
+@media (max-width:959px){
+  .tour-tracks{grid-template-columns:1fr;max-width:560px}
+  .tour-main,.tour-main.is-rel{display:flex;flex-direction:column;align-items:stretch;gap:18px}
+  .tour-fig{flex:none;align-self:center;width:min(100%,calc((100dvh - 330px) * var(--ar)))}
+}
+@media (max-width:759px){
+  .tour{padding:0}
+  .tour-card{width:100%;height:100dvh;max-height:none;border-radius:0}
+  .tour-head{padding:max(8px,env(safe-area-inset-top)) 6px 8px 12px}
+  .tour-main{padding:16px}
+  .tour-fig{width:min(100%,calc(58dvh * var(--ar)))}
+  .tour-fig.tall{border-radius:22px}
+  .tour-text h2{font-size:23px}
+  .tour-foot{padding:10px 12px max(10px,env(safe-area-inset-bottom))}
+  .tour-foot .btn{padding:0 14px}
+  .tour-pick{padding:20px 16px}
+  .tour-pick-h h2{font-size:28px}
+  .tour-head{gap:6px}
+  .tour-crumb .tc-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  button.tour-crumb{width:40px;height:40px;justify-content:center;flex:none}
+  select.input.tour-chap{flex:1;max-width:none}
+  .tour-head .sp{display:none}
+}
+@media (prefers-reduced-motion:reduce){.tour{animation:none}.tour-prog span{transition:none}}
+.tour-head [data-act="tour-close"]{margin-left:auto}
+
 </style>
 </head>
 <body>
@@ -1532,7 +1613,7 @@ function authShell(inner){
       </ul>
     </aside>
     <div><div class="auth-brand">${MARK(36)}<span class="wordmark">Vaultleaf</span></div>
-    <div class="auth-main"><div class="auth-card">${inner}<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a></div></div></div></div>`;
+    <div class="auth-main"><div class="auth-card">${inner}${TOUR ? `<button class="btn ghost small" style="justify-self:center" data-act="tour">${ic('question','s')}How Vaultleaf works</button>` : `<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a>`}</div></div></div></div>`;
 }
 const rkHTML = rk => String(rk).split('-').map((g, i, arr) => `<span>${esc(g)}${i < arr.length - 1 ? '-' : ''}</span>`).join('<wbr>');
 const stepsBar = (n, total = 4) => `<div class="steps" aria-label="Step ${n} of ${total}">${Array.from({length:total}, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -1727,6 +1808,7 @@ async function openWith(raw, header, opts = {}){
   await persist();
   if(syncOn()){ await pushNow(); watchCloud(); syncFiles(); }
   if(S.syncGoneNote){ S.syncGoneNote = false; toast('This vault stopped syncing: sync was turned off or given a new code on another device', 'cloud'); }
+  tourAfterUnlock(!!opts.fresh);
   if(opts.after) opts.after();
   if(purged) toast(`Cleared ${purged} account${purged === 1 ? '' : 's'} deleted over 30 days ago`, 'trash');
   if(opts.toast) toast(opts.toast);
@@ -1750,7 +1832,7 @@ async function finishSetup(){
   guard.reset();
   const dekRaw = st.dekRaw, header = st.header, vault = S.vault;
   S.setup = null;
-  await openWith(dekRaw, header, {vault, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
+  await openWith(dekRaw, header, {vault, fresh:true, toast:st.importVault ? 'Emergency kit opened in your new vault' : 'Your vault is ready', after:wantSync && WEB ? () => openSyncCode(true) : null});
 }
 async function finishReset(){
   const st = S.setup; st.busy = true; render();
@@ -1882,12 +1964,12 @@ function renderList(){
     let h;
     if(S.q) h = `<div class="empty"><h2>No matches</h2><p>Nothing matches “${esc(S.q)}”${S.filter !== 'all' ? ' in ' + esc(filterTitle()) : ''}.</p><button class="btn" data-act="clearq">Clear search</button></div>`;
     else if(S.filter === 'trash') h = `<div class="empty"><h2>Nothing deleted</h2><p>Accounts you delete stay here for 30 days.</p></div>`;
-    else if(!total) h = `<div class="empty">${MARK(52)}<h2>Your vault is empty</h2><p>Add your first account, or bring over the notes you keep your passwords in now.</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="new">${ic('plus','s')}Add an account</button><button class="btn" data-act="import-notes">${ic('import','s')}Import from Notes</button></div></div>`;
+    else if(!total) h = `<div class="empty">${MARK(52)}<h2>Your vault is empty</h2><p>Add your first account, or bring over the notes you keep your passwords in now.</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="new">${ic('plus','s')}Add an account</button><button class="btn" data-act="import-notes">${ic('import','s')}Import from Notes</button>${TOUR ? tourBtn('btn', 'Take the tour') : ''}</div></div>`;
     else h = `<div class="empty"><h2>Nothing here yet</h2><p>No accounts ${S.filter === 'fav' ? 'are marked as favorites' : 'have this label'}.</p></div>`;
     el.innerHTML = h; return;
   }
   const exN = V().accounts.filter(a => a.example && !a.trashedAt).length;
-  const banner = exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '';
+  const banner = (S.filter === 'all' && !S.q ? nudgeHTML() : '') + (exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '');
   if(view() === 'classic'){
     const s = V().settings.sort, grouped = s === 'updated' || s === 'created';
     let last = null, out = '';
@@ -1921,7 +2003,7 @@ function renderDetail(){
   const d = $('#detail'); if(!d) return;
   if(S.mode === 'new' || S.mode === 'edit'){ d.innerHTML = S.editKind === 'note' ? classicEditorHTML() : editorHTML(); afterEditorRender(); return; }
   const a = S.selId && acct(S.selId);
-  if(!a){ d.innerHTML = `<div class="detail-empty">${MARK(64)}<p>${V().accounts.some(x => !x.trashedAt) ? 'Pick an account to open it.' : 'Your accounts will open here.'}</p><p class="hint">Press <kbd>/</kbd> to search, <kbd>N</kbd> to add.</p>${guideLink('btn small', 'New here? Open the guide')}</div>`; return; }
+  if(!a){ d.innerHTML = `<div class="detail-empty">${MARK(64)}<p>${V().accounts.some(x => !x.trashedAt) ? 'Pick an account to open it.' : 'Your accounts will open here.'}</p><p class="hint">Press <kbd>/</kbd> to search, <kbd>N</kbd> to add.</p>${tourBtn('btn small', TOUR ? 'New here? Take the tour' : 'New here? Open the guide')}</div>`; return; }
   d.innerHTML = view() === 'classic' ? classicDetailHTML(a) : detailHTML(a);
   tickTotp();
 }
@@ -2157,7 +2239,7 @@ function cancelEditor(){
 /* ---------- pages ---------- */
 const guideLink = (cls, label) => WEB ? `<button class="${cls}" data-act="tab" data-v="guide">${ic('question','s')}${label}</button>` : `<a class="${cls}" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}${label}</a>`;
 function guidePageHTML(){
-  return `<div class="guide-wrap"><div class="guide-bar"><b>Vaultleaf guide</b><span class="sp"></span><a class="btn small" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a></div>
+  return `<div class="guide-wrap"><div class="guide-bar"><b>Vaultleaf guide</b><span class="sp"></span>${TOUR ? tourBtn('btn small primary', 'Take the tour') : ''}<a class="btn small" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a></div>
     <iframe class="guide-frame" src="${GUIDE_URL}" title="Vaultleaf guide"></iframe></div>`;
 }
 function wireGuideFrame(){
@@ -2258,7 +2340,7 @@ function settingsHTML(){
   const exN = V().accounts.filter(a => a.example).length;
   const lastB = V().meta.lastBackupAt;
   return `<div class="page">${pageHead('Settings')}
-    <div class="banner" style="margin:0">${ic('question','s')}<b>New here, or showing someone else? The guide walks through every screen with pictures.</b>${guideLink('btn small', 'Open the guide')}</div>
+    <div class="banner help-banner" style="margin:0">${ic('question','s')}<b>New here, or showing someone else? ${TOUR ? `The tour walks through every feature step by step, with pictures. There's a track for admins, and What's new after each update.` : 'The guide walks through every screen with pictures.'}</b><span class="help-btns">${TOUR ? tourBtn('btn small primary', 'Take the tour') : ''}${guideLink('btn small', 'Open the guide')}</span></div>
     <div class="panel"><div class="panel-h"><h2>Your account</h2><p>Shown on your backups and recovery kit.</p></div><div class="panel-b">
       <div class="grid2"><div class="field"><label for="p-name">Name</label><input id="p-name" class="input" data-prof="name" value="${esc(p.name)}" autocomplete="name"></div><div class="field"><label for="p-email">Email</label><input id="p-email" class="input" type="email" data-prof="email" value="${esc(p.email)}" autocomplete="email"></div></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="m-chpw">${ic('key','s')}Change master password</button><button class="btn" data-act="m-chpc">${ic('lock','s')}Change passcode</button><button class="btn" data-act="m-newrk">${ic('shield','s')}New recovery key</button></div>
@@ -3108,6 +3190,144 @@ document.addEventListener('change', e => {
   const t = e.target;
   if(t.dataset && t.dataset.acc && t.type === 'file'){ const a = acct(t.dataset.acc); if(a) addFiles(a, t.files).finally(() => { t.value = ''; }); }
   if(t.id === 's-bio') toggleBio(t);
+});
+
+
+/* ---------- guided tour and What's new ----------
+   Slides, releases and screenshot callouts come from src/tour.json and tools/shots.json, injected by tools/build.py.
+   Screenshots are the guide's own images, retaken automatically on every release. */
+const TOUR = {"version":"1.2","releases":[{"version":"1.0","date":"2026-10-30","title":"First release","summary":"Encrypted vault with Classic and Modern views, 2FA codes, history, generator, health, backups and the illustrated guide."},{"version":"1.1","date":"2026-11-08","title":"Sync, Face ID, files and emergency kits","summary":"Sync between devices with a sync code, Face ID and fingerprint unlock, leaked password check, encrypted file attachments and emergency kits."},{"version":"1.2","date":"2026-11-18","title":"Guided tour","summary":"A step-by-step tour for everyday use and for admins, a What's new tour after each update, and screenshots that refresh automatically with every release."}],"features":{"setup":{"since":"1.0","name":"Set up a vault with a password, then a passcode"},"recovery":{"since":"1.0","name":"Recovery key"},"lock":{"since":"1.0","name":"Unlock, lock and auto-lock"},"layout":{"since":"1.0","name":"Main screen: sections, labels, search and quick copy"},"account":{"since":"1.0","name":"Open an account: copy, show, open the website, 2FA codes"},"history":{"since":"1.0","name":"History, old passwords and copy records"},"views":{"since":"1.0","name":"Classic notes view and Modern card view"},"notes-editor":{"since":"1.0","name":"Write an account as a note"},"add":{"since":"1.0","name":"Add accounts from templates"},"fields":{"since":"1.0","name":"Keys, secret phrases, security questions and admins"},"labels":{"since":"1.0","name":"Labels and sub-labels"},"import":{"since":"1.0","name":"Import from Notes or a CSV file"},"generator":{"since":"1.0","name":"Password generator"},"health":{"since":"1.0","name":"Password health"},"activity":{"since":"1.0","name":"Activity"},"settings":{"since":"1.0","name":"Settings"},"backup":{"since":"1.0","name":"Encrypted backups and restore"},"trash":{"since":"1.0","name":"Recently deleted"},"home-screen":{"since":"1.0","name":"Home screen and offline use"},"sync":{"since":"1.1","name":"Sync between devices"},"biometric":{"since":"1.1","name":"Face ID and fingerprint unlock"},"leaks":{"since":"1.1","name":"Leaked password check"},"files":{"since":"1.1","name":"Attached files"},"emergency":{"since":"1.1","name":"Emergency kit"},"tour":{"since":"1.2","name":"Guided tour and What's new"},"admin-role":{"since":"1.0","name":"What admins do"},"admin-access":{"since":"1.0","name":"Choose who can open the site"},"admin-publish":{"since":"1.0","name":"Publish an update and roll back"},"admin-storage":{"since":"1.1","name":"Look after sync storage"},"admin-support":{"since":"1.0","name":"Help someone who's locked out or changing devices"},"admin-docs":{"since":"1.2","name":"Tour and guide refresh automatically"}},"tracks":{"everyone":{"title":"Everyday use","desc":"Set up, find and copy passwords, organize, and keep everything safe.","slides":[{"id":"welcome","chapter":"Get started","feature":"layout","title":"Your passwords, on locked pages","text":"Vaultleaf keeps every account on its own page, encrypted on your device before anything is saved. This tour takes about three minutes. Use the arrows, swipe, or press the arrow keys.","d":"d_main","p":"p_list","marks":false},{"id":"setup","chapter":"Get started","feature":"setup","title":"Set up: a password, then a passcode","text":"Choose a master password of at least 10 characters, then a 4, 6 or 8 digit passcode. Together they unlock your vault.","points":["A few random words make a strong password. Tap Suggest a passphrase if you like.","Use a passcode that isn't your phone's code."],"d":"p_setup_3","p":"p_setup_3"},{"id":"recovery","chapter":"Get started","feature":"recovery","title":"Save your recovery key","text":"If you ever forget your password or passcode, this key is the only way back in. Nobody can reset your vault for you, not even an admin.","points":["Copy or download it, then keep it away from this device.","You can make a new one later in Settings."],"d":"p_setup_4","p":"p_setup_4"},{"id":"unlock","chapter":"Get started","feature":"lock","title":"Unlock, and it locks itself","text":"Each time, type your password, then your passcode on the keypad. Vaultleaf locks after 5 minutes without activity, or when it's in the background for a minute.","points":["After 5 wrong tries you wait 30 seconds, then longer.","Lock any time with the lock button."],"d":"p_login2","p":"p_login2"},{"id":"biometric","chapter":"Get started","feature":"biometric","title":"Face ID or fingerprint","text":"Turn it on in Settings, under Security, to unlock without typing on this device. Your password and passcode are still asked for every 14 days.","d":"d_security","p":"p_login1"},{"id":"layout","chapter":"Find and use accounts","feature":"layout","title":"Find your way around","text":"Sections are on the left on a computer and at the bottom on a phone. Search finds names, usernames, emails, websites, labels and notes. Type #work to filter by a label.","d":"d_main","p":"p_list"},{"id":"account","chapter":"Find and use accounts","feature":"account","title":"Copy, show and open","text":"Tap any line to copy it. The eye shows a hidden value and hides it again after 30 seconds. 2FA codes update every 30 seconds, ready to copy.","d":"d_detail","p":"p_detail"},{"id":"history","chapter":"Find and use accounts","feature":"history","title":"Every change and copy is recorded","text":"Each account keeps its date stored, last edit, when the password was set, every copy with its time, and the old passwords and keys you replaced.","d":"d_history","p":"d_history"},{"id":"views","chapter":"Find and use accounts","feature":"views","title":"Classic notes, or Modern cards","text":"Classic looks like the notes app you keep passwords in now: folders, notes by date, one detail per line. Modern shows cards with copy buttons. Switch with the two icons above the list.","d":"d_classic","p":"p_note"},{"id":"notes-editor","chapter":"Add and organize","feature":"notes-editor","title":"Write an account like a note","text":"In Classic view, Add and Edit open a plain text page. The first line is the name, then one Label: value per line. Vaultleaf turns the lines into fields and hides passwords, PINs and keys.","d":"d_classic_edit","p":"d_classic_edit"},{"id":"add","chapter":"Add and organize","feature":"add","title":"Add an account","text":"Pick what it is, like a website login, crypto wallet or bank card, and the right fields are ready. Generate fills in a strong password.","d":"d_editor","p":"d_templates"},{"id":"fields","chapter":"Add and organize","feature":"fields","title":"Keys, phrases, questions and admins","text":"Add PINs, API keys, secret phrases and 2FA setup keys, security questions with hidden answers, and the people who manage the account with their emails and roles.","d":"d_editor2","p":"d_editor2"},{"id":"labels","chapter":"Add and organize","feature":"labels","title":"Labels and sub-labels","text":"Labels work like folders, but an account can have several. Type Work/Cloud to make a sub-label. Picking a parent shows everything inside it.","d":"d_label","p":"d_editor3"},{"id":"import","chapter":"Add and organize","feature":"import","title":"Bring over your notes","text":"Paste your notes into Settings, Import from Notes. Put a line with --- between notes to bring many at once. CSV files from browsers and other managers work too.","d":"d_import","p":"d_import"},{"id":"files","chapter":"Add and organize","feature":"files","title":"Attach files","text":"Keep ID scans, recovery sheets or contracts on the account they belong to. Each file is encrypted, up to 5 MB, and syncs with the rest.","d":"d_files","p":"d_files"},{"id":"generator","chapter":"Stay safe","feature":"generator","title":"Make strong passwords","text":"Random characters or real-word passphrases, with a strength rating. Use for an account puts the new password straight into an account.","d":"d_generator","p":"d_generator"},{"id":"health","chapter":"Stay safe","feature":"health","title":"Password health","text":"Health points out weak, reused and overdue passwords. Tap one to open the account and change it.","d":"d_health","p":"p_health"},{"id":"leaks","chapter":"Stay safe","feature":"leaks","title":"Check for leaked passwords","text":"On the Health page, Check my passwords looks for each one in public breach lists. Only 5 characters of a scrambled fingerprint are sent, never the password.","d":"d_health","p":"d_health"},{"id":"activity","chapter":"Stay safe","feature":"activity","title":"Activity","text":"Every copy and change across all accounts, with the time. Tap an event to open its account.","d":"d_activity","p":"d_activity"},{"id":"settings","chapter":"Stay safe","feature":"settings","title":"Settings","text":"Change your password, passcode or recovery key, choose when Vaultleaf locks, and pick the view and theme.","d":"d_settings","p":"p_settings"},{"id":"sync","chapter":"Across devices","feature":"sync","title":"Sync your phone and computer","text":"Turn on sync in Settings and copy your sync code. On the other device, choose Use my vault from another device, paste the code and unlock as usual.","points":["Only encrypted data is uploaded.","Edits on two devices are combined."],"d":"d_synccode","p":"p_link"},{"id":"backup","chapter":"Across devices","feature":"backup","title":"Back up","text":"Settings, Back up saves an encrypted file you can keep anywhere. Restore it on any device with the password and passcode you had, or your recovery key.","d":"d_backup","p":"d_backup"},{"id":"trash","chapter":"Across devices","feature":"trash","title":"Recently deleted","text":"Deleted accounts stay here for 30 days, so you can restore them.","d":"d_trash","p":"d_trash"},{"id":"emergency","chapter":"Across devices","feature":"emergency","title":"Emergency kit for someone you trust","text":"Make a file with everything, or only some labels, that opens with its own code. Give the file and the code to your trusted person separately.","d":"d_kit_builder","p":"d_kit_made"},{"id":"home-screen","chapter":"Across devices","feature":"home-screen","title":"Put it on your home screen","text":"On iPhone, open Vaultleaf in Safari, tap Share, then Add to Home Screen. On Android, use Chrome's menu, then Install app. It then opens full screen and works offline.","d":"p_list","p":"p_list","marks":false},{"id":"tour","chapter":"Across devices","feature":"tour","title":"Find this tour again","text":"Take the tour any time from Settings or the Guide. After each update, What's new shows only what changed. The full illustrated guide has every detail.","d":"d_settings","p":"p_settings"}]},"admin":{"title":"For admins","desc":"Run the Vaultleaf website: access, updates, sync storage and helping people.","slides":[{"id":"a-role","chapter":"Your role","feature":"admin-role","title":"You run the website, not the vaults","text":"Admins look after the Vaultleaf site on Vercel, its code on GitHub and its sync storage on Supabase. Every vault stays with its owner: nobody, including you, can see or reset one.","d":"a_role","p":"a_role","marks":false},{"id":"a-access","chapter":"Your role","feature":"admin-access","title":"Choose who can open the site","text":"In Vercel, open mco-vault-leaf, then Settings, then Deployment Protection. With Vercel Authentication on, only people in your Vercel team can open the site. Off, anyone with the link can, and each gets their own empty vault.","d":"a_access","p":"a_access","marks":false},{"id":"a-publish","chapter":"Updates","feature":"admin-publish","title":"Publish an update","text":"Change the source in vault-leaf/src of c3jumpw/mco and push to main. Vercel deploys it, and the docs workflow then retakes every screenshot and rebuilds this tour and the guide.","d":"a_publish","p":"a_publish","marks":false},{"id":"a-rollback","chapter":"Updates","feature":"admin-publish","title":"Roll back if something breaks","text":"In Vercel, open the project's Deployments, pick the last good one and choose Instant Rollback. People's saved data is never touched by updates or rollbacks.","d":"a_rollback","p":"a_rollback","marks":false},{"id":"a-storage","chapter":"Sync storage","feature":"admin-storage","title":"Look after sync storage","text":"Synced vaults sit encrypted in the MKC-Admin Supabase project, tables vaultleaf_vaults and vaultleaf_blobs. You can see how many sync and their size, never their contents. Deleting a row stops that vault's sync.","d":"a_storage","p":"a_storage","marks":false},{"id":"a-locked","chapter":"Helping people","feature":"admin-support","title":"Someone forgot their password","text":"They choose Forgot your password or passcode on the unlock screen and enter their recovery key. Without it, a recent backup file is the only way back. You can't reset a vault.","d":"p_recover","p":"p_recover"},{"id":"a-device","chapter":"Helping people","feature":"admin-support","title":"Someone has a new phone","text":"With sync on, they open Vaultleaf on the new phone, choose Use my vault from another device and enter the sync code from Settings on their old device. Without sync, they restore a backup file.","d":"d_restore","p":"p_link"},{"id":"a-docs","chapter":"Keeping docs current","feature":"admin-docs","title":"This tour updates itself","text":"Each push that changes Vaultleaf runs a GitHub workflow that rebuilds the app, retakes every screenshot, rebuilds the tour and guide, and fails if a new feature has no slide or guide section.","d":"a_docs","p":"a_docs","marks":false}]}},"shots":{"d_main":[1920,1200,[[1,"Sections",0.62,8.5,18.05,32.25],[2,"Labels",0.62,46.29,18.05,6.0],[3,"Search",20.31,8.0,29.27,6.75],[4,"View",32.7,1.5,7.5,6.0],[5,"Lock",39.89,1.75,3.44,5.5],[6,"Add",43.02,1.75,6.56,5.5],[7,"Quick copy",40.86,24.87,6.41,5.25],[8,"Open account",49.22,7.38,50.62,92.62],[9,"Sort",37.94,15.25,11.48,5.0],[10,"Status",0.0,88.27,19.61,11.73]]],"p_list":[780,1688,[[1,"Search",3.08,7.58,93.85,6.4],[2,"Labels",0.0,14.22,100.0,5.21],[3,"View",62.05,1.66,23.59,5.21],[4,"Lock",85.13,1.66,11.28,5.21],[5,"Quick copy",73.33,29.02,21.03,4.98],[6,"Add",79.49,83.65,16.41,7.58],[7,"Sections",0.0,93.44,100.0,6.56]]],"p_setup_3":[780,1688,[[1,"Length",19.02,25.76,61.96,5.69],[2,"Dots",3.08,33.34,93.85,7.35],[3,"Keypad",10.51,43.05,78.97,34.6]]],"p_setup_4":[780,1688,[[1,"Key",3.08,28.5,93.85,11.7],[2,"Copy",3.08,41.39,46.67,6.16],[3,"Confirm",2.05,48.38,9.23,4.27],[4,"Open",3.08,73.17,93.85,6.16]]],"p_login2":[780,1688,[[1,"Digits",3.08,21.11,93.85,7.35],[2,"Keypad",10.51,30.83,78.97,34.6],[3,"Back",3.59,66.85,92.82,5.69]]],"d_security":[1092,683,[[1,"Face ID",0.0,23.38,100.0,16.87],[2,"Auto-lock",80.49,11.97,17.45,9.7],[3,"Background",0.0,38.49,100.0,16.87]]],"p_login1":[780,1688,[[1,"Password",3.08,18.64,93.85,6.4],[2,"Face ID",3.59,33.33,92.82,5.69],[3,"Forgot",3.59,40.67,92.82,5.69]]],"d_detail":[978,1200,[[1,"Pin",73.02,0.75,6.75,5.5],[2,"Edit",79.76,1.0,12.26,5.0],[3,"More",92.02,0.75,6.75,5.5],[4,"Open site",82.98,28.63,6.75,5.5],[5,"Strength",5.37,53.51,76.99,3.17],[6,"Show",82.98,53.92,6.75,5.5],[7,"Copy",89.11,53.92,6.75,5.5],[8,"2FA",4.75,64.32,18.66,5.49]]],"p_detail":[780,1688,[[1,"Back",2.05,0.71,11.28,5.21],[2,"Phrase grid",8.46,29.84,62.56,28.5],[3,"Hide or copy",71.54,39.89,21.54,5.21]]],"d_history":[978,1200,[[1,"Record",2.61,43.33,94.79,18.13],[2,"Changes",4.14,67.79,16.47,6.0],[3,"Old values",20.61,67.79,34.36,6.0],[4,"Copies",54.97,67.79,14.44,6.0]]],"d_classic":[1920,1200,[[1,"Folders",0.62,46.29,18.05,6.0],[2,"Date groups",19.06,20.62,30.23,6.47],[3,"Note",19.06,40.0,30.23,9.44],[4,"Stored",50.47,9.38,48.12,6.07],[5,"Hidden value",50.62,33.26,47.81,4.5],[6,"Copy",95.62,21.26,2.81,4.5]]],"p_note":[780,1688,[[1,"Name",4.62,12.95,90.77,4.8],[2,"Tap to show",5.13,21.54,89.74,4.27]]],"d_classic_edit":[978,1200,[[1,"Type",2.76,13.16,94.48,61.0],[2,"Insert password",40.66,0.75,24.52,5.0],[3,"Form",65.17,0.75,20.55,5.0],[4,"Save",85.72,0.75,13.05,5.0],[5,"Cheat sheet",2.76,75.44,94.48,13.05]]],"d_editor":[978,1200,[[1,"Name",2.15,23.34,47.55,6.75],[2,"Account name",50.31,23.34,47.55,6.75],[3,"Date stored",2.15,33.88,47.55,6.9],[4,"Password",2.15,71.47,74.85,6.75],[5,"Generate",77.0,71.72,20.54,6.25],[6,"Strength",1.84,77.72,96.32,2.25]]],"d_templates":[780,906,[[1,"Login",3.08,10.93,93.85,9.6],[2,"Wallet",3.08,28.15,93.85,9.6],[3,"Note",3.08,79.8,93.85,9.6],[4,"Import",3.08,88.41,93.85,9.6]]],"d_editor2":[978,1200,[[1,"Add a field",2.15,19.46,95.71,15.25],[2,"Questions",75.31,36.71,22.24,5.0],[3,"Admins",77.94,48.0,19.61,5.0],[4,"Admin row",2.15,53.75,95.71,16.75]]],"d_label":[780,585,[[1,"Name",3.08,23.67,93.85,13.85],[2,"Inside",3.08,45.81,93.85,13.85],[3,"Color",3.08,67.94,93.85,9.75]]],"d_editor3":[978,1200,[[1,"Labels",2.15,17.08,95.71,10.25],[2,"New label",2.15,27.83,80.72,6.75],[3,"Reminder",2.15,67.56,95.71,6.75],[4,"Save",81.98,92.69,15.57,6.0]]],"d_import":[1080,1104,[[1,"Paste",2.22,20.74,95.56,33.42],[2,"Separator",2.22,58.56,95.56,6.52],[3,"Label",2.22,69.47,95.56,7.34],[4,"Preview",2.22,80.77,95.56,13.23],[5,"Import",72.59,91.3,24.91,6.52]]],"d_files":[978,1200,[[1,"Add files",79.9,32.21,17.34,5.0],[2,"File",2.61,37.59,94.79,9.25],[3,"Download",82.98,39.46,6.75,5.5],[4,"Remove",89.11,39.46,6.75,5.5]]],"d_generator":[1920,1200,[[1,"Result",31.02,10.12,57.34,13.0],[2,"Strength",32.27,24.12,54.84,3.67],[3,"New",32.42,28.8,13.54,6.0],[4,"Copy",46.43,28.8,8.07,6.0],[5,"Use",54.97,28.8,16.04,6.0],[6,"Kind",32.27,41.05,54.84,6.0],[7,"Length",32.11,50.84,55.47,5.5]]],"d_health":[1920,1200,[[1,"Score",32.42,12.38,8.12,13.0],[2,"Counts",31.02,26.62,57.34,11.37],[3,"Leak check",32.42,55.6,12.34,6.0],[4,"Leaked",31.02,62.85,57.34,8.94]]],"p_health":[780,1688,[]],"d_activity":[1920,1200,[[1,"Filter",30.94,10.0,20.36,6.0],[2,"Event",31.02,23.84,57.34,8.57],[3,"Time",82.33,26.7,4.63,2.86]]],"d_settings":[1920,1200,[[1,"Tour and guide",30.94,10.0,57.5,11.61],[2,"Profile",32.27,37.19,27.27,6.75],[3,"Password",32.42,44.94,19.85,6.0],[4,"Passcode",52.74,44.94,15.42,6.0],[5,"Recovery key",68.63,44.94,15.34,6.0],[6,"Auto-lock",77.03,66.63,9.92,5.5]]],"p_settings":[780,1688,[[1,"Lock",85.13,2.13,11.28,5.21],[2,"Tour and guide",3.08,9.48,93.85,18.86]]],"d_synccode":[780,720,[[1,"Code",3.08,26.34,93.85,20.59],[2,"Copy",52.29,86.66,27.64,10.01]]],"p_link":[780,1688,[[1,"Code",4.1,83.29,91.79,6.4],[2,"Find",58.75,92.42,36.63,5.69]]],"d_backup":[780,492,[[1,"Download",64.05,80.37,32.49,14.72],[2,"Copy",25.07,80.37,37.83,14.72]]],"d_trash":[1920,1200,[[1,"Recently deleted",0.62,76.79,18.05,6.0],[2,"Restore",81.65,0.75,8.12,5.0],[3,"Delete forever",89.78,0.75,9.6,5.0]]],"d_kit_builder":[780,918,[[1,"What to include",3.08,28.79,93.85,7.86],[2,"Labels",3.08,37.63,93.85,19.97],[3,"Files",3.46,58.91,93.08,4.22],[4,"Note",3.08,68.73,93.85,17.02]]],"d_kit_made":[780,759,[[1,"Code",3.08,25.01,93.85,19.55],[2,"Download",65.04,87.33,31.5,9.5],[3,"Copy code",8.55,87.33,27.64,9.5]]],"a_role":[1920,1200,[]],"a_access":[1920,1200,[]],"a_publish":[1920,1200,[]],"a_rollback":[1920,1200,[]],"a_storage":[1920,1200,[]],"p_recover":[780,1688,[[1,"Key",3.08,29.01,93.85,6.4],[2,"Check",25.23,36.83,71.18,5.69]]],"d_restore":[780,972,[[1,"File",3.08,20.02,93.85,8.51],[2,"Or paste",3.08,33.52,93.85,16.08],[3,"Unlock with",3.08,54.6,93.85,7.42],[4,"Credentials",3.08,62.95,93.85,23.6]]],"a_docs":[1920,1200,[]]}};
+const APP_VERSION = TOUR ? TOUR.version : '';
+K.seen = 'vaultleaf.seen';
+const vcmp = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for(let i = 0; i < Math.max(x.length, y.length); i++){ const d = (x[i] || 0) - (y[i] || 0); if(d) return d; } return 0; };
+const T = {open:false, track:null, i:0, from:null, back:null};
+let tourEl = null;
+const tourBtn = (cls, label) => TOUR ? `<button class="${cls}" data-act="tour">${ic('cards','s')}${label}</button>` : guideLink(cls, label);
+const fmtRel = d => new Date(d + 'T12:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+const newReleases = from => TOUR.releases.filter(r => vcmp(r.version, from) > 0);
+function newSlides(from){
+  const out = [{id:'releases', chapter:'What\'s new', releases:newReleases(from)}];
+  for(const k of ['everyone', 'admin']) for(const s of TOUR.tracks[k].slides){ const f = TOUR.features[s.feature]; if(f && vcmp(f.since, from) > 0 && !out.some(o => o.feature === s.feature && o.title === s.title)) out.push({...s, chapter:k === 'admin' ? 'For admins' : 'What\'s new', track:k}); }
+  return out;
+}
+function tourSlides(){ return T.track === 'new' ? newSlides(T.from) : TOUR.tracks[T.track].slides; }
+function baselineFor(at){ let v = TOUR.releases[0].version; for(const r of TOUR.releases) if(new Date(r.date + 'T00:00:00Z').getTime() <= (at || 0)) v = r.version; return v; }
+function tourAfterUnlock(fresh){
+  if(!TOUR) return;
+  const seen = LS.get(K.seen); S.nudge = null;
+  if(fresh){ S.nudge = {kind:'welcome'}; LS.set(K.seen, APP_VERSION); }
+  else {
+    const from = seen || baselineFor(S.header && S.header.createdAt);
+    if(vcmp(from, APP_VERSION) < 0) S.nudge = {kind:'new', from}; else LS.set(K.seen, APP_VERSION);
+  }
+  if(S.nudge) renderList();
+}
+function nudgeHTML(){
+  const n = S.nudge; if(!n || !TOUR) return '';
+  const rel = TOUR.releases[TOUR.releases.length - 1];
+  const txt = n.kind === 'welcome' ? 'New to Vaultleaf? A 4-minute tour shows every feature, step by step.' : `Vaultleaf ${esc(APP_VERSION)} is here: ${esc(rel.title.toLowerCase())}, and more. See what changed since you last looked.`;
+  return `<div class="banner tour-nudge">${ic(n.kind === 'welcome' ? 'cards' : 'star','s')}<b>${txt}</b><button class="btn small primary" data-act="${n.kind === 'welcome' ? 'tour' : 'tour-new'}">${n.kind === 'welcome' ? 'Take the tour' : 'See what\'s new'}</button><button class="icon-btn" data-act="tour-dismiss" aria-label="Dismiss" title="Dismiss">${ic('x','s')}</button></div>`;
+}
+function markSeen(){ if(!TOUR) return; LS.set(K.seen, APP_VERSION); if(S.nudge){ S.nudge = null; if(S.phase === 'app') renderList(); } }
+
+function openTour(track = null, i = 0, from = null){
+  if(!TOUR){ if(WEB){ S.tab = 'guide'; renderApp(); } else window.open(GUIDE_URL, '_blank', 'noopener'); return; }
+  if(!T.open){ T.back = document.activeElement; }
+  Object.assign(T, {open:true, track, i, from});
+  if(!tourEl){ tourEl = document.createElement('div'); tourEl.id = 'tour'; tourEl.className = 'tour'; document.body.appendChild(tourEl); wireTourSwipe(); }
+  renderTour(true);
+  document.documentElement.classList.add('tour-on');
+}
+function closeTour(){
+  if(!tourEl) return;
+  tourEl.remove(); tourEl = null; T.open = false; document.documentElement.classList.remove('tour-on');
+  if(T.track) markSeen();
+  if(T.back && T.back.isConnected) try{ T.back.focus(); }catch(e){}
+}
+function shotFor(s){
+  const phone = matchMedia('(max-width:759px)').matches;
+  const name = (phone ? s.p : s.d) || s.d || s.p; const m = name && TOUR.shots[name];
+  return m ? {name, w:m[0], h:m[1], marks:s.marks === false ? [] : m[2]} : null;
+}
+function pickerHTML(){
+  const ev = TOUR.tracks.everyone, ad = TOUR.tracks.admin, rel = TOUR.releases[TOUR.releases.length - 1];
+  const mins = n => Math.max(1, Math.round(n * 9 / 60));
+  const card = (v, icon, title, desc, meta) => `<button class="tour-track" data-act="tour-go" data-v="${v}"><span class="tt-ic">${ic(icon)}</span><span class="tt-tx"><b>${title}</b><span>${desc}</span><small>${meta}</small></span>${ic('right','s')}</button>`;
+  return `<div class="tour-head"><span class="tour-crumb">Vaultleaf ${esc(APP_VERSION)}</span><span class="sp"></span><button class="icon-btn" data-act="tour-close" aria-label="Close the tour" title="Close">${ic('x')}</button></div>
+  <div class="tour-pick"><div class="tour-pick-h">${MARK(44)}<h2 id="tour-title">Take the tour</h2><p>Pictures of every part of Vaultleaf, one step at a time. Pick where to start. You can leave and come back any time from Settings.</p></div>
+    <div class="tour-tracks">
+      ${card('everyone', 'key', esc(ev.title), esc(ev.desc), `${ev.slides.length} steps · about ${mins(ev.slides.length)} minutes`)}
+      ${card('admin', 'shield', esc(ad.title), esc(ad.desc), `${ad.slides.length} steps · for people who run the site`)}
+      ${card('new', 'star', `What's new in ${esc(rel.version)}`, esc(rel.summary), `Updated ${fmtRel(rel.date)}`)}
+    </div>
+    <p class="tour-pick-f">Want every detail? ${WEB ? `<button class="linkish" data-act="tour-guide">Read the full illustrated guide</button>` : `<a href="${GUIDE_URL}" target="_blank" rel="noopener">Read the full illustrated guide</a>`}</p>
+  </div>`;
+}
+function releasesHTML(rs){
+  if(!rs.length) return `<div class="tour-rel"><p>You're up to date. Nothing has changed since you last looked.</p></div>`;
+  return `<div class="tour-rel">${rs.slice().reverse().map(r => `<div class="rel"><span class="rel-v">${esc(r.version)}</span><div><b>${esc(r.title)}</b><small>${fmtRel(r.date)}</small><p>${esc(r.summary)}</p></div></div>`).join('')}</div>`;
+}
+function slideHTML(){
+  const slides = tourSlides(), n = slides.length; T.i = Math.max(0, Math.min(T.i, n - 1));
+  const s = slides[T.i], last = T.i === n - 1;
+  const title = T.track === 'new' ? 'What\'s new' : TOUR.tracks[T.track].title;
+  const chapters = [...new Set(slides.map(x => x.chapter))];
+  const sh = s.releases ? null : shotFor(s);
+  const fig = s.releases ? releasesHTML(s.releases) : sh ? `<figure class="tour-fig ${sh.h > sh.w ? 'tall' : ''}" style="--ar:${(sh.w / sh.h).toFixed(4)}"><img src="/guide/img/${sh.name}.webp" width="${sh.w}" height="${sh.h}" alt="Screenshot: ${esc(s.title)}" decoding="async">${sh.marks.map(m => `<span class="tour-mk${m[2] < 3 || m[3] < 3 ? ' edge' : ''}" style="left:${m[2]}%;top:${m[3]}%;width:${m[4]}%;height:${m[5]}%"><b>${m[0]}</b></span>`).join('')}</figure>` : '';
+  const legend = sh && sh.marks.length ? `<ol class="tour-legend">${sh.marks.map(m => `<li><b>${m[0]}</b>${esc(m[1])}</li>`).join('')}</ol>` : '';
+  const body = s.releases ? `<h2 id="tour-title">${s.releases.length ? `What's new since ${esc(T.from)}` : 'All caught up'}</h2><p>${s.releases.length ? `The next ${n - 1 === 1 ? 'step shows' : (n - 1) + ' steps show'} each new feature, with pictures.` : ''}</p>`
+    : `<h2 id="tour-title">${esc(s.title)}</h2><p>${esc(s.text)}</p>${s.points ? `<ul class="tour-pts">${s.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}${legend}`;
+  return `<div class="tour-head"><button class="tour-crumb linkish" data-act="tour-pick" title="Pick another tour">${ic('left','s')}<span class="tc-t">${esc(title)}</span></button>
+    ${chapters.length > 1 ? `<select id="tour-chap" class="input tour-chap" aria-label="Jump to a chapter">${chapters.map(c => `<option ${c === s.chapter ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>` : `<span class="tour-chap-1">${esc(s.chapter)}</span>`}
+    <span class="sp"></span><span class="tour-count" aria-live="polite">${T.i + 1} of ${n}</span>
+    <button class="icon-btn" data-act="tour-close" aria-label="Close the tour" title="Close">${ic('x')}</button></div>
+  <div class="tour-main ${s.releases ? 'is-rel' : ''}">${fig}<div class="tour-text">${s.track === 'admin' && T.track === 'new' ? '<span class="tour-chip">For admins</span>' : ''}${body}</div></div>
+  <div class="tour-foot"><button class="btn" data-act="tour-prev" ${T.i ? '' : 'disabled'}>${ic('left','s')}Back</button>
+    <div class="tour-prog" role="progressbar" aria-label="Tour progress" aria-valuemin="1" aria-valuemax="${n}" aria-valuenow="${T.i + 1}"><span style="width:${((T.i + 1) / n * 100).toFixed(1)}%"></span></div>
+    <button class="btn primary" data-act="tour-next">${last ? 'Finish' : 'Next'}${last ? '' : ic('right','s')}</button></div>`;
+}
+function renderTour(focus){
+  if(!tourEl) return;
+  tourEl.innerHTML = `<div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">${T.track ? slideHTML() : pickerHTML()}</div>`;
+  const main = tourEl.querySelector('.tour-main'); if(main) main.scrollTop = 0;
+  if(T.track){ const sl = tourSlides(), nx = sl[T.i + 1]; const sh = nx && !nx.releases && shotFor(nx); if(sh){ const im = new Image(); im.src = `/guide/img/${sh.name}.webp`; } }
+  if(focus){ const f = tourEl.querySelector(T.track ? '[data-act="tour-next"]' : '.tour-track'); if(f) setTimeout(() => f.focus(), 30); }
+}
+function tourStep(d){
+  const n = tourSlides().length, j = T.i + d;
+  if(j >= n){ const done = T.track; closeTour(); toast(done === 'new' ? 'You\'re up to date' : 'Tour finished. Take it again any time from Settings.', 'check'); return; }
+  if(j < 0) return;
+  T.i = j; renderTour(); const b = tourEl.querySelector(d > 0 ? '[data-act="tour-next"]' : '[data-act="tour-prev"]'); if(b && !b.disabled) b.focus(); else { const nb = tourEl.querySelector('[data-act="tour-next"]'); if(nb) nb.focus(); }
+}
+function wireTourSwipe(){
+  let x0 = null, y0 = 0;
+  tourEl.addEventListener('touchstart', e => { if(!T.track || e.touches.length !== 1) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive:true});
+  tourEl.addEventListener('touchend', e => { if(x0 === null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null; if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) tourStep(dx < 0 ? 1 : -1); }, {passive:true});
+  tourEl.addEventListener('change', e => { if(e.target.id !== 'tour-chap') return; const i = tourSlides().findIndex(s => s.chapter === e.target.value); if(i >= 0){ T.i = i; renderTour(); const sel = $('#tour-chap'); if(sel) sel.focus(); } });
+}
+document.addEventListener('keydown', e => {
+  if(!T.open || !tourEl) return;
+  const t = e.target, inSelect = t && t.tagName === 'SELECT';
+  if(e.key === 'Escape'){ e.preventDefault(); e.stopImmediatePropagation(); closeTour(); return; }
+  if(e.key === 'Tab'){
+    const fs = [...tourEl.querySelectorAll('button:not([disabled]),select,a[href]')]; if(!fs.length) return;
+    const i = fs.indexOf(document.activeElement);
+    if(e.shiftKey && i <= 0){ e.preventDefault(); fs[fs.length - 1].focus(); } else if(!e.shiftKey && (i === fs.length - 1 || i < 0)){ e.preventDefault(); fs[0].focus(); }
+    e.stopImmediatePropagation(); return;
+  }
+  if(T.track && !inSelect && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')){ e.preventDefault(); tourStep(e.key === 'ArrowRight' ? 1 : -1); }
+  e.stopImmediatePropagation();
+}, true);
+Object.assign(ACT, {
+  tour(){ if(S.m) closeModal(); if(S.nudge && S.nudge.kind === 'welcome') markSeen(); openTour(null); },
+  'tour-go'(el){ const v = el.dataset.v; openTour(v, 0, v === 'new' ? (S.nudge && S.nudge.from) || (TOUR.releases.length > 1 ? TOUR.releases[TOUR.releases.length - 2].version : '0') : null); },
+  'tour-new'(){ openTour('new', 0, (S.nudge && S.nudge.from) || APP_VERSION); },
+  'tour-pick'(){ openTour(null); },
+  'tour-close'(){ closeTour(); },
+  'tour-next'(){ tourStep(1); },
+  'tour-prev'(){ tourStep(-1); },
+  'tour-dismiss'(){ markSeen(); },
+  'tour-guide'(){ closeTour(); if(S.phase === 'app'){ S.tab = 'guide'; renderApp(); } else window.open(GUIDE_URL, '_blank', 'noopener'); },
 });
 
 /* start the app once every module above is defined */

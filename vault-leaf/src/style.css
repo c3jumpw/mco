@@ -440,3 +440,84 @@ a.btn{text-decoration:none;color:inherit}
 .menu button.danger{color:var(--danger)}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- guided tour ---------- */
+.linkish{color:var(--leaf);font-weight:700;text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;font:inherit;font-weight:700;cursor:pointer}
+.tour-nudge{background:var(--leaf-soft)}
+.tour-nudge>svg{color:var(--leaf);flex:none}
+.tour-nudge .icon-btn{width:34px;height:34px}
+.help-banner .help-btns{display:flex;gap:8px;flex-wrap:wrap}
+html.tour-on{overflow:hidden}
+.tour{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(13,19,17,.62);overscroll-behavior:contain;animation:tourIn .18s ease-out}
+@keyframes tourIn{from{opacity:0}to{opacity:1}}
+.tour-card{width:min(1180px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--surface);color:var(--ink);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.tour-head{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 18px;border-bottom:1px solid var(--line);min-height:58px}
+.tour-head .sp{flex:1}
+.tour-crumb{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--muted);text-decoration:none}
+button.tour-crumb{color:var(--leaf)}
+select.input.tour-chap{width:auto;flex:0 1 auto;min-width:0;min-height:38px;padding:6px 30px 6px 10px;font-size:14px;max-width:46vw}
+.tour-chap-1{font-size:14px;color:var(--muted)}
+.tour-count{font-size:14px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tour-main{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;padding:22px 24px;align-items:start}
+.tour-main.is-rel{grid-template-columns:minmax(0,1fr) 300px}
+.tour-fig{position:relative;margin:0;justify-self:center;aspect-ratio:var(--ar);width:min(100%,calc((100dvh - 230px) * var(--ar)));border-radius:14px;overflow:hidden;background:var(--sunken);box-shadow:0 0 0 1px var(--line),var(--shadow)}
+.tour-fig img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tour-mk{position:absolute;border:2px solid var(--brass);border-radius:8px;box-shadow:0 0 0 2px rgba(255,255,255,.55);pointer-events:none}
+.tour-mk b{position:absolute;top:-11px;left:-11px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:var(--brass);color:#fff;font:700 12px/22px var(--font-body);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tour-text{display:grid;gap:12px;align-content:start}
+.tour-text h2{font-size:26px;line-height:1.15}
+.tour-text p{margin:0;color:var(--ink)}
+.tour-pts{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--muted)}
+.tour-mk.edge b{top:3px;left:3px}
+.tour-legend{list-style:none;margin:4px 0 0;padding:12px 0 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--muted)}
+.tour-legend li{display:inline-flex;align-items:center;gap:6px}
+.tour-legend b{min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:var(--brass);color:#fff;font-size:11px;line-height:20px;text-align:center}
+.tour-chip{justify-self:start;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);background:var(--brass-soft);padding:3px 8px;border-radius:6px}
+.tour-foot{display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--line)}
+.tour-prog{flex:1;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.tour-prog span{display:block;height:100%;background:var(--leaf);border-radius:3px;transition:width .2s}
+.tour-pick{overflow:auto;padding:28px 28px 22px;display:grid;gap:22px;justify-items:center}
+.tour-pick-h{display:grid;justify-items:center;gap:8px;text-align:center;max-width:560px}
+.tour-pick-h h2{font-size:32px}
+.tour-pick-h p{margin:0;color:var(--muted)}
+.tour-tracks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;width:100%;max-width:980px}
+.tour-track{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:18px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);transition:border-color .15s,background .15s}
+.tour-track:hover,.tour-track:focus-visible{border-color:var(--leaf);background:var(--leaf-soft)}
+.tour-track>svg{margin-top:12px;color:var(--muted);flex:none}
+.tt-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--leaf-soft);color:var(--leaf);flex:none}
+.tt-tx{display:grid;gap:4px;flex:1}
+.tt-tx b{font-family:var(--font-display);font-size:19px}
+.tt-tx span{font-size:14px;color:var(--ink)}
+.tt-tx small{font-size:13px;color:var(--muted)}
+.tour-pick-f{margin:0;color:var(--muted);font-size:15px}
+.tour-rel{display:grid;gap:12px;align-content:start}
+.rel{display:flex;gap:14px;padding:16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)}
+.rel-v{flex:none;font:800 18px/1 var(--font-display);color:var(--leaf);background:var(--leaf-soft);border-radius:10px;padding:10px 10px;height:max-content}
+.rel b{font-family:var(--font-display);font-size:18px}
+.rel small{display:block;color:var(--muted);font-size:13px;margin:2px 0 6px}
+.rel p{margin:0}
+@media (max-width:959px){
+  .tour-tracks{grid-template-columns:1fr;max-width:560px}
+  .tour-main,.tour-main.is-rel{display:flex;flex-direction:column;align-items:stretch;gap:18px}
+  .tour-fig{flex:none;align-self:center;width:min(100%,calc((100dvh - 330px) * var(--ar)))}
+}
+@media (max-width:759px){
+  .tour{padding:0}
+  .tour-card{width:100%;height:100dvh;max-height:none;border-radius:0}
+  .tour-head{padding:max(8px,env(safe-area-inset-top)) 6px 8px 12px}
+  .tour-main{padding:16px}
+  .tour-fig{width:min(100%,calc(58dvh * var(--ar)))}
+  .tour-fig.tall{border-radius:22px}
+  .tour-text h2{font-size:23px}
+  .tour-foot{padding:10px 12px max(10px,env(safe-area-inset-bottom))}
+  .tour-foot .btn{padding:0 14px}
+  .tour-pick{padding:20px 16px}
+  .tour-pick-h h2{font-size:28px}
+  .tour-head{gap:6px}
+  .tour-crumb .tc-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  button.tour-crumb{width:40px;height:40px;justify-content:center;flex:none}
+  select.input.tour-chap{flex:1;max-width:none}
+  .tour-head .sp{display:none}
+}
+@media (prefers-reduced-motion:reduce){.tour{animation:none}.tour-prog span{transition:none}}
+.tour-head [data-act="tour-close"]{margin-left:auto}

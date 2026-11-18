@@ -1,7 +1,7 @@
 /* ---------- pages ---------- */
 const guideLink = (cls, label) => WEB ? `<button class="${cls}" data-act="tab" data-v="guide">${ic('question','s')}${label}</button>` : `<a class="${cls}" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}${label}</a>`;
 function guidePageHTML(){
-  return `<div class="guide-wrap"><div class="guide-bar"><b>Vaultleaf guide</b><span class="sp"></span><a class="btn small" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a></div>
+  return `<div class="guide-wrap"><div class="guide-bar"><b>Vaultleaf guide</b><span class="sp"></span>${TOUR ? tourBtn('btn small primary', 'Take the tour') : ''}<a class="btn small" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a></div>
     <iframe class="guide-frame" src="${GUIDE_URL}" title="Vaultleaf guide"></iframe></div>`;
 }
 function wireGuideFrame(){
@@ -102,7 +102,7 @@ function settingsHTML(){
   const exN = V().accounts.filter(a => a.example).length;
   const lastB = V().meta.lastBackupAt;
   return `<div class="page">${pageHead('Settings')}
-    <div class="banner" style="margin:0">${ic('question','s')}<b>New here, or showing someone else? The guide walks through every screen with pictures.</b>${guideLink('btn small', 'Open the guide')}</div>
+    <div class="banner help-banner" style="margin:0">${ic('question','s')}<b>New here, or showing someone else? ${TOUR ? `The tour walks through every feature step by step, with pictures. There's a track for admins, and What's new after each update.` : 'The guide walks through every screen with pictures.'}</b><span class="help-btns">${TOUR ? tourBtn('btn small primary', 'Take the tour') : ''}${guideLink('btn small', 'Open the guide')}</span></div>
     <div class="panel"><div class="panel-h"><h2>Your account</h2><p>Shown on your backups and recovery kit.</p></div><div class="panel-b">
       <div class="grid2"><div class="field"><label for="p-name">Name</label><input id="p-name" class="input" data-prof="name" value="${esc(p.name)}" autocomplete="name"></div><div class="field"><label for="p-email">Email</label><input id="p-email" class="input" type="email" data-prof="email" value="${esc(p.email)}" autocomplete="email"></div></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="m-chpw">${ic('key','s')}Change master password</button><button class="btn" data-act="m-chpc">${ic('lock','s')}Change passcode</button><button class="btn" data-act="m-newrk">${ic('shield','s')}New recovery key</button></div>

@@ -1,0 +1,78 @@
+# Keeps Vaultleaf's in-app tour, What's new and illustrated guide in step with the app.
+# On every push to main that changes Vaultleaf, it rebuilds the app, retakes every screenshot,
+# redraws the admin pictures, rebuilds the guide and tour, checks that every feature is covered,
+# and commits the refreshed files. Vercel then deploys them.
+name: Vaultleaf docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vault-leaf/src/**'
+      - 'vault-leaf/tools/**'
+      - '!vault-leaf/tools/shots.json'
+      - '.github/workflows/vault-leaf-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vault-leaf-docs
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh tour, guide and screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: vault-leaf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright and Pillow
+        run: |
+          pip install playwright==1.63.0 pillow
+          python -m playwright install --with-deps chromium
+
+      - name: Build the app
+        run: python tools/build.py
+
+      - name: Start the local site
+        run: |
+          python tools/serve.py 8765 > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:8765/ > /dev/null && break; sleep 1; done
+
+      - name: Feature tests
+        run: |
+          python tools/test_features.py
+          python tools/test_tour.py
+
+      - name: Retake screenshots and admin pictures
+        run: python tools/capture.py
+
+      - name: Rebuild the guide and the tour
+        run: |
+          python tools/build_guide.py
+          python tools/build.py
+
+      - name: Check every feature has a tour step, a guide section and screenshots
+        run: python tools/check_docs.py
+
+      - name: Commit the refreshed files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A .
+          if git diff --cached --quiet; then echo "Docs were already current"; exit 0; fi
+          git commit -m "Vaultleaf: refresh tour, guide and screenshots"
+          git pull --rebase origin main
+          git push origin HEAD:main
