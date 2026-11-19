@@ -209,12 +209,17 @@ export function candidateMarkdown(job: Job, item: ExportItem, index: number, opt
   const ia = app.interview_answers || {};
   const iq = (job.interview_questions || []).filter((q) => ia[q.id]?.notes || ia[q.id]?.score);
   const fu = (ia._followups?.notes || '').trim();
-  if (app.interview_at || iq.length || app.interview_summary || fu) {
+  const recs = app.interview_records || [];
+  if (app.interview_at || iq.length || app.interview_summary || fu || recs.length) {
     lines.push('', '### Interview');
     if (app.interview_at) lines.push(`- Scheduled: ${iso(app.interview_at)}`);
     iq.forEach((q) => lines.push(`- ${q.text} — ${ia[q.id]?.notes || '(no notes)'}${ia[q.id]?.score ? ` (score ${ia[q.id]!.score}/5)` : ''}`));
     if (fu) lines.push('- Follow-ups from their answers:', '', quote(fu));
     if (app.interview_summary) lines.push(`- Summary: ${app.interview_summary}`);
+    recs.forEach((r) => {
+      lines.push(`- ${r.kind === 'recording' ? 'Recording' : r.kind === 'transcript' ? 'Transcript' : 'File'}: ${r.label}${r.url && !opts.anonymize ? ` (${r.url})` : ''}${r.name && !r.url ? ` (${r.name}, stored in apply1234)` : ''}`);
+      if (r.text) lines.push('', quote(r.text), '');
+    });
   }
   return lines.join('\n');
 }

@@ -14,6 +14,8 @@ import ExportModal from './ExportModal';
 import { AiUseCard, AnswerCard } from './StepAnswer';
 import { BEFORE_REFRESH } from './refresh';
 import { useRole } from './role';
+import { OfferCard } from './OfferCard';
+import { InterviewRecords } from './InterviewRecords';
 
 /** A reviewer's job, shaped like a Job for the parts of this page that read it. */
 function asJob(c: ClientJob): Job {
@@ -157,6 +159,7 @@ export default function CandidateDetail({ client }: { client?: ClientJob[] } = {
           <a href={mail(settings.reject_subject, settings.reject_body)} onClick={() => save({ stage: 'rejected' }, true)}>
             <Button>Reject</Button>
           </a>
+          <Button onClick={() => document.getElementById('offer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Offer</Button>
           <Button onClick={() => setExportOpen(true)}>Export</Button>
         </div>
         )}
@@ -183,12 +186,13 @@ export default function CandidateDetail({ client }: { client?: ClientJob[] } = {
           {!client && (
             <Card>
               <SectionTitle sub={job?.booking_url ? undefined : 'Add a scheduling link on the job’s Interview tab to include it in invites.'}>Interview</SectionTitle>
-              <InterviewPanel app={app} job={job} save={save} />
+              <InterviewPanel app={app} job={job} save={save} me={me?.email || ''} />
             </Card>
           )}
         </div>
 
         <div className="space-y-5">
+          {!client && <div id="offer" className="space-y-5 scroll-mt-4"><OfferCard app={app} job={job} /></div>}
           <Card>
             <SectionTitle>Your review</SectionTitle>
             <div className="space-y-3">
@@ -367,7 +371,7 @@ function NotesPanel({ appId, notes, setNotes, canDelete }:
   );
 }
 
-function InterviewPanel({ app, job, save }: { app: Application; job: Job | null; save: (p: Partial<Application>, now?: boolean) => void }) {
+function InterviewPanel({ app, job, save, me }: { app: Application; job: Job | null; save: (p: Partial<Application>, now?: boolean) => void; me: string }) {
   const ia = app.interview_answers || {};
   const qs = job?.interview_questions || [];
   const setQ = (qid: string, p: { notes?: string; score?: number }) => save({ interview_answers: { ...ia, [qid]: { ...ia[qid], ...p } } });
@@ -405,6 +409,9 @@ function InterviewPanel({ app, job, save }: { app: Application; job: Job | null;
       <div>
         <p className="text-sm font-medium mb-1.5">Summary</p>
         <Textarea rows={3} placeholder="Overall impression, concerns, next step…" value={app.interview_summary} onChange={(e) => save({ interview_summary: e.target.value })} />
+      </div>
+      <div className="pt-4 border-t border-line">
+        <InterviewRecords app={app} save={save} me={me} />
       </div>
     </div>
   );

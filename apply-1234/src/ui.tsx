@@ -48,16 +48,20 @@ export function Input({ className, mono, ...p }: InputHTMLAttributes<HTMLInputEl
   return <input {...p} className={cx(inputCls, 'h-10', mono && 'font-mono text-[14px]', className)} />;
 }
 
-export function Textarea({ className, mono, autoGrow = true, ...p }:
-  TextareaHTMLAttributes<HTMLTextAreaElement> & { mono?: boolean; autoGrow?: boolean }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
+export function Textarea({ className, mono, autoGrow = true, ref: outer, ...p }:
+  TextareaHTMLAttributes<HTMLTextAreaElement> & { mono?: boolean; autoGrow?: boolean; ref?: React.Ref<HTMLTextAreaElement> }) {
+  const ref = useRef<HTMLTextAreaElement | null>(null);
+  const setRef = (el: HTMLTextAreaElement | null) => {
+    ref.current = el;
+    if (typeof outer === 'function') outer(el); else if (outer) (outer as React.RefObject<HTMLTextAreaElement | null>).current = el;
+  };
   useEffect(() => {
     if (!autoGrow || !ref.current) return;
     const el = ref.current;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight + 2, 900) + 'px';
   }, [p.value, autoGrow]);
-  return <textarea ref={ref} {...p} className={cx(inputCls, 'py-2.5 leading-relaxed resize-y', mono && 'font-mono text-[13.5px]', className)} />;
+  return <textarea ref={setRef} {...p} className={cx(inputCls, 'py-2.5 leading-relaxed resize-y', mono && 'font-mono text-[13.5px]', className)} />;
 }
 
 export function Select({ className, ...p }: React.SelectHTMLAttributes<HTMLSelectElement>) {

@@ -73,6 +73,8 @@ export interface JobSettings {
   confirm_subject?: string;
   confirm_body?: string;
   reply_to?: string;
+  /** Company, manager, pay schedule and terms remembered from the last offer on this job. */
+  offer_defaults?: import('../../supabase/functions/hiring-offer/offer').OfferFields & { letter?: string; terms?: string };
 }
 
 export interface Job {
@@ -163,6 +165,7 @@ export interface Application {
   interview_summary: string;
   cover_letter?: string;
   attachments?: Attachment[];
+  interview_records?: InterviewRecord[];
   notified_at?: string | null;
   submitted_at: string;
   updated_at: string;
@@ -283,4 +286,18 @@ export interface ClientJob {
   access: Pick<JobAccess, 'role' | 'hide_contact' | 'see_files' | 'shortlisted_only' | 'notify' | 'can_move_stages'>;
   candidates: number;
   scored_by_me: number;
+}
+
+/** A recording link, transcript or file from a candidate's interview. */
+export interface InterviewRecord {
+  id: string;
+  kind: 'recording' | 'transcript' | 'file';
+  label: string;
+  url?: string;
+  text?: string;
+  path?: string;   // in the hiring-team bucket
+  name?: string;
+  size?: number;
+  added_at: string;
+  added_by: string;
 }

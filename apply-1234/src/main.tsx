@@ -8,6 +8,7 @@ import Resolver from './candidate/Resolver';
 import PublicPosting from './candidate/PublicPosting';
 
 const AdminApp = lazy(() => import('./admin/AdminApp'));
+const OfferPage = lazy(() => import('./candidate/OfferPage'));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/p/:publicId" element={<PublicPosting />} />
+          <Route path="/offer/:token" element={<Suspense fallback={<Loading />}><OfferPage /></Suspense>} />
           <Route path="/admin/*" element={<Suspense fallback={<Loading />}><AdminApp /></Suspense>} />
           <Route path="*" element={<Resolver />} />
         </Routes>

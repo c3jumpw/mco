@@ -8,6 +8,7 @@ import Jobs from './Jobs';
 import JobEditor from './JobEditor';
 import Candidates from './Candidates';
 import CandidateDetail from './CandidateDetail';
+import OfferEditor from './OfferEditor';
 import ActivityLog from './ActivityLog';
 import Settings from './Settings';
 import NewJobWizard from './NewJobWizard';
@@ -138,6 +139,7 @@ function Shell({ email, role, created }: { email: string; role: Role; created?: 
           <Route path="jobs/:id" element={<JobEditor />} />
           <Route path="candidates" element={<Candidates />} />
           <Route path="candidates/:id" element={<CandidateDetail />} />
+          <Route path="candidates/:id/offer/:offerId" element={<OfferEditor />} />
           {admin && <Route path="inbox" element={<Inbox />} />}
           <Route path="guide" element={<Guide />} />
           {admin && <Route path="activity" element={<ActivityLog />} />}
