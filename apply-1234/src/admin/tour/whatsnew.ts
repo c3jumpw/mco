@@ -14,6 +14,16 @@ export interface Change {
 
 export const CHANGES: Change[] = [
   {
+    version: 4, date: '2026-11-19', title: 'Offer letters with e-signature',
+    items: [
+      'Prepare an offer from a candidate’s page: pay, start date, terms and attachments, with a live preview.',
+      'Send it from your company name. The hiring manager is CC’d by default, and you can add others. Copies have no signing link.',
+      'Candidates sign on any device. Everyone gets the signed PDF, with a certificate showing the time, IP address and device.',
+      'Interview recordings, transcripts and files now live on the candidate’s page.',
+    ],
+    image: 'offer-editor',
+  },
+  {
     version: 3, date: '2026-11-18', title: 'A getting-started tour',
     items: ['A slide-by-slide tour of every screen, under Help at the top of the page.', 'After each update, this What’s new shows what changed.'],
     image: 'admin-overview',

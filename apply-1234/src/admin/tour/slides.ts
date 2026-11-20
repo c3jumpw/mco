@@ -2,7 +2,7 @@
 // Pictures come from scripts/guide/img (refreshed by scripts/guide/update.sh). When a screen or
 // feature changes, update its slide here and add an entry to whatsnew.ts.
 
-export const TOUR_UPDATED = '2026-11-18';
+export const TOUR_UPDATED = '2026-11-19';
 
 export interface Slide {
   id: string;
@@ -116,7 +116,7 @@ export const SLIDES: Slide[] = [
     id: 'candidate', section: 'Review candidates', image: 'candidate-page',
     title: 'A candidate’s page',
     lead: 'Their answers, your scorecard and every next step in one place.',
-    points: ['Change the stage, or open a ready-to-send interview invite or rejection.', 'Score each answer and the rubric, and see other reviewers’ scores.', 'Notes, tags, the interview card and how they got here.'],
+    points: ['Change the stage, open a ready-to-send interview invite or rejection, or prepare an offer.', 'Score each answer and the rubric, and see other reviewers’ scores.', 'Notes, tags, the interview card and how they got here.'],
   },
   {
     id: 'answers', section: 'Review candidates', image: 'candidate-steps',
@@ -125,10 +125,40 @@ export const SLIDES: Slide[] = [
     points: ['Quick scenarios show their pick next to the best answer, and how long they took.', 'Written answers show whether they were typed or pasted. Orange means mostly pasted: something to ask about, not proof.', 'Their own words on whether they used AI.', 'The Interview card can copy a prompt for follow-up questions drawn from their answers.'],
   },
   {
+    id: 'interview-records', section: 'Review candidates', image: 'interview-records',
+    title: 'Interview recordings and transcripts',
+    lead: 'Keep the call recording, the transcript and any interview files on the candidate’s page, under Interview.',
+    points: ['Add a link to the recording from Zoom, Google Meet, Fathom, Loom or Drive.', 'Paste a transcript, or upload a .txt, .vtt or .srt file and it becomes readable text.', 'Transcripts are included when you export for AI review.'],
+  },
+  {
     id: 'export', section: 'Review candidates', image: 'export',
     title: 'Export for AI review',
     lead: 'Build one document with the role, steps, rubric and candidates’ answers, ready to paste into an AI for a second opinion.',
     points: ['Hide names and emails for a blind review.', 'Export one person from their page, or everyone from the job’s Overview tab.'],
+  },
+  {
+    id: 'offer', section: 'Make an offer', image: 'offer-editor',
+    title: 'Write the offer',
+    lead: 'On a candidate’s page, choose Prepare an offer. Fill in the company, role, start date, pay and hiring manager. The preview shows exactly what they’ll sign.',
+    points: ['Start from the standard letter and starter terms, or write your own. Notes in [brackets] must be replaced before you can send.', 'Attach an NDA, handbook or anything else that’s part of the offer.', 'Drafts save as you type, and only your hiring team can see them.'],
+  },
+  {
+    id: 'offer-send', section: 'Make an offer', image: 'offer-send',
+    title: 'Send it, with copies',
+    lead: 'The email comes from your company name through apply1234, and replies go to the hiring manager.',
+    points: ['The hiring manager is CC’d by default. Add anyone else who should have a copy.', 'Copies show the whole offer but have no signing link, so only the candidate can sign.', 'A sent offer can’t be edited. To change it, withdraw it and send a new one.'],
+  },
+  {
+    id: 'offer-sign', section: 'Make an offer', image: 'cand-15-sign', phone: true,
+    title: 'They sign on any device',
+    lead: 'The candidate reads the offer and any attachments, then draws or types their signature. They can also decline.',
+    points: ['They confirm they’ve read everything and agree to sign electronically.', 'The candidate, you, the hiring manager and anyone CC’d get the signed PDF by email.'],
+  },
+  {
+    id: 'offer-record', section: 'Make an offer', image: 'offer-record',
+    title: 'The signed record',
+    lead: 'Everything about the offer stays on the candidate’s page.',
+    points: ['The signed PDF ends with a certificate: the time, IP address, device and a fingerprint of the exact text.', 'Download the signature, the attachments and an audit trail of every open and signature.', 'Sending moves them to Offer; signing moves them to Hired.'],
   },
   {
     id: 'inbox', section: 'Messages and settings', image: 'admin-inbox', to: '/admin/inbox', toLabel: 'Open the Inbox', adminOnly: true,

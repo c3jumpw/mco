@@ -228,7 +228,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
 
   <main id="top">
     <nav class="chips" aria-label="Sections">
-      <a href="#big-picture">How it works</a><a href="#menu">Menu</a><a href="#post-a-job">Post a job</a><a href="#job-tabs">Inside a job</a><a href="#steps">Steps</a><a href="#review">Review</a><a href="#signals">Signals</a><a href="#overview">Dashboard</a><a href="#inbox">Inbox</a><a href="#emails">Emails</a><a href="#activity-log">Activity</a><a href="#settings">Settings</a><a href="#share">Share</a><a href="#candidates">Candidates</a><a href="#tips">Tips</a>
+      <a href="#big-picture">How it works</a><a href="#menu">Menu</a><a href="#post-a-job">Post a job</a><a href="#job-tabs">Inside a job</a><a href="#steps">Steps</a><a href="#review">Review</a><a href="#offers">Offers</a><a href="#signals">Signals</a><a href="#overview">Dashboard</a><a href="#inbox">Inbox</a><a href="#emails">Emails</a><a href="#activity-log">Activity</a><a href="#settings">Settings</a><a href="#share">Share</a><a href="#candidates">Candidates</a><a href="#tips">Tips</a>
     </nav>
 
     <div class="hero">
@@ -515,6 +515,8 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
             <li><b>Tags</b> are free labels like "strong writer", searchable on the Candidates page.</li>
             <li><b>AI use, in their words</b> shows whether they said they used AI, and how.</li>
             <li><b>Interview</b> sets the date and holds the interview questions, each with space for notes and a score, plus a summary box. <b>Follow-ups from their answers</b> copies a prompt that writes questions about what this person actually wrote and made.</li>
+            <li><b>Recordings and transcripts</b>, under Interview, keep the link to the call recording, the transcript and any interview files. Paste a transcript or upload a .txt, .vtt or .srt file. Transcripts are included in exports.</li>
+            <li><b>Offer</b>, at the top of the right-hand column, prepares an offer and shows where it stands. See <a href="#offers">Make an offer</a>.</li>
           </ul>
           <h3 style="margin-top:12px">Export for AI review</h3>
           <p>The <b>Export</b> button builds one document with the role, steps, rubric and the candidate's answers, signals, scores and notes, with instructions for an AI reviewer at the top. Paste it into Claude or another model to get a second opinion. Switch on <b>Hide names and emails</b> for a blind review.</p>
@@ -546,10 +548,63 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       @@SHOT admin-candidates|The Candidates page, across all jobs@@
     </section>
 
+    <!-- offers -->
+    <section id="offers">
+      <header>
+        <p class="eyebrow">07 · Hiring lead</p>
+        <h2>Make an offer</h2>
+        <p>Write the offer in apply1234 and send it from your company name. The candidate signs online, everyone gets the signed PDF, and the full record stays on the candidate's page.</p>
+      </header>
+      <ol class="list">
+        <li><b>Prepare.</b> On the candidate's page, choose <b>Prepare an offer</b>. The company, manager, pay schedule, letter and terms fill in from the job's last offer.</li>
+        <li><b>Preview.</b> Fill in the start date, pay and expiry. The preview shows exactly what they'll read and sign.</li>
+        <li><b>Send.</b> Choose who gets a copy, then send. The email comes from your company name, and replies go to the hiring manager.</li>
+        <li><b>Signed.</b> They sign on any device. The signed PDF goes to everyone, and they move to Hired.</li>
+      </ol>
+
+      <h3 class="sub">Writing the offer</h3>
+      @@SHOT offer-editor|The offer editor: the details on the left, a live preview on the right@@
+      <div class="pair" style="margin-top:28px">
+        <div class="text">
+          <ul class="list">
+            <li><b>The details.</b> Company and address, position, engagement (employee or contractor), start date, the date the offer expires, location, schedule, pay (amount, currency, per hour, week, month or year, and how often it's paid), benefits, and the hiring manager's name, title, email and phone.</li>
+            <li><b>The letter</b> is written in plain text with fill-ins in braces, such as <code>{first}</code>, <code>{pay}</code> and <code>{start_date}</code>. Tap a fill-in to add it where you're typing. A line whose fill-in is empty is left out.</li>
+            <li><b>Terms and conditions</b> start from a starter set. Every <code>[note in brackets]</code> must be replaced before the offer can be sent, and they're highlighted in the preview. Have the terms checked by someone who knows employment law where the candidate lives.</li>
+            <li><b>Attachments</b> such as an NDA or handbook are part of the offer. The candidate opens them before signing, and each opening is logged.</li>
+            <li>Drafts save as you type. Only your hiring team can see them, and they can be deleted until they're sent.</li>
+          </ul>
+        </div>
+        @@SHOT offer-send|Sending, with CC@@
+      </div>
+
+      <h3 class="sub">Sending and copies</h3>
+      <ul class="list">
+        <li><b>From</b> "<i>Your company</i> via apply1234 &lt;hiring@apply1234.com&gt;", so it comes from a known sending address. <b>Replies</b> go to the hiring manager.</li>
+        <li><b>CC.</b> The hiring manager is copied by default. Add anyone else under <b>Also CC</b>. People copied get the whole offer, but no signing link, so only the candidate can open and sign it. They also get the signed PDF.</li>
+        <li><b>After sending</b>, the offer can't be changed. To change it, <b>Withdraw</b> it and prepare a new one. You can also <b>Copy signing link</b> or <b>Send a reminder</b>.</li>
+        <li>The candidate moves to <b>Offer</b> when it's sent, and to <b>Hired</b> when they sign.</li>
+      </ul>
+
+      <h3 class="sub">What the candidate sees</h3>
+      <div class="phones">
+        @@PHONE cand-14-offer|1|The offer|From their email, they open a private link to the whole offer, the terms and any attachments, with the date to sign by.@@
+        @@PHONE cand-15-sign|2|Sign or decline|They draw or type a signature, confirm they've read everything and agree to sign electronically. They can decline with a note.@@
+      </div>
+
+      <h3 class="sub">The signed record</h3>
+      @@SHOT offer-record|A signed offer: the document, its record and files@@
+      <ul class="list" style="margin-top:18px">
+        <li><b>Signed PDF.</b> The letter, terms, attachment list and both signature blocks, then a signature certificate: the time, the signer's IP address and device, their consent, a SHA-256 fingerprint of the exact text, and a log of every event.</li>
+        <li><b>Signature image</b> as drawn on their screen, the <b>attachments</b>, and an <b>audit trail</b> file with every open, email and signature.</li>
+        <li>Everything is on the candidate's page, in the Offer card. Earlier offers stay listed underneath.</li>
+      </ul>
+      <div class="tip note" style="margin-top:14px">apply1234 records the signature and how it was given, but it isn't legal advice. For employment or contractor terms, check with someone who knows the law where the candidate lives.</div>
+    </section>
+
     <!-- 6 -->
     <section id="signals">
       <header>
-        <p class="eyebrow">07 · Reviewer</p>
+        <p class="eyebrow">08 · Reviewer</p>
         <h2>Reading the behavior signals</h2>
         <p>The Behavior panel on each candidate's page shows how they worked. Read the signals as context next to their answers. On their own they don't decide anything.</p>
       </header>
@@ -573,7 +628,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 7 -->
     <section id="overview">
       <header>
-        <p class="eyebrow">08 · Everyone</p>
+        <p class="eyebrow">09 · Everyone</p>
         <h2>The Overview dashboard</h2>
         <p>The top of the Jobs page. It answers "what happened lately, and what needs me?" Your own test visits are never counted.</p>
       </header>
@@ -583,7 +638,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 8 -->
     <section id="inbox">
       <header>
-        <p class="eyebrow">09 · Everyone</p>
+        <p class="eyebrow">10 · Everyone</p>
         <h2>Inbox and help messages</h2>
         <p>Every activity page has a <b>Help</b> button in the corner. Candidates choose <i>Something isn't working</i>, <i>Question about the role</i> or <i>Something else</i>, write a message and leave their email.</p>
       </header>
@@ -603,7 +658,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 9 -->
     <section id="emails">
       <header>
-        <p class="eyebrow">10 · Everyone</p>
+        <p class="eyebrow">11 · Everyone</p>
         <h2>Emails</h2>
         <p>Automatic emails come from <code>hiring@apply1234.com</code>. Interview invites and rejections are never sent automatically: they open in your own email app so you can read them before sending.</p>
       </header>
@@ -614,6 +669,10 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
           <tr><td>A candidate submits</td><td><span class="chip accent">Automatic</span> "New applicant: {name}" with their auto-checks and a link to their answers</td><td>Every team member with this alert on</td><td>Settings › Email me when</td></tr>
           <tr><td>A help message arrives</td><td><span class="chip accent">Automatic</span> The message, the step they were on and their browser</td><td>Every team member with this alert on</td><td>Settings › Email me when</td></tr>
           <tr><td>You click Invite to interview</td><td><span class="chip neutral">You send it</span> Interview invite with your scheduling link</td><td>The candidate</td><td>Job › Interview › Emails</td></tr>
+          <tr><td>You send an offer</td><td><span class="chip neutral">You send it</span> "Your offer from {company}" with a private signing link</td><td>The candidate. Replies go to the hiring manager.</td><td>The offer itself</td></tr>
+          <tr><td>You send an offer</td><td><span class="chip accent">Automatic</span> A copy of the whole offer, without the signing link</td><td>Everyone you CC (the hiring manager by default)</td><td>The send window</td></tr>
+          <tr><td>The candidate signs</td><td><span class="chip accent">Automatic</span> The signed PDF with its signature certificate</td><td>The candidate, the hiring manager, whoever sent it and everyone CC'd</td><td>Nothing to set</td></tr>
+          <tr><td>The candidate declines</td><td><span class="chip accent">Automatic</span> Their reason, if they gave one</td><td>The hiring manager, whoever sent it and everyone CC'd</td><td>Nothing to set</td></tr>
           <tr><td>You click Reject</td><td><span class="chip neutral">You send it</span> A kind rejection</td><td>The candidate</td><td>Job › Interview › Emails</td></tr>
           <tr><td>Someone signs up</td><td><span class="chip accent">Automatic</span> "Confirm your apply1234 login"</td><td>The new team member</td><td>Set up once in Supabase</td></tr>
         </tbody>
@@ -624,7 +683,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 10 -->
     <section id="activity-log">
       <header>
-        <p class="eyebrow">11 · Everyone</p>
+        <p class="eyebrow">12 · Everyone</p>
         <h2>Activity log</h2>
         <p>A running record of everything that happens on candidate pages: arrivals, steps, link checks, submissions and every wrong address typed on apply1234.com.</p>
       </header>
@@ -644,7 +703,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 11 -->
     <section id="settings">
       <header>
-        <p class="eyebrow">12 · Everyone</p>
+        <p class="eyebrow">13 · Everyone</p>
         <h2>Settings and your team</h2>
       </header>
       <div class="pair flip">
@@ -668,7 +727,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 12 -->
     <section id="share">
       <header>
-        <p class="eyebrow">13 · Hiring lead</p>
+        <p class="eyebrow">14 · Hiring lead</p>
         <h2>Share a job with someone</h2>
         <p>Hiring for a client or a manager? Give them access to one job, without adding them to your hiring team. They sign in with their own login and see only that job.</p>
       </header>
@@ -707,7 +766,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 13 -->
     <section id="candidates">
       <header>
-        <p class="eyebrow">14 · Candidate</p>
+        <p class="eyebrow">15 · Candidate</p>
         <h2>What candidates see</h2>
         <p>Most candidates apply on a phone, so these are phone screens. Scroll sideways to follow the whole journey. Click any screen to enlarge it.</p>
       </header>
@@ -757,7 +816,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <!-- 13 -->
     <section id="tips">
       <header>
-        <p class="eyebrow">15 · Everyone</p>
+        <p class="eyebrow">16 · Everyone</p>
         <h2>Tips and fixes</h2>
       </header>
       <div class="faq">

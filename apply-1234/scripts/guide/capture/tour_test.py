@@ -71,7 +71,8 @@ def main(b):
     ctx, pg = mk(1280, 860, "2026-11-06T10:00:00Z")
     pg.goto(BASE + "/admin"); pg.wait_for_timeout(1800)
     text = dialog(pg).inner_text() if dialog(pg).count() else ""
-    check("WHAT’S NEW" in text and "A getting-started tour" in text, "existing admin: What's new opens instead")
+    latest = re.search(r"title: '([^']+)'", (HERE.parent.parent.parent / "src/admin/tour/whatsnew.ts").read_text()).group(1)
+    check("WHAT’S NEW" in text and latest in text, f"existing admin: What's new opens instead, newest first ({latest})")
     pg.screenshot(path=f"{SHOTS}/test-whats-new.png")
     n = int(counter(pg).group(2))
     for _ in range(n - 1): pg.keyboard.press("ArrowRight")

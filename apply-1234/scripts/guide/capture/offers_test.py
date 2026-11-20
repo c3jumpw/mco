@@ -26,9 +26,26 @@ def public(o, app):
             "signature_kind": (o.get("signature") or {}).get("kind"), "pdf": bool(o.get("pdf_path")), "doc_hash": o.get("doc_hash")}
 
 def fill(text, f, app):
-    v = {"first": app["name"].split()[0], "candidate_name": app["name"], "company": f.get("company",""), "position": f.get("position",""),
-         "pay": f"{f.get('pay_currency','')} {f.get('pay_amount','')} {f.get('pay_period','')}", "manager_name": f.get("manager_name","")}
-    return re.sub(r"\{(\w+)\}", lambda m: v.get(m.group(1), f.get(m.group(1), "")), text)
+    """The same rules as fillOffer in offer.ts: dates spelled out, and a line whose fill-in is empty is left out."""
+    import datetime
+    def day(d):
+        try: x = datetime.date.fromisoformat(d or ""); return f"{x:%A}, {x:%B} {x.day}, {x.year}"
+        except ValueError: return ""
+    t = lambda k: (f.get(k) or "").strip()
+    v = {"first": app["name"].split()[0], "candidate_name": app["name"], "start_date": day(f.get("start_date")), "expires": day(f.get("expires")),
+         "pay": " ".join(x for x in [t("pay_currency"), t("pay_amount"), t("pay_period")] if x),
+         "manager_contact": " or ".join(x for x in [t("manager_email"), t("manager_phone")] if x),
+         "reports_to": ", ".join(x for x in [t("manager_name"), t("manager_title")] if x),
+         "signoff_title": ", ".join(x for x in [t("manager_title"), t("company")] if x)}
+    for k in ("company", "company_address", "position", "employment_type", "location", "schedule", "pay_schedule", "benefits",
+              "manager_name", "manager_title", "manager_email", "manager_phone"):
+        v[k] = t(k)
+    out = []
+    for line in text.split("\n"):
+        keys = [k for k in re.findall(r"\{(\w+)\}", line) if k in v]
+        if any(not v[k] for k in keys): continue
+        out.append(re.sub(r"\{(\w+)\}", lambda m: v.get(m.group(1), m.group(0)), line))
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip()
 
 def handler(route, request):
     url, method = request.url, request.method

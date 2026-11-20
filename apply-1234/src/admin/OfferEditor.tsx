@@ -242,7 +242,7 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
 
           <Card>
             <SectionTitle sub="Words in {braces} fill in from the fields above. Tap one to add it where you're typing."
-              action={<Button size="sm" variant="ghost" onClick={() => { if (confirm('Replace the letter with the standard one?')) { setLetter(DEFAULT_LETTER); touch(); } }}>Use standard letter</Button>}>
+              action={<Button size="sm" variant="ghost" className="whitespace-nowrap" onClick={() => { if (confirm('Replace the letter with the standard one?')) { setLetter(DEFAULT_LETTER); touch(); } }}>Standard letter</Button>}>
               Letter
             </SectionTitle>
             <div className="flex flex-wrap gap-1 mb-2">
@@ -257,7 +257,7 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
 
           <Card>
             <SectionTitle sub="Replace every [note in brackets] with your own wording before sending. Have the terms checked by someone who knows employment law where the candidate lives."
-              action={<Button size="sm" variant="ghost" onClick={() => { if (confirm('Replace the terms with the starter terms?')) { setTerms(DEFAULT_TERMS); touch(); } }}>Use starter terms</Button>}>
+              action={<Button size="sm" variant="ghost" className="whitespace-nowrap" onClick={() => { if (confirm('Replace the terms with the starter terms?')) { setTerms(DEFAULT_TERMS); touch(); } }}>Starter terms</Button>}>
               Terms and conditions
             </SectionTitle>
             <Textarea ref={areas.terms} mono rows={16} className="text-[13px]" value={terms}
