@@ -52,6 +52,10 @@ export function fmtStamp(iso?: string | null): string {
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}, ${hh}:${mm} UTC`;
 }
 
+/** The document's heading: a contractor isn't offered employment. */
+export const offerTitle = (f: Pick<OfferFields, 'employment_type'>) =>
+  /contract|freelanc|consult/i.test(f.employment_type || '') ? 'Offer of engagement' : 'Offer of employment';
+
 export const payText = (f: OfferFields) =>
   [f.pay_currency, f.pay_amount?.trim(), f.pay_period].filter(Boolean).join(' ').trim();
 

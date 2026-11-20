@@ -5,7 +5,7 @@
 // Every step is added to the offer's event log with the time, IP address and browser.
 import {
   DEFAULT_LETTER, type OfferEvent, type OfferFields, type OfferFile, documentText, fillOffer, firstName, fmtDay, fmtStamp,
-  missingForSend, offerVars, payText, sha256Hex, uaLabel,
+  missingForSend, offerTitle, offerVars, payText, sha256Hex, uaLabel,
 } from './offer.ts';
 import { buildOfferPdf } from './pdf.ts';
 import { button, esc, heading, layout, paragraphs, row, table } from './email.ts';
@@ -239,7 +239,7 @@ async function finishSigned(d: Deps, offer: Offer, app: App, email: boolean, png
     if (!png && offer.signature?.kind === 'drawn' && offer.signature.path) png = (await s.download(offer.signature.path)) || undefined;
     const f = offer.fields;
     const pdf = await buildOfferPdf({
-      offerId: offer.id, company: f.company || '', companyAddress: f.company_address, position: f.position || '',
+      offerId: offer.id, title: offerTitle(f), company: f.company || '', companyAddress: f.company_address, position: f.position || '',
       candidateName: app.name, candidateEmail: app.email, letter: offer.final_letter || '', terms: offer.final_terms || '',
       attachments: offer.attachments || [],
       manager: { name: f.manager_name || '', title: f.manager_title, email: f.manager_email || '', phone: f.manager_phone },

@@ -1,7 +1,7 @@
 // The candidate's offer: read it, open the attachments, then sign (drawn or typed) or decline.
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { offerError, fmtDay, fmtStamp, offerCall, type PublicOffer } from '../lib/offers';
+import { offerError, fmtDay, fmtStamp, offerCall, offerTitle, type PublicOffer } from '../lib/offers';
 import { OfferDocument, SignaturePad } from './OfferDocument';
 import { Button, Input, Modal, Segmented, Spinner, Textarea, Wordmark, cx } from '../ui';
 
@@ -42,7 +42,7 @@ export default function OfferPage() {
       <div className="pt-6 sm:pt-10 pb-28">
         <StatusBanner offer={offer} contact={contact} onPdf={() => open('pdf')} />
         <div className="mt-6">
-          <OfferDocument company={offer.company} address={offer.company_address} position={offer.position} candidate={offer.candidate.name}
+          <OfferDocument title={offerTitle(offer.summary)} company={offer.company} address={offer.company_address} position={offer.position} candidate={offer.candidate.name}
             date={offer.sent_at} letter={offer.letter} terms={offer.terms} attachments={offer.attachments} onFile={(i) => open(i)} />
         </div>
         {['sent', 'viewed'].includes(offer.status) && !offer.expired && <SignBox offer={offer} token={token} onDone={load} contact={contact} />}

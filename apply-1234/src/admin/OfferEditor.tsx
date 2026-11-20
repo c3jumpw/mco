@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import type { Application, Job } from '../lib/types';
 import {
   CURRENCIES, DEFAULT_LETTER, DEFAULT_TERMS, EMPLOYMENT_TYPES, EVENT_LABELS, OFFER_STATUS, PAY_PERIODS, TEAM_BUCKET,
-  defaultsToKeep, fillOffer, fmtDay, fmtStamp, missingForSend, offerCall, offerError, offerVars, placeholdersIn, uaLabel,
+  defaultsToKeep, fillOffer, fmtDay, fmtStamp, missingForSend, offerCall, offerError, offerTitle, offerVars, placeholdersIn, uaLabel,
   type Offer, type OfferFields, type OfferFile,
 } from '../lib/offers';
 import { fmtSize } from '../lib/files';
@@ -160,7 +160,7 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
   };
 
   const preview = (
-    <OfferDocument highlight company={f.company || ''} address={f.company_address} position={f.position || ''} candidate={app.name}
+    <OfferDocument highlight title={offerTitle(f)} company={f.company || ''} address={f.company_address} position={f.position || ''} candidate={app.name}
       letter={filledLetter} terms={filledTerms} attachments={files} />
   );
 
@@ -406,7 +406,7 @@ function SentOffer({ app, offer, reload }: { app: Application; offer: Offer; rel
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start">
         <div className="min-w-0">
-          <OfferDocument company={offer.fields.company || ''} address={offer.fields.company_address} position={offer.fields.position || ''}
+          <OfferDocument title={offerTitle(offer.fields)} company={offer.fields.company || ''} address={offer.fields.company_address} position={offer.fields.position || ''}
             candidate={app.name} date={offer.sent_at}
             letter={offer.final_letter || ''} terms={offer.final_terms || ''} attachments={offer.attachments}
             onFile={async (i) => window.open(await teamFileLink(offer.attachments[i].path), '_blank', 'noopener')} />

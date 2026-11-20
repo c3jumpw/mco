@@ -9,6 +9,7 @@ export interface OfferDocProps {
   address?: string;
   position: string;
   candidate: string;
+  title?: string;
   date?: string | null;        // when it was sent (ISO)
   letter: string;
   terms: string;
@@ -31,7 +32,7 @@ export function OfferDocument(p: OfferDocProps) {
         <p className="font-display text-[30px] sm:text-[38px] leading-none">{p.company || 'Your company'}</p>
         {p.address && <p className="text-[13px] text-muted mt-2">{p.address}</p>}
         <span className="block h-[3px] w-10 bg-accent mt-4" />
-        <p className="mt-5 text-[13px] font-medium text-muted uppercase tracking-[.12em]">Offer of employment</p>
+        <p className="mt-5 text-[13px] font-medium text-muted uppercase tracking-[.12em]">{p.title || 'Offer of employment'}</p>
         <h1 className="text-[22px] sm:text-[26px] font-semibold leading-tight mt-1">{p.position || 'Position'}</h1>
         <p className="text-sm text-muted mt-1">For {p.candidate}{p.date ? ` · ${fmtDay(p.date.slice(0, 10))}` : ''}</p>
       </header>

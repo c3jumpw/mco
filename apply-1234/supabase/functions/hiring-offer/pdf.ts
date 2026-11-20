@@ -5,6 +5,7 @@ import { EVENT_LABELS, type OfferEvent, type OfferFile, fmtStamp, uaLabel } from
 
 export interface PdfInput {
   offerId: string;
+  title?: string;            // 'Offer of employment' or 'Offer of engagement'
   company: string;
   companyAddress?: string;
   position: string;
@@ -146,7 +147,7 @@ export async function buildOfferPdf(i: PdfInput): Promise<Uint8Array> {
   w.gap(4);
   w.page.drawRectangle({ x: M, y: w.y, width: 36, height: 2.5, color: ACCENT });
   w.gap(18);
-  w.runs([{ text: 'Offer of employment', bold: true }, { text: `  ·  ${i.position}` }], { size: 11, color: MUTED });
+  w.runs([{ text: i.title || 'Offer of employment', bold: true }, { text: `  ·  ${i.position}` }], { size: 11, color: MUTED });
   w.runs([{ text: `To ${i.candidateName} (${i.candidateEmail})  ·  Sent ${fmtStamp(i.sentAt)}` }], { size: 9, leading: 13, color: MUTED });
   w.gap(14);
 
