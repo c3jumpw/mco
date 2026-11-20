@@ -14,6 +14,7 @@ import Settings from './Settings';
 import NewJobWizard from './NewJobWizard';
 import Inbox from './Inbox';
 import Guide from './Guide';
+import Changelog from './Changelog';
 import { unreadMessages } from './data';
 import { Icon, INBOX_EVENT, PullToRefresh, REFRESH_ICON, useRefresh } from './chrome';
 import { RoleContext, type Role } from './role';
@@ -125,7 +126,7 @@ function Shell({ email, role, created }: { email: string; role: Role; created?: 
             className="ml-auto -mr-3 grid place-items-center h-9 w-9 rounded-lg text-muted hover:text-ink hover:bg-card border border-transparent hover:border-line transition disabled:opacity-100">
             <Icon d={REFRESH_ICON} className={cx('h-[18px] w-[18px]', refreshing && 'animate-spin text-accent')} />
           </button>
-          <HelpMenu unseen={tour.unseen} active={loc.pathname.startsWith('/admin/guide')} />
+          <HelpMenu unseen={tour.unseen} active={/^\/admin\/(guide|changelog)/.test(loc.pathname)} />
           <span className="text-[12px] text-muted truncate max-w-[30vw] hidden md:block">{email}</span>
           {!admin && <button className="text-[12px] text-muted hover:text-ink underline underline-offset-2" onClick={() => supabase.auth.signOut()}>Sign out</button>}
         </div>
@@ -142,6 +143,7 @@ function Shell({ email, role, created }: { email: string; role: Role; created?: 
           <Route path="candidates/:id/offer/:offerId" element={<OfferEditor />} />
           {admin && <Route path="inbox" element={<Inbox />} />}
           <Route path="guide" element={<Guide />} />
+          <Route path="changelog" element={<Changelog />} />
           {admin && <Route path="activity" element={<ActivityLog />} />}
           {admin && <Route path="settings" element={<Settings email={email} />} />}
           <Route path="*" element={<Jobs />} />
@@ -197,6 +199,10 @@ function HelpMenu({ unseen, active }: { unseen: boolean; active: boolean }) {
           <NavLink role="menuitem" to="/admin/guide" className={item} onClick={() => setOpen(false)}>
             <span aria-hidden className="mt-0.5">☰</span>
             <span><span className="block text-sm font-medium">Full guide</span><span className="block text-xs text-muted">Every setting explained, with pictures</span></span>
+          </NavLink>
+          <NavLink role="menuitem" to="/admin/changelog" className={item} onClick={() => setOpen(false)}>
+            <span aria-hidden className="mt-0.5">↺</span>
+            <span><span className="block text-sm font-medium">Change log</span><span className="block text-xs text-muted">Every update since launch, with dates</span></span>
           </NavLink>
         </div>
       )}

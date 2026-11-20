@@ -5,8 +5,11 @@ People learn the app from three things, and they must match what's live:
 
 1. **Getting-started tour** – `src/admin/tour/slides.ts`. One slide per screen or feature. If a screen
    or feature changes, change its slide (and add one for anything new). Bump `TOUR_UPDATED`.
-2. **What's new** – `src/admin/tour/whatsnew.ts`. Add an entry with the next `version` for every change
-   people can see. Admins see new entries once, after the update.
+2. **Change log and What's new** – `src/admin/changelog.ts` is the record of every update, shown under
+   Help › Change log. Add an entry for every release (date, what changed in plain words, technical
+   details and commit ids). Give it the next `version` when people can see the change: those entries
+   are What's new, which admins see once after the update. `CHANGELOG.md` is written from it by
+   `node scripts/changelog.mjs` (update.sh runs it).
 3. **Full guide** – `scripts/guide/template.html` (built into `src/admin/guide/guide.html`), also
    published as the shared "apply1234 Guide" artifact (slug `43800eb8-8ad7-4bf9-8f23-765b231b570a`):
    republish it after changing the guide.

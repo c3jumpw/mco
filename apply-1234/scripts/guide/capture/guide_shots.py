@@ -175,6 +175,8 @@ def main(b):
     shot(pg, "admin-activity", content_clip(pg, 56, 760))
     pg.goto(BASE + "/admin/settings"); pg.wait_for_timeout(800)
     shot(pg, "admin-settings", content_clip(pg, 56, 760, 48, 860))
+    pg.goto(BASE + "/admin/changelog"); pg.wait_for_timeout(800)
+    shot(pg, "admin-changelog", content_clip(pg, 56, 820, 48, 960))
     ctx.close()
 
     # ── Candidate, mobile ──

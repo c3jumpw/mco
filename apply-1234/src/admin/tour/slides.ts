@@ -2,7 +2,7 @@
 // Pictures come from scripts/guide/img (refreshed by scripts/guide/update.sh). When a screen or
 // feature changes, update its slide here and add an entry to whatsnew.ts.
 
-export const TOUR_UPDATED = '2026-11-19';
+export const TOUR_UPDATED = '2026-11-20';
 
 export interface Slide {
   id: string;
@@ -193,6 +193,6 @@ export const SLIDES: Slide[] = [
     id: 'done', section: 'Done', image: 'admin-jobs',
     title: 'You’re set',
     lead: 'Post your first job, preview it as a candidate, then share the posting.',
-    points: ['The full guide, with every setting, is under Help.', 'After each update, a short What’s new shows what changed.'],
+    points: ['The full guide, with every setting, is under Help.', 'After each update, a short What’s new shows what changed. The change log under Help keeps the full history.'],
   },
 ];

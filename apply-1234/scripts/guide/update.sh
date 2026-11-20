@@ -9,6 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
+node scripts/changelog.mjs
 npx vite build >/dev/null
 npx vite preview --port 4173 --strictPort >/dev/null 2>&1 &
 PREVIEW=$!
