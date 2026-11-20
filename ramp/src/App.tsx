@@ -71,6 +71,7 @@ const Metrics = page(() => import('./admin/Metrics'));
 const NewsAdmin = page(() => import('./admin/NewsAdmin'));
 const ResourcesAdmin = page(() => import('./admin/ResourcesAdmin'));
 const System = page(() => import('./admin/System'));
+const Changelog = page(() => import('./admin/Changelog'));
 
 export default function App() {
   const { state, rank, isAdmin, isClient, isSuper, org, roles } = useSession();
@@ -140,6 +141,7 @@ export default function App() {
               <Route path="news" element={<NewsAdmin />} />
               <Route path="resources" element={<ResourcesAdmin />} />
               <Route path="system" element={<System />} />
+              <Route path="changelog" element={<Changelog />} />
               <Route path="account" element={<Account />} />
               {agency && <Route path="agency" element={<AgencyHome />} />}
               {agency && <Route path="agency/settings" element={<AgencySettings />} />}

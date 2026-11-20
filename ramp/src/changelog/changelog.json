@@ -1,0 +1,147 @@
+{
+  "_about": "Every RAMP release, newest first. Each change says who it affects (who) and any feature it needs (requires). Entries with announce: true are shown once, as What's new, to the people they apply to. Add an entry in the same commit as the change; npm run guide:check validates this file and CI fails a RAMP push without an entry. See CLAUDE.md.",
+  "entries": [
+    {
+      "id": "2026-11-20-change-log",
+      "version": "1.6",
+      "date": "2026-11-20",
+      "title": "Change log and update notes",
+      "summary": "A full history of RAMP updates for admins, and a short note for everyone about what changed for them.",
+      "announce": true,
+      "changes": [
+        { "type": "new", "who": ["admin"], "text": "Change log in the Admin portal: every RAMP update in order, who it affects, and a CSV or JSON download.", "link": "/admin/changelog", "guide": "changelog" },
+        { "type": "new", "who": ["everyone"], "text": "After each update, RAMP shows you a short summary of the changes that affect you the next time you sign in. Just once.", "guide": "whats-new" },
+        { "type": "new", "who": ["everyone"], "text": "Look back at recent updates any time with What’s new on the Guide page or in More.", "link": "/guide", "guide": "whats-new" },
+        { "type": "improved", "who": ["everyone"], "text": "RAMP remembers which tours and updates you’ve seen on every device, so they don’t repeat on your phone and computer." }
+      ],
+      "slides": [
+        { "id": "n16-changelog", "who": ["admin"], "title": "Change log", "text": "Every update to RAMP in one place: what changed, when, and who it affects. Filter it, print it or download it.", "image": "changelog-1.webp", "device": "desktop", "link": { "to": "/admin/changelog", "label": "Open the Change log" } }
+      ],
+      "migrations": ["011"]
+    },
+    {
+      "id": "2026-11-18-tours",
+      "version": "1.5",
+      "date": "2026-11-18",
+      "title": "Getting-started tours and a Guide for every role",
+      "summary": "Slide tours with real screenshots for every kind of person, What’s new slides after updates, and Guide pages for the newer features.",
+      "announce": false,
+      "changes": [
+        { "type": "new", "who": ["everyone"], "text": "A getting-started tour with a screenshot on every slide opens the first time you sign in. Replay it any time from the Guide.", "guide": "navigation" },
+        { "type": "new", "who": ["admin", "platform"], "text": "What’s new slides show the main features of an update to the admins they apply to." },
+        { "type": "new", "who": ["client"], "text": "Clients can open the Guide, with sections written for them.", "link": "/guide" },
+        { "type": "improved", "who": ["everyone"], "text": "New Guide sections for My work, coaching, account and billing, setup, the agency pages, the client portal and the platform console." },
+        { "type": "improved", "who": ["everyone"], "text": "Guide and tour screenshots are retaken automatically after every update, so they always match the app." },
+        { "type": "fixed", "who": ["everyone"], "text": "The sign-in screen no longer says RAMP twice." },
+        { "type": "fixed", "who": ["everyone"], "text": "Pop-up windows no longer show a stray outline when they open." }
+      ],
+      "commits": ["8e084dd", "36e1bc6"]
+    },
+    {
+      "id": "2026-11-18-team-member-wording",
+      "version": "1.4",
+      "date": "2026-11-18",
+      "title": "“Team member” instead of “assistant”",
+      "summary": "RAMP is for every new hire, so the wording on screen now says team member.",
+      "announce": false,
+      "changes": [
+        { "type": "improved", "who": ["everyone"], "text": "Pages and messages say “team member” instead of “assistant”, including the agency, client portal, coaching and launch plan pages." },
+        { "type": "improved", "who": ["admin"], "requires": ["agency"], "text": "New placements are titled “Team member” by default instead of “Virtual assistant”." }
+      ],
+      "commits": ["3ca4f00"],
+      "migrations": ["010"]
+    },
+    {
+      "id": "2026-11-17-workspaces",
+      "version": "1.3",
+      "date": "2026-11-17",
+      "title": "Workspaces, accounts and billing",
+      "summary": "RAMP can run for other companies: each gets its own workspace, plan and seats.",
+      "announce": true,
+      "changes": [
+        { "type": "new", "who": ["admin"], "text": "Account and billing: your plan, seats in use, the organizations in your account and Stripe billing.", "link": "/admin/account", "guide": "account" },
+        { "type": "new", "who": ["admin"], "text": "Owners can add another organization, such as a second company or brand, with its own people, training and settings.", "guide": "account" },
+        { "type": "new", "who": ["admin"], "text": "New workspaces start with a short setup wizard: company details, what’s included and the first invites.", "guide": "setup" },
+        { "type": "improved", "who": ["admin"], "text": "People shows how many seats you’re using.", "link": "/admin/people" },
+        { "type": "new", "who": ["everyone"], "text": "If you belong to more than one workspace, switch between them from the company name at the top.", "guide": "workspaces" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Link a client’s own RAMP workspace so their admins see your team members from inside it.", "guide": "clients-admin" },
+        { "type": "new", "who": ["client"], "text": "Clients with their own RAMP workspace see their team members, hours and invoices there." },
+        { "type": "improved", "who": ["admin"], "text": "Files uploaded to Resources are kept inside your own workspace." },
+        { "type": "new", "who": ["platform"], "text": "Companies can ask for their own workspace from the sign-in screen with Start for my business, and get in once approved.", "guide": "signup" },
+        { "type": "new", "who": ["platform"], "text": "Client accounts console: approve or decline companies, give free access, a trial or a paid plan, set seats, and pause or close accounts.", "link": "/platform", "guide": "console" },
+        { "type": "new", "who": ["platform"], "text": "Open any workspace as RAMP Support. Each visit is recorded in that workspace’s audit log.", "guide": "workspaces" },
+        { "type": "new", "who": ["platform"], "text": "Platform settings: trial length, default seats, the training library new workspaces copy and the Stripe plans owners can choose.", "guide": "console" }
+      ],
+      "slides": [
+        { "id": "n13-account", "who": ["admin"], "title": "Account and billing", "text": "See your plan and seats, and add another organization to your account.", "image": "tour-account-1.webp", "device": "desktop", "link": { "to": "/admin/account", "label": "Open Account and billing" } },
+        { "id": "n13-console", "who": ["platform"], "title": "Client accounts", "text": "Approve companies that sign up for RAMP and give them free access while you test.", "image": "tour-console-1.webp", "device": "desktop", "link": { "to": "/platform", "label": "Open Client accounts" } }
+      ],
+      "commits": ["8e036e0"],
+      "migrations": ["007", "008", "009"]
+    },
+    {
+      "id": "2026-11-17-agency",
+      "version": "1.2",
+      "date": "2026-11-17",
+      "title": "Agency tools: clients, placements, hours, invoices and payouts",
+      "summary": "For placing team members with client companies: everything from the placement to the payout, and a portal for clients.",
+      "announce": true,
+      "changes": [
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Agency dashboard with revenue, margin and everything that needs you today.", "link": "/admin/agency", "guide": "agency-home" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Clients: company details, contacts, billing and an extra training track for each client.", "link": "/admin/clients", "guide": "clients-admin" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Placements with bill and pay rates, an onboarding checklist, check-ins and a replacement guarantee.", "link": "/admin/placements", "guide": "placements" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Timesheets: approve or return weekly hours, or enter them for someone.", "link": "/admin/timesheets", "guide": "timesheets" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Invoices for hours, prepayments and setup fees. Print them or send them through Stripe.", "link": "/admin/invoices", "guide": "invoices" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Payouts for approved hours, with a batch file for Wise.", "link": "/admin/payouts", "guide": "payouts" },
+        { "type": "new", "who": ["admin"], "requires": ["agency"], "text": "Tiers and agency settings: default rates, the checklist, check-in schedule, invoicing and the Day 1 agenda.", "link": "/admin/tiers", "guide": "tiers" },
+        { "type": "new", "who": ["admin", "client", "member"], "requires": ["agency"], "text": "Launch plans: a guided prep plan, a timed Day 1 run sheet and a printable plan for every placement.", "guide": "launch" },
+        { "type": "new", "who": ["member"], "requires": ["agency", "work"], "text": "My work: log your weekly hours, add payout details, and see your placement, tier and pay.", "link": "/work", "guide": "work" },
+        { "type": "new", "who": ["coach"], "requires": ["agency", "coaching"], "text": "Coaching: check-ins, onboarding checklists and training for the team members you coach.", "link": "/coaching", "guide": "coaching" },
+        { "type": "new", "who": ["client"], "text": "Client portal: your team members, hours to approve, invoices and requests.", "link": "/client", "guide": "client-home" },
+        { "type": "fixed", "who": ["admin"], "requires": ["agency"], "text": "Advance invoices add the period’s prepayment before loose hours, so approved hours are never billed twice." },
+        { "type": "fixed", "who": ["admin", "client", "member"], "requires": ["agency"], "text": "Team members only see a launch plan once it’s marked ready, and two people saving at once can’t overwrite each other." }
+      ],
+      "slides": [
+        { "id": "n12-agency", "who": ["admin"], "requires": ["agency"], "title": "Agency tools", "text": "Clients, placements, hours, invoices and payouts for team members you place with other companies.", "image": "tour-agency-1.webp", "device": "desktop", "link": { "to": "/admin/agency", "label": "Open the Agency dashboard" } },
+        { "id": "n12-launch", "who": ["admin"], "requires": ["agency"], "title": "Launch plans", "text": "A guided Day 1 prep plan and run sheet for every placement, shared with the client.", "image": "tour-launch-1.webp", "device": "desktop" }
+      ],
+      "commits": ["845a5b2"],
+      "migrations": ["004", "005", "006", "006b"]
+    },
+    {
+      "id": "2026-11-08-guide",
+      "version": "1.1",
+      "date": "2026-11-08",
+      "title": "The Guide",
+      "summary": "An illustrated guide to every page, with real screenshots and numbered callouts.",
+      "announce": false,
+      "changes": [
+        { "type": "new", "who": ["member", "guest", "coach", "admin"], "text": "The Guide: every page explained with screenshots, numbered callouts, steps and tips, showing only what you can open.", "link": "/guide" },
+        { "type": "new", "who": ["admin"], "text": "An admin guide for every setting, linked from the Admin portal.", "link": "/guide?view=admin" },
+        { "type": "improved", "who": ["member", "guest", "coach", "admin"], "text": "Links in Resources that point to RAMP pages open inside the app." },
+        { "type": "fixed", "who": ["member", "guest", "coach", "admin"], "requires": ["chat"], "text": "The message box stays on screen while you scroll a chat." }
+      ],
+      "commits": ["fc68158", "c1c7563"]
+    },
+    {
+      "id": "2026-11-08-launch",
+      "version": "1.0",
+      "date": "2026-11-08",
+      "title": "RAMP launches",
+      "summary": "Training, onboarding and HR in one place for new hires, mentors and admins.",
+      "announce": false,
+      "changes": [
+        { "type": "new", "who": ["member", "guest", "coach", "admin"], "text": "Sign in with your invitation, ask for access, and reset your password." },
+        { "type": "new", "who": ["member", "guest"], "text": "A welcome flow and a practice sandbox for your first sign-in." },
+        { "type": "new", "who": ["member", "guest", "coach", "admin"], "text": "Training made of short slides, readings, videos and quizzes. Your place is saved." },
+        { "type": "new", "who": ["member", "coach", "admin"], "text": "Tasks, a notebook, a vault for work logins, chat, resources and news." },
+        { "type": "new", "who": ["member"], "text": "Onboarding documents to fill in, upload and e-sign from your profile." },
+        { "type": "new", "who": ["coach"], "text": "Team progress and reviews for mentors and leads." },
+        { "type": "new", "who": ["admin"], "text": "Admin portal: organization, roles and departments, welcome flow, documents, training builder, assignments, people, metrics, announcements, resources, feature switches and the audit log." },
+        { "type": "new", "who": ["admin"], "text": "Person records with documents, training and sign-in history, including IP address and device." }
+      ],
+      "commits": ["913a29e"],
+      "migrations": ["001", "002", "003"]
+    }
+  ]
+}

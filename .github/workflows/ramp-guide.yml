@@ -1,7 +1,9 @@
-# Keeps RAMP's getting-started tours, What's new slides and Guide screenshots in step with the app.
-# On every push to main that changes RAMP, it checks that every page has Guide coverage, retakes the
-# screenshots from the sample-data preview (only screens that really changed are rewritten) and commits
-# them. Vercel then deploys them. See ramp/tools/guide/README.md.
+# Keeps RAMP's change log, getting-started tours, What's new slides and Guide screenshots in step with the app.
+# On every push to main that changes RAMP it:
+#   • fails if the push changes the app or database without adding to the change log (ramp/CLAUDE.md);
+#   • checks that every page has Guide coverage and the change log is valid, retakes the screenshots from the
+#     sample-data preview (only screens that really changed are rewritten) and commits them. Vercel deploys them.
+# See ramp/tools/guide/README.md.
 name: RAMP guide
 
 on:
@@ -9,7 +11,8 @@ on:
     branches: [main]
     paths:
       - 'ramp/src/**'
-      - 'ramp/tools/guide/**'
+      - 'ramp/tools/**'
+      - 'ramp/supabase/**'
       - 'ramp/package.json'
       - '.github/workflows/ramp-guide.yml'
   workflow_dispatch:
@@ -22,6 +25,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changelog:
+    name: Change log has an entry for this update
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Every RAMP change is in the change log
+        run: node ramp/tools/changelog/require-entry.mjs "${{ github.event.before }}" "${{ github.sha }}"
+
   refresh:
     name: Check coverage and retake screenshots
     runs-on: ubuntu-24.04  # pinned: the Playwright version in package.json supports it

@@ -4,7 +4,8 @@ import { useTitle } from '../lib/hooks';
 import { LEVELS, displayName } from '../lib/util';
 import { useBadges, useNav } from '../shell/AppShell';
 import { Avatar, Card, Icon, PageHeader } from '../ui';
-import { startTour } from '../guide/Tour';
+import { openWhatsNew, startTour } from '../guide/Tour';
+import { CURRENT_VERSION } from '../changelog/changelog';
 
 export default function More() {
   useTitle('More');
@@ -41,6 +42,7 @@ export default function More() {
         </Card>
       )}
       <Card padded={false} className="overflow-hidden">
+        <button type="button" onClick={() => openWhatsNew()} className={row + ' w-full text-left cursor-pointer bg-white'}><Icon name="sparkle" size={22} className="text-brand-ink" />What’s new<span className="ml-auto text-[13px] font-semibold text-muted">RAMP {CURRENT_VERSION}</span><Icon name="chevronRight" size={18} className="text-muted" /></button>
         <button type="button" onClick={() => startTour()} className={row + ' w-full text-left cursor-pointer bg-white'}><Icon name="play" size={22} className="text-brand-ink" />Getting-started tour<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></button>
         <Link to="/practice" className={row}><Icon name="replay" size={22} className="text-brand-ink" />Practice in the sandbox<Icon name="chevronRight" size={18} className="ml-auto text-muted" /></Link>
         <button type="button" onClick={signOut} className={row + ' w-full text-left cursor-pointer bg-white text-bad'}><Icon name="logout" size={22} />Sign out</button>

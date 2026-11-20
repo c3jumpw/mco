@@ -1,5 +1,5 @@
 // Getting-started tours: a short slide show for each kind of person, with a screenshot of the real page on every slide.
-// Shown once on first sign-in (see TourHost) and any time from the Guide, More and Profile pages.
+// Shown once on first sign-in (see TourHost) and any time from the Guide and More pages.
 // Images live in public/guide-media and are retaken by tools/guide (npm run guide:shots); npm run guide:check fails the
 // build if a slide's image is missing or a page in src/App.tsx has no guide section or slide.
 
@@ -95,6 +95,7 @@ export const TOURS: Tour[] = [
       { id: 'a-invoices', title: 'Invoices', text: 'Bill clients for hours, prepayments and setup fees. Print them or send them through Stripe.', image: 'tour-invoices-1.webp', device: 'desktop', link: { to: '/admin/invoices', label: 'Open Invoices' }, when: agency },
       { id: 'a-payouts', title: 'Payouts', text: 'Pay team members for approved hours and export the Wise batch file.', image: 'tour-payouts-1.webp', device: 'desktop', link: { to: '/admin/payouts', label: 'Open Payouts' }, when: agency },
       { id: 'a-tiers', title: 'Tiers and agency settings', text: 'Skill tiers with default rates, plus the checklist, check-in schedule, invoicing and Day 1 agenda.', image: 'tour-tiers-1.webp', device: 'desktop', link: { to: '/admin/tiers', label: 'Open Tiers' }, when: agency },
+      { id: 'a-changelog', title: 'Change log', text: 'Every update to RAMP, when it went live and who it affects. People see the changes that apply to them when they next sign in.', image: 'changelog-1.webp', device: 'desktop', link: { to: '/admin/changelog', label: 'Open the Change log' } },
       { id: 'a-guide', title: 'Help is always here', text: 'The Admin guide explains every setting with screenshots. Replay this tour from the Guide or More.', image: 'navigation-1.webp', device: 'desktop', link: { to: '/guide?view=admin', label: 'Open the Admin guide' } },
     ],
   },
@@ -145,22 +146,4 @@ export function slidesFor(role: TourRole, c: TourCtx): TourSlide[] {
 /** Bump a tour's version when its slides change enough that everyone should see it again. */
 export const TOUR_VERSION = 1;
 
-// ───────── What's new: shown once after an update to the people it applies to ─────────
-
-export interface Release { id: string; date: string; title: string; roles: TourRole[]; slides: TourSlide[] }
-
-/** Newest first. Add an entry for every update people should know about; the coverage check runs over these too. */
-export const RELEASES: Release[] = [
-  {
-    id: '2026-11-agency-workspaces',
-    date: '2026-11-18',
-    title: 'New in RAMP',
-    roles: ['admin', 'platform'],
-    slides: [
-      { id: 'n-agency', title: 'Agency tools', text: 'Clients, placements, hours, invoices and payouts for team members you place with other companies.', image: 'tour-agency-1.webp', device: 'desktop', link: { to: '/admin/agency', label: 'Open the Agency dashboard' }, when: agency },
-      { id: 'n-launch', title: 'Launch plans', text: 'A guided Day 1 prep plan and run sheet for every placement, shared with the client.', image: 'tour-launch-1.webp', device: 'desktop', when: agency },
-      { id: 'n-account', title: 'Account and billing', text: 'See your plan and seats, and add another organization to your account.', image: 'tour-account-1.webp', device: 'desktop', link: { to: '/admin/account', label: 'Open Account and billing' } },
-      { id: 'n-console', title: 'Client accounts', text: 'Approve companies that sign up for RAMP and give them free access while you test.', image: 'tour-console-1.webp', device: 'desktop', link: { to: '/platform', label: 'Open Client accounts' }, when: (c) => c.isSuper },
-    ],
-  },
-];
+// What's new after an update comes from the change log (src/changelog/changelog.json), not from here.

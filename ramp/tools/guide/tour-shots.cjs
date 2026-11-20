@@ -37,6 +37,10 @@ const TOUR_SHOTS = [
   { id: 'tour-client-home-2', data: 'work', as: 'client', url: '/client', device: 'phone', prep: scrollTo('Requests') },
   { id: 'tour-client-hours-1', data: 'work', as: 'client', url: '/client/hours', device: 'phone' },
   { id: 'tour-client-invoices-1', data: 'work', as: 'client', url: '/client/invoices', device: 'phone' },
+  // change log and What's new
+  { id: 'changelog-1', data: 'work', as: 'admin', url: '/admin/changelog', device: 'desktop' },
+  { id: 'whats-new-1', data: 'work', as: 'trainee', url: '/', device: 'phone',
+    prep: async (p) => { await p.evaluate(() => window.dispatchEvent(new CustomEvent('ramp:whatsnew', { detail: { since: '2026-11-17-agency' } }))); await p.waitForTimeout(600); } },
   // platform
   { id: 'tour-console-1', data: 'work', as: 'owner', url: '/platform?ws=super', device: 'desktop' },
   { id: 'tour-console-2', data: 'work', as: 'owner', url: '/platform?ws=super', device: 'desktop', prep: click('Approve') },

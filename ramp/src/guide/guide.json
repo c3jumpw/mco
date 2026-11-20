@@ -241,7 +241,7 @@
             {
               "n": 3,
               "x": 3.3,
-              "y": 63,
+              "y": 69.7,
               "w": 93.3,
               "h": 14.2,
               "label": "Tour and sandbox",
@@ -250,7 +250,7 @@
             {
               "n": 4,
               "x": 3.3,
-              "y": 76.3,
+              "y": 82.9,
               "w": 93.3,
               "h": 7.6,
               "label": "Sign out",
@@ -303,6 +303,43 @@
         "What you see depends on your access level. Mentors and leads get **My team**; admins get **Team progress** and the **Admin portal**.",
         "If an owner switches off Chat or Tasks, it leaves the menu for everyone.",
         "Guests see Home, Training, Resources, Guide and Profile."
+      ]
+    },
+    {
+      "id": "whats-new",
+      "group": "start",
+      "audience": "everyone",
+      "title": "What’s new after an update",
+      "icon": "sparkle",
+      "summary": "After RAMP is updated, you see a short summary of the changes that affect you, once, the next time you sign in.",
+      "route": null,
+      "shots": [
+        {
+          "src": "guide-media/whats-new-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "What’s new on a phone",
+          "alt": "The What’s new window on a phone: RAMP 1.6 and the date, the heading What’s new for you, and each update’s changes tagged New or Better.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Only what affects you",
+          "text": "Team members, mentors, admins and clients each see the changes for them. Changes to features your company doesn’t use are left out."
+        },
+        {
+          "title": "Just once",
+          "text": "Close it and it won’t come back, on this device or any other."
+        },
+        {
+          "title": "Look back any time",
+          "text": "Tap **What’s new** on the Guide page or in More to see recent updates again."
+        }
+      ],
+      "tips": [
+        "Some updates add slides with screenshots after the summary. Swipe or use **Next** to see them."
       ]
     },
     {
@@ -3730,6 +3767,43 @@
           "where": "Admin › System and audit",
           "effect": "Saved with every sign-in, signature and submission. Off: new records don’t include them; existing records keep theirs."
         }
+      ]
+    },
+    {
+      "id": "changelog",
+      "group": "admin",
+      "audience": "admins",
+      "title": "Change log",
+      "icon": "history",
+      "summary": "Every update to RAMP in date order: what changed, when it went live and who it affects.",
+      "route": "/admin/changelog",
+      "shots": [
+        {
+          "src": "guide-media/changelog-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "The Change log",
+          "alt": "The Change log: the current version, the last update date and how many releases, search and filters, then a timeline of releases with each change tagged New, Better or Fixed and who it affects.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Find a change",
+          "text": "Search, or filter by **New**, **Better** or **Fixed** and by who a change affects. Switch between **Newest first** and **Oldest first**."
+        },
+        {
+          "title": "See what people saw",
+          "text": "Releases marked **Shown at sign-in** were shown once to the people they apply to. **View as slides** shows you that note."
+        },
+        {
+          "title": "Keep a copy",
+          "text": "Download the whole log as **CSV** or **JSON**, or **Print** it to save a PDF."
+        }
+      ],
+      "tips": [
+        "RAMP adds to the log with every update, so it’s a complete record of what changed and when."
       ]
     },
     {

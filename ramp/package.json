@@ -11,7 +11,8 @@
     "build:guide": "vite build -c vite.guide.config.ts && cp -r public/guide-media dist-guide/ && mv dist-guide/guide.html dist-guide/index.html",
     "guide:check": "node tools/guide/check.mjs",
     "guide:shots": "node tools/guide/run.cjs",
-    "guide:preview": "vite --config tools/guide/vite.config.mjs"
+    "guide:preview": "vite --config tools/guide/vite.config.mjs",
+    "changelog": "node tools/changelog/md.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.3.0",

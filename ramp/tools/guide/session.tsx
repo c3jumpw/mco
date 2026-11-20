@@ -3,14 +3,16 @@
 // what workspaces brought (workspace, account, switcher list, platform admin, support), set by URL parameters:
 //   ?ws=owner | super | support | trial | setup   (default: a normal member of one workspace)
 //   ?state=signed_out | no_access | account_pending | trial_ended | paused   (screens shown before the app opens)
+//   ?seen=<change log entry id>   (the last update this person saw, so What's new opens for newer ones)
 // Parameters stick for the tab (sessionStorage), like ?as=… does in the data sets.
 import * as DS from '@data/mock-session';
 import * as FX from '@data/fixtures';
 
 const q = new URLSearchParams(window.location.search);
-for (const k of ['ws', 'state']) if (q.has(k)) sessionStorage.setItem('guide-' + k, q.get(k) || '');
+for (const k of ['ws', 'state', 'seen']) if (q.has(k)) sessionStorage.setItem('guide-' + k, q.get(k) || '');
 const WS = sessionStorage.getItem('guide-ws') || '';
 const STATE = sessionStorage.getItem('guide-state') || '';
+const SEEN = sessionStorage.getItem('guide-seen') || '';
 
 const NOW = Date.now();
 const inDays = (n) => new Date(NOW + n * 86400000).toLocaleDateString('en-CA');
@@ -82,6 +84,9 @@ if (FX.RPC) Object.assign(FX.RPC, {
   ramp_my_workspaces: () => WORKSPACES,
   ramp_set_workspace: ({ p_ws }) => p_ws,
   ramp_ws: () => EXTRA.workspace.id,
+  // What tours and updates this person has seen. ?seen=<change log id> pretends they last saw that update.
+  ramp_tour_state: () => (SEEN ? { v: 1, roles: ['member', 'guest', 'coach', 'admin', 'client', 'platform'], release: SEEN } : {}),
+  ramp_save_tour_state: () => null,
   ramp_super_accounts: () => ({ accounts: ACCOUNTS, requests: REQUESTS, platform: PLATFORM }),
   ramp_super_approve: () => ({ account_id: 'a9', workspace_id: 'w9' }),
   ramp_super_decline: () => null,

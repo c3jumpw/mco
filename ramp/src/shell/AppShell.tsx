@@ -80,6 +80,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { to: '/admin/resources', label: 'Resources', icon: 'folder', desc: 'Policies, SOPs, guides and tools', group: 'Communicate' },
   { to: '/admin/account', label: 'Account and billing', icon: 'key', desc: 'Your plan, seats and the other organizations in your account', group: 'System' },
   { to: '/admin/system', label: 'System and audit', icon: 'shield', desc: 'Feature switches, IP recording and the audit log', group: 'System' },
+  { to: '/admin/changelog', label: 'Change log', icon: 'history', desc: 'Every update to RAMP, when it went live and who it affects', group: 'System' },
   { to: '/guide?view=admin', label: 'Admin guide', icon: 'lifebuoy', desc: 'How every admin page and setting works, with screenshots', group: 'System' },
 ];
 
