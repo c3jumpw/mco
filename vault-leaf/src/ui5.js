@@ -287,6 +287,7 @@ async function boot(){
   if(S.hasClaude){ try{ window.claude.use('downloads').then(d => { S.downloads = d || null; }).catch(() => {}); }catch(e){} }
   S.cloudP = Cloud.init().then(async ok => { if(ok){ try{ S.cloudHeader = await Cloud.getHeader(); }catch(e){} } return ok; });
   if(guard.wait()) startWaitTicker();
+  checkNewAddress();
   if(WEB && 'serviceWorker' in navigator){ try{ navigator.serviceWorker.register('/sw.js').catch(() => {}); }catch(e){} }
   if(LS.get(K.header)){ S.phase = 'login'; render(); return; }
   S.phase = 'boot'; render();

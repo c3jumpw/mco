@@ -2,7 +2,7 @@
 const guideLink = (cls, label) => WEB ? `<button class="${cls}" data-act="tab" data-v="guide">${ic('question','s')}${label}</button>` : `<a class="${cls}" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}${label}</a>`;
 function guidePageHTML(){
   return `<div class="guide-wrap"><div class="guide-bar"><b>Vaultleaf guide</b><span class="sp"></span>${TOUR ? tourBtn('btn small primary', 'Take the tour') : ''}<a class="btn small" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('ext','s')}Open in a new tab</a></div>
-    <iframe class="guide-frame" src="${GUIDE_URL}" title="Vaultleaf guide"></iframe></div>`;
+    <iframe class="guide-frame" src="${GUIDE_URL}${S.guideHash || ''}" title="Vaultleaf guide"></iframe></div>`;
 }
 function wireGuideFrame(){
   const f = $('.guide-frame'); if(!f) return;
@@ -12,10 +12,11 @@ const pageHead = t => `<div class="title-row"><h1 style="font-size:30px">${t}</h
 function renderPage(){
   const p = $('#page'); if(!p) return;
   if(S.tab === 'vault'){ p.innerHTML = ''; p.classList.remove('is-guide'); return; }
-  if(S.tab === 'guide'){ if(!p.querySelector('.guide-frame')){ p.innerHTML = guidePageHTML(); wireGuideFrame(); } p.classList.add('is-guide'); return; }
+  if(S.tab === 'guide'){ const f = p.querySelector('.guide-frame'); if(!f || (S.guideHash && !f.src.endsWith(S.guideHash))){ p.innerHTML = guidePageHTML(); wireGuideFrame(); } S.guideHash = ''; p.classList.add('is-guide'); return; }
+  if(S.tab === 'admin' && !isAdmin()) S.tab = 'settings';
   p.classList.remove('is-guide');
   const st = p.scrollTop;
-  p.innerHTML = S.tab === 'generator' ? generatorHTML() : S.tab === 'health' ? healthHTML() : S.tab === 'activity' ? activityHTML() : settingsHTML();
+  p.innerHTML = S.tab === 'generator' ? generatorHTML() : S.tab === 'health' ? healthHTML() : S.tab === 'activity' ? activityHTML() : S.tab === 'admin' ? adminHTML() : settingsHTML();
   if(S.tab === 'generator') updateGenOut();
   p.scrollTop = st;
 }
@@ -122,6 +123,7 @@ function settingsHTML(){
     </div></div>
     <div class="panel"><div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:10px"><h2>Labels</h2><button class="btn small" data-act="label-new">${ic('plus','s')}New label</button></div>
       <div class="labels-tree">${labelTree().map(({l, d}) => `<div class="lt-row"><span style="width:${d * 18}px;flex:none"></span><span class="dot" style="width:12px;height:12px;border-radius:50%;background:${l.color};flex:none"></span><span class="nm">${esc(l.name)}</span><span class="hint tnum">${V().accounts.filter(a => !a.trashedAt && a.labels.includes(l.id)).length}</span><button class="icon-btn" data-act="label-edit" data-id="${l.id}" aria-label="Edit ${esc(l.name)}">${ic('edit','s')}</button></div>`).join('') || '<p class="hint" style="padding:0 16px 14px;margin:0">No labels yet. Labels can hold sub-labels, like Work and Work / Cloud.</p>'}</div></div>
+    ${rolePanelHTML()}
     ${WEB ? syncPanelHTML() : ''}
     <div class="panel"><div class="panel-h"><h2>${WEB ? 'Backup' : 'Sync and backup'}</h2>${WEB ? '' : `<p id="syncstate">${syncLine()}</p>`}</div><div>
       ${WEB ? '' : Cloud.ready ? `<div class="set-row"><label class="ol" for="s-sync">Sync across my devices<small>Encrypted before upload. Open this same page on your phone or computer.</small></label>${sw('settings.sync', s.sync, 's-sync')}</div>

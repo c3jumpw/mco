@@ -85,28 +85,18 @@ async def main():
         await pg.click('.guide-bar [data-act="tour"]'); await pg.wait_for_selector('.tour-track'); check('Guide page opens the tour', True)
         await pg.click('.tour-pick-f button'); await pg.wait_for_timeout(200)
         check('"Read the full guide" goes to the Guide', await pg.locator('#tour').count() == 0 and await pg.locator('.guide-frame').count() == 1)
-        # What's new after an update: pretend this device last saw 1.0
-        await pg.evaluate("localStorage.setItem('vaultleaf.seen', JSON.stringify('1.0'))")
-        await pg.click('.side-nav [data-v="vault"]'); await pg.click('#ltActs [data-act="lock"]'); await unlock(pg)
-        check('What\'s new banner after an update', await pg.locator('.tour-nudge [data-act="tour-new"]').count() == 1)
-        await pg.click('.tour-nudge [data-act="tour-new"]'); await pg.wait_for_selector('.tour-rel')
-        rel = await pg.locator('.tour-rel .rel').count(); check('shows releases 1.1 and 1.2', rel == 2)
-        titles = []
-        cnt = int((await pg.text_content('.tour-count')).split(' of ')[1])
+        # the tour's What's new track (picked from the menu) covers the latest release, for this person's role
+        await pg.click('.side-nav [data-v="settings"]'); await pg.click('.page > .banner [data-act="tour"]'); await pg.wait_for_selector('.tour-track')
+        await pg.click('[data-act="tour-go"][data-v="new"]'); await pg.wait_for_selector('.tour-rel')
+        check('What\'s new track starts with the latest release', await pg.locator('.tour-rel .rel').count() == 1)
+        cnt = int((await pg.text_content('.tour-count')).split(' of ')[1]); titles = []
         for _ in range(cnt - 1): await pg.click('[data-act="tour-next"]'); titles.append(await pg.text_content('#tour-title'))
         print('   what\'s new steps:', titles)
-        check('What\'s new includes sync, files and the tour', any('Sync' in t for t in titles) and any('Attach' in t for t in titles) and any('tour' in t.lower() for t in titles))
-        check('What\'s new skips 1.0 features', not any(t == 'Password health' for t in titles))
+        check('What\'s new track shows the newest features', any('after each update' in t for t in titles) and any('mkcworkspace' in t for t in titles))
+        check('everyday users don\'t get admin steps', not any(t == 'Every change, in order' for t in titles))
         await pg.click('[data-act="tour-next"]'); await pg.wait_for_timeout(100)
-        check('seen updated after What\'s new', await pg.evaluate("JSON.parse(localStorage.getItem('vaultleaf.seen'))") == await pg.evaluate('APP_VERSION'))
-        await pg.click('#ltActs [data-act="lock"]'); await unlock(pg)
-        check('no banner on the next unlock', await pg.locator('.tour-nudge').count() == 0)
-        # an older vault with no record on this device: created before 1.2
-        await pg.evaluate("localStorage.removeItem('vaultleaf.seen'); const h = JSON.parse(localStorage.getItem('vaultleaf.header')); h.createdAt = Date.parse('2026-11-10T12:00:00Z'); localStorage.setItem('vaultleaf.header', JSON.stringify(h));")
-        await pg.click('#ltActs [data-act="lock"]'); await unlock(pg)
-        check('vault from 1.1 sees What\'s new', await pg.locator('.tour-nudge [data-act="tour-new"]').count() == 1)
-        await pg.click('.tour-nudge [data-act="tour-dismiss"]')
-        check('dismiss hides it and records seen', await pg.locator('.tour-nudge').count() == 0 and await pg.evaluate("JSON.parse(localStorage.getItem('vaultleaf.seen'))") == await pg.evaluate('APP_VERSION'))
+        check('Finish closes the What\'s new track', await pg.locator('#tour').count() == 0)
+        check('a new vault has seen every change', await pg.evaluate('V().meta.seenChange === lastChangeN()'))
         check('no page errors', not errs); errs and print(errs[:5])
         await ctx.close()
         # phone

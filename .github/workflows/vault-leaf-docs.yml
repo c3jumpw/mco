@@ -1,16 +1,21 @@
-# Keeps Vaultleaf's in-app tour, What's new and illustrated guide in step with the app.
-# On every push to main that changes Vaultleaf, it rebuilds the app, retakes every screenshot,
-# redraws the admin pictures, rebuilds the guide and tour, checks that every feature is covered,
-# and commits the refreshed files. Vercel then deploys them.
+# Keeps Vaultleaf's change log, in-app tour, What's new and illustrated guide in step with the app.
+# On every push to main that changes Vaultleaf, it logs any change that has no written change log entry,
+# rebuilds the app, retakes every screenshot, redraws the admin pictures, rebuilds the guide and tour,
+# checks that every feature is covered, and commits the refreshed files. Vercel then deploys them.
 name: Vaultleaf docs
 
 on:
   push:
     branches: [main]
     paths:
-      - 'vault-leaf/src/**'
-      - 'vault-leaf/tools/**'
+      - 'vault-leaf/**'
+      - '!vault-leaf/index.html'
+      - '!vault-leaf/sw.js'
+      - '!vault-leaf/vercel.json'
+      - '!vault-leaf/CHANGELOG.md'
+      - '!vault-leaf/guide/**'
       - '!vault-leaf/tools/shots.json'
+      - '!vault-leaf/src/changelog-auto.json'
       - '.github/workflows/vault-leaf-docs.yml'
   workflow_dispatch:
 
@@ -43,6 +48,10 @@ jobs:
           pip install playwright==1.63.0 pillow
           python -m playwright install --with-deps chromium
 
+      - name: Log changes that have no written entry
+        if: github.event_name == 'push'
+        run: python tools/log_changes.py "${{ github.event.before }}" "${{ github.sha }}"
+
       - name: Build the app
         run: python tools/build.py
 
@@ -55,6 +64,7 @@ jobs:
         run: |
           python tools/test_features.py
           python tools/test_tour.py
+          python tools/test_changelog.py
 
       - name: Retake screenshots and admin pictures
         run: python tools/capture.py
@@ -73,6 +83,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A .
           if git diff --cached --quiet; then echo "Docs were already current"; exit 0; fi
-          git commit -m "Vaultleaf: refresh tour, guide and screenshots"
+          git commit -m "Vaultleaf: refresh change log, tour, guide and screenshots"
           git pull --rebase origin main
           git push origin HEAD:main

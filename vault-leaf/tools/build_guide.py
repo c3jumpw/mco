@@ -4,6 +4,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 M = json.loads((ROOT / 'tools' / 'shots.json').read_text())
 e = html.escape
 TOUR = json.loads((ROOT / 'src' / 'tour.json').read_text())
+WRITTEN = json.loads((ROOT / 'src' / 'changelog.json').read_text())['entries']
+_autop = ROOT / 'src' / 'changelog-auto.json'
+AUTO = json.loads(_autop.read_text())['entries'] if _autop.exists() else []
+CHANGES = sorted([dict(c) for c in WRITTEN] + [dict(c, auto=True) for c in AUTO], key=lambda c: c['at'])
+TYPE_LABEL = {'added': 'New', 'improved': 'Improved', 'changed': 'Changed', 'fixed': 'Fixed', 'security': 'Security', 'maintenance': 'Maintenance'}
 UPDATED = datetime.date.today().strftime('%B %-d, %Y')
 
 LEG = {
@@ -51,7 +56,15 @@ LEG = {
  'd_tour': {1:'<b>Everyday use:</b> setting up, finding and copying, organizing, staying safe and using more than one device.', 2:'<b>For admins:</b> running the website, publishing updates, sync storage and helping people.', 3:'<b>What\'s new:</b> only what changed in recent updates.', 4:'<b>The full guide,</b> this page.'},
  'd_tour_slide': {1:'<b>Chapters.</b> Jump to any part of the tour.', 2:'<b>A real screenshot</b> with numbered callouts.', 3:'<b>What each number points to.</b>', 4:'<b>Progress</b> through this tour.', 5:'<b>Next.</b> Arrow keys work too, and Esc closes the tour.'},
  'p_tour': {1:'<b>Screenshot</b> of the phone screen for this step.', 2:'<b>Back.</b>', 3:'<b>Next,</b> or swipe left and right.'},
- 'd_nudge': {1:'<b>Take the tour</b> or see what\'s new.', 2:'<b>Dismiss.</b> It won\'t show again until the next update.'},
+ 'd_nudge': {1:'<b>Take the tour.</b>', 2:'<b>Dismiss.</b>'},
+ 'd_updates': {1:'<b>What\'s new</b> since you last opened Vaultleaf, and how many updates.', 2:'<b>Each version</b> with its date, newest first.', 3:'<b>The kind of change:</b> New, Improved, Changed, Fixed or Security. Admin changes say For admins.', 4:'<b>A picture</b> of the feature. Tap it, or Show me, to open the tour there.', 5:'<b>Show me around</b> tours only what changed.'},
+ 'p_updates': {1:'<b>What\'s new,</b> on a phone.', 2:'<b>Each change,</b> with a picture to tap.', 3:'<b>Show me around,</b> or Got it to carry on.'},
+ 'd_role': {1:'<b>Your role:</b> Everyday user or Site admin.', 2:'<b>Admin page,</b> for admins.', 3:'<b>Admin</b> also appears in the sidebar.'},
+ 'd_admin': {1:'<b>This version:</b> version, how many changes are logged, the last change and this address.', 2:'<b>Who it\'s for:</b> all changes, changes for everyone, or admin-only changes.', 3:'<b>Order:</b> oldest first, as they happened, or newest first.', 4:'<b>Search</b> titles, details, versions and commits.', 5:'<b>Kinds of change</b> to show, and whether to include automatic entries.', 6:'<b>The timeline,</b> by day, with version, time and a link to the code change.'},
+ 'd_admin2': {1:'<b>The latest changes</b> at the end of the timeline.', 2:'<b>Download</b> the whole log as JSON, CSV or Markdown to keep.', 3:'<b>Preview What\'s new</b> as everyone or as an admin.'},
+ 'p_admin': {1:'<b>This version.</b>', 2:'<b>Filters,</b> order and search.'},
+ 'd_movebanner': {1:'<b>Move my vault</b> walks you through it.', 2:'<b>Later:</b> it reminds you next time.'},
+ 'd_move': {1:'<b>Your sync code.</b>', 2:'<b>Copy</b> it.', 3:'<b>Open the new address</b> in a new tab.', 4:'<b>Choose Use my vault from another device,</b> paste the code and unlock as usual.'},
  'p_classic': {1:'<b>Date group.</b>', 2:'<b>A note.</b> Tap to open it.'},
 }
 
@@ -104,6 +117,7 @@ body.append(sec('roles', 'Who does what', f'''
 <tr><th scope="row">Choose who can open the website</th><td>{NO}</td><td>{YES}</td></tr>
 <tr><th scope="row">Publish updates, roll back, change the web address</th><td>{NO}</td><td>{YES}</td></tr>
 </tbody></table></div>
+<h3>Choose your role</h3>''' + '<div class="pair">' + shot('d_role', 'Your role setting with Everyday user and Site admin', 'desk')[0] + '''<div><p>Vaultleaf has no accounts or logins on a server, so you tell it your role, in <b>Settings</b>, under <b>Your role</b>. It's kept in your encrypted vault and follows you to your other devices.</p><ul class="facts"><li><b>Everyday user:</b> the usual pages, and What's new for changes that affect everyone.</li><li><b>Site admin:</b> also the <a href="#changelog">Admin page</a> with the change log, and What's new for admin changes.</li><li>Your role changes what you see, not what you can open. Nobody can see anyone else's vault.</li></ul></div></div>
 <p class="note"><b>Two kinds of "admin".</b> Inside an account, the <b>Admins</b> section lists the people who manage that service, like the owner of a company AWS account. That's just information you store. It's separate from the admin who runs this website.</p>
 '''))
 
@@ -267,22 +281,46 @@ body.append(sec('security', 'How your data is protected', '''
 
 body.append(sec('whats-new', 'Guided tour and What\'s new', fig('d_tour', 'The tour menu with Everyday use, For admins and What\'s new', 'desk') + fig('d_tour_slide', 'A tour step: a screenshot of the main screen with numbered callouts, the explanation beside it, and Back and Next buttons', 'desk') + '<div class="pair">' + shot('p_tour', 'A tour step on a phone', 'phone')[0] + f'''<div><h3>Open the tour</h3><ul class="facts"><li><b>Settings:</b> press <b>Take the tour</b> at the top.</li><li><b>Guide:</b> press <b>Take the tour</b> above this page.</li><li><b>Unlock or setup screen:</b> press <b>How Vaultleaf works</b>.</li><li><b>New vault:</b> a banner offers the tour right after setup.</li></ul>
 <h3>Move around</h3><ul class="facts"><li>Press <b>Next</b> and <b>Back</b>, use the arrow keys, or swipe on a phone.</li><li>Pick a chapter from the menu at the top to jump ahead.</li><li>Press <kbd>Esc</kbd> or the close button to leave. Nothing in your vault changes.</li></ul></div></div>
-<h3>What's new after each update</h3>''' + fig('d_nudge', 'A banner above the account list offering the tour', 'desk') + f'''<p>After an update, the next time you unlock you'll see a banner above your accounts. <b>See what's new</b> walks through only the features added since you last looked. Each device shows it once.</p>
+<h3>What's new after each update</h3>''' + fig('d_updates', 'What\'s new: a summary of the latest changes, each with its kind, a short explanation and a picture', 'desk') + '<div class="pair">' + shot('p_updates', 'What\'s new on a phone', 'phone')[0] + f'''<div><p>The first time you unlock after an update, Vaultleaf shows what changed since you last looked, newest first.</p><ul class="facts"><li><b>Only what applies to you.</b> Everyone sees changes for everyone. <a href="#roles">Site admins</a> also see admin changes.</li><li><b>Once per person.</b> It's remembered in your vault, so your other devices don't show it again.</li><li><b>Show me</b> opens the tour at that feature. <b>Show me around</b> tours everything new.</li></ul><p>A brand-new vault shows a banner offering the tour instead:</p>''' + fig('d_nudge', 'A banner above the account list offering the tour', 'desk') + '''</div></div>
 <p>Every screenshot in the tour and in this guide is retaken automatically each time Vaultleaf is updated, so they always match what you see.</p>
-<h3>Release history</h3><ul class="facts">{''.join(f'<li><b>{e(r["version"])}</b> <span class="muted">{datetime.date.fromisoformat(r["date"]).strftime("%B %-d, %Y")}</span>: {e(r["title"])}. {e(r["summary"])}</li>' for r in reversed(TOUR['releases']))}</ul>''',
+<h3>Release history</h3><p>Every individual change is in the <a href="#changelog">change log</a>.</p><ul class="facts">{''.join(f'<li><b>{e(r["version"])}</b> <span class="muted">{datetime.date.fromisoformat(r["date"]).strftime("%B %-d, %Y")}</span>: {e(r["title"])}. {e(r["summary"])}</li>' for r in reversed(TOUR['releases']))}</ul>''',
  'A step-by-step tour of every feature, with real screenshots, for everyone and for admins.'))
+
+log_items = []
+_day = ''
+for c in CHANGES:
+    d = c['at'][:10]
+    if d != _day:
+        if _day: log_items.append('</ol>')
+        log_items.append(f'<h3 class="log-day">{datetime.date.fromisoformat(d).strftime("%A, %B %-d, %Y")}</h3><ol class="facts log">'); _day = d
+    tags = TYPE_LABEL.get(c['type'], c['type']) + (', admins' if c['audience'] == 'admin' else ', everyone') + (f', v{e(c["version"])}' if c.get('version') else '') + (', automatic' if c.get('auto') else '')
+    commit = f' <code>{e(c["commit"])}</code>' if c.get('commit') else ''
+    text = ' ' + e(c['text']) if c.get('text') else ''
+    log_items.append(f'<li><b>{e(c["title"])}</b> <span class="muted">({tags})</span>{text}{commit}</li>')
+log_items.append('</ol>')
+
+body.append(sec('address', 'Moving to the new address', '''<p>Vaultleaf now lives at <b>vaultleaf.mkcworkspace.com</b>. Your vault is saved in your browser at the address you used, so bring it over once. It takes about a minute, and nothing is lost if you stop halfway.</p>''' + fig('d_movebanner', 'A banner above the accounts: Vaultleaf has a new address, with a Move my vault button', 'desk') + '<div class="pair">' + shot('d_move', 'Move to the new address: your sync code, a button to open the new address, and what to choose there', 'desk')[0] + '''<div><h3>With sync on</h3><ol class="howto"><li>At the old address, press <b>Move my vault</b> and copy your sync code.</li><li>Open <b>vaultleaf.mkcworkspace.com</b>.</li><li>Choose <b>Use my vault from another device</b>, paste the code, and unlock with your usual password and passcode.</li></ol>
+<h3>Without sync</h3><ol class="howto"><li>Press <b>Move my vault</b>, then <b>Turn on sync</b>, and follow the steps above. Or download a backup instead.</li><li>With a backup: on the new address choose <b>Restore a backup or emergency kit</b> and enter the password and passcode you use now.</li></ol></div></div>
+<ul class="facts"><li><b>Face ID or fingerprint unlock</b> needs turning on again at the new address.</li><li><b>Your old copy</b> stays at the old address until you delete it in Settings.</li><li>The banner appears once the new address is ready. Until then, keep using the old one.</li></ul>''',
+ 'Bring your vault from mco-vault-leaf.vercel.app to vaultleaf.mkcworkspace.com, once.'))
 
 body.append(sec('admins', 'For admins', '''
 <div class="cards">
-<div class="card-a"><h3>Control who can open the site</h3><p>In Vercel, open the <b>mco-vault-leaf</b> project, then <b>Settings</b>, then <b>Deployment Protection</b>.</p><ul class="facts"><li><b>Vercel Authentication on</b> (the current setting): only people logged in to your Vercel team can open the site. This is the most private option for a personal vault.</li><li><b>Off:</b> anyone with the link can open it. Each person still gets an empty, private vault in their own browser, and can't see anyone else's.</li></ul></div>
+<div class="card-a"><h3>Control who can open the site</h3><p>In Vercel, open the <b>mco-vault-leaf</b> project, then <b>Settings</b>, then <b>Deployment Protection</b>.</p><ul class="facts"><li><b>Standard Protection</b> (the current setting): Vercel sign-in is needed on <code>mco-vault-leaf.vercel.app</code> and preview links, but <b>vaultleaf.mkcworkspace.com</b> opens for anyone with the link.</li><li><b>All Deployments:</b> Vercel sign-in everywhere, the workspace address included. The most private choice.</li><li>Either way, each person gets an empty, private vault in their own browser, and can't see anyone else's.</li></ul></div>
 <div class="card-a"><h3>Publish an update</h3><p>Changes to the <code>vault-leaf</code> folder on the <code>main</code> branch of the <b>c3jumpw/mco</b> repository deploy automatically.</p><ul class="facts"><li>People get the new version the next time they open Vaultleaf online. Their saved data is untouched.</li><li>If an update misbehaves, use <b>Instant Rollback</b> on the project's Vercel page.</li></ul></div>
 <div class="card-a"><h3>Look after sync storage</h3><p>Synced vaults are stored in the <b>MKC-Admin</b> Supabase project, in the tables <code>vaultleaf_vaults</code> and <code>vaultleaf_blobs</code>.</p><ul class="facts"><li>You can see how many vaults sync and how big they are, never what's in them.</li><li>Each vault holds up to 60 MB. At most 30 new synced vaults can start per hour.</li><li>Deleting a vault's row there stops its sync on every device. Everyone keeps their own copy.</li><li>The setup script is <code>vault-leaf/supabase/migrations/001_vaultleaf_sync.sql</code>.</li></ul></div>
-<div class="card-a"><h3>Keep the tour and guide current</h3><p>The <b>Vaultleaf docs</b> workflow in GitHub Actions runs on every push to <code>main</code> that changes Vaultleaf.</p><ul class="facts"><li>It rebuilds the app, retakes every screenshot, redraws the admin pictures, and rebuilds the tour and this guide, then commits them.</li><li>It fails if a feature in <code>vault-leaf/src/tour.json</code> has no tour step or guide section, or a Settings panel or page isn't covered.</li><li>Adding a feature? Add it, a step and a release entry to <code>tour.json</code>, and a guide section. People see it in What's new.</li></ul></div>
-<div class="card-a"><h3>Keep the web address</h3><p>Each vault belongs to one web address in one browser. If you move Vaultleaf to a custom domain, everyone needs to back up on the old address first and restore on the new one.</p></div>
+<div class="card-a"><h3>Keep the tour and guide current</h3><p>The <b>Vaultleaf docs</b> workflow in GitHub Actions runs on every push to <code>main</code> that changes Vaultleaf.</p><ul class="facts"><li>It rebuilds the app, retakes every screenshot, redraws the admin pictures, and rebuilds the tour and this guide, then commits them.</li><li>It fails if a feature in <code>vault-leaf/src/tour.json</code> has no tour step or guide section, or a Settings panel or page isn't covered.</li><li>Adding a feature? Write a <a href="#changelog">change log</a> entry, add a step and a release to <code>tour.json</code>, and a guide section. People see it in What's new.</li></ul></div>
+<div class="card-a"><h3>The web address</h3><p>Vaultleaf's address is <b>vaultleaf.mkcworkspace.com</b>. Each vault belongs to one address in one browser, so people bring theirs over from <code>mco-vault-leaf.vercel.app</code> once, with <a href="#address">Move my vault</a>.</p><ul class="facts"><li>Keep the old address working until everyone has moved. Redirecting it would strand vaults that haven't moved.</li><li>DNS for mkcworkspace.com is at GoDaddy: a CNAME record for <code>vaultleaf</code> points at Vercel.</li></ul></div>
 <div class="card-a"><h3>Help someone who's locked out</h3><ul class="facts"><li>Forgot password or passcode: they use their recovery key on the unlock screen.</li><li>Lost the key too, but remember the password and passcode: they make a new key in Settings.</li><li>New or lost device: they restore their latest backup file.</li><li>Without any of these, the vault can't be opened. You have no way to reset it.</li></ul></div>
 <div class="card-a"><h3>Keep it private</h3><ul class="facts"><li>Leave Vercel Web Analytics and Speed Insights off. The site blocks outside scripts on purpose, and only connects to Supabase for sync and to Have I Been Pwned for leak checks.</li><li>Security headers live in <code>vault-leaf/vercel.json</code>. Keep them when you edit.</li><li>The site asks search engines not to list it.</li></ul></div>
 </div>''',
  'Admins look after the website itself. Everything inside a vault stays with its owner.'))
+
+body.append(sec('changelog', 'Change log', fig('d_admin', 'The Admin page: version details, change log filters and a timeline of changes', 'desk') + fig('d_admin2', 'The end of the change log with download buttons and What\'s new previews', 'desk') + '''
+<p>Site admins find the change log on the <b>Admin</b> page, in the sidebar or under Settings, Your role. It lists every change since launch, oldest first, and can be downloaded as JSON, CSV or Markdown. The same history is kept in the code as <code>vault-leaf/CHANGELOG.md</code>.</p>
+<ul class="facts"><li><b>Written entries</b> live in <code>vault-leaf/src/changelog.json</code>. Add one at the end for each change people should hear about. It shows in their What's new.</li><li><b>Automatic entries:</b> anything pushed without a written entry is logged by the docs workflow in <code>changelog-auto.json</code>. Only admins see those.</li><li><b>audience</b> is <code>everyone</code> or <code>admin</code>; <b>type</b> is added, improved, changed, fixed or security.</li></ul>
+<h3>Every change so far</h3>''' + ''.join(log_items),
+ 'Every change to Vaultleaf, in the order it happened.'))
 
 body.append(sec('shortcuts', 'Keyboard shortcuts', '''
 <div class="table-wrap"><table><thead><tr><th scope="col">Key</th><th scope="col">What it does</th></tr></thead><tbody>

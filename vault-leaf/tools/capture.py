@@ -51,6 +51,25 @@ async def shot(pg, name, marks=(), clip=None, q=80):
     META[name] = {'w': im.width, 'h': im.height, 'marks': out}
     print('shot', name, im.size, len(out), 'marks')
 
+async def whats_new(pg, name, marks):
+    """Show What's new as someone who last looked at 1.1 would see it."""
+    await pg.evaluate("V().meta.seenChange = writtenChanges().filter(c => c.version === '1.1').pop().n; tourAfterUnlock(false)")
+    await pg.wait_for_selector('.upd'); await pg.wait_for_timeout(700)
+    await wait_js(pg, "[...document.querySelectorAll('.upd img')].every(i => i.complete)")
+    await shot(pg, name, marks)
+    await pg.click('.tour-foot [data-act="tour-close"]'); await pg.wait_for_timeout(200)
+
+async def move_address(pg):
+    """Pretend this is the old address and the new one is reachable."""
+    await pg.route('https://vaultleaf.mkcworkspace.com/**', lambda r: r.fulfill(status=200, body='{}', content_type='application/json'))
+    await pg.evaluate("window.__vlHost = OLD_HOST; S.moveChecked = false; S.moveLater = false; checkNewAddress()")
+    await pg.wait_for_selector('#list .move-banner')
+    await shot(pg, 'd_movebanner', [('#list .move-banner [data-act="move"]', 1, 'Move my vault', 2), ('#list .move-banner [data-act="move-later"]', 2, 'Later', 2)], clip='#list .move-banner')
+    await pg.click('#list .move-banner [data-act="move"]'); await pg.wait_for_selector('.move-steps')
+    await shot(pg, 'd_move', [('.move-steps .rk', 1, 'Sync code'), ('.move-steps [data-act="sync-copy"]', 2, 'Copy', 2), ('.move-steps a', 3, 'New address', 2), ('.move-steps li >> nth=2', 4, 'Unlock there')], clip='.modal')
+    await pg.click('.modal [data-act="mclose"]')
+    await pg.evaluate("delete window.__vlHost; S.moveReady = false; renderList()")
+
 async def setup(pg, name='Alex Morgan', email='alex@example.com', snap=None):
     await pg.goto(U); await pg.wait_for_selector('#s-name', timeout=20000)
     await pg.fill('#s-name', name); await pg.fill('#s-email', email)
@@ -165,6 +184,7 @@ async def desktop(b):
     await shot(pg, 'd_health', [('.score-dial', 1, 'Score'), ('.stat-row', 2, 'Counts'), ('[data-act="leak-check"]', 3, 'Leak check', 2), ('.page .panel:has([data-act="leak-check"]) .hrow', 4, 'Leaked')])
     await pg.click('.side-nav [data-v="activity"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'd_activity', [('.page .seg', 1, 'Filter'), ('.page .log li', 2, 'Event'), ('.page .log li .when', 3, 'Time', 2)])
+    await whats_new(pg, 'd_updates', [('.upd-hero', 1, 'Since you last looked', 0), ('.upd-rel-h', 2, 'Version'), ('.upd-item .pill >> nth=0', 3, 'Kind of change', 2), ('.upd-thumb >> nth=0', 4, 'Show me', 2), ('[data-act="upd-tour"]', 5, 'Tour of what\'s new', 2)])
     await pg.click('.side-nav [data-v="settings"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'd_settings', [('.page > .banner', 1, 'Tour and guide'), ('#p-name', 2, 'Profile'), ('[data-act="m-chpw"]', 3, 'Password', 2), ('[data-act="m-chpc"]', 4, 'Passcode', 2), ('[data-act="m-newrk"]', 5, 'Recovery key', 2), ('#set-settings-autoLockMin', 6, 'Auto-lock', 2)])
     await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('[data-act=\"m-backup\"]').closest('.panel').offsetTop - 120"); await pg.wait_for_timeout(200)
@@ -188,6 +208,16 @@ async def desktop(b):
     await pg.click('[data-act="mclose"]')
     await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('[data-act=\"sync-show\"]').closest('.panel').offsetTop - 80"); await pg.wait_for_timeout(250)
     await shot(pg, 'd_sync', [('[data-act="sync-show"]', 1, 'Show code', 2), ('[data-act="sync-now"]', 2, 'Sync now', 2), ('[data-act="sync-rotate"]', 3, 'New code', 2), ('[data-act="sync-off"]', 4, 'Turn off', 2)], clip='.page .panel:has([data-act="sync-show"])')
+    await pg.click('[data-act="role"][data-v="admin"]'); await pg.wait_for_timeout(300)
+    await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('[data-act=\"role\"]').closest('.panel').offsetTop - 80"); await pg.wait_for_timeout(250)
+    await shot(pg, 'd_role', [('.seg:has([data-act="role"])', 1, 'Role', 2), ('.page .panel:has([data-act="role"]) [data-act="tab"][data-v="admin"]', 2, 'Admin page', 2), ('.side-nav [data-v="admin"]', 3, 'Admin', 2)])
+    await pg.click('.side-nav [data-v="admin"]'); await pg.wait_for_timeout(400)
+    await shot(pg, 'd_admin', [('.adm-stats', 1, 'This version'), ('.seg[aria-label="Who it\'s for"]', 2, 'Who it\'s for', 2), ('.seg[aria-label="Order"]', 3, 'Order', 2), ('.log-search', 4, 'Search', 2), ('.log-types', 5, 'Kinds of change', 4), ('.log-tl >> nth=0', 6, 'Timeline', 6)])
+    await pg.evaluate("document.getElementById('page').scrollTop = document.querySelector('.log-dl').offsetTop - 420"); await pg.wait_for_timeout(250)
+    await shot(pg, 'd_admin2', [('.log-tl >> nth=-1', 1, 'Latest changes', 6), ('.log-dl', 2, 'Download', 4), ('[data-act="adm-preview"][data-v="everyone"]', 3, 'Preview What\'s new', 2)])
+    await pg.click('.side-nav [data-v="vault"]'); await pg.wait_for_timeout(300)
+    await move_address(pg)
+    await pg.click('.side-nav [data-v="settings"]'); await pg.wait_for_timeout(300)
     await pg.click('#s-bio'); await pg.wait_for_timeout(2500)
     await pg.evaluate("document.getElementById('page').scrollTop = document.getElementById('s-bio').closest('.panel').offsetTop - 80"); await pg.wait_for_timeout(250)
     await shot(pg, 'd_security', [('.set-row:has(#s-bio)', 1, 'Face ID'), ('#set-settings-autoLockMin', 2, 'Auto-lock', 2), ('.set-row:has(#s-hide)', 3, 'Background')], clip='.page .panel:has(#s-bio)')
@@ -236,7 +266,11 @@ async def phone(b):
     await pg.tap('[data-act="close-detail"]'); await pg.tap('#ltActs [data-v="modern"]')
     await pg.tap('#bnav [data-v="health"]'); await pg.wait_for_timeout(300)
     await shot(pg, 'p_health')
+    await whats_new(pg, 'p_updates', [('.upd-hero', 1, 'What\'s new', 0), ('.upd-item >> nth=0', 2, 'A change', 2), ('.tour-foot', 3, 'Show me around or Got it', 0)])
     await pg.tap('#bnav [data-v="settings"]'); await pg.wait_for_timeout(300)
+    await pg.evaluate("V().profile.role = 'admin'; S.tab = 'admin'; renderApp(); document.getElementById('page').scrollTop = 0"); await pg.wait_for_timeout(400)
+    await shot(pg, 'p_admin', [('.adm-stats', 1, 'This version'), ('#adm-log .log-tools', 2, 'Filters', 2)])
+    await pg.evaluate("V().profile.role = 'member'; S.tab = 'settings'; renderApp()"); await pg.wait_for_timeout(300)
     await pg.tap('#s-bio'); await pg.wait_for_timeout(2500); await pg.evaluate("document.getElementById('page').scrollTop = 0"); await pg.wait_for_timeout(200)
     await shot(pg, 'p_settings', [('.page [data-act="lock"]', 1, 'Lock', 2), ('.page > .banner', 2, 'Tour and guide')])
     await pg.tap('.page > .banner [data-act="tour"]'); await pg.tap('[data-act="tour-go"][data-v="everyone"]')

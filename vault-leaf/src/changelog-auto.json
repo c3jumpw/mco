@@ -1,0 +1,7 @@
+{
+  "about": "Written by the Vaultleaf docs workflow (tools/log_changes.py): one entry for each push to main that changed Vaultleaf without adding a written entry to changelog.json. Shown on the Admin page and in CHANGELOG.md, never in What's new. Don't edit by hand.",
+  "entries": [
+    {"at": "2026-11-08T02:55", "type": "maintenance", "audience": "admin", "title": "Vaultleaf: note the move in the README", "commit": "b55b607", "auto": true},
+    {"at": "2026-11-18T10:13", "type": "maintenance", "audience": "admin", "title": "Vaultleaf docs workflow: current action versions, pinned Ubuntu image", "commit": "f3659fe", "auto": true}
+  ]
+}

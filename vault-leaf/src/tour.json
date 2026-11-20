@@ -1,9 +1,10 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "releases": [
     {"version": "1.0", "date": "2026-10-30", "title": "First release", "summary": "Encrypted vault with Classic and Modern views, 2FA codes, history, generator, health, backups and the illustrated guide."},
     {"version": "1.1", "date": "2026-11-08", "title": "Sync, Face ID, files and emergency kits", "summary": "Sync between devices with a sync code, Face ID and fingerprint unlock, leaked password check, encrypted file attachments and emergency kits."},
-    {"version": "1.2", "date": "2026-11-18", "title": "Guided tour", "summary": "A step-by-step tour for everyday use and for admins, a What's new tour after each update, and screenshots that refresh automatically with every release."}
+    {"version": "1.2", "date": "2026-11-18", "title": "Guided tour", "summary": "A step-by-step tour for everyday use and for admins, a What's new tour after each update, and screenshots that refresh automatically with every release."},
+    {"version": "1.3", "date": "2026-11-20", "title": "Change log, What's new and a new address", "summary": "An Admin page with every change since launch, a What's new summary after each update showing the changes that apply to you, roles, and the move to vaultleaf.mkcworkspace.com."}
   ],
   "features": [
     {"id": "setup", "name": "Set up a vault with a password, then a passcode", "since": "1.0", "guide": "start"},
@@ -36,7 +37,11 @@
     {"id": "admin-publish", "name": "Publish an update and roll back", "since": "1.0", "guide": "admins", "admin": true},
     {"id": "admin-storage", "name": "Look after sync storage", "since": "1.1", "guide": "admins", "admin": true},
     {"id": "admin-support", "name": "Help someone who's locked out or changing devices", "since": "1.0", "guide": "admins", "admin": true},
-    {"id": "admin-docs", "name": "Tour and guide refresh automatically", "since": "1.2", "guide": "admins", "admin": true}
+    {"id": "admin-docs", "name": "Tour and guide refresh automatically", "since": "1.2", "guide": "admins", "admin": true},
+    {"id": "updates", "name": "What's new after each update", "since": "1.3", "guide": "whats-new"},
+    {"id": "roles", "name": "Choose your role", "since": "1.3", "guide": "roles", "covers": ["Your role"]},
+    {"id": "address", "name": "Move to the new address", "since": "1.3", "guide": "address"},
+    {"id": "changelog", "name": "Admin page and change log", "since": "1.3", "guide": "changelog", "admin": true, "covers": ["Admin", "This version", "Change log", "What people see", "Admin help"]}
   ],
   "tracks": {
     "everyone": {
@@ -63,12 +68,15 @@
         {"id": "leaks", "chapter": "Stay safe", "feature": "leaks", "title": "Check for leaked passwords", "text": "On the Health page, Check my passwords looks for each one in public breach lists. Only 5 characters of a scrambled fingerprint are sent, never the password.", "desk": "d_health", "phone": "d_health"},
         {"id": "activity", "chapter": "Stay safe", "feature": "activity", "title": "Activity", "text": "Every copy and change across all accounts, with the time. Tap an event to open its account.", "desk": "d_activity", "phone": "d_activity"},
         {"id": "settings", "chapter": "Stay safe", "feature": "settings", "title": "Settings", "text": "Change your password, passcode or recovery key, choose when Vaultleaf locks, and pick the view and theme.", "desk": "d_settings", "phone": "p_settings"},
+        {"id": "roles", "chapter": "Stay safe", "feature": "roles", "title": "Everyday user or site admin", "text": "In Settings, under Your role, say whether you run the Vaultleaf site. Admins get the Admin page and hear about admin changes. Your role never opens anyone else's vault.", "desk": "d_role", "phone": "d_role"},
         {"id": "sync", "chapter": "Across devices", "feature": "sync", "title": "Sync your phone and computer", "text": "Turn on sync in Settings and copy your sync code. On the other device, choose Use my vault from another device, paste the code and unlock as usual.", "points": ["Only encrypted data is uploaded.", "Edits on two devices are combined."], "desk": "d_synccode", "phone": "p_link"},
         {"id": "backup", "chapter": "Across devices", "feature": "backup", "title": "Back up", "text": "Settings, Back up saves an encrypted file you can keep anywhere. Restore it on any device with the password and passcode you had, or your recovery key.", "desk": "d_backup", "phone": "d_backup"},
         {"id": "trash", "chapter": "Across devices", "feature": "trash", "title": "Recently deleted", "text": "Deleted accounts stay here for 30 days, so you can restore them.", "desk": "d_trash", "phone": "d_trash"},
         {"id": "emergency", "chapter": "Across devices", "feature": "emergency", "title": "Emergency kit for someone you trust", "text": "Make a file with everything, or only some labels, that opens with its own code. Give the file and the code to your trusted person separately.", "desk": "d_kit_builder", "phone": "d_kit_made"},
         {"id": "home-screen", "chapter": "Across devices", "feature": "home-screen", "title": "Put it on your home screen", "text": "On iPhone, open Vaultleaf in Safari, tap Share, then Add to Home Screen. On Android, use Chrome's menu, then Install app. It then opens full screen and works offline.", "desk": "p_list", "phone": "p_list", "marks": false},
-        {"id": "tour", "chapter": "Across devices", "feature": "tour", "title": "Find this tour again", "text": "Take the tour any time from Settings or the Guide. After each update, What's new shows only what changed. The full illustrated guide has every detail.", "desk": "d_settings", "phone": "p_settings"}
+        {"id": "updates", "chapter": "Stay up to date", "feature": "updates", "title": "What's new after each update", "text": "The first time you unlock after an update, a summary shows what changed, with pictures. You only see changes that apply to your role. Show me opens the tour at that feature.", "desk": "d_updates", "phone": "p_updates"},
+        {"id": "address", "chapter": "Stay up to date", "feature": "address", "title": "Moving to vaultleaf.mkcworkspace.com", "text": "Vaultleaf has a new address. Your vault is saved in your browser at the old one, so bring it over once: Move my vault gives you your sync code, then on the new address choose Use my vault from another device.", "points": ["No sync? Download a backup and restore it there instead.", "Turn Face ID or fingerprint unlock on again at the new address."], "desk": "d_move", "phone": "d_move"},
+        {"id": "tour", "chapter": "Stay up to date", "feature": "tour", "title": "Find this tour again", "text": "Take the tour any time from Settings or the Guide. After each update, What's new shows only what changed. The full illustrated guide has every detail.", "desk": "d_settings", "phone": "p_settings"}
       ]
     },
     "admin": {
@@ -76,13 +84,16 @@
       "desc": "Run the Vaultleaf website: access, updates, sync storage and helping people.",
       "slides": [
         {"id": "a-role", "chapter": "Your role", "feature": "admin-role", "title": "You run the website, not the vaults", "text": "Admins look after the Vaultleaf site on Vercel, its code on GitHub and its sync storage on Supabase. Every vault stays with its owner: nobody, including you, can see or reset one.", "desk": "a_role", "phone": "a_role", "marks": false},
-        {"id": "a-access", "chapter": "Your role", "feature": "admin-access", "title": "Choose who can open the site", "text": "In Vercel, open mco-vault-leaf, then Settings, then Deployment Protection. With Vercel Authentication on, only people in your Vercel team can open the site. Off, anyone with the link can, and each gets their own empty vault.", "desk": "a_access", "phone": "a_access", "marks": false},
+        {"id": "a-access", "chapter": "Your role", "feature": "admin-access", "title": "Choose who can open the site", "text": "In Vercel, open mco-vault-leaf, then Settings, then Deployment Protection. Vercel Authentication covers the vercel.app addresses. The workspace address vaultleaf.mkcworkspace.com opens for anyone with the link, and each visitor gets their own empty, private vault, unless protection is set to cover all deployments.", "desk": "a_access", "phone": "a_access", "marks": false},
         {"id": "a-publish", "chapter": "Updates", "feature": "admin-publish", "title": "Publish an update", "text": "Change the source in vault-leaf/src of c3jumpw/mco and push to main. Vercel deploys it, and the docs workflow then retakes every screenshot and rebuilds this tour and the guide.", "desk": "a_publish", "phone": "a_publish", "marks": false},
         {"id": "a-rollback", "chapter": "Updates", "feature": "admin-publish", "title": "Roll back if something breaks", "text": "In Vercel, open the project's Deployments, pick the last good one and choose Instant Rollback. People's saved data is never touched by updates or rollbacks.", "desk": "a_rollback", "phone": "a_rollback", "marks": false},
         {"id": "a-storage", "chapter": "Sync storage", "feature": "admin-storage", "title": "Look after sync storage", "text": "Synced vaults sit encrypted in the MKC-Admin Supabase project, tables vaultleaf_vaults and vaultleaf_blobs. You can see how many sync and their size, never their contents. Deleting a row stops that vault's sync.", "desk": "a_storage", "phone": "a_storage", "marks": false},
         {"id": "a-locked", "chapter": "Helping people", "feature": "admin-support", "title": "Someone forgot their password", "text": "They choose Forgot your password or passcode on the unlock screen and enter their recovery key. Without it, a recent backup file is the only way back. You can't reset a vault.", "desk": "p_recover", "phone": "p_recover"},
         {"id": "a-device", "chapter": "Helping people", "feature": "admin-support", "title": "Someone has a new phone", "text": "With sync on, they open Vaultleaf on the new phone, choose Use my vault from another device and enter the sync code from Settings on their old device. Without sync, they restore a backup file.", "desk": "d_restore", "phone": "p_link"},
-        {"id": "a-docs", "chapter": "Keeping docs current", "feature": "admin-docs", "title": "This tour updates itself", "text": "Each push that changes Vaultleaf runs a GitHub workflow that rebuilds the app, retakes every screenshot, rebuilds the tour and guide, and fails if a new feature has no slide or guide section.", "desk": "a_docs", "phone": "a_docs", "marks": false}
+        {"id": "a-changelog", "chapter": "Change log", "feature": "changelog", "title": "Every change, in order", "text": "Admin, in the sidebar or Settings, shows every change since launch, oldest first. Filter by who it's for and the kind of change, search it, and download it as JSON, CSV or Markdown to keep.", "desk": "d_admin", "phone": "p_admin"},
+        {"id": "a-whatsnew", "chapter": "Change log", "feature": "changelog", "title": "What people see after an update", "text": "Written entries become each person's What's new the first time they unlock after an update: everyone sees changes for everyone, and admins also see admin changes. Preview both from the Admin page.", "desk": "d_updates", "phone": "p_updates"},
+        {"id": "a-log", "chapter": "Change log", "feature": "changelog", "title": "Add an entry with each change", "text": "Write user-facing changes in vault-leaf/src/changelog.json: date and time, version, kind, who it's for, a title and a sentence or two. Anything pushed without an entry is still logged automatically, for admins only.", "desk": "a_changelog", "phone": "a_changelog", "marks": false},
+        {"id": "a-docs", "chapter": "Keeping docs current", "feature": "admin-docs", "title": "This tour updates itself", "text": "Each push that changes Vaultleaf runs a GitHub workflow that logs the change, rebuilds the app, retakes every screenshot, rebuilds the tour and guide, and fails if a feature has no step or guide section.", "desk": "a_docs", "phone": "a_docs", "marks": false}
       ]
     }
   }

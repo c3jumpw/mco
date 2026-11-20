@@ -2,7 +2,7 @@
 /* ================= Vaultleaf core: crypto, storage, sync, model ================= */
 const APP = 'vaultleaf', VER = 1;
 const WEB = /*__WEB__*/false;
-const GUIDE_URL = WEB ? '/guide/' : 'https://mco-vault-leaf.vercel.app/guide/';
+const GUIDE_URL = WEB ? '/guide/' : 'https://vaultleaf.mkcworkspace.com/guide/';
 const KDF_ITER = 600000, RK_ITER = 150000;
 const K = {header:'vaultleaf.header', body:'vaultleaf.body', guard:'vaultleaf.guard', device:'vaultleaf.device', ui:'vaultleaf.ui', sync:'vaultleaf.sync', bio:'vaultleaf.bio'};
 const SUPA_URL = 'https://symbmscaajjmgywbifhv.supabase.co';
@@ -304,7 +304,7 @@ function newVault(profile){
   const t = now();
   return {v:1, profile:{name:profile.name || '', email:profile.email || '', updatedAt:t},
     settings:{view:'modern', theme:'auto', autoLockMin:5, lockOnHide:true, revealSec:30, clipSec:30, sync:true, rotateDays:0, sort:'updated', updatedAt:t},
-    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0, kits:[]}};
+    labels:[], accounts:[], tombstones:[], nextNo:1, createdAt:t, updatedAt:t, meta:{lastBackupAt:0, kits:[], seenChange:0}};
 }
 function upgradeVault(v){
   const d = newVault({});
@@ -351,7 +351,7 @@ function mergeVaults(a, b){
     accounts:[...acc.values()].filter(alive).map(dropFiles).sort(byId), labels:[...lab.values()].filter(alive).sort(byId),
     tombstones:[...tomb.values()].filter(t => t.at > cutoff).sort(byId),
     nextNo:Math.max(a.nextNo || 1, b.nextNo || 1), updatedAt:Math.max(a.updatedAt || 0, b.updatedAt || 0),
-    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0), kits:unionById(a.meta?.kits, b.meta?.kits, 50)}};
+    meta:{lastBackupAt:Math.max(a.meta?.lastBackupAt || 0, b.meta?.lastBackupAt || 0), kits:unionById(a.meta?.kits, b.meta?.kits, 50), seenChange:Math.max(a.meta?.seenChange || 0, b.meta?.seenChange || 0)}};
 }
 function stable(o){ return JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((r, kk) => (r[kk] = v[kk], r), {}) : v); }
 

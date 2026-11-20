@@ -40,14 +40,17 @@ ART = {
 </div>"""),
 'a_access': page("""<div class="wrap"><h1>Choose who can open the site</h1>
 <div class="crumbs"><span class="chip">Vercel</span><span class="sep">›</span><span class="chip">mco-vault-leaf</span><span class="sep">›</span><span class="chip">Settings</span><span class="sep">›</span><span class="chip hl">Deployment Protection</span></div>
-<div class="card" style="display:grid;gap:22px">
- <div style="display:flex;justify-content:space-between;align-items:center;gap:20px"><div><b style="font-size:22px">Vercel Authentication</b><br><span style="color:var(--muted)">Visitors must be logged in to Vercel with access to your team</span></div><div class="toggle hl"></div></div>
- <div class="note"><b>On, the current setting:</b> only your Vercel team can open Vaultleaf. The most private choice for a personal vault. On a phone, sign in to Vercel once.</div>
- <div style="display:flex;justify-content:space-between;align-items:center;gap:20px;opacity:.75"><div><b style="font-size:20px">Off</b><br><span style="color:var(--muted)">Anyone with the link can open it. Each person gets their own empty vault and can't see anyone else's.</span></div><div class="toggle off"></div></div>
+<div class="card" style="display:grid;gap:18px">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:20px"><div><b style="font-size:22px">Vercel Authentication</b><br><span style="color:var(--muted)">Visitors must be logged in to Vercel with access to your team</span></div><div class="toggle"></div></div>
+ <div class="row">
+  <div class="note" style="flex:1"><b>Standard Protection, the current setting.</b> Covers <span class="mono">mco-vault-leaf.vercel.app</span> and preview links. <span class="mono">vaultleaf.mkcworkspace.com</span> opens for anyone with the link.</div>
+  <div class="note hl" style="flex:1;background:var(--leaf-soft)"><b>All Deployments.</b> Covers the workspace address too, so only your Vercel team can open Vaultleaf anywhere.</div>
+ </div>
+ <p style="margin:0;color:var(--muted)">Either way, each person gets their own empty, private vault and can't see anyone else's.</p>
 </div></div>"""),
 'a_publish': page("""<div class="wrap"><h1>Publish an update</h1><p class="sub">Push to main. The site and its documentation update on their own.</p>
 <div class="row">
- <div class="card" style="flex:1"><div class="ic">1</div><b style="display:block;font-size:21px;margin-top:12px">Change the source</b><p class="mono" style="margin:8px 0 0;font-size:16px">vault-leaf/src/</p><p style="margin:8px 0 0;color:var(--muted)">New feature? Add it to src/tour.json and the guide.</p></div>
+ <div class="card" style="flex:1"><div class="ic">1</div><b style="display:block;font-size:21px;margin-top:12px">Change the source</b><p class="mono" style="margin:8px 0 0;font-size:16px">vault-leaf/src/</p><p style="margin:8px 0 0;color:var(--muted)">Add a change log entry, and a tour step for new features.</p></div>
  <div class="arrow">›</div>
  <div class="card" style="flex:1"><div class="ic">2</div><b style="display:block;font-size:21px;margin-top:12px">Push to main</b><p class="mono" style="margin:8px 0 0;font-size:16px">c3jumpw/mco</p><p style="margin:8px 0 0;color:var(--muted)">Vercel deploys in under a minute.</p></div>
  <div class="arrow">›</div>
@@ -77,8 +80,26 @@ ART = {
 <div class="row"><div class="note" style="flex:1"><b>vaultleaf_blobs</b> holds the encrypted vault bodies and attached files, in parts of up to 1 MB. Up to 60 MB per vault.</div>
 <div class="note" style="flex:1"><b>Delete a row</b> in vaultleaf_vaults to stop that vault syncing. Every device keeps its own copy.</div></div>
 </div>"""),
+'a_changelog': page("""<div class="wrap"><h1>Add an entry with each change</h1><p class="sub">Append to the end of <span class="mono">vault-leaf/src/changelog.json</span>, oldest first.</p>
+<div class="row">
+ <div class="card" style="flex:1.35;font-size:16px"><pre class="mono" style="margin:0;white-space:pre-wrap;line-height:1.55">{
+  "at": "2026-12-02T14:30",
+  "version": "1.4",
+  "type": "<b style="color:var(--leaf)">added</b>",
+  "audience": "<b style="color:var(--brass)">everyone</b>",
+  "title": "Share a login with family",
+  "text": "Send one account to someone you trust.",
+  "feature": "sharing"
+}</pre></div>
+ <div style="flex:1;display:grid;gap:14px;align-content:start">
+  <div class="note"><b>type</b>: added, improved, changed, fixed or security</div>
+  <div class="note"><b>audience</b>: everyone, or admin for changes only admins need to hear about</div>
+  <div class="note" style="background:var(--leaf-soft)"><b>Written entries</b> appear in What's new. Anything pushed without one is logged automatically, for admins only.</div>
+ </div>
+</div></div>"""),
 'a_docs': page("""<div class="wrap"><h1>The tour and guide update themselves</h1><p class="sub">GitHub workflow “Vaultleaf docs” runs on every push that changes Vaultleaf.</p>
 <div class="card" style="display:grid;gap:14px;font-size:20px">
+ <div><span class="ok">✓</span> Log the change in the change log</div>
  <div><span class="ok">✓</span> Build the app and its security headers</div>
  <div><span class="ok">✓</span> Retake every screenshot, on a computer and a phone, light and dark</div>
  <div><span class="ok">✓</span> Redraw these admin illustrations</div>
@@ -86,6 +107,6 @@ ART = {
  <div class="hl" style="padding:4px 8px"><span class="ok">✓</span> Check every feature has a tour slide and a guide section, or fail the run</div>
  <div><span class="ok">✓</span> Commit the refreshed files, which Vercel then deploys</div>
 </div>
-<div class="note">Adding a feature? Add it to <span class="mono">vault-leaf/src/tour.json</span> with a slide, add its guide section, and bump the version. People see it in What's new.</div>
+<div class="note">Adding a feature? Write it in <span class="mono">src/changelog.json</span>, add a step to <span class="mono">src/tour.json</span> and a guide section. People see it in What's new.</div>
 </div>"""),
 }

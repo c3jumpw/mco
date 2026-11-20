@@ -10,7 +10,7 @@ function authShell(inner){
       </ul>
     </aside>
     <div><div class="auth-brand">${MARK(36)}<span class="wordmark">Vaultleaf</span></div>
-    <div class="auth-main"><div class="auth-card">${inner}${TOUR ? `<button class="btn ghost small" style="justify-self:center" data-act="tour">${ic('question','s')}How Vaultleaf works</button>` : `<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a>`}</div></div></div></div>`;
+    <div class="auth-main"><div class="auth-card">${authMoveHTML()}${inner}${TOUR ? `<button class="btn ghost small" style="justify-self:center" data-act="tour">${ic('question','s')}How Vaultleaf works</button>` : `<a class="btn ghost small" style="justify-self:center" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question','s')}How Vaultleaf works</a>`}</div></div></div></div>`;
 }
 const rkHTML = rk => String(rk).split('-').map((g, i, arr) => `<span>${esc(g)}${i < arr.length - 1 ? '-' : ''}</span>`).join('<wbr>');
 const stepsBar = (n, total = 4) => `<div class="steps" aria-label="Step ${n} of ${total}">${Array.from({length:total}, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div>`;

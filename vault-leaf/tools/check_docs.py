@@ -1,4 +1,4 @@
-"""Fail when the tour or guide falls behind the app.
+"""Fail when the tour, guide or change log falls behind the app.
 
 Checks that every feature in src/tour.json has a tour step and a guide section, that every step's
 screenshots exist, that every page and Settings panel in the app is covered by a feature, and that
@@ -46,11 +46,35 @@ names = set()
 m = re.search(r'const TABS = (\[.*?\]);', src)
 if m: names |= {lab for _, lab in re.findall(r"\['(\w+)','([^']+)'", m.group(1))}
 names.add('Guide')
+if 'data-v="admin"' in src: names.add('Admin')
 for h in re.findall(r'panel-h"><h2>(.*?)</h2>', src):
     if '${' in h: names |= set(re.findall(r"'([^']+)'", h))
     else: names.add(h)
 for n in sorted(names):
     if n.lower() not in covered: problems.append(f'"{n}" (a page or Settings panel) isn\'t covered: add it to a feature\'s "covers" in src/tour.json, with a tour step')
+
+# change log: written entries in order, valid, and covering every release
+TYPES = {'added', 'improved', 'changed', 'fixed', 'security'}
+log = json.loads((ROOT / 'src' / 'changelog.json').read_text())['entries']
+autop = ROOT / 'src' / 'changelog-auto.json'
+auto = json.loads(autop.read_text())['entries'] if autop.exists() else []
+prev = ''
+for i, c in enumerate(log, 1):
+    where = f"change log entry {i} ({c.get('title', 'untitled')})"
+    if not re.fullmatch(r'\d{4}-\d\d-\d\d(T\d\d:\d\d)?', c.get('at', '')): problems.append(f'{where}: "at" must be YYYY-MM-DD or YYYY-MM-DDTHH:MM')
+    elif c['at'] < prev: problems.append(f'{where}: entries must stay oldest first; add new ones at the end')
+    else: prev = c['at']
+    if c.get('type') not in TYPES: problems.append(f'{where}: type must be one of {", ".join(sorted(TYPES))}')
+    if c.get('audience') not in ('everyone', 'admin'): problems.append(f'{where}: audience must be everyone or admin')
+    if c.get('version') not in vers: problems.append(f'{where}: version {c.get("version")} isn\'t a release in src/tour.json')
+    if not c.get('title') or not c.get('text'): problems.append(f'{where}: needs a title and text')
+    if c.get('feature') and c['feature'] not in feats: problems.append(f'{where}: unknown feature "{c["feature"]}"')
+for v in vers:
+    if not any(c.get('version') == v for c in log): problems.append(f'release {v} has no entry in src/changelog.json')
+for c in auto:
+    if not c.get('at') or not c.get('title') or not c.get('commit'): problems.append(f"automatic change log entry is incomplete: {c}")
+md = (ROOT / 'CHANGELOG.md').read_text() if (ROOT / 'CHANGELOG.md').exists() else ''
+if log and log[-1]['title'] not in md: problems.append('CHANGELOG.md is out of date: run tools/build.py')
 
 # the built site carries this tour
 site = (ROOT / 'index.html').read_text()
@@ -59,4 +83,4 @@ if f"Vaultleaf {tour['version']} guide" not in guide: problems.append('guide/ind
 
 if problems:
     print('Docs are out of date:'); [print(' -', p) for p in problems]; sys.exit(1)
-print(f"Docs OK: {len(feats)} features, {len(slides)} tour steps, {len(names)} pages and panels covered, version {tour['version']}")
+print(f"Docs OK: {len(feats)} features, {len(slides)} tour steps, {len(names)} pages and panels covered, {len(log)} written and {len(auto)} automatic change log entries, version {tour['version']}")

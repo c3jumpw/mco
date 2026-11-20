@@ -6,48 +6,38 @@ const TOUR = /*__TOUR__*/null;
 const APP_VERSION = TOUR ? TOUR.version : '';
 K.seen = 'vaultleaf.seen';
 const vcmp = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for(let i = 0; i < Math.max(x.length, y.length); i++){ const d = (x[i] || 0) - (y[i] || 0); if(d) return d; } return 0; };
-const T = {open:false, track:null, i:0, from:null, back:null};
+const T = {open:false, view:null, track:null, i:0, from:null, back:null};
 let tourEl = null;
 const tourBtn = (cls, label) => TOUR ? `<button class="${cls}" data-act="tour">${ic('cards','s')}${label}</button>` : guideLink(cls, label);
 const fmtRel = d => new Date(d + 'T12:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
 const newReleases = from => TOUR.releases.filter(r => vcmp(r.version, from) > 0);
 function newSlides(from){
   const out = [{id:'releases', chapter:'What\'s new', releases:newReleases(from)}];
-  for(const k of ['everyone', 'admin']) for(const s of TOUR.tracks[k].slides){ const f = TOUR.features[s.feature]; if(f && vcmp(f.since, from) > 0 && !out.some(o => o.feature === s.feature && o.title === s.title)) out.push({...s, chapter:k === 'admin' ? 'For admins' : 'What\'s new', track:k}); }
+  for(const k of ['everyone', 'admin']){ if(k === 'admin' && !isAdmin()) continue; for(const s of TOUR.tracks[k].slides){ const f = TOUR.features[s.feature]; if(f && vcmp(f.since, from) > 0 && !out.some(o => o.feature === s.feature && o.title === s.title)) out.push({...s, chapter:k === 'admin' ? 'For admins' : 'What\'s new', track:k}); } }
   return out;
 }
 function tourSlides(){ return T.track === 'new' ? newSlides(T.from) : TOUR.tracks[T.track].slides; }
 function baselineFor(at){ let v = TOUR.releases[0].version; for(const r of TOUR.releases) if(new Date(r.date + 'T00:00:00Z').getTime() <= (at || 0)) v = r.version; return v; }
-function tourAfterUnlock(fresh){
-  if(!TOUR) return;
-  const seen = LS.get(K.seen); S.nudge = null;
-  if(fresh){ S.nudge = {kind:'welcome'}; LS.set(K.seen, APP_VERSION); }
-  else {
-    const from = seen || baselineFor(S.header && S.header.createdAt);
-    if(vcmp(from, APP_VERSION) < 0) S.nudge = {kind:'new', from}; else LS.set(K.seen, APP_VERSION);
-  }
-  if(S.nudge) renderList();
-}
 function nudgeHTML(){
   const n = S.nudge; if(!n || !TOUR) return '';
-  const rel = TOUR.releases[TOUR.releases.length - 1];
-  const txt = n.kind === 'welcome' ? 'New to Vaultleaf? A 4-minute tour shows every feature, step by step.' : `Vaultleaf ${esc(APP_VERSION)} is here: ${esc(rel.title.toLowerCase())}, and more. See what changed since you last looked.`;
-  return `<div class="banner tour-nudge">${ic(n.kind === 'welcome' ? 'cards' : 'star','s')}<b>${txt}</b><button class="btn small primary" data-act="${n.kind === 'welcome' ? 'tour' : 'tour-new'}">${n.kind === 'welcome' ? 'Take the tour' : 'See what\'s new'}</button><button class="icon-btn" data-act="tour-dismiss" aria-label="Dismiss" title="Dismiss">${ic('x','s')}</button></div>`;
+  return `<div class="banner tour-nudge">${ic('cards','s')}<b>New to Vaultleaf? A 4-minute tour shows every feature, step by step.</b><button class="btn small primary" data-act="tour">Take the tour</button><button class="icon-btn" data-act="tour-dismiss" aria-label="Dismiss" title="Dismiss">${ic('x','s')}</button></div>`;
 }
-function markSeen(){ if(!TOUR) return; LS.set(K.seen, APP_VERSION); if(S.nudge){ S.nudge = null; if(S.phase === 'app') renderList(); } }
+function markSeen(){ markChangesSeen(); if(S.nudge){ S.nudge = null; if(S.phase === 'app') renderList(); } }
 
 function openTour(track = null, i = 0, from = null){
   if(!TOUR){ if(WEB){ S.tab = 'guide'; renderApp(); } else window.open(GUIDE_URL, '_blank', 'noopener'); return; }
   if(!T.open){ T.back = document.activeElement; }
-  Object.assign(T, {open:true, track, i, from});
+  Object.assign(T, {open:true, view:null, track, i, from});
   if(!tourEl){ tourEl = document.createElement('div'); tourEl.id = 'tour'; tourEl.className = 'tour'; document.body.appendChild(tourEl); wireTourSwipe(); }
   renderTour(true);
   document.documentElement.classList.add('tour-on');
 }
 function closeTour(){
   if(!tourEl) return;
-  tourEl.remove(); tourEl = null; T.open = false; document.documentElement.classList.remove('tour-on');
-  if(T.track) markSeen();
+  const wasUpdates = T.view === 'updates' && !T.preview;
+  tourEl.remove(); tourEl = null; T.open = false; T.view = null; T.preview = null; document.documentElement.classList.remove('tour-on');
+  if(T.track || wasUpdates) markChangesSeen();
+  if(S.nudge && S.nudge.kind === 'welcome' && T.track){ S.nudge = null; if(S.phase === 'app') renderList(); }
   if(T.back && T.back.isConnected) try{ T.back.focus(); }catch(e){}
 }
 function shotFor(s){
@@ -94,10 +84,10 @@ function slideHTML(){
 }
 function renderTour(focus){
   if(!tourEl) return;
-  tourEl.innerHTML = `<div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">${T.track ? slideHTML() : pickerHTML()}</div>`;
+  tourEl.innerHTML = `<div class="tour-card${T.view === 'updates' ? ' is-upd' : ''}" role="dialog" aria-modal="true" aria-labelledby="tour-title">${T.view === 'updates' ? updatesHTML() : T.track ? slideHTML() : pickerHTML()}</div>`;
   const main = tourEl.querySelector('.tour-main'); if(main) main.scrollTop = 0;
   if(T.track){ const sl = tourSlides(), nx = sl[T.i + 1]; const sh = nx && !nx.releases && shotFor(nx); if(sh){ const im = new Image(); im.src = `/guide/img/${sh.name}.webp`; } }
-  if(focus){ const f = tourEl.querySelector(T.track ? '[data-act="tour-next"]' : '.tour-track'); if(f) setTimeout(() => f.focus(), 30); }
+  if(focus){ const f = tourEl.querySelector(T.view === 'updates' ? '.tour-foot .btn.primary' : T.track ? '[data-act="tour-next"]' : '.tour-track'); if(f) setTimeout(() => f.focus(), 30); }
 }
 function tourStep(d){
   const n = tourSlides().length, j = T.i + d;
@@ -125,9 +115,8 @@ document.addEventListener('keydown', e => {
   e.stopImmediatePropagation();
 }, true);
 Object.assign(ACT, {
-  tour(){ if(S.m) closeModal(); if(S.nudge && S.nudge.kind === 'welcome') markSeen(); openTour(null); },
-  'tour-go'(el){ const v = el.dataset.v; openTour(v, 0, v === 'new' ? (S.nudge && S.nudge.from) || (TOUR.releases.length > 1 ? TOUR.releases[TOUR.releases.length - 2].version : '0') : null); },
-  'tour-new'(){ openTour('new', 0, (S.nudge && S.nudge.from) || APP_VERSION); },
+  tour(){ if(S.m) closeModal(); if(S.nudge){ S.nudge = null; if(S.phase === 'app') renderList(); } openTour(null); },
+  'tour-go'(el){ const v = el.dataset.v; openTour(v, 0, v === 'new' ? (TOUR.releases.length > 1 ? TOUR.releases[TOUR.releases.length - 2].version : '0') : null); },
   'tour-pick'(){ openTour(null); },
   'tour-close'(){ closeTour(); },
   'tour-next'(){ tourStep(1); },

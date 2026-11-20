@@ -37,7 +37,7 @@ function renderSide(){
   for(const {l} of tree){ const ids = labelDesc(l.id); counts.set(l.id, V().accounts.filter(a => !a.trashedAt && a.labels.some(x => ids.has(x))).length); }
   const lbtn = (f, label, n, extra = '') => `<button class="side-lbl" data-act="filter" data-v="${f}" aria-current="${S.tab === 'vault' && S.filter === f}">${extra}<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(label)}</span><span class="n tnum">${n || ''}</span></button>`;
   side.innerHTML = `<div class="brand">${MARK(30)}<span class="wordmark">Vaultleaf</span></div>
-    <nav class="side-nav">${TABS.map(([k, l, i]) => `<button data-act="tab" data-v="${k}" aria-current="${S.tab === k ? 'page' : 'false'}">${ic(i)}${l}</button>`).join('')}${WEB ? `<button data-act="tab" data-v="guide" aria-current="${S.tab === 'guide' ? 'page' : 'false'}">${ic('question')}Guide</button>` : `<a class="side-link" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question')}Guide</a>`}</nav>
+    <nav class="side-nav">${TABS.map(([k, l, i]) => `<button data-act="tab" data-v="${k}" aria-current="${S.tab === k ? 'page' : 'false'}">${ic(i)}${l}</button>`).join('')}${isAdmin() ? `<button data-act="tab" data-v="admin" aria-current="${S.tab === 'admin' ? 'page' : 'false'}">${ic('users')}Admin</button>` : ''}${WEB ? `<button data-act="tab" data-v="guide" aria-current="${S.tab === 'guide' ? 'page' : 'false'}">${ic('question')}Guide</button>` : `<a class="side-link" href="${GUIDE_URL}" target="_blank" rel="noopener">${ic('question')}Guide</a>`}</nav>
     <h4>${view() === 'classic' ? 'Folders' : 'Labels'}</h4>
     ${lbtn('all', 'All accounts', all, ic(view() === 'classic' ? 'folder' : 'layers', 's'))}
     ${lbtn('fav', 'Favorites', fav, ic('star', 's'))}
@@ -76,10 +76,10 @@ function renderList(){
     else if(S.filter === 'trash') h = `<div class="empty"><h2>Nothing deleted</h2><p>Accounts you delete stay here for 30 days.</p></div>`;
     else if(!total) h = `<div class="empty">${MARK(52)}<h2>Your vault is empty</h2><p>Add your first account, or bring over the notes you keep your passwords in now.</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="new">${ic('plus','s')}Add an account</button><button class="btn" data-act="import-notes">${ic('import','s')}Import from Notes</button>${TOUR ? tourBtn('btn', 'Take the tour') : ''}</div></div>`;
     else h = `<div class="empty"><h2>Nothing here yet</h2><p>No accounts ${S.filter === 'fav' ? 'are marked as favorites' : 'have this label'}.</p></div>`;
-    el.innerHTML = h; return;
+    el.innerHTML = (S.filter === 'all' && !S.q ? moveBannerHTML() : '') + h; return;
   }
   const exN = V().accounts.filter(a => a.example && !a.trashedAt).length;
-  const banner = (S.filter === 'all' && !S.q ? nudgeHTML() : '') + (exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '');
+  const banner = (S.filter === 'all' && !S.q ? moveBannerHTML() + nudgeHTML() : '') + (exN && S.filter === 'all' && !S.q ? `<div class="banner"><b>${exN} example account${exN === 1 ? ' is' : 's are'} here to explore. Try copying, revealing or editing them.</b><button class="btn small" data-act="rm-examples">Remove examples</button></div>` : '');
   if(view() === 'classic'){
     const s = V().settings.sort, grouped = s === 'updated' || s === 'created';
     let last = null, out = '';

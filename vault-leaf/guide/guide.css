@@ -163,3 +163,8 @@ tbody th{font-weight:400}
   .hero-art .phone.over{width:34%;bottom:-24px;right:-6px}
   .legend{grid-template-columns:1fr}
 }
+/* change log */
+.sec .log-day{font-size:17px;margin:26px 0 8px;color:var(--ink)}
+.facts.log li{margin-bottom:6px}
+.facts.log code{font-size:12px}
+.muted{color:var(--muted)}
