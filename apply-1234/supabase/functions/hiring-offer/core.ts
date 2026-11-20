@@ -4,8 +4,8 @@
 // Candidate (with the private link's token): view, file, sign, decline.
 // Every step is added to the offer's event log with the time, IP address and browser.
 import {
-  DEFAULT_LETTER, type OfferEvent, type OfferFields, type OfferFile, documentText, fillOffer, firstName, fmtDay, fmtStamp,
-  missingForSend, offerTitle, offerVars, payText, sha256Hex, uaLabel,
+  DEFAULT_LETTER, type OfferEvent, type OfferFields, type OfferFile, ccList, documentText, fillOffer, firstName, fmtDay, fmtStamp,
+  mdEmail, missingForSend, offerTitle, offerVars, payText, sha256Hex, uaLabel,
 } from './offer.ts';
 import { buildOfferPdf } from './pdf.ts';
 import { button, esc, heading, layout, paragraphs, row, table } from './email.ts';
@@ -20,7 +20,7 @@ export interface Offer {
   withdrawn_at: string | null; pdf_path: string | null; events: OfferEvent[];
 }
 export interface App { id: string; job_id: string; name: string; email: string; stage: string }
-export interface Mail { to: string[]; subject: string; html: string; text: string; reply_to?: string; from_name?: string; attachments?: { filename: string; content: string }[] }
+export interface Mail { to: string[]; cc?: string[]; subject: string; html: string; text: string; reply_to?: string; from_name?: string; attachments?: { filename: string; content: string }[] }
 
 export interface Store {
   offer(id: string): Promise<Offer | null>;
@@ -97,15 +97,21 @@ export async function handle(req: Request, d: Deps): Promise<Response> {
       const terms = fillOffer(offer.terms, vars);
       const hash = await sha256Hex(documentText(letter, terms, offer.attachments || []));
       const token = (d.token || randomToken)();
-      const events = [...(offer.events || []), { at, type: 'sent', by: user.email, ip: meta.ip, ua: meta.ua, note: `to ${app.email}` }];
+      const cc = ccList(body.cc, app.email);
+      const events = [...(offer.events || []), { at, type: 'sent', by: user.email, ip: meta.ip, ua: meta.ua, note: `to ${app.email}${cc.length ? `, cc ${cc.join(', ')}` : ''}` }];
       const sent = await s.patch(offer.id, {
-        status: 'sent', token, final_letter: letter, final_terms: terms, doc_hash: hash, sent_at: at, sent_by: user.email,
+        status: 'sent', token, fields: { ...offer.fields, cc }, final_letter: letter, final_terms: terms, doc_hash: hash, sent_at: at, sent_by: user.email,
         sent_meta: meta, expires_at: `${offer.fields.expires}T23:59:59Z`, events,
       }, ['draft']);
       if (!sent) return fail('already_sent', 409);
       await s.setStage(app.id, 'offer');
       const mailed = await mailOffer(d, sent, app, false);
-      await s.patch(sent.id, { events: [...events, { at: now(), type: mailed.ok ? 'emailed' : 'email_failed', note: mailed.ok ? app.email : mailed.error }] });
+      const log: OfferEvent[] = [...events, { at: now(), type: mailed.ok ? 'emailed' : 'email_failed', note: mailed.ok ? app.email : mailed.error }];
+      if (cc.length) {
+        const copied = await mailCopy(d, sent, app, cc);
+        log.push({ at: now(), type: copied.ok ? 'cc' : 'email_failed', note: copied.ok ? cc.join(', ') : `copy: ${copied.error}` });
+      }
+      await s.patch(sent.id, { events: log });
       await mailTeam(d, sent, app, user.email, 'sent');
       return json({ ok: true, link: `${d.site}/offer/${token}`, emailed: mailed.ok });
     }
@@ -290,10 +296,34 @@ function mailOffer(d: Deps, o: Offer, app: App, reminder: boolean) {
   });
 }
 
+/** A copy of the offer for the people CC'd: the full letter and terms, but not the candidate's signing link,
+ *  so only the candidate can open and sign it and the record stays theirs. */
+function mailCopy(d: Deps, o: Offer, app: App, cc: string[]) {
+  const f = o.fields;
+  const company = f.company || 'The hiring team';
+  const profile = `${d.site}/admin/candidates/${app.id}`;
+  const note = `This is your copy of the offer ${company} sent to ${app.name} (${app.email}) on ${fmtStamp(o.sent_at)}. The signing link is only in ${firstName(app.name)}'s email, so the signature on record can only be theirs. When ${firstName(app.name)} signs, the signed PDF is emailed to you.`;
+  return d.send({
+    to: cc, from_name: company, reply_to: f.manager_email && !cc.includes(f.manager_email.toLowerCase()) ? f.manager_email : undefined,
+    subject: `Copy: offer to ${app.name}, ${f.position}`,
+    text: `${note}\n\n${o.final_letter || ''}\n\nTerms and conditions\n\n${o.final_terms || ''}\n\nTheir profile (hiring team only): ${profile}\n`,
+    html: layout(heading(`Copy of the offer to ${app.name}`, `${esc(f.position)} · ${esc(company)}`) +
+      `<p style="margin:0 0 16px;padding:12px 14px;background:#f5f3ee;border-radius:10px;font-size:13px;line-height:1.55;color:#3a3940;">${esc(note)}</p>` +
+      table(row('Start date', esc(fmtDay(f.start_date))) + row('Pay', esc(payText(f))) + row('Open until', esc(fmtDay(f.expires)))) +
+      `<div style="margin-top:18px;padding-top:6px;border-top:1px solid #e2ded4;">${mdEmail(o.final_letter || '', esc)}` +
+      (o.final_terms ? `<p style="margin:18px 0 8px;font-size:16px;font-weight:700;">Terms and conditions</p>${mdEmail(o.final_terms, esc)}` : '') +
+      ((o.attachments || []).length ? `<p style="margin:18px 0 8px;font-size:15px;font-weight:700;">Attachments</p><p style="margin:0;font-size:14px;">${o.attachments.map((a) => esc(a.name)).join('<br>')}</p>` : '') +
+      `</div>` + button(profile, 'Open their profile (hiring team)'), `Your copy of the offer to ${app.name}.`),
+  });
+}
+
 /** Tells the hiring manager (and whoever sent the offer) what happened. */
 async function mailTeam(d: Deps, o: Offer, app: App, sender: string, what: 'sent' | 'signed' | 'declined', attachment?: { filename: string; content: string }) {
   const f = o.fields;
-  const to = [...new Set([f.manager_email, o.sent_by, sender].filter((x): x is string => !!x && /@/.test(x)).map((x) => x.toLowerCase()))];
+  const cc = ccList(f.cc, app.email);
+  // People CC'd on the offer already have a full copy of it, so they don't also get the "sent" notice.
+  const to = [...new Set([f.manager_email, o.sent_by, sender, ...(what === 'sent' ? [] : cc)].filter((x): x is string => !!x && /@/.test(x)).map((x) => x.toLowerCase()))]
+    .filter((x) => what !== 'sent' || !cc.includes(x));
   if (!to.length) return true;
   const profile = `${d.site}/admin/candidates/${app.id}`;
   const title = what === 'sent' ? `Offer sent to ${app.name}` : what === 'signed' ? `${app.name} signed the offer` : `${app.name} declined the offer`;

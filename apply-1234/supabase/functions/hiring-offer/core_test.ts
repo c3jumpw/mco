@@ -126,3 +126,23 @@ Deno.test('typed signature, expiry, decline and withdraw', async () => {
   assert((await w.call({ action: 'sign', token: w.offer.token, name: 'Mary', signature: { kind: 'typed' }, consent: true, read: true })).status === 409, 'withdrawn cannot be signed');
   assert((await w.call({ action: 'view', token: 'x'.repeat(32) })).status === 404, 'unknown link');
 });
+
+Deno.test('CC: copies go out without the signing link, and CC gets the signed PDF', async () => {
+  const t = setup();
+  const r = await t.call({ action: 'send', offer_id: t.offer.id, cc: ['Alex@Brand.test', 'mary@example.test', 'not-an-email', 'ops@brand.test'] }, { jwt: 'admin-jwt' });
+  assert(r.body.ok, JSON.stringify(r.body));
+  assert(JSON.stringify(t.offer.fields.cc) === JSON.stringify(['alex@brand.test', 'ops@brand.test']), `cc cleaned: ${JSON.stringify(t.offer.fields.cc)}`);
+  const toCandidate = t.mails.find((m) => m.to[0] === 'mary@example.test')!;
+  assert(!toCandidate.cc, 'candidate email has no CC');
+  const copy = t.mails.find((m) => m.subject.startsWith('Copy:'))!;
+  assert(copy && copy.to.join() === 'alex@brand.test,ops@brand.test', 'copy to CC');
+  assert(!copy.html.includes(t.offer.token!) && !copy.text.includes(t.offer.token!), 'copy has no signing link');
+  await Deno.writeTextFile('/tmp/cc-copy.html', copy.html);
+  assert(copy.html.includes('Dear Mary') && copy.html.includes('Terms and conditions') && copy.html.includes('<strong>'), 'copy has the letter and terms');
+  const notice = t.mails.find((m) => m.subject.startsWith('Offer sent'))!;
+  assert(notice.to.join() === 'boss@brand.test', `sent notice skips people CC'd: ${notice.to}`);
+  assert(t.offer.events.some((e) => e.type === 'cc' && e.note === 'alex@brand.test, ops@brand.test'), 'cc logged');
+  await t.call({ action: 'sign', token: t.offer.token, name: 'Mary Ruth Example', signature: { kind: 'typed' }, consent: true, read: true });
+  const signed = t.mails.find((m) => m.subject.includes('signed the offer'))!;
+  assert(signed.to.includes('ops@brand.test') && signed.to.includes('alex@brand.test') && signed.attachments?.length === 1, 'CC gets the signed PDF');
+});

@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Application, Job } from '../lib/types';
 import {
-  CURRENCIES, DEFAULT_LETTER, DEFAULT_TERMS, EMPLOYMENT_TYPES, EVENT_LABELS, OFFER_STATUS, PAY_PERIODS, TEAM_BUCKET,
+  CURRENCIES, ccList, DEFAULT_LETTER, DEFAULT_TERMS, EMPLOYMENT_TYPES, EVENT_LABELS, OFFER_STATUS, PAY_PERIODS, TEAM_BUCKET,
   defaultsToKeep, fillOffer, fmtDay, fmtStamp, missingForSend, offerCall, offerError, offerTitle, offerVars, placeholdersIn, uaLabel,
   type Offer, type OfferFields, type OfferFile,
 } from '../lib/offers';
@@ -37,7 +37,7 @@ export function auditTrail(o: Offer, app: Pick<Application, 'name' | 'email'>) {
   return {
     offer_id: o.id, status: o.status, document_sha256: o.doc_hash,
     candidate: { name: app.name, email: app.email },
-    offered_by: { company: o.fields.company, manager: o.fields.manager_name, manager_email: o.fields.manager_email, sent_by: o.sent_by, sent_at: o.sent_at, sent_from: o.sent_meta },
+    offered_by: { company: o.fields.company, manager: o.fields.manager_name, manager_email: o.fields.manager_email, sent_by: o.sent_by, sent_at: o.sent_at, sent_from: o.sent_meta, cc: o.fields.cc || [] },
     signed: o.signed_at ? { at: o.signed_at, name: o.signer_name, signature: o.signature?.kind, ip: o.signer_meta?.ip, device: uaLabel(o.signer_meta?.ua), user_agent: o.signer_meta?.ua, time_zone: o.signer_meta?.tz } : null,
     declined: o.declined_at ? { at: o.declined_at, reason: o.decline_reason } : null,
     withdrawn_at: o.withdrawn_at, expires: o.fields.expires,
@@ -307,10 +307,17 @@ function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
   const [remember, setRemember] = useState(true);
   const [err, setErr] = useState('');
   const f = offer.fields;
+  const mgr = (f.manager_email || '').trim().toLowerCase();
+  const [ccMgr, setCcMgr] = useState(true);
+  const [extra, setExtra] = useState('');
+  const isEmail = (x: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x);
+  const badCc = extra.split(/[,;\s]+/).filter(Boolean).filter((x) => !isEmail(x));
+  const cc = ccList([...(ccMgr && mgr ? [mgr] : []), ...extra.split(/[,;\s]+/)], app.email);
+  const first = app.name.split(' ')[0];
   const send = async () => {
     setBusy(true); setErr('');
     if (!(await flush())) { setBusy(false); return; }
-    const r = await offerCall<{ link: string; emailed: boolean }>({ action: 'send', offer_id: offer.id });
+    const r = await offerCall<{ link: string; emailed: boolean }>({ action: 'send', offer_id: offer.id, cc });
     if (!r.ok) {
       setBusy(false);
       setErr(r.error === 'missing' ? `Still needed: ${(r.missing || []).join(', ')}.` : offerError(r.error));
@@ -338,10 +345,21 @@ function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
             <dt className="text-muted">To</dt><dd className="break-all">{app.name} &lt;{app.email}&gt;</dd>
             <dt className="text-muted">From</dt><dd className="break-all">{f.company} via apply1234 &lt;hiring@apply1234.com&gt;</dd>
             <dt className="text-muted">Replies</dt><dd className="break-all">{f.manager_name} &lt;{f.manager_email}&gt;</dd>
+            <dt className="text-muted">CC</dt><dd className="break-all">{cc.length ? cc.join(', ') : 'No one'}</dd>
             <dt className="text-muted">Sign by</dt><dd>{fmtDay(f.expires)}</dd>
           </dl>
+          <div className="mt-4 rounded-xl bg-paper-2/60 p-3 space-y-3">
+            <label className="flex items-start gap-2.5 text-sm cursor-pointer">
+              <input type="checkbox" className="mt-0.5 h-4 w-4 accent-ink" checked={ccMgr} disabled={!mgr} onChange={(e) => setCcMgr(e.target.checked)} />
+              <span>CC the hiring manager{mgr ? <>, <span className="break-all">{f.manager_name ? `${f.manager_name} (${mgr})` : mgr}</span></> : ''}</span>
+            </label>
+            <Field label="Also CC" hint={badCc.length ? <span className="text-bad">Check {badCc.join(', ')}. That doesn’t look like an email address.</span> : 'Optional. Separate addresses with commas.'}>
+              <Input className="h-9 text-sm" type="email" multiple value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="name@company.com" />
+            </Field>
+            <p className="text-[12px] text-muted leading-relaxed">People you CC get a copy of the offer and, once it’s signed, the signed PDF. Their copy has no signing link, so only {first} can open and sign it.</p>
+          </div>
           <p className="text-sm text-ink-2 mt-4 leading-relaxed">
-            {app.name.split(' ')[0]} gets a private link to read and sign. When they sign, the signed PDF (with the signature, time, IP address and a fingerprint of the document) is emailed to them, to {f.manager_email} and to you.
+            {first} gets a private link to read and sign. When they sign, the signed PDF (with the signature, time, IP address and a fingerprint of the document) is emailed to them, to {f.manager_email}, to you and to anyone you CC.
           </p>
           <p className="text-sm text-ink-2 mt-2">After sending, the offer can’t be changed. To change it, withdraw it and send a new one.</p>
           <label className="mt-4 flex items-start gap-2.5 text-sm cursor-pointer">
@@ -351,7 +369,7 @@ function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
           {err && <p className="mt-4 rounded-xl bg-bad-soft text-bad text-sm px-4 py-3">{err}</p>}
           <div className="mt-5 flex justify-end gap-2">
             <Button variant="ghost" onClick={onClose}>Cancel</Button>
-            <Button variant="accent" disabled={busy} onClick={send}>{busy ? <><Spinner /> Sending</> : 'Send offer'}</Button>
+            <Button variant="accent" disabled={busy || badCc.length > 0} onClick={send}>{busy ? <><Spinner /> Sending</> : 'Send offer'}</Button>
           </div>
         </>
       )}
@@ -436,6 +454,7 @@ export function OfferRecord({ app, offer, onRebuild, rebuilding, compact }:
       ['Signed as', `${offer.signer_name} (${offer.signature?.kind === 'drawn' ? 'drawn' : 'typed'} signature)`],
       ['IP address', m.ip || '—'], ['Device', `${uaLabel(m.ua)}${m.tz ? `, ${m.tz}` : ''}`],
     ] as [string, string][] : []),
+    ...(offer.fields.cc?.length ? [['CC', offer.fields.cc.join(', ')]] as [string, string][] : []),
     ...(offer.decline_reason ? [['Their note', offer.decline_reason]] as [string, string][] : []),
     ['Fingerprint', offer.doc_hash ? `${offer.doc_hash.slice(0, 16)}…` : '—'],
   ];

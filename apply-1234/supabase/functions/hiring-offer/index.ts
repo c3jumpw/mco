@@ -62,7 +62,7 @@ async function send(m: Mail) {
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from: `${name === 'apply1234' ? name : `${name} via apply1234`} <hiring@apply1234.com>`,
-      to: m.to, subject: m.subject, html: m.html, text: m.text, reply_to: m.reply_to || undefined, attachments: m.attachments,
+      to: m.to, cc: m.cc?.length ? m.cc : undefined, subject: m.subject, html: m.html, text: m.text, reply_to: m.reply_to || undefined, attachments: m.attachments,
     }),
   });
   const body = await r.json().catch(() => ({}));

@@ -20,6 +20,7 @@ export interface OfferFields {
   manager_title?: string;
   manager_email?: string;
   manager_phone?: string;
+  cc?: string[];            // people who get a copy (no signing link) and the signed PDF
 }
 
 export interface OfferEvent { at: string; type: string; by?: string; ip?: string; ua?: string; note?: string }
@@ -104,7 +105,7 @@ export const placeholdersIn = (text: string) => [...new Set((text || '').match(P
 /** Everything that must be filled in before an offer can be sent. */
 export function missingForSend(f: OfferFields, letter: string, terms: string, today = new Date().toISOString().slice(0, 10)): string[] {
   const out: string[] = [];
-  const need: [keyof OfferFields, string][] = [
+  const need: [Exclude<keyof OfferFields, 'cc'>, string][] = [
     ['company', 'the company name'], ['position', 'the position'], ['employment_type', 'the type of engagement'],
     ['start_date', 'a start date'], ['pay_amount', 'the pay'], ['pay_currency', 'the pay currency'], ['pay_period', 'how pay is counted (per hour, per month…)'],
     ['manager_name', 'the hiring manager’s name'], ['manager_email', 'the hiring manager’s email'], ['expires', 'the date the offer expires'],
@@ -139,10 +140,38 @@ export function uaLabel(ua = ''): string {
   return os ? `${b} on ${os}` : b;
 }
 
+/** Valid, unique, lower-case CC addresses, leaving out the candidate's own. At most five. */
+export function ccList(raw: unknown, candidateEmail = ''): string[] {
+  const list = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(/[,;\s]+/) : [];
+  const me = candidateEmail.trim().toLowerCase();
+  return [...new Set(list.map((x) => String(x || '').trim().toLowerCase()).filter((x) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x) && x !== me))].slice(0, 5);
+}
+
+/** Minimal Markdown to email-safe HTML: headings, lists, paragraphs and **bold**. */
+export function mdEmail(md: string, esc: (s: string) => string): string {
+  const out: string[] = [];
+  let list: { tag: 'ul' | 'ol'; items: string[] } | null = null;
+  let para: string[] = [];
+  const inline = (s: string) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const P = 'margin:0 0 12px;line-height:1.6;font-size:14px;';
+  const flushP = () => { if (para.length) { out.push(`<p style="${P}">${para.map(inline).join('<br>')}</p>`); para = []; } };
+  const flushL = () => { if (list) { out.push(`<${list.tag} style="margin:0 0 12px;padding-left:22px;font-size:14px;line-height:1.6;">${list.items.map((i) => `<li style="margin:0 0 4px;">${inline(i)}</li>`).join('')}</${list.tag}>`); list = null; } };
+  for (const raw of (md || '').replace(/\r\n/g, '\n').split('\n')) {
+    const line = raw.trimEnd();
+    const h = line.match(/^#{1,3}\s+(.*)$/), ul = line.match(/^\s*[-*•]\s+(.*)$/), ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (!line.trim()) { flushP(); flushL(); continue; }
+    if (h) { flushP(); flushL(); out.push(`<p style="margin:18px 0 8px;font-size:15px;font-weight:700;">${inline(h[1].replace(/\*\*/g, ''))}</p>`); continue; }
+    if (ul || ol) { flushP(); const tag = ul ? 'ul' : 'ol'; if (!list || list.tag !== tag) { flushL(); list = { tag, items: [] }; } list.items.push((ul || ol)![1]); continue; }
+    flushL(); para.push(line);
+  }
+  flushP(); flushL();
+  return out.join('');
+}
+
 export const EVENT_LABELS: Record<string, string> = {
   sent: 'Offer sent', emailed: 'Email sent to the candidate', email_failed: 'Email could not be sent', reminder: 'Reminder sent',
   viewed: 'Opened by the candidate', file: 'Attachment opened', signed: 'Signed by the candidate', declined: 'Declined by the candidate',
-  withdrawn: 'Withdrawn', pdf: 'Signed PDF created', copies: 'Signed copies emailed',
+  withdrawn: 'Withdrawn', pdf: 'Signed PDF created', copies: 'Signed copies emailed', cc: 'Copy emailed to CC',
 };
 
 export const DEFAULT_LETTER = `Dear {first},
