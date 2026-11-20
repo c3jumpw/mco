@@ -24,3 +24,7 @@ Never put a real person's email or real candidate data in screenshots: the pictu
 - Code goes to `main` of c3jumpw/mco (Vercel project mco-apply1234, root `apply-1234`). Other projects
   push to `main` too, so fetch and rebase before pushing.
 - The email function is `supabase/functions/hiring-notify` (deploy it when it changes).
+- Offer letters run through `supabase/functions/hiring-offer` (JWT check off: it checks the login itself).
+  Deploy all five files together. Test with `deno test -A supabase/functions/hiring-offer/core_test.ts`
+  (add `--node-modules-dir=none`) and `scripts/guide/capture/offers_test.py`, which update.sh also runs.
+  `offer.ts` is shared with the app, so the preview always matches what the candidate signs.
