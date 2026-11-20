@@ -17,6 +17,7 @@
       "slides": [
         { "id": "n16-changelog", "who": ["admin"], "title": "Change log", "text": "Every update to RAMP in one place: what changed, when, and who it affects. Filter it, print it or download it.", "image": "changelog-1.webp", "device": "desktop", "link": { "to": "/admin/changelog", "label": "Open the Change log" } }
       ],
+      "commits": ["3c0e4ca"],
       "migrations": ["011"]
     },
     {

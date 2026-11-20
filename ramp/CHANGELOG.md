@@ -16,7 +16,7 @@ A full history of RAMP updates for admins, and a short note for everyone about w
 - **New:** Look back at recent updates any time with What’s new on the Guide page or in More. *(everyone)*
 - **Better:** RAMP remembers which tours and updates you’ve seen on every device, so they don’t repeat on your phone and computer. *(everyone)*
 
-Database: `011`
+Commits: `3c0e4ca` · Database: `011`
 
 ## 1.5 · Getting-started tours and a Guide for every role
 
