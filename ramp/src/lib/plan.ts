@@ -86,6 +86,25 @@ export function planSummary(items: PlanItem[]) {
   return { total: counted.length, done, waiting, overdue, next, pct: counted.length ? Math.round((done / counted.length) * 100) : 0 };
 }
 
+// ───────── reminders ─────────
+
+/** A training reminder is a task titled “Finish your training: <module>”. Finishing the module closes it. */
+export const reminderTitle = (title: string) => `Finish your training: ${title}`.slice(0, 200);
+
+/** Open, assigned modules someone still has to do (not finished and not waiting for review). */
+export const openItems = (plan: PlanItem[]) => plan.filter((i) => i.kind !== 'optional' && i.status !== 'completed' && i.status !== 'submitted');
+
+/** Task rows that remind someone to finish modules. Due on the module's due date, or in two days if that has passed. */
+export function reminderRows(memberId: string, from: { id: string; name: string }, items: PlanItem[]) {
+  const today = new Date().toLocaleDateString('en-CA');
+  const inTwoDays = new Date(Date.now() + 2 * 86400000).toLocaleDateString('en-CA');
+  return items.map((i) => ({
+    member_id: memberId, created_by: from.id, status: 'todo' as const, title: reminderTitle(i.module.title),
+    notes: `Reminder from ${from.name}: please finish “${i.module.title}” in Training (${i.module.minutes} min).`,
+    due_date: i.due && i.due >= today ? i.due : inTwoDays,
+  }));
+}
+
 // ───────── module steps (what the player shows, one at a time) ─────────
 
 export type Step =

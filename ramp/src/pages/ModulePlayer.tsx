@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase, errText } from '../lib/supabase';
 import { useMe } from '../lib/session';
 import { q, useAsync, useTitle } from '../lib/hooks';
-import { loadTrainingFor, stepsOf, type Step } from '../lib/plan';
+import { loadTrainingFor, reminderTitle, stepsOf, type Step } from '../lib/plan';
 import { TRACKS, cx, dueLabel, fmtDate, plural } from '../lib/util';
 import type { Module, Progress as ProgressRow } from '../lib/types';
 import { FocusFrame } from '../shell/AppShell';
@@ -218,7 +218,7 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
       store.del(`ramp-x:${keyBase}`);
       store.del(`ramp-t:${keyBase}`);
       // Close any reminder to finish this module.
-      supabase.from('ramp_tasks').update({ status: 'done' }).eq('member_id', me.id).eq('title', `Finish your training: ${mod.title}`.slice(0, 200)).neq('status', 'done').then(() => {}, () => {});
+      supabase.from('ramp_tasks').update({ status: 'done' }).eq('member_id', me.id).eq('title', reminderTitle(mod.title)).neq('status', 'done').then(() => {}, () => {});
       setResult(r === 'submitted' ? 'submitted' : 'completed');
       window.scrollTo({ top: 0 });
     } catch (e) {

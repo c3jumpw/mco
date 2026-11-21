@@ -2,7 +2,7 @@
   "_about": "Every page in src/App.tsx, and the Guide section (src/guide/guide.json) that explains it. npm run guide:check fails when a page is missing here, so adding a page means adding its Guide coverage too.",
   "/": "home", "/welcome": "welcome-flow", "/practice": "practice", "/setup": "setup",
   "/training": "training", "/training/:id": "training", "/resources": "resources", "/me": "profile", "/guide": "navigation", "/more": "navigation",
-  "/tasks": "tasks", "/notes": "notebook", "/notes/:id": "notebook", "/vault": "vault", "/chat": "chat", "/chat/:id": "chat", "/news": "news",
+  "/tasks": "tasks", "/calendar": "calendar", "/notes": "notebook", "/notes/:id": "notebook", "/vault": "vault", "/chat": "chat", "/chat/:id": "chat", "/news": "news",
   "/team": "team", "/team/:id": "team-member", "/work": "work", "/coaching": "coaching", "/coaching/:id": "coaching", "/launch/:id": "launch",
   "/client": "client-home", "/client/hours": "client-hours", "/client/invoices": "client-invoices", "/client/invoices/:id": "client-invoices",
   "/platform": "console",

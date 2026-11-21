@@ -67,6 +67,10 @@ const TOUR_SHOTS = [
     } },
   { id: 'learn-inbox-1', data: 'work', as: 'admin', url: `/training/${LEARN}?preview=1`, device: 'desktop', height: 1050, prep: (p) => step(p, 6) },
   { id: 'assistant-1', data: 'work', as: 'admin', url: '/admin/training/assistant', device: 'desktop', height: 1300 },
+  // calendar, training supervisors
+  { id: 'calendar-1', data: 'work', as: 'mentor', url: '/calendar?scope=all', device: 'desktop', height: 1400 },
+  { id: 'calendar-2', data: 'work', as: 'trainee', url: '/calendar', device: 'phone' },
+  { id: 'supervisors-1', data: 'work', as: 'admin', url: '/admin/people', device: 'desktop', prep: click('Training supervisors') },
   // change log and What's new
   { id: 'changelog-1', data: 'work', as: 'admin', url: '/admin/changelog', device: 'desktop' },
   { id: 'whats-new-1', data: 'work', as: 'trainee', url: '/', device: 'phone',
@@ -77,6 +81,7 @@ const TOUR_SHOTS = [
   { id: 'tour-console-3', data: 'work', as: 'owner', url: '/platform?ws=super', device: 'desktop',
     prep: async (p) => { await click('Accounts')(p); await p.getByRole('button', { name: /Bright Smile Dental/ }).first().click(); await p.waitForTimeout(500); } },
   { id: 'tour-console-4', data: 'work', as: 'owner', url: '/platform?ws=super', device: 'desktop', prep: click('Settings') },
+  { id: 'tour-console-5', data: 'work', as: 'owner', url: '/platform?ws=super', device: 'desktop', height: 1300, prep: click('Demo accounts') },
   { id: 'tour-switcher-1', data: 'work', as: 'owner', url: '/?ws=support', device: 'desktop', prep: click('Switch workspace') },
   { id: 'tour-setup-1', data: 'work', as: 'owner', url: '/setup?ws=setup', device: 'desktop' },
   { id: 'tour-signup-1', data: 'work', url: '/?state=no_access', device: 'phone', prep: click('Start for my business') },

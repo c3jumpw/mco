@@ -222,8 +222,8 @@ export function OverviewTab({ d, plan, actions }: { d: PersonData; plan: PlanIte
             action={<Button size="sm" onClick={() => setEdit('job_role')} disabled={ownerLocked} aria-label="Change job role">Change</Button>} />
           <ActionRow label="Department" value={dept?.name || <span className="text-muted">None</span>}
             action={<Button size="sm" onClick={() => setEdit('department')} disabled={ownerLocked} aria-label="Change department">Change</Button>} />
-          <ActionRow label="Mentor" value={nameOf(m.mentor_id) || <span className="text-muted">None</span>}
-            action={<Button size="sm" onClick={() => setEdit('mentor')} disabled={ownerLocked} aria-label="Change mentor">Change</Button>} />
+          <ActionRow label="Training supervisor" value={nameOf(m.mentor_id) || <span className="text-muted">None</span>}
+            action={<Button size="sm" onClick={() => setEdit('mentor')} disabled={ownerLocked} aria-label="Change training supervisor">Change</Button>} />
           <ActionRow label="Start date" value={m.start_date ? fmtDate(m.start_date, { month: 'short', day: 'numeric', year: 'numeric' }) : <span className="text-muted">Not set</span>}
             action={<Button size="sm" onClick={() => setEdit('start_date')} disabled={ownerLocked} aria-label="Change start date">Change</Button>} />
           {m.level === 'guest' && (
@@ -281,7 +281,7 @@ function EditBody({ field, d, onClose, onSave }: { field: EditField; d: PersonDa
     const list = mentorOptions(dir.list, m.id).map((x) => ({ id: x.id, label: `${displayName(x)}${x.job_title ? ` · ${x.job_title}` : ''}` }));
     if (m.mentor_id && !list.some((x) => x.id === m.mentor_id)) {
       const cur = d.people.find((p) => p.id === m.mentor_id);
-      list.unshift({ id: m.mentor_id, label: `${cur ? personName(cur) : 'Current mentor'} (no longer active)` });
+      list.unshift({ id: m.mentor_id, label: `${cur ? personName(cur) : 'Current supervisor'} (no longer active)` });
     }
     return list;
   }, [dir.list, m.id, m.mentor_id, d.people]);
@@ -294,7 +294,7 @@ function EditBody({ field, d, onClose, onSave }: { field: EditField; d: PersonDa
     level: { title: `Access level for ${name}`, action: value !== m.level ? `Change to ${LEVELS[value as Level]?.label}` : 'Save' },
     job_role: { title: `Job role for ${name}`, action: 'Save job role' },
     department: { title: `Department for ${name}`, action: 'Save department' },
-    mentor: { title: `Mentor for ${name}`, action: 'Save mentor' },
+    mentor: { title: `Training supervisor for ${name}`, action: 'Save supervisor' },
     start_date: { title: `Start date for ${name}`, action: 'Save start date' },
     access_until: { title: `Guest access for ${name}`, action: 'Save end date' },
   };
@@ -308,7 +308,7 @@ function EditBody({ field, d, onClose, onSave }: { field: EditField; d: PersonDa
       patch = { job_role_id: value || null, ...(newRole?.department_id ? { department_id: newRole.department_id } : {}) };
       done = value ? `Job role changed to ${newRole?.title}.` : 'Job role cleared.';
     } else if (field === 'department') { patch = { department_id: value || null }; done = 'Department saved.'; }
-    else if (field === 'mentor') { patch = { mentor_id: value || null }; done = value ? 'Mentor saved.' : 'Mentor cleared.'; }
+    else if (field === 'mentor') { patch = { mentor_id: value || null }; done = value ? 'Training supervisor saved.' : 'Training supervisor cleared.'; }
     else if (field === 'start_date') { patch = { start_date: value || null }; done = value ? 'Start date saved.' : 'Start date cleared.'; }
     else { patch = { access_until: value || null }; done = value ? 'End date saved.' : 'End date cleared.'; }
     setBusy(true);
@@ -358,9 +358,9 @@ function EditBody({ field, d, onClose, onSave }: { field: EditField; d: PersonDa
         </Field>
       )}
       {field === 'mentor' && (
-        <Field label="Mentor" hint="Mentors see their trainees’ progress and review their work.">
+        <Field label="Training supervisor" hint="Supervisors see this person’s training, review their work, assign tasks and send reminders, from My team.">
           <Select value={value} onChange={(e) => setValue(e.target.value)}>
-            <option value="">No mentor</option>
+            <option value="">No supervisor</option>
             {mentors.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
           </Select>
         </Field>

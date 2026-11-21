@@ -1036,6 +1036,64 @@
       ]
     },
     {
+      "id": "calendar",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Calendar",
+      "icon": "calendar",
+      "summary": "Everything with a due date, by day: your training and tasks, and for supervisors, leads and admins, the people you look after.",
+      "route": "/calendar",
+      "shots": [
+        {
+          "src": "/guide-media/calendar-1.webp",
+          "w": 1920,
+          "h": 2100,
+          "device": "desktop",
+          "caption": "A supervisor’s calendar",
+          "alt": "The Calendar on a computer for a mentor showing Both: counts of overdue items, the next seven days and the month, an Overdue card, and a month grid with coloured training, task and check-in labels marked with each person’s initials. Today’s items are listed on the right."
+        },
+        {
+          "src": "/guide-media/calendar-2.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "On a phone",
+          "alt": "The Calendar on a phone: the month grid with coloured dots under days that have something due, and today’s training and task listed below."
+        }
+      ],
+      "steps": [
+        {
+          "title": "Open it",
+          "text": "Click **Calendar** in the menu. On a phone it’s under **More**."
+        },
+        {
+          "title": "Pick a day",
+          "text": "Days with something due show coloured labels (dots on a phone). Click a day to list what’s due then."
+        },
+        {
+          "title": "See what’s late",
+          "text": "**Overdue** at the top lists everything past its due date. Click **Show all** for the full list."
+        },
+        {
+          "title": "Switch the view",
+          "text": "**Month** shows the grid; **List** shows the month as a list of days. Use the arrows to change month and **Today** to come back."
+        },
+        {
+          "title": "Filter",
+          "text": "Turn **Training**, **Tasks**, **Check-ins** or **Start dates** on or off. Switch on **Show finished** to include completed items."
+        },
+        {
+          "title": "Open an item",
+          "text": "Click an item to open the module or your tasks. For someone else’s item, it opens their page on **My team**."
+        }
+      ],
+      "tips": [
+        "Supervisors, leads and admins can switch between **Mine**, their team (**People I supervise**, **My department** or **Everyone**) and **Both**.",
+        "Training due dates count from each person’s start date, using the days set on each module.",
+        "Red labels are overdue. Training waiting for review isn’t counted as late."
+      ]
+    },
+    {
       "id": "notebook",
       "group": "daily",
       "audience": "staff",
@@ -1855,6 +1913,10 @@
           "text": "**Training plan** lists every assigned module with its due date, score and status."
         },
         {
+          "title": "Send a reminder",
+          "text": "Click **Remind** on **Training plan**. Each open module goes on their task list with its due date, and closes itself when they finish the module."
+        },
+        {
           "title": "Read shared pages",
           "text": "Click a page under **Shared notebook pages** to read it. You can’t change it."
         },
@@ -1869,7 +1931,8 @@
       ],
       "tips": [
         "Tasks you assign show on their board as **From** your name.",
-        "Admins also see **Open full record**, with documents, files and sign-ins."
+        "Admins also see **Open full record**, with documents, files and sign-ins.",
+        "**Remind** only adds modules that don’t already have an open reminder."
       ]
     },
     {
@@ -3113,12 +3176,20 @@
               "text": "Same access level, role and mentor for everyone you picked."
             }
           ]
+        },
+        {
+          "src": "/guide-media/supervisors-1.webp",
+          "w": 1920,
+          "h": 1200,
+          "device": "desktop",
+          "caption": "Training supervisors",
+          "alt": "The Training supervisors sheet over the People page: a Supervisor menu, then everyone who can be supervised with a tick box, their level and who supervises them now."
         }
       ],
       "steps": [
         {
           "title": "Invite one person",
-          "text": "Click **Invite someone**, enter their **Email**, **Full name**, access level, job role, mentor and start date, then click **Add to RAMP**."
+          "text": "Click **Invite someone**, enter their **Email**, **Full name**, access level, job role, training supervisor and start date, then click **Add to RAMP**."
         },
         {
           "title": "Send the invite",
@@ -3133,8 +3204,12 @@
           "text": "On **Access requests**, click **Invite** to let someone in, or **Dismiss** to turn the request down."
         },
         {
+          "title": "Assign training supervisors",
+          "text": "Click **Training supervisors**, pick a supervisor, tick the people they look after and click **Save**. Someone already supervised by another person moves to the new supervisor."
+        },
+        {
           "title": "Find someone",
-          "text": "On **Team**, search, or filter by access level, status and department."
+          "text": "On **Team**, search, or filter by access level, status, department and supervisor."
         },
         {
           "title": "Open a record",
@@ -3158,9 +3233,9 @@
           "effect": "Sets their role training and their department."
         },
         {
-          "name": "Mentor",
-          "where": "Admin › People › Invite someone",
-          "effect": "Who they go to with questions. Their mentor can review their work and read pages they share."
+          "name": "Training supervisor",
+          "where": "Admin › People › Training supervisors, Invite someone, or a person’s record",
+          "effect": "Who follows their training. Supervisors see them on My team and the Calendar, review their work, assign tasks and send reminders. Mentors, leads and admins can supervise."
         },
         {
           "name": "Start date",
@@ -4545,6 +4620,14 @@
           "caption": "Settings",
           "alt": "Platform settings: trial length, seats and organizations per account, the training library to copy and the agency workspace.",
           "hotspots": []
+        },
+        {
+          "src": "guide-media/tour-console-5.webp",
+          "w": 1920,
+          "h": 1950,
+          "device": "desktop",
+          "caption": "Demo accounts",
+          "alt": "Demo accounts in Client accounts: a Rebuild demo button and a card for each demo person (owner, admin, department lead, training supervisor, employee, trainee, guest, placed team member and client contact) with what each one is for."
         }
       ],
       "steps": [
@@ -4559,7 +4642,14 @@
         {
           "title": "Settings",
           "text": "Defaults for new accounts, the sign-in brand and the Stripe plans owners can choose."
+        },
+        {
+          "title": "Test as any kind of user",
+          "text": "On **Demo accounts**, click **Build demo**, then click a person to open RAMP as them. Use **Switch** on the dark demo bar to change person and **Exit** to come back to your own account."
         }
+      ],
+      "tips": [
+        "The demo is a separate RAMP Demo account. Rebuilding it deletes and recreates only the Demo Company."
       ]
     },
     {

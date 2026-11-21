@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { supabase, errText } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
-import { SUBMISSION_COLS, appliesTo, docsFor, latestFor, planFor, planSummary, type PlanItem } from '../lib/plan';
+import { SUBMISSION_COLS, appliesTo, docsFor, latestFor, planFor, planSummary, reminderTitle, type PlanItem } from '../lib/plan';
 import { LEVELS, TRACKS, cx, plural, rankOf } from '../lib/util';
 import type { Department, JobRole, Member, Module, Progress, RoleModule, Submission, Template } from '../lib/types';
 import { Button, Card, CardHeader, EmptyState, ErrorBox, Field, PageHeader, Progress as Bar, Select, Skeleton, Stat, useToast } from '../ui';
@@ -368,7 +368,7 @@ function Insights({ data, scope }: { data: Data; scope: string[] }) {
     .map((x) => ({ x, items: planFor(x, data.modules, data.roleModules, data.progress).filter((i) => i.kind !== 'optional' && i.due && i.due < today && i.status !== 'completed' && i.status !== 'submitted') }))
     .filter((r) => r.items.length);
   async function remindAll() {
-    const rows = overdue.flatMap((r) => r.items.map((i) => ({ member_id: r.x.id, created_by: me.id, status: 'todo', title: `Finish your training: ${i.module.title}`.slice(0, 200),
+    const rows = overdue.flatMap((r) => r.items.map((i) => ({ member_id: r.x.id, created_by: me.id, status: 'todo', title: reminderTitle(i.module.title),
       notes: `Reminder: “${i.module.title}” was due ${i.due}. Please finish it in Training.`, due_date: today })));
     const { error } = await supabase.from('ramp_tasks').insert(rows);
     if (error) { toast(errText(error), 'bad'); return; }

@@ -155,6 +155,7 @@ const channelStub = (name) => {
 
 export const supabase = {
   from: (t) => new Query(t),
+  functions: { invoke: async (name, opts) => { await wait(120); LOG.push({ fn: name, body: opts?.body }); const f = (window as any).__FN?.[name]; if (!f) return { data: null, error: { message: 'Function not found' } }; try { return { data: f(opts?.body || {}), error: null }; } catch (e) { return { data: null, error: { message: e.message } }; } } },
   rpc: (name, args = {}) => {
     const run = async () => {
       await wait(60);

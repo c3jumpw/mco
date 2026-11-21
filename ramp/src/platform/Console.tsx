@@ -1,6 +1,6 @@
 // Platform console (super admins): approve company sign-ups, manage client accounts (free access, trials, seats,
 // pausing), open any workspace as RAMP Support, and set platform-wide defaults and Stripe plans.
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { errText, supabase } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { useSession } from '../lib/session';
@@ -17,7 +17,8 @@ const STATUS_LABEL: Record<AccountStatus, string> = { pending: 'Pending', active
 const STATUS_TONE: Record<AccountStatus, 'neutral' | 'good' | 'warn' | 'bad'> = { pending: 'neutral', active: 'good', paused: 'warn', closed: 'bad' };
 const seatText = (used: number, limit: number | null) => (limit == null ? `${used} seats · unlimited` : `${used} of ${limit} seats`);
 
-type Tab = 'requests' | 'accounts' | 'settings';
+type Tab = 'requests' | 'accounts' | 'demo' | 'settings';
+const DemoAccounts = lazy(() => import('./DemoAccounts'));
 
 export default function PlatformConsole({ standalone }: { standalone?: boolean }) {
   useTitle('Platform');
@@ -29,7 +30,7 @@ export default function PlatformConsole({ standalone }: { standalone?: boolean }
   const body = (
     <div className="flex flex-col gap-6">
       <PageHeader eyebrow="Platform" title="Client accounts"
-        subtitle="Approve new companies, give free access while you test, and manage every RAMP workspace." />
+        subtitle="Approve new companies, give free access while you test, manage every RAMP workspace, and open the demo as any kind of user." />
       {error && !data ? <ErrorBox error={error} onRetry={reload} /> : !data ? <Skeleton rows={4} /> : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -42,11 +43,13 @@ export default function PlatformConsole({ standalone }: { standalone?: boolean }
             <Segmented label="Platform sections" value={tab} onChange={setTab} options={[
               { value: 'requests', label: pending.length ? `Requests (${pending.length})` : 'Requests' },
               { value: 'accounts', label: 'Accounts' },
+              { value: 'demo', label: 'Demo accounts' },
               { value: 'settings', label: 'Settings' },
             ]} />
           </div>
           {tab === 'requests' && <Requests data={data} reload={reload} />}
           {tab === 'accounts' && <Accounts data={data} reload={reload} />}
+          {tab === 'demo' && <Suspense fallback={<Skeleton rows={3} />}><DemoAccounts /></Suspense>}
           {tab === 'settings' && <Settings data={data} reload={reload} />}
         </>
       )}

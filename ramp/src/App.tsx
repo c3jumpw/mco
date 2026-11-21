@@ -23,6 +23,7 @@ const Training = page(() => import('./pages/Training'));
 const ModulePlayer = page(() => import('./pages/ModulePlayer'));
 const Practice = page(() => import('./pages/Practice'));
 const Tasks = page(() => import('./pages/Tasks'));
+const Calendar = page(() => import('./pages/Calendar'));
 const Notes = page(() => import('./pages/Notes'));
 const Vault = page(() => import('./pages/Vault'));
 const Chat = page(() => import('./pages/Chat'));
@@ -117,6 +118,7 @@ export default function App() {
           <Route path="guide" element={<Guide />} />
           {staff && <Route path="more" element={<More />} />}
           {staff && flags.tasks && <Route path="tasks" element={<Tasks />} />}
+          {staff && <Route path="calendar" element={<Calendar />} />}
           {staff && <Route path="notes" element={<Notes />} />}
           {staff && <Route path="notes/:id" element={<Notes />} />}
           {staff && <Route path="vault" element={<Vault />} />}

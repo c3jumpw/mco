@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase, errText, openFile } from '../lib/supabase';
 import { q, useAsync, useDirectory, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
-import { planFor, planSummary, type PlanItem } from '../lib/plan';
+import { openItems, planFor, planSummary, reminderRows, reminderTitle, type PlanItem } from '../lib/plan';
 import { LEVELS, PROGRESS_STATUS, TASK_STATUS, ago, displayName, fmtDate, fmtDateTime, plural, dueLabel, daysUntil } from '../lib/util';
 import type { Department, JobRole, Member, Module, Page, Progress, RoleModule, Task } from '../lib/types';
 import { Avatar, BackLink, Button, Card, CardHeader, Chip, EmptyState, ErrorBox, Icon, LinkButton, Progress as Bar, Sheet, Skeleton, useConfirm, useToast } from '../ui';
@@ -82,6 +82,9 @@ export default function TeamMember() {
   const openTasks = data.tasks.filter((t) => t.status !== 'done').sort(byDue);
   const doneTasks = data.tasks.filter((t) => t.status === 'done').sort((a, b) => b.updated_at.localeCompare(a.updated_at));
   const editingTask = taskSheet && taskSheet !== 'new' ? taskSheet : null;
+  // Modules they still have to do that don't already have an open reminder on their task list.
+  const reminderOpen = new Set(openTasks.map((t) => t.title));
+  const toRemind = openItems(plan).filter((i) => !reminderOpen.has(reminderTitle(i.module.title)));
   const creatorOf = (t: Task) => {
     if (!t.created_by || t.created_by === m.id) return null;
     const d = dir.byId(t.created_by);
@@ -97,6 +100,14 @@ export default function TeamMember() {
     setData((x) => ({ ...x!, tasks: [...x!.tasks, row] }));
     setTaskSheet(null);
     toast(`Task assigned to ${first}.`);
+  }
+
+  async function remind() {
+    const rows = reminderRows(m!.id, { id: me.id, name: displayName(me) }, toRemind);
+    const added = await q<Task[]>(supabase.from('ramp_tasks').insert(rows).select('*')).catch((e) => { toast(errText(e), 'bad'); return null; });
+    if (!added) return;
+    setData((x) => ({ ...x!, tasks: [...x!.tasks, ...added] }));
+    toast(`Reminder sent. ${first} sees ${added.length === 1 ? 'it' : 'them'} on Home, in Tasks and on their calendar.`);
   }
 
   async function updateTask(t: Task, d: TaskDraft) {
@@ -144,7 +155,7 @@ export default function TeamMember() {
         <dl className="grid sm:grid-cols-2 px-5 pb-4">
           <Row label="Job role">{data.role?.title || 'Not set'}</Row>
           <Row label="Department">{data.dept?.name || 'Not set'}</Row>
-          <Row label="Mentor">{mentor ? displayName(mentor) : m.mentor_id ? 'Assigned' : 'No mentor yet'}</Row>
+          <Row label="Training supervisor">{mentor ? (mentor.id === me.id ? 'You' : displayName(mentor)) : m.mentor_id ? 'Assigned' : 'Not assigned yet'}</Row>
           <Row label="Start date">{m.start_date ? fmtDate(m.start_date, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}</Row>
           <Row label="Onboarding">{onboarding}</Row>
           <Row label="Last seen"><span title={m.last_seen_at ? fmtDateTime(m.last_seen_at, org.timezone) : undefined}>{m.last_seen_at ? ago(m.last_seen_at) : 'Never'}</span></Row>
@@ -156,6 +167,9 @@ export default function TeamMember() {
       <Card padded={false} className="overflow-hidden">
         <div className="p-5 flex flex-col gap-3">
           <CardHeader title="Training plan"
+            action={!self && m.status === 'active' && toRemind.length > 0
+              ? <Button size="sm" icon="bell" onClick={remind}>{toRemind.length === 1 ? 'Remind' : `Remind about ${toRemind.length}`}</Button>
+              : undefined}
             subtitle={sum.total ? `${sum.done} of ${sum.total} done${sum.waiting ? ` · ${sum.waiting} waiting for review` : ''}${sum.overdue ? ` · ${plural(sum.overdue, 'overdue module')}` : ''}` : 'Nothing assigned yet.'} />
           {sum.total > 0 && <Bar value={sum.pct} tone={sum.pct >= 100 ? 'good' : 'brand'} label={`${name}’s training progress`} />}
         </div>

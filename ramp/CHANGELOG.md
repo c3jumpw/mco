@@ -5,6 +5,21 @@
 Every RAMP release, newest first: what changed, who it affects, and the commits and database migrations behind it.
 Admins see the same log in the app under **Admin › Change log**.
 
+## 1.8 · Training supervisors, a calendar and demo accounts
+
+*November 21, 2026* · shown at sign-in to the people it affects
+
+Assign who supervises whose training, see everything that’s due on a calendar, and test RAMP as any kind of user.
+
+- **New:** Calendar: your training and tasks with due dates, by day, with anything overdue at the top. Supervisors, leads and admins can include the people they look after. *(team members, mentors and leads, admins)*
+- **New:** Training supervisors: pick a supervisor and tick the people they look after, all at once, from People. Filter People by supervisor. *(admins)*
+- **Better:** Supervisors can send training reminders from a team member’s page with one click. *(mentors and leads, admins)*
+- **Better:** “Mentor” on a person’s record is now called Training supervisor, to match what it does. *(admins)*
+- **Better:** Chats are locked to your own organization: you can only message people in it. *(team members, mentors and leads, admins; needs Chat on)*
+- **New:** Demo accounts: build a demo company with one person for every kind of user and open RAMP as any of them, then come straight back to your own account. *(platform admins)*
+
+Database: `014`
+
 ## 1.7 · Interactive training, the RAMP Assistant and reminders
 
 *November 21, 2026* · shown at sign-in to the people it affects

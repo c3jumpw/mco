@@ -44,6 +44,7 @@ export function useNav(): { main: NavItem[]; mobile: NavItem[] } {
     ...(agencyOn && roles.work ? [{ to: '/work', label: 'My work', icon: 'clock' }] : []),
     { to: '/training', label: 'Training', icon: 'book' },
     ...(flags.tasks ? [{ to: '/tasks', label: 'Tasks', icon: 'tasks' }] : []),
+    { to: '/calendar', label: 'Calendar', icon: 'calendar' },
     { to: '/notes', label: 'Notebook', icon: 'notes' },
     ...(flags.chat ? [{ to: '/chat', label: 'Chat', icon: 'chat' }] : []),
     { to: '/resources', label: 'Resources', icon: 'folder' },

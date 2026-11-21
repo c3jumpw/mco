@@ -739,3 +739,20 @@ export const RPC: Record<string, (a: any) => any> = {
     return VAULT_SECRETS[e.id] || null;
   },
 };
+
+// Platform console › Demo accounts (the ramp-demo edge function).
+(window as any).__FN = {
+  ...((window as any).__FN || {}),
+  'ramp-demo': (body: any) => {
+    if (body.action === 'signin') throw new Error('Demo sign-in isn’t available in the preview.');
+    const people = [
+      ['owner', 'Olivia Owner', 'owner'], ['admin', 'Adam Admin', 'admin'], ['lead', 'Lena Lead', 'lead'], ['mentor', 'Marco Mentor', 'mentor'],
+      ['employee', 'Erin Employee', 'employee'], ['trainee', 'Tara Trainee', 'trainee'], ['guest', 'Gary Guest', 'guest'],
+      ['va', 'Val Assistant', 'trainee'], ['client', 'Cleo Client', 'client'],
+    ];
+    return {
+      built_at: new Date(Date.now() - 2 * 86400000).toISOString(), workspace: { id: 'demo-ws', name: 'Demo Company' },
+      personas: people.map(([k, name, level]) => ({ k, name, level, email: `ramp.demo+${k}@example.com`, ready: true })),
+    };
+  },
+};

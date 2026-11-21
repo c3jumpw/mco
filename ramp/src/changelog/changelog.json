@@ -2,6 +2,124 @@
   "_about": "Every RAMP release, newest first. Each change says who it affects (who) and any feature it needs (requires). Entries with announce: true are shown once, as What's new, to the people they apply to. Add an entry in the same commit as the change; npm run guide:check validates this file and CI fails a RAMP push without an entry. See CLAUDE.md.",
   "entries": [
     {
+      "id": "2026-11-21-supervisors-calendar",
+      "version": "1.8",
+      "date": "2026-11-21",
+      "title": "Training supervisors, a calendar and demo accounts",
+      "summary": "Assign who supervises whose training, see everything that’s due on a calendar, and test RAMP as any kind of user.",
+      "announce": true,
+      "changes": [
+        {
+          "type": "new",
+          "who": [
+            "member",
+            "coach",
+            "admin"
+          ],
+          "text": "Calendar: your training and tasks with due dates, by day, with anything overdue at the top. Supervisors, leads and admins can include the people they look after.",
+          "link": "/calendar",
+          "guide": "calendar"
+        },
+        {
+          "type": "new",
+          "who": [
+            "admin"
+          ],
+          "text": "Training supervisors: pick a supervisor and tick the people they look after, all at once, from People. Filter People by supervisor.",
+          "link": "/admin/people",
+          "guide": "people"
+        },
+        {
+          "type": "improved",
+          "who": [
+            "coach",
+            "admin"
+          ],
+          "text": "Supervisors can send training reminders from a team member’s page with one click.",
+          "guide": "team-member"
+        },
+        {
+          "type": "improved",
+          "who": [
+            "admin"
+          ],
+          "text": "“Mentor” on a person’s record is now called Training supervisor, to match what it does.",
+          "guide": "person"
+        },
+        {
+          "type": "improved",
+          "who": [
+            "member",
+            "coach",
+            "admin"
+          ],
+          "requires": [
+            "chat"
+          ],
+          "text": "Chats are locked to your own organization: you can only message people in it.",
+          "guide": "chat"
+        },
+        {
+          "type": "new",
+          "who": [
+            "platform"
+          ],
+          "text": "Demo accounts: build a demo company with one person for every kind of user and open RAMP as any of them, then come straight back to your own account.",
+          "link": "/platform",
+          "guide": "console"
+        }
+      ],
+      "slides": [
+        {
+          "id": "n18-calendar",
+          "who": [
+            "member",
+            "coach",
+            "admin"
+          ],
+          "title": "Your calendar",
+          "text": "Every training module and task with a due date, by day. Anything late is at the top.",
+          "image": "calendar-2.webp",
+          "device": "phone",
+          "link": {
+            "to": "/calendar",
+            "label": "Open Calendar"
+          }
+        },
+        {
+          "id": "n18-supervisors",
+          "who": [
+            "admin"
+          ],
+          "title": "Training supervisors",
+          "text": "Pick who supervises whom from People. Supervisors follow their training, review work and send reminders.",
+          "image": "supervisors-1.webp",
+          "device": "desktop",
+          "link": {
+            "to": "/admin/people",
+            "label": "Open People"
+          }
+        },
+        {
+          "id": "n18-demo",
+          "who": [
+            "platform"
+          ],
+          "title": "Demo accounts",
+          "text": "Open RAMP as an owner, supervisor, trainee, guest, placed team member or client contact to test what they see.",
+          "image": "tour-console-5.webp",
+          "device": "desktop",
+          "link": {
+            "to": "/platform",
+            "label": "Open Client accounts"
+          }
+        }
+      ],
+      "migrations": [
+        "014"
+      ]
+    },
+    {
       "id": "2026-11-21-interactive-training",
       "version": "1.7",
       "date": "2026-11-21",

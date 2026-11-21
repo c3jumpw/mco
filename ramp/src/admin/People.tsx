@@ -9,6 +9,7 @@ import type { AccessRequest, Department, JobRole, Level, Member, MemberStatus, M
 import { Avatar, Button, Card, Chip, EmptyState, ErrorBox, Icon, PageHeader, Pills, RowLink, SearchInput, Select, Skeleton, useConfirm, useToast } from '../ui';
 import { ADMIN_BACK, LevelChip, TabBar, groupOf, loadLookups, personName, stageOf, type Stage } from './parts/ops-common';
 import { BulkInviteSheet, InviteSheet, type InvitePrefill } from './parts/ops-invite';
+import { SUPERVISOR_LEVELS, SupervisorsSheet } from './parts/ops-supervisors';
 
 type Tab = 'team' | 'potential' | 'requests';
 
@@ -43,6 +44,12 @@ export default function People() {
   const requests = useAsync(() => q<AccessRequest[]>(supabase.from('ramp_access_requests').select('*').eq('status', 'open').order('created_at', { ascending: false })), []);
 
   const [invite, setInvite] = useState<InvitePrefill | null>(null);
+  const [supervising, setSupervising] = useState<string | null>(null);
+  const closeSupervising = useCallback(() => setSupervising(null), []);
+  const setTeam = team.setData;
+  const supervisorsSaved = useCallback((changed: Member[]) => {
+    setTeam((d) => ({ ...d!, members: d!.members.map((m) => changed.find((c) => c.id === m.id) || m) }));
+  }, [setTeam]);
   const closeInvite = useCallback(() => setInvite(null), []);
   const reloadTeam = team.reload, reloadPotential = potential.reload, reloadRequests = requests.reload;
   const refreshAll = useCallback(() => { reloadTeam(); reloadPotential(); reloadRequests(); }, [reloadTeam, reloadPotential, reloadRequests]);
@@ -58,14 +65,17 @@ export default function People() {
     <div className="flex flex-col gap-6">
       <PageHeader back={ADMIN_BACK} eyebrow={groupOf('/admin/people')} title="People"
         subtitle={<>Invite people, bring in staff from your other tools and manage everyone’s access.{agencyOn && <> Client contacts are on each <Link to="/admin/clients" className="font-semibold text-brand-ink">client’s page</Link>.</>}</>}
-        actions={<Button variant="primary" icon="userPlus" onClick={() => setInvite({})} disabled={!team.data}>Invite someone</Button>} />
+        actions={<>
+          <Button icon="users" onClick={() => setSupervising('')} disabled={!team.data}>Training supervisors</Button>
+          <Button variant="primary" icon="userPlus" onClick={() => setInvite({})} disabled={!team.data}>Invite someone</Button>
+        </>} />
       <SeatsLine />
       <TabBar options={options} value={tab} onChange={setTab} label="People lists" />
 
       {tab === 'team' && (
         team.error && !team.data ? <ErrorBox error={team.error} onRetry={team.reload} />
           : !team.data ? <Skeleton rows={6} />
-            : <TeamTab data={team.data} onInvite={() => setInvite({})} />
+            : <TeamTab data={team.data} onInvite={() => setInvite({})} onSupervisors={setSupervising} />
       )}
       {tab === 'potential' && (
         potential.error && !potential.data ? <ErrorBox error={potential.error} onRetry={potential.reload} />
@@ -78,6 +88,8 @@ export default function People() {
             : <RequestsTab rows={requests.data} setRows={requests.setData} onInvite={setInvite} onChanged={reloadPotential} />
       )}
 
+      <SupervisorsSheet open={supervising !== null} onClose={closeSupervising} members={team.data?.members || []}
+        initial={supervising || undefined} onSaved={supervisorsSaved} />
       <InviteSheet open={!!invite} onClose={closeInvite} prefill={invite} roles={team.data?.roles || []} depts={team.data?.depts || []} onInvited={refreshAll} />
     </div>
   );
@@ -85,14 +97,19 @@ export default function People() {
 
 // ───────────────────────── Team ─────────────────────────
 
-function TeamTab({ data, onInvite }: { data: TeamData; onInvite: () => void }) {
+function TeamTab({ data, onInvite, onSupervisors }: { data: TeamData; onInvite: () => void; onSupervisors: (id: string) => void }) {
   const [search, setSearch] = useState('');
+  const [sup, setSup] = useState<string>('all');
   const [level, setLevel] = useState<Level | 'all'>('all');
   const [status, setStatus] = useState<MemberStatus | 'all'>('all');
   const [dept, setDept] = useState<string>('all');
 
   const roleById = useMemo(() => new Map(data.roles.map((r) => [r.id, r])), [data.roles]);
   const deptById = useMemo(() => new Map(data.depts.map((d) => [d.id, d])), [data.depts]);
+  const memberById = useMemo(() => new Map(data.members.map((m) => [m.id, m])), [data.members]);
+  // Supervisors with at least one person, for the filter.
+  const supervisors = useMemo(() => [...new Set(data.members.map((m) => m.mentor_id).filter((x): x is string => !!x))]
+    .map((id) => memberById.get(id)).filter((m): m is Member => !!m).sort((a, b) => personName(a).localeCompare(personName(b))), [data.members, memberById]);
 
   const rows = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -100,19 +117,20 @@ function TeamTab({ data, onInvite }: { data: TeamData; onInvite: () => void }) {
       .filter((m) => level === 'all' || m.level === level)
       .filter((m) => status === 'all' || m.status === status)
       .filter((m) => dept === 'all' || (dept === 'none' ? !m.department_id : m.department_id === dept))
+      .filter((m) => sup === 'all' || (sup === 'none' ? !m.mentor_id && !SUPERVISOR_LEVELS.has(m.level) : m.mentor_id === sup))
       .filter((m) => !s || [m.full_name, m.preferred_name, m.email, roleById.get(m.job_role_id || '')?.title].some((v) => (v || '').toLowerCase().includes(s)))
       .map((m) => ({ m, stage: stageOf(m, data.plans.get(m.id)) }))
       .sort((a, b) => personName(a.m).localeCompare(personName(b.m)));
-  }, [data, search, level, status, dept, roleById]);
+  }, [data, search, level, status, dept, sup, roleById]);
 
-  const filtered = !!search.trim() || level !== 'all' || status !== 'all' || dept !== 'all';
-  const clear = () => { setSearch(''); setLevel('all'); setStatus('all'); setDept('all'); };
+  const filtered = !!search.trim() || level !== 'all' || status !== 'all' || dept !== 'all' || sup !== 'all';
+  const clear = () => { setSearch(''); setLevel('all'); setStatus('all'); setDept('all'); setSup('all'); };
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <SearchInput value={search} onChange={setSearch} placeholder="Search by name, email or job role" label="Search people" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <Select aria-label="Access level" value={level} onChange={(e) => setLevel(e.target.value as Level | 'all')}>
             <option value="all">All levels</option>
             {LEVEL_ORDER.map((l) => <option key={l} value={l}>{LEVELS[l].label}</option>)}
@@ -123,16 +141,24 @@ function TeamTab({ data, onInvite }: { data: TeamData; onInvite: () => void }) {
             <option value="active">Active</option>
             <option value="inactive">Paused</option>
           </Select>
-          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)} className="col-span-2 sm:col-span-1">
+          <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)}>
             <option value="all">All departments</option>
             {data.depts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             <option value="none">No department</option>
+          </Select>
+          <Select aria-label="Training supervisor" value={sup} onChange={(e) => setSup(e.target.value)}>
+            <option value="all">Any supervisor</option>
+            {supervisors.map((x) => <option key={x.id} value={x.id}>Supervised by {personName(x)}</option>)}
+            <option value="none">No supervisor</option>
           </Select>
         </div>
         {filtered && (
           <p className="text-sm text-muted flex items-center gap-2 flex-wrap">
             Showing {plural(rows.length, 'person', 'people')} of {data.members.length}.
             <button type="button" onClick={clear} className="min-h-11 px-1 font-semibold text-brand-ink cursor-pointer">Clear filters</button>
+            {sup !== 'all' && sup !== 'none' && (
+              <button type="button" onClick={() => onSupervisors(sup)} className="min-h-11 px-1 font-semibold text-brand-ink cursor-pointer">Change who {personName(memberById.get(sup)).split(' ')[0]} supervises</button>
+            )}
           </p>
         )}
       </div>
@@ -147,6 +173,7 @@ function TeamTab({ data, onInvite }: { data: TeamData; onInvite: () => void }) {
             {rows.map(({ m, stage }) => {
               const role = m.job_role_id ? roleById.get(m.job_role_id) : null;
               const d = m.department_id ? deptById.get(m.department_id) : null;
+              const supervisor = m.mentor_id ? memberById.get(m.mentor_id) : null;
               const named = !!(m.full_name.trim() || m.preferred_name.trim());
               return (
                 <li key={m.id} className="border-t border-line-2 first:border-t-0">
@@ -159,6 +186,7 @@ function TeamTab({ data, onInvite }: { data: TeamData; onInvite: () => void }) {
                       </div>
                       <p className="text-sm text-muted truncate">
                         {role ? role.title : 'No job role'}{d ? ` · ${d.name}` : ''}
+                        {supervisor && <> · Supervisor: {personName(supervisor)}</>}
                         {named && <span className="hidden lg:inline"> · {m.email}</span>}
                       </p>
                       <div className="flex md:hidden flex-wrap items-center gap-2">

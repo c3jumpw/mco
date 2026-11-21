@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { supabase, errText } from '../../lib/supabase';
 import { useMe } from '../../lib/session';
-import { planSummary, type AssignKind, type PlanItem } from '../../lib/plan';
+import { openItems, planSummary, reminderRows, type AssignKind, type PlanItem } from '../../lib/plan';
 import { PROGRESS_STATUS, TRACKS, cx, dueLabel, fmtDateTime, plural } from '../../lib/util';
 import type { Member, Progress } from '../../lib/types';
 import { useBadges } from '../../shell/AppShell';
@@ -12,7 +12,7 @@ import { FormError, personName } from './ops-common';
 import type { PersonLite } from './ops-person-overview';
 
 /** Reminder tasks use this title, so finishing the module can close them. */
-export const reminderTitle = (title: string) => `Finish your training: ${title}`.slice(0, 200);
+export { reminderTitle } from '../../lib/plan';
 
 const GROUPS: { kind: AssignKind; label: string; desc: string }[] = [
   { kind: 'required', label: 'Required for everyone', desc: TRACKS.company.desc },
@@ -33,16 +33,11 @@ export function TrainingTab({ member, plan, people, onReviewed }: {
   const today = new Date().toLocaleDateString('en-CA');
   const toast = useToast();
   const [reminded, setReminded] = useState<Set<string>>(new Set());
-  const open = plan.filter((i) => i.kind !== 'optional' && i.status !== 'completed' && i.status !== 'submitted');
+  const open = openItems(plan);
 
   // A reminder is a task on their list (it shows on their Home with the due date) that closes itself when they finish.
   async function remind(items: PlanItem[]) {
-    const inTwoDays = new Date(Date.now() + 2 * 86400000).toLocaleDateString('en-CA');
-    const rows = items.map((i) => ({
-      member_id: member.id, created_by: me.id, status: 'todo', title: reminderTitle(i.module.title),
-      notes: `Reminder from ${personName(me)}: please finish “${i.module.title}” in Training (${i.module.minutes} min).`,
-      due_date: i.due && i.due >= today ? i.due : inTwoDays,
-    }));
+    const rows = reminderRows(member.id, { id: me.id, name: personName(me) }, items);
     const { error } = await supabase.from('ramp_tasks').insert(rows);
     if (error) { toast(errText(error), 'bad'); return; }
     setReminded((r) => new Set([...r, ...items.map((i) => i.module.id)]));

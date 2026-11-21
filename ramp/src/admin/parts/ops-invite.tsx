@@ -113,9 +113,9 @@ function RoleMentorStart({ roles, depts, mentors, role, setRole, mentor, setMent
         </Select>
       </Field>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Mentor" hint="Who they go to with questions.">
+        <Field label="Training supervisor" hint="Follows their training, reviews their work and sends reminders. Mentors, leads and admins can supervise.">
           <Select value={mentor} onChange={(e) => setMentor(e.target.value)}>
-            <option value="">No mentor</option>
+            <option value="">No supervisor yet</option>
             {mentors.map((d) => <option key={d.id} value={d.id}>{displayName(d)}{d.job_title ? ` · ${d.job_title}` : ''}</option>)}
           </Select>
         </Field>
@@ -292,7 +292,7 @@ function BulkBody({ onClose, people, roles, depts, onDone }: { onClose: () => vo
 
   return (
     <Sheet open onClose={closeSafe} title={`Invite ${plural(ready.length, 'person', 'people')}`}
-      subtitle="Everyone you picked gets the same access level, job role and mentor. You can change each person later."
+      subtitle="Everyone you picked gets the same access level, job role and training supervisor. You can change each person later."
       footer={<><Button onClick={onClose} disabled={running}>Cancel</Button>
         <Button variant="primary" icon="userPlus" loading={running} disabled={!ready.length} onClick={run}>Add {plural(ready.length, 'person', 'people')}</Button></>}>
       <ul className="shrink-0 rounded-2xl border border-line divide-y divide-line-2 max-h-48 overflow-y-auto">
