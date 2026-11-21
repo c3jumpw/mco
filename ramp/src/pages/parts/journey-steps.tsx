@@ -46,13 +46,16 @@ export function ReadingStep({ step }: { step: Extract<Step, { kind: 'reading' }>
   );
 }
 
+/** Slides, documents and PDFs, as opposed to videos. */
+const isDeck = (url: string) => /docs\.google\.com|drive\.google\.com|canva\.com|gamma\.app|\.pdf($|\?)/i.test(url || '');
+
 export function VideoStep({ step }: { step: Extract<Step, { kind: 'video' }> }) {
   const src = step.url ? embedUrl(step.url) : null;
   return (
     <div className="flex flex-col gap-4">
-      <StepHeading eyebrow="Video" title={step.caption || 'Watch the video'} />
+      <StepHeading eyebrow={isDeck(step.url) ? 'Presentation' : 'Video'} title={step.caption || (isDeck(step.url) ? 'Go through the presentation' : 'Watch the video')} />
       {src ? (
-        <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-ink">
+        <div className={cx('relative w-full rounded-2xl overflow-hidden', isDeck(step.url) ? 'aspect-[4/3] md:aspect-video bg-white border border-line' : 'aspect-video bg-ink')}>
           <iframe src={src} title={step.caption || 'Training video'} className="absolute inset-0 w-full h-full" loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" />
         </div>

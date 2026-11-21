@@ -127,11 +127,22 @@ export const TRACKS: Record<Track, { label: string; desc: string }> = {
 export const BLOCKS: Record<BlockType, { label: string; desc: string }> = {
   slides: { label: 'Slides', desc: 'Key ideas, one per slide' },
   reading: { label: 'Reading', desc: 'A page of text or an SOP' },
-  video: { label: 'Video', desc: 'A link to a video' },
+  video: { label: 'Video or presentation', desc: 'YouTube, Loom, Google Slides, Canva or a PDF' },
   quiz: { label: 'Quiz', desc: 'Multiple-choice questions' },
   assignment: { label: 'Assignment', desc: 'A written answer to a task' },
   form: { label: 'Form or e-sign', desc: 'Links a document template' },
   practice: { label: 'Platform practice', desc: 'The interactive RAMP sandbox' },
+  visual: { label: 'Visual', desc: 'Steps, a cycle, cards or a comparison' },
+  image: { label: 'Picture', desc: 'An image or screenshot with a caption' },
+  scenario: { label: 'Scenario', desc: 'A real situation: pick the best move' },
+  order: { label: 'Put in order', desc: 'Arrange the steps of a process' },
+  sort: { label: 'Sort into groups', desc: 'Drop each item in the right group' },
+  match: { label: 'Match pairs', desc: 'Connect each item to its partner' },
+  flashcards: { label: 'Flashcards', desc: 'Flip cards to review key ideas' },
+  checklist: { label: 'Checklist', desc: 'Tick off each item to continue' },
+  hotspot: { label: 'Click-through', desc: 'Click the right spot on a screenshot' },
+  realwork: { label: 'Do it in RAMP', desc: 'Creates a real task, note or message' },
+  sim: { label: 'Practice tool', desc: 'Tasks, calendar, inbox or chat practice' },
 };
 
 export const KINDS: Record<TemplateKind, { label: string; action: string }> = {

@@ -7,7 +7,7 @@ import { stepCount } from '../lib/plan';
 import type { Block, BlockType, Module, Track } from '../lib/types';
 import { Button, Card, EmptyState, ErrorBox, Field, Icon, Input, LinkButton, Notice, PageHeader, Pills, Select, Skeleton, Switch, Textarea, useConfirm, useToast } from '../ui';
 import { ADMIN_BACK, ListEditor, SaveBar, SectionHead, StatusChip, move, moduleTexts, placeholdersIn, same, useLeaveGuard } from './parts/setup-kit';
-import { BLOCK_ICON, BlockCard, blockIssues, newBlock, tidyBlock, type BlockItem, type Tpl } from './parts/setup-block-editors';
+import { BLOCK_GROUPS, BLOCK_ICON, BlockCard, blockIssues, newBlock, tidyBlock, type BlockItem, type Tpl } from './parts/setup-block-editors';
 
 interface Data { m: Module | null; templates: Tpl[]; roleTracks: number }
 
@@ -20,7 +20,6 @@ type Row = Pick<Module, 'title' | 'track' | 'summary' | 'minutes' | 'objectives'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PASS = [0, 50, 60, 70, 75, 80, 90, 100];
-const BLOCK_TYPES = Object.keys(BLOCKS) as BlockType[];
 
 const toDraft = (m: Module): Draft => ({
   title: m.title, track: m.track, summary: m.summary || '', minutes: String(m.minutes ?? 10), objectives: m.objectives || [],
@@ -322,21 +321,26 @@ function Builder({ data, onSaved }: { data: Data & { m: Module }; onSaved: (m: M
         {!locked && (
           <Card className="flex flex-col gap-2">
             <span className="text-[13px] font-semibold text-ink-2">Add a block</span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {BLOCK_TYPES.map((t) => {
-                const off = t === 'practice' && hasPractice;
-                return (
-                  <button key={t} type="button" onClick={() => addBlock(t)} disabled={off}
-                    className="flex items-center gap-3 min-h-14 px-3 py-2 rounded-xl border border-dashed border-[#C9CED6] bg-white text-left hover:bg-brand-soft hover:border-brand cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
-                    <span className="w-9 h-9 rounded-lg bg-brand-soft text-brand-ink flex items-center justify-center shrink-0"><Icon name={BLOCK_ICON[t]} size={18} /></span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold">{BLOCKS[t].label}</span>
-                      <span className="block text-xs text-muted">{off ? 'Already in this module' : BLOCKS[t].desc}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            {BLOCK_GROUPS.map((g) => (
+              <div key={g.title} className="flex flex-col gap-2 mt-1">
+                <span className="text-[11.5px] font-bold uppercase tracking-[0.08em] text-muted">{g.title}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {g.types.map((t) => {
+                    const off = t === 'practice' && hasPractice;
+                    return (
+                      <button key={t} type="button" onClick={() => addBlock(t)} disabled={off}
+                        className="flex items-center gap-3 min-h-14 px-3 py-2 rounded-xl border border-dashed border-[#C9CED6] bg-white text-left hover:bg-brand-soft hover:border-brand cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                        <span className="w-9 h-9 rounded-lg bg-brand-soft text-brand-ink flex items-center justify-center shrink-0"><Icon name={BLOCK_ICON[t]} size={18} /></span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold">{BLOCKS[t].label}</span>
+                          <span className="block text-xs text-muted">{off ? 'Already in this module' : BLOCKS[t].desc}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </Card>
         )}
       </section>

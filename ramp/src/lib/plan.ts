@@ -4,6 +4,7 @@
 import { supabase } from './supabase';
 import { q } from './hooks';
 import { rankOf } from './util';
+import type { InteractiveBlock } from '../learn/types';
 import type { Block, ClientModule, Member, Module, Progress, ProgressStatus, RoleModule, Submission, Template } from './types';
 
 export type AssignKind = 'required' | 'role' | 'client' | 'continued' | 'optional';
@@ -94,7 +95,10 @@ export type Step =
   | { kind: 'quiz'; questions: Extract<Block, { type: 'quiz' }>['questions'] }
   | { kind: 'assignment'; prompt: string }
   | { kind: 'form'; template_id: string | null; note?: string }
-  | { kind: 'practice' };
+  | { kind: 'practice' }
+  | { kind: 'x'; block: InteractiveBlock };
+
+const SIMPLE = new Set(['slides', 'reading', 'video', 'quiz', 'assignment', 'form', 'practice']);
 
 export function stepsOf(blocks: Block[]): Step[] {
   const out: Step[] = [];
@@ -106,12 +110,13 @@ export function stepsOf(blocks: Block[]): Step[] {
     else if (b.type === 'assignment') out.push({ kind: 'assignment', prompt: b.prompt });
     else if (b.type === 'form') out.push({ kind: 'form', template_id: b.template_id, note: b.note });
     else if (b.type === 'practice') out.push({ kind: 'practice' });
+    else if (!SIMPLE.has(b.type)) out.push({ kind: 'x', block: b as InteractiveBlock });
   }
   return out;
 }
 export const stepCount = (blocks: Block[]) => stepsOf(blocks).length;
 
-/** Turn a video page link (YouTube, Vimeo, Loom) into an embeddable URL, or null. */
+/** Turn a video or presentation link (YouTube, Vimeo, Loom, Google Slides/Docs/Drive, Canva, Gamma, a PDF) into an embeddable URL, or null. */
 export function embedUrl(url: string): string | null {
   try {
     const u = new URL(url);
@@ -122,6 +127,16 @@ export function embedUrl(url: string): string | null {
     }
     if (/vimeo\.com$/.test(u.hostname)) return `https://player.vimeo.com/video/${u.pathname.split('/').filter(Boolean).pop()}`;
     if (/loom\.com$/.test(u.hostname)) return `https://www.loom.com/embed/${u.pathname.split('/').pop()}`;
+    // Presentations and documents
+    const g = u.pathname.match(/^\/(presentation|document|spreadsheets)\/d\/([\w-]+)/);
+    if (u.hostname === 'docs.google.com' && g) return g[1] === 'presentation'
+      ? `https://docs.google.com/presentation/d/${g[2]}/embed?start=false&loop=false`
+      : `https://docs.google.com/${g[1]}/d/${g[2]}/preview`;
+    const drive = u.pathname.match(/^\/file\/d\/([\w-]+)/);
+    if (u.hostname === 'drive.google.com' && drive) return `https://drive.google.com/file/d/${drive[1]}/preview`;
+    if (/(^|\.)canva\.com$/.test(u.hostname) && /\/design\//.test(u.pathname)) return `https://www.canva.com${u.pathname.replace(/\/(edit|view)\/?$/, '/view')}?embed`;
+    if (/(^|\.)gamma\.app$/.test(u.hostname)) return `https://gamma.app/embed/${u.pathname.split('/').filter(Boolean).pop()}`;
+    if (/\.pdf$/i.test(u.pathname) && u.protocol === 'https:') return url;
     return null;
   } catch {
     return null;

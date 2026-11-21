@@ -9,6 +9,7 @@ import type { Module, RoleModule, Track } from '../lib/types';
 import { Button, Card, Chip, EmptyState, ErrorBox, Icon, IconButton, PageHeader, Sheet, Skeleton, useConfirm, useToast } from '../ui';
 import { ADMIN_BACK, MetaLine, StatusChip, moduleTexts, placeholdersIn } from './parts/setup-kit';
 import { MODULE_PRESETS, type ModulePreset } from './parts/setup-presets';
+import { ImportSheet } from './parts/training-import';
 
 interface Data { modules: Module[]; done: Record<string, number>; started: Record<string, number>; links: RoleModule[] }
 
@@ -21,6 +22,7 @@ export default function TrainingAdmin() {
   const toast = useToast();
   const { confirm, dialog } = useConfirm();
   const [newOpen, setNewOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [creating, setCreating] = useState('');
   const [busyId, setBusyId] = useState('');
 
@@ -98,8 +100,13 @@ export default function TrainingAdmin() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader back={ADMIN_BACK} eyebrow="Set up" title="Training modules"
-        subtitle="Build lessons with slides, readings, videos, quizzes and assignments. Pick who gets them on Assign training."
-        actions={<Button variant="primary" icon="plus" onClick={() => setNewOpen(true)} disabled={!data}>New module</Button>} />
+        subtitle="Build interactive lessons: visuals, scenarios, drills, practice tools, videos and quizzes. Pick who gets them on Assign training."
+        actions={<>
+          <Link to="/admin/training/assistant" className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl border border-[#C9CED6] bg-white text-ink text-sm font-semibold no-underline hover:bg-chip"><Icon name="sparkle" size={18} />RAMP Assistant</Link>
+          <Button icon="upload" onClick={() => setImportOpen(true)} disabled={!data}>Import</Button>
+          <Button variant="primary" icon="plus" onClick={() => setNewOpen(true)} disabled={!data}>New module</Button>
+        </>} />
+      <ImportSheet open={importOpen} onClose={() => setImportOpen(false)} onDone={reload} />
 
       {loading && !data && <Skeleton rows={6} />}
       {error && !data && <ErrorBox error={error} onRetry={reload} />}

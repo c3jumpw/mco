@@ -1,3 +1,4 @@
+import type { InteractiveBlock } from '../learn/types';
 // Shapes of the ramp_ tables (see supabase/migrations/001_ramp_schema.sql).
 
 export type Level = 'owner' | 'admin' | 'lead' | 'mentor' | 'employee' | 'trainee' | 'guest' | 'client';
@@ -104,7 +105,8 @@ export type Block =
   | { type: 'quiz'; questions: QuizQuestion[] }
   | { type: 'assignment'; prompt: string }
   | { type: 'form'; template_id: string | null; note?: string }
-  | { type: 'practice' };
+  | { type: 'practice' }
+  | InteractiveBlock;
 export type BlockType = Block['type'];
 
 export interface Module {
@@ -146,6 +148,8 @@ export interface Progress {
   submitted_at: string | null;
   completed_at: string | null;
   updated_at: string;
+  /** Interactive steps: { practice: avg first-try %, secs: time spent, steps: [...] }. Empty for older modules. */
+  results?: { practice?: number | null; secs?: number; steps?: { title: string; type: string; first: number | null; tries: number; secs: number; scored?: boolean }[] };
 }
 
 // ───────── documents ─────────
@@ -548,7 +552,12 @@ export interface MyWork {
   payee: PayeeInfo | null;
 }
 
-export interface TrainingSummary { total: number; done: number; pct: number; next: string | null }
+export interface TrainingSummary {
+  total: number; done: number; pct: number; next: string | null;
+  /** From migration 013: average quiz and practice scores, minutes spent, last activity and each module. */
+  score?: number | null; practice?: number | null; minutes?: number | null; last?: string | null;
+  modules?: { title: string; status: ProgressStatus | 'not_started'; score: number | null; practice: number | null; done_at: string | null }[];
+}
 
 /** rpc('ramp_client_portal') — what a client contact sees. Never contains pay rates. */
 export interface ClientPortal {

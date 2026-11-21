@@ -782,6 +782,57 @@
       ]
     },
     {
+      "id": "learn",
+      "group": "daily",
+      "audience": "staff",
+      "title": "Interactive lessons",
+      "icon": "play",
+      "summary": "Lessons where you practise, not just read: scenarios, drills, flashcards, checklists and practice versions of the tools you use.",
+      "route": "/training",
+      "shots": [
+        {
+          "src": "guide-media/learn-scenario-1.webp",
+          "w": 780,
+          "h": 1688,
+          "device": "phone",
+          "caption": "A scenario on a phone",
+          "alt": "A scenario step on a phone: a situation, the question “What do you do?”, and a picked answer marked “Not this one” with the reason.",
+          "hotspots": []
+        },
+        {
+          "src": "guide-media/learn-tasks-1.webp",
+          "w": 1920,
+          "h": 1725,
+          "device": "desktop",
+          "caption": "Practising in the task manager",
+          "alt": "A practice task manager: requests from the owner on the left, each with Log as a task, and a task list with lists, duration, type and priority.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Scenarios",
+          "text": "A real situation with a few choices. Pick one and see why it works or doesn’t. Tap the others to compare."
+        },
+        {
+          "title": "Drills",
+          "text": "Put steps in order, sort cards into groups, or match pairs, then **Check my answer**. Fix the red ones and check again."
+        },
+        {
+          "title": "Practice tools",
+          "text": "A practice task manager, calendar, inbox and team chat. Do the routine the way you would for real, then check it. Nothing you do there touches real work."
+        },
+        {
+          "title": "Do it in RAMP",
+          "text": "Some steps add a real task, notebook page or message for you, so the lesson becomes part of your work."
+        }
+      ],
+      "tips": [
+        "You can try any exercise as often as you like. Your first try is what your mentor sees, so take your time.",
+        "Practice tools need room: they’re easiest on a computer or tablet."
+      ]
+    },
+    {
       "id": "documents",
       "group": "daily",
       "audience": "everyone",
@@ -2799,6 +2850,48 @@
       ]
     },
     {
+      "id": "assistant",
+      "group": "admin",
+      "audience": "admins",
+      "title": "RAMP Assistant and importing modules",
+      "icon": "sparkle",
+      "summary": "Turn a client’s input and your own modules into interactive training: build a packet, paste it into an Assistant chat, import the result.",
+      "route": "/admin/training/assistant",
+      "shots": [
+        {
+          "src": "guide-media/assistant-1.webp",
+          "w": 1920,
+          "h": 1950,
+          "device": "desktop",
+          "caption": "The RAMP Assistant page",
+          "alt": "The RAMP Assistant page: four steps, the setup prompt with Copy and Open Claude, your additions, and the build packet form.",
+          "hotspots": []
+        }
+      ],
+      "steps": [
+        {
+          "title": "Start the Assistant",
+          "text": "Copy the setup prompt into a new Claude chat, or into a Claude Project called “RAMP Assistant” so every chat starts set up. The prompt updates with RAMP, so copy it fresh for a new Assistant."
+        },
+        {
+          "title": "Build a packet",
+          "text": "Pick the placement to pull in what the client wrote on their launch plan, paste the job posting and any notes, and tick the modules to build on. **Download packet** or **Copy packet text**."
+        },
+        {
+          "title": "Paste it in",
+          "text": "The Assistant may ask a few questions, then replies with a module package."
+        },
+        {
+          "title": "Import",
+          "text": "On Training modules choose **Import** and paste the whole reply or pick the file. RAMP checks it and adds everything as drafts. Preview, adjust and publish."
+        }
+      ],
+      "tips": [
+        "Add your workspace’s own instructions under **Your additions**: tone, words to use or avoid, standards to follow.",
+        "Imported role-track modules can go straight onto a job role."
+      ]
+    },
+    {
       "id": "assign",
       "group": "admin",
       "audience": "admins",
@@ -3229,7 +3322,8 @@
       "tips": [
         "Opening someone’s record is itself recorded in the audit log.",
         "When someone leaves, pause their access instead of removing them, so you keep their records.",
-        "The **Files** tab lists every file they’ve uploaded."
+        "The **Files** tab lists every file they’ve uploaded.",
+        "On the Training tab, **Remind** adds a task to their Home and Tasks with the due date. It closes itself when they finish the module."
       ],
       "settings": [
         {
@@ -3349,7 +3443,8 @@
       ],
       "tips": [
         "A module’s completion counts only the people it’s assigned to.",
-        "Hover over or focus a funnel bar for the exact numbers."
+        "Hover over or focus a funnel bar for the exact numbers.",
+        "**Training insights** shows quiz and practice scores, time spent and the exercises people find hardest. **Remind** sends everyone with overdue training a task that closes itself when they finish."
       ]
     },
     {

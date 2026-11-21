@@ -7,6 +7,7 @@
 // Parameters stick for the tab (sessionStorage), like ?as=… does in the data sets.
 import * as DS from '@data/mock-session';
 import * as FX from '@data/fixtures';
+import { LEARN_DEMO } from './datasets/work/learn-demo';
 
 const q = new URLSearchParams(window.location.search);
 for (const k of ['ws', 'state', 'seen']) if (q.has(k)) sessionStorage.setItem('guide-' + k, q.get(k) || '');
@@ -73,6 +74,8 @@ const ACCOUNTS = [
 
 if (FX.DB) {
   FX.DB.ramp_platform = [PLATFORM];
+  // A sample interactive module (practice tools, drills) for the Guide's screenshots.
+  if (FX.DB.ramp_modules && !FX.DB.ramp_modules.some((m) => m.id === LEARN_DEMO.id)) FX.DB.ramp_modules.push(LEARN_DEMO);
   FX.DB.ramp_accounts = [{ ...ACCOUNTS[0], plan: A_MAIN.plan, trial_ends: A_MAIN.trial_ends, seat_limit: A_MAIN.seat_limit, stripe_price_id: null, stripe_subscription_id: null }];
 }
 const myClientInvoices = () => {

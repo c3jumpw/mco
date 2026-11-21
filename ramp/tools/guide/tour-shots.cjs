@@ -6,6 +6,20 @@ const CORE = { client: u('20000000', 2), placement: u('50000000', 1) };
 const MONEY = { invoice: u('40', 5) };
 const WORK = { placement: 'p1000000-0000-4000-8000-000000000001' };
 const LAUNCH = 'p-1111-2222';
+const LEARN = 'd0000000-0000-4000-8000-000000000001';
+/** Open a module and go to step n. */
+const step = async (p, n) => {
+  // Admin preview moves freely between steps; hide its preview labels so the shot looks like a learner's view.
+  await p.evaluate(() => {
+    for (const el of document.querySelectorAll('header span, main + div, div')) {
+      if (el.textContent === 'PREVIEW' || (el.textContent?.startsWith('Preview. Nothing is saved') && el.children.length <= 1)) (el.closest('div.bg-ink') || el).remove();
+    }
+  });
+  await p.locator('footer button').last().click();
+  for (let i = 1; i < n; i++) { await p.waitForTimeout(120); await p.locator('footer button').last().click(); }
+  await p.waitForTimeout(500);
+  await p.evaluate(() => window.scrollTo(0, 0));
+};
 
 const click = (name) => async (p) => { await p.getByRole('button', { name, exact: false }).first().click(); await p.waitForTimeout(500); };
 const scrollTo = (text) => async (p) => {
@@ -37,6 +51,22 @@ const TOUR_SHOTS = [
   { id: 'tour-client-home-2', data: 'work', as: 'client', url: '/client', device: 'phone', prep: scrollTo('Requests') },
   { id: 'tour-client-hours-1', data: 'work', as: 'client', url: '/client/hours', device: 'phone' },
   { id: 'tour-client-invoices-1', data: 'work', as: 'client', url: '/client/invoices', device: 'phone' },
+  // interactive lessons (sample module in tools/guide/datasets/work/learn-demo.ts) and the RAMP Assistant
+  { id: 'learn-scenario-1', data: 'work', as: 'trainee', url: `/training/${LEARN}`, device: 'phone',
+    prep: async (p) => { await step(p, 2); await p.locator('main [role=listitem] button').nth(1).click(); await p.waitForTimeout(400); } },
+  { id: 'learn-sort-1', data: 'work', as: 'admin', url: `/training/${LEARN}?preview=1`, device: 'desktop', height: 1000, prep: (p) => step(p, 3) },
+  { id: 'learn-tasks-1', data: 'work', as: 'admin', url: `/training/${LEARN}?preview=1`, device: 'desktop', height: 1150, prep: (p) => step(p, 4) },
+  { id: 'learn-calendar-1', data: 'work', as: 'admin', url: `/training/${LEARN}?preview=1`, device: 'desktop', height: 1150,
+    prep: async (p) => {
+      await step(p, 5);
+      for (const [b, t] of [['Review the vendor contract', '9:30 AM'], ['Return customer calls', '1:30 PM']]) {
+        await p.locator('main').getByRole('button', { name: new RegExp(b) }).first().click();
+        await p.locator('main').getByRole('button', { name: `Start at ${t}` }).click();
+      }
+      await p.evaluate(() => window.scrollTo(0, 0));
+    } },
+  { id: 'learn-inbox-1', data: 'work', as: 'admin', url: `/training/${LEARN}?preview=1`, device: 'desktop', height: 1050, prep: (p) => step(p, 6) },
+  { id: 'assistant-1', data: 'work', as: 'admin', url: '/admin/training/assistant', device: 'desktop', height: 1300 },
   // change log and What's new
   { id: 'changelog-1', data: 'work', as: 'admin', url: '/admin/changelog', device: 'desktop' },
   { id: 'whats-new-1', data: 'work', as: 'trainee', url: '/', device: 'phone',

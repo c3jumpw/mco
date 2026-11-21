@@ -6,13 +6,24 @@ import { embedUrl } from '../../lib/plan';
 import type { Block, BlockType, QuizQuestion, Slide, Template } from '../../lib/types';
 import { Button, Chip, Field, Icon, IconButton, Input, Notice, Select, Textarea } from '../../ui';
 import { MoveButtons, move } from './setup-kit';
+import { STEP_ICON, isInteractive, newInteractive } from '../../learn';
+import { InteractiveEditor } from '../../learn/editor';
+import { validateInteractive } from '../../learn/schema';
+import type { InteractiveType } from '../../learn/types';
 
 export type Tpl = Pick<Template, 'id' | 'title' | 'status' | 'kind'>;
 export interface BlockItem { id: string; b: Block }
 
 export const BLOCK_ICON: Record<BlockType, string> = {
-  slides: 'list', reading: 'fileText', video: 'play', quiz: 'target', assignment: 'pen', form: 'file', practice: 'sparkle',
+  ...STEP_ICON, slides: 'list', reading: 'fileText', video: 'play', quiz: 'target', assignment: 'pen', form: 'file', practice: 'sparkle', realwork: 'tasks', sim: 'play',
 };
+
+/** How the "Add a block" menu groups block types. */
+export const BLOCK_GROUPS: { title: string; types: BlockType[] }[] = [
+  { title: 'Explain', types: ['slides', 'visual', 'reading', 'image', 'video'] },
+  { title: 'Practise and check', types: ['scenario', 'sim', 'order', 'sort', 'match', 'flashcards', 'hotspot', 'quiz'] },
+  { title: 'Do and hand in', types: ['checklist', 'realwork', 'assignment', 'form', 'practice'] },
+];
 
 export function newBlock(type: BlockType): Block {
   switch (type) {
@@ -22,7 +33,8 @@ export function newBlock(type: BlockType): Block {
     case 'quiz': return { type, questions: [{ q: '', options: ['', ''], answer: 0, explain: '' }] };
     case 'assignment': return { type, prompt: '' };
     case 'form': return { type, template_id: null, note: '' };
-    default: return { type: 'practice' };
+    case 'practice': return { type: 'practice' };
+    default: return newInteractive(type as InteractiveType);
   }
 }
 
@@ -44,7 +56,13 @@ export function blockSummary(b: Block, templates: Tpl[]): string {
     case 'quiz': return plural(b.questions.length, 'question');
     case 'assignment': return b.prompt.trim().slice(0, 80) || 'No prompt yet';
     case 'form': return templates.find((t) => t.id === b.template_id)?.title || 'No document picked';
-    default: return 'Nine quick missions in a safe sandbox';
+    case 'practice': return 'Nine quick missions in a safe sandbox';
+    case 'sim': {
+      const n = b.tool === 'tasks' ? plural(b.requests.length, 'request') : b.tool === 'calendar' ? plural(b.blocks.length, 'block') : plural(b.messages.length, 'message');
+      return `${b.title} · ${n}`;
+    }
+    case 'image': return b.caption || b.alt || (b.src ? 'Picture' : 'No picture yet');
+    default: return b.title || BLOCKS[b.type].label;
   }
 }
 
@@ -59,9 +77,9 @@ export function blockIssues(b: Block, templates: Tpl[]): { errors: string[]; war
     if (!b.body.trim()) errors.push('Add the text to read.');
   } else if (b.type === 'video') {
     const url = b.url.trim();
-    if (!url) errors.push('Paste the video link.');
-    else if (!/^https?:\/\/\S+\.\S+/i.test(url)) errors.push('The video link should start with https://');
-    else if (!embedUrl(url)) warnings.push('The video can’t play inside RAMP, so people will open it in a new tab.');
+    if (!url) errors.push('Paste the video or presentation link.');
+    else if (!/^https?:\/\/\S+\.\S+/i.test(url)) errors.push('The link should start with https://');
+    else if (!embedUrl(url)) warnings.push('This link can’t show inside RAMP, so people will open it in a new tab.');
   } else if (b.type === 'quiz') {
     if (!b.questions.length) errors.push('Add at least one question.');
     b.questions.forEach((qq, i) => {
@@ -78,6 +96,8 @@ export function blockIssues(b: Block, templates: Tpl[]): { errors: string[]; war
     if (!b.template_id) errors.push('Pick the document to fill in or sign.');
     else if (!t) errors.push('The linked document was deleted. Pick another one.');
     else if (t.status !== 'published') warnings.push(`“${t.title}” is still a draft, so people can’t open it until you publish it.`);
+  } else if (isInteractive(b)) {
+    errors.push(...validateInteractive(b));
   }
   return { errors, warnings };
 }
@@ -165,7 +185,8 @@ function BlockBody({ b, onChange, templates, blockId }: { b: Block; onChange: (b
         </>
       );
     }
-    default: return <PracticeInfo />;
+    case 'practice': return <PracticeInfo />;
+    default: return isInteractive(b) ? <InteractiveEditor b={b} onChange={onChange} /> : null;
   }
 }
 
@@ -201,7 +222,7 @@ function VideoEditor({ url, caption, onChange }: { url: string; caption: string;
   const src = url.trim() ? embedUrl(url.trim()) : null;
   return (
     <>
-      <Field label="Video link" hint="YouTube, Vimeo and Loom links play right inside RAMP.">
+      <Field label="Video or presentation link" hint="YouTube, Vimeo and Loom videos, Google Slides, Docs and Drive files, Canva and Gamma presentations and PDF links show right inside RAMP. Share them so anyone with the link can view.">
         <Input type="url" inputMode="url" value={url} onChange={(e) => onChange(e.target.value, caption)} placeholder="https://www.youtube.com/watch?v=…" />
       </Field>
       <Field label="Caption" hint="Optional. What to watch for.">

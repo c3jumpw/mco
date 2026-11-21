@@ -7,7 +7,7 @@
   "/client": "client-home", "/client/hours": "client-hours", "/client/invoices": "client-invoices", "/client/invoices/:id": "client-invoices",
   "/platform": "console",
   "/admin": "admin-home", "/admin/org": "org", "/admin/roles": "roles", "/admin/flow": "flow", "/admin/documents": "documents-admin", "/admin/documents/:id": "documents-admin",
-  "/admin/training": "training-admin", "/admin/training/:id": "training-admin", "/admin/assign": "assign", "/admin/people": "people", "/admin/people/:id": "person",
+  "/admin/training": "training-admin", "/admin/training/:id": "training-admin", "/admin/training/assistant": "assistant", "/admin/assign": "assign", "/admin/people": "people", "/admin/people/:id": "person",
   "/admin/metrics": "metrics", "/admin/news": "news-admin", "/admin/resources": "resources-admin", "/admin/system": "system", "/admin/changelog": "changelog", "/admin/account": "account",
   "/admin/agency": "agency-home", "/admin/agency/settings": "tiers", "/admin/clients": "clients-admin", "/admin/clients/:id": "clients-admin",
   "/admin/placements": "placements", "/admin/placements/:id": "placements", "/admin/tiers": "tiers", "/admin/timesheets": "timesheets",

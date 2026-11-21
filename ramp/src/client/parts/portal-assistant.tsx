@@ -102,6 +102,29 @@ export function AssistantCard({ p, busy, onToggle, onFeedback, onHelp }: {
           </div>
           <Progress value={t.pct} tone={t.pct >= 100 ? 'good' : 'brand'} label={`${fn}’s training progress`} />
           <p className="text-sm text-ink-2">{t.next ? <>Next: <span className="font-semibold">{t.next}</span></> : t.total ? 'All training complete.' : 'Training starts soon.'}</p>
+          {(t.score != null || t.practice != null || !!t.minutes) && (
+            <div className="flex flex-wrap gap-1.5">
+              {t.score != null && <Chip tone="neutral">Quiz avg {t.score}%</Chip>}
+              {t.practice != null && <Chip tone={t.practice >= 80 ? 'good' : t.practice >= 60 ? 'neutral' : 'warn'}>Practice {t.practice}%</Chip>}
+              {!!t.minutes && <Chip tone="neutral" icon="clock">{t.minutes} min spent</Chip>}
+            </div>
+          )}
+          {!!t.modules?.length && (
+            <Disclosure label="See each module" openLabel="Hide modules" className="-mx-5">
+              <ul className="mx-5 mt-1 flex flex-col divide-y divide-line-2 rounded-xl border border-line">
+                {t.modules.map((m, i) => (
+                  <li key={i} className="px-3 py-2 flex items-center gap-2 text-[14px]">
+                    <span className={m.status === 'completed' ? 'text-good' : m.status === 'not_started' ? 'text-muted' : 'text-brand-ink'}>
+                      <Icon name={m.status === 'completed' ? 'check' : m.status === 'not_started' ? 'clock' : 'play'} size={15} strokeWidth={2.2} />
+                    </span>
+                    <span className="flex-1 min-w-0 truncate">{m.title}</span>
+                    {m.score != null && <span className="text-[12.5px] text-muted tabular-nums">{m.score}%</span>}
+                    {m.practice != null && <span className="text-[12.5px] text-muted tabular-nums">· practice {m.practice}%</span>}
+                  </li>
+                ))}
+              </ul>
+            </Disclosure>
+          )}
         </div>
         <div className="flex flex-col gap-2.5">
           <div className="flex items-baseline justify-between gap-2">

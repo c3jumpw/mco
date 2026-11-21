@@ -9,6 +9,7 @@ import type { Module, Progress as ProgressRow } from '../lib/types';
 import { FocusFrame } from '../shell/AppShell';
 import { Button, Card, EmptyState, ErrorBox, Icon, IconButton, LinkButton, Notice, Progress, Spinner, useToast } from '../ui';
 import { store } from './parts/journey-common';
+import { InteractiveStep, blockedHint as interactiveHint, isPassive, isScored, type StepResult } from '../learn';
 import {
   AssignmentStep, FormStep, PracticeStep, QuizStep, ReadingStep, SlideStep, StepHeading, VideoStep, emptyQuiz,
   type FormStatus, type QuizState,
@@ -94,14 +95,22 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
     return saved;
   });
   const [forms, setForms] = useState<Record<number, FormStatus>>({});
+  // Interactive steps: score of the first and best attempt, tries, and time spent (seconds) on each step.
+  const [results, setResults] = useState<Record<number, StepResult>>(() => (preview ? {} : store.get(`ramp-x:${keyBase}`, {})));
+  const [secs, setSecs] = useState<Record<number, number>>(() => (preview ? {} : store.get(`ramp-t:${keyBase}`, {})));
+  const enteredAt = useRef<number>(Date.now());
   // Set when finishing sent the person back to a quiz: once it's passed they can finish from there.
   const [finishFrom, setFinishFrom] = useState<number | null>(null);
 
   useEffect(() => { if (!preview) store.set(`ramp-quiz:${keyBase}`, quiz); }, [quiz, keyBase, preview]);
   useEffect(() => { if (!preview && !review) store.set(`ramp-answer:${keyBase}`, answers); }, [answers, keyBase, preview, review]);
+  useEffect(() => { if (!preview && !review) store.set(`ramp-x:${keyBase}`, results); }, [results, keyBase, preview, review]);
+  useEffect(() => { if (!preview && !review) store.set(`ramp-t:${keyBase}`, secs); }, [secs, keyBase, preview, review]);
 
   const step: Step | null = pos >= 1 ? steps[pos - 1] || null : null;
   const idx = pos - 1;
+  // Practice tools need room: they get a wider page.
+  const wide = step?.kind === 'x' && step.block.type === 'sim';
 
   const canNext = (() => {
     if (!step || free) return true;
@@ -112,6 +121,7 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
     }
     if (step.kind === 'assignment') return !!(answers[idx] || '').trim();
     if (step.kind === 'form') return forms[idx] !== 'todo' && forms[idx] !== 'loading' && forms[idx] !== undefined;
+    if (step.kind === 'x') return isPassive(step.block) || !!results[idx]?.done;
     return true;
   })();
 
@@ -120,11 +130,17 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
     if (step.kind === 'quiz') return quiz[idx]?.checked ? `Score ${mod.pass_score}% to continue` : 'Check your answers first';
     if (step.kind === 'assignment') return 'Write your answer to continue';
     if (step.kind === 'form') return forms[idx] === 'todo' ? 'Submit the document to continue' : 'Loading…';
+    if (step.kind === 'x') return interactiveHint(step.block);
     return '';
   })();
 
   const go = useCallback((to: number) => {
-    setPos(to);
+    const spent = Math.round((Date.now() - enteredAt.current) / 1000);
+    enteredAt.current = Date.now();
+    setPos((from) => {
+      if (from >= 1 && spent > 0) setSecs((m) => ({ ...m, [from - 1]: Math.min(3600, (m[from - 1] || 0) + spent) }));
+      return to;
+    });
     requestAnimationFrame(() => window.scrollTo({ top: 0 }));
   }, []);
 
@@ -172,11 +188,37 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
     const answer = parts.length === 1
       ? (answers[parts[0]!.i] || '').trim()
       : parts.map(({ s, i }) => `${(s as Extract<Step, { kind: 'assignment' }>).prompt}\n\n${(answers[i] || '').trim()}`).join('\n\n———\n\n');
+    // What happened on each interactive step, for metrics: first and best score, tries and time.
+    const spentHere = Math.round((Date.now() - enteredAt.current) / 1000);
+    const allSecs = { ...secs, [idx]: (secs[idx] || 0) + Math.max(0, spentHere) };
+    const xSteps = steps.map((s, i) => ({ s, i })).filter((x) => x.s.kind === 'x').map(({ s, i }) => {
+      const b = (s as Extract<Step, { kind: 'x' }>).block;
+      const r = results[i];
+      return { i, type: b.type, tool: b.type === 'sim' ? b.tool : undefined, title: 'title' in b ? b.title : '', scored: isScored(b),
+        first: r?.first ?? null, best: r?.best ?? null, tries: r?.tries ?? 0, secs: allSecs[i] || 0 };
+    });
+    const scoredFirsts = xSteps.filter((x) => x.scored && x.first != null).map((x) => x.first as number);
+    const payload = {
+      v: 1, quiz: score, secs: Object.values(allSecs).reduce((a, c) => a + c, 0),
+      practice: scoredFirsts.length ? Math.round(scoredFirsts.reduce((a, c) => a + c, 0) / scoredFirsts.length) : null,
+      steps: xSteps,
+    };
     setBusy(true);
     try {
-      const r = await q<string>(supabase.rpc('ramp_module_finish', { p_module: mod.id, p_score: score, p_answer: answer }));
+      let r: string;
+      try {
+        r = await q<string>(supabase.rpc('ramp_module_finish', { p_module: mod.id, p_score: score, p_answer: answer, p_results: payload }));
+      } catch (e) {
+        // Before migration 012 the function has no results parameter.
+        if (!/p_results|schema cache|PGRST202/i.test(errText(e))) throw e;
+        r = await q<string>(supabase.rpc('ramp_module_finish', { p_module: mod.id, p_score: score, p_answer: answer }));
+      }
       store.del(`ramp-answer:${keyBase}`);
       store.del(`ramp-quiz:${keyBase}`);
+      store.del(`ramp-x:${keyBase}`);
+      store.del(`ramp-t:${keyBase}`);
+      // Close any reminder to finish this module.
+      supabase.from('ramp_tasks').update({ status: 'done' }).eq('member_id', me.id).eq('title', `Finish your training: ${mod.title}`.slice(0, 200)).neq('status', 'done').then(() => {}, () => {});
       setResult(r === 'submitted' ? 'submitted' : 'completed');
       window.scrollTo({ top: 0 });
     } catch (e) {
@@ -251,7 +293,7 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
           </div>
         )}
 
-        <main className="flex-1 w-full max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        <main className={cx('flex-1 w-full mx-auto px-4 md:px-6 py-6 md:py-10', wide ? 'max-w-6xl' : 'max-w-3xl')}>
           <div key={pos} className="rise">
             {pos === 0 ? (
               <Intro module={mod} progress={progress} steps={n} preview={preview} resumeAt={!free && status === 'in_progress' && resumeAt > 1 ? resumeAt : 0} />
@@ -263,7 +305,11 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
               <StepView step={step} idx={idx} mod={mod} preview={preview} review={review} feedback={status === 'returned' ? progress?.feedback : undefined}
                 quiz={quiz[idx]} onQuiz={(s) => setQuiz((m) => ({ ...m, [idx]: s }))}
                 answer={answers[idx] || ''} onAnswer={(v) => setAnswers((m) => ({ ...m, [idx]: v }))}
-                onFormStatus={formHandlers[idx]!} />
+                onFormStatus={formHandlers[idx]!}
+                result={results[idx]} onResult={(score) => setResults((m) => {
+                  const r = m[idx];
+                  return { ...m, [idx]: { first: r ? r.first : score, best: Math.max(r?.best ?? 0, score), tries: (r?.tries || 0) + 1, done: true } };
+                })} />
               </>
             ) : null}
           </div>
@@ -272,7 +318,7 @@ function Player({ module: mod, progress, preview }: { module: Module; progress: 
         {/* Footer: sticky so it stays under the thumb on phones */}
         <footer className="sticky bottom-0 z-30 bg-white border-t border-line pb-safe">
           {blockedHint && <p className="sm:hidden px-4 pt-2 -mb-1 text-center text-[13px] text-muted" aria-hidden="true">{blockedHint}</p>}
-          <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
+          <div className={cx('mx-auto px-4 md:px-6 py-3 flex items-center gap-3', wide ? 'max-w-6xl' : 'max-w-3xl')}>
             {pos > 0 ? (
               <Button onClick={back} icon="chevronLeft" aria-label="Back"><span className="hidden sm:inline">Back</span></Button>
             ) : (
@@ -356,9 +402,10 @@ function Intro({ module: mod, progress, steps, preview, resumeAt }: { module: Mo
   );
 }
 
-function StepView({ step, idx, mod, preview, review, feedback, quiz, onQuiz, answer, onAnswer, onFormStatus }: {
+function StepView({ step, idx, mod, preview, review, feedback, quiz, onQuiz, answer, onAnswer, onFormStatus, result, onResult }: {
   step: Step; idx: number; mod: Module; preview: boolean; review: boolean; feedback?: string;
   quiz?: QuizState; onQuiz: (s: QuizState) => void; answer: string; onAnswer: (v: string) => void; onFormStatus: (s: FormStatus) => void;
+  result?: StepResult; onResult: (score: number) => void;
 }) {
   const { me } = useMe();
   switch (step.kind) {
@@ -369,6 +416,7 @@ function StepView({ step, idx, mod, preview, review, feedback, quiz, onQuiz, ans
     case 'assignment': return <AssignmentStep prompt={step.prompt} value={answer} onChange={onAnswer} feedback={feedback || undefined} readOnly={review} />;
     case 'form': return <FormStep templateId={step.template_id} note={step.note} preview={preview} onStatus={onFormStatus} />;
     case 'practice': return <PracticeStep returnTo={`/training/${mod.id}${preview ? '?preview=1' : ''}`} done={!!me.practice_done_at} preview={preview} />;
+    case 'x': return <InteractiveStep key={idx} block={step.block} result={result} onResult={onResult} preview={preview} review={review} />;
   }
 }
 

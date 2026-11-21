@@ -11,6 +11,9 @@ import { Button, Card, CardHeader, Chip, EmptyState, Field, Progress as Bar, She
 import { FormError, personName } from './ops-common';
 import type { PersonLite } from './ops-person-overview';
 
+/** Reminder tasks use this title, so finishing the module can close them. */
+export const reminderTitle = (title: string) => `Finish your training: ${title}`.slice(0, 200);
+
 const GROUPS: { kind: AssignKind; label: string; desc: string }[] = [
   { kind: 'required', label: 'Required for everyone', desc: TRACKS.company.desc },
   { kind: 'role', label: 'Role track', desc: 'Linked to their job role' },
@@ -28,6 +31,23 @@ export function TrainingTab({ member, plan, people, onReviewed }: {
   const self = member.id === me.id;
   const nameOf = (id: string | null) => { const p = id ? people.find((x) => x.id === id) : null; return p ? personName(p) : 'A reviewer'; };
   const today = new Date().toLocaleDateString('en-CA');
+  const toast = useToast();
+  const [reminded, setReminded] = useState<Set<string>>(new Set());
+  const open = plan.filter((i) => i.kind !== 'optional' && i.status !== 'completed' && i.status !== 'submitted');
+
+  // A reminder is a task on their list (it shows on their Home with the due date) that closes itself when they finish.
+  async function remind(items: PlanItem[]) {
+    const inTwoDays = new Date(Date.now() + 2 * 86400000).toLocaleDateString('en-CA');
+    const rows = items.map((i) => ({
+      member_id: member.id, created_by: me.id, status: 'todo', title: reminderTitle(i.module.title),
+      notes: `Reminder from ${personName(me)}: please finish “${i.module.title}” in Training (${i.module.minutes} min).`,
+      due_date: i.due && i.due >= today ? i.due : inTwoDays,
+    }));
+    const { error } = await supabase.from('ramp_tasks').insert(rows);
+    if (error) { toast(errText(error), 'bad'); return; }
+    setReminded((r) => new Set([...r, ...items.map((i) => i.module.id)]));
+    toast(`Reminder sent. ${personName(member)} sees it on Home and in Tasks.`);
+  }
 
   if (!plan.length) {
     return (
@@ -47,6 +67,14 @@ export function TrainingTab({ member, plan, people, onReviewed }: {
           <div className="flex flex-wrap gap-2 mt-3">
             {s.waiting > 0 && <Chip tone="warn" icon="clock">{plural(s.waiting, 'item')} waiting for review</Chip>}
             {s.overdue > 0 && <Chip tone="bad" icon="alert">{s.overdue} overdue</Chip>}
+          </div>
+        )}
+        {!self && open.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-line-2">
+            <Button size="sm" icon="bell" onClick={() => remind(open.filter((i) => !reminded.has(i.module.id)))} disabled={open.every((i) => reminded.has(i.module.id))}>
+              Remind about {plural(open.length, 'open module')}
+            </Button>
+            <span className="text-[13px] text-muted">Adds a task with the due date to their Home and Tasks. It closes itself when they finish.</span>
           </div>
         )}
       </Card>
@@ -81,11 +109,19 @@ export function TrainingTab({ member, plan, people, onReviewed }: {
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
                           {p?.score != null && <Chip tone="neutral">Score {p.score}%</Chip>}
+                          {p?.results?.practice != null && <Chip tone={p.results.practice >= 80 ? 'good' : p.results.practice >= 60 ? 'neutral' : 'warn'}>Practice {p.results.practice}%</Chip>}
+                          {!!p?.results?.secs && <Chip tone="neutral" icon="clock">{Math.max(1, Math.round(p.results.secs / 60))} min</Chip>}
                           {due && <Chip tone={overdue ? 'bad' : 'neutral'} icon="calendar">{due}</Chip>}
                           <Chip tone={st.tone}>{st.label}</Chip>
                         </div>
                       </div>
                       {i.status === 'in_progress' && <Bar value={i.pct} label={`${i.module.title} progress`} className="max-w-sm" />}
+                      {!self && i.kind !== 'optional' && i.status !== 'completed' && i.status !== 'submitted' && (
+                        <div><Button size="sm" variant="ghost" icon="bell" disabled={reminded.has(i.module.id)} onClick={() => remind([i])}>{reminded.has(i.module.id) ? 'Reminder sent' : 'Remind'}</Button></div>
+                      )}
+                      {(p?.results?.steps || []).some((x) => x.scored && x.first != null && x.first < 70) && (
+                        <p className="text-[13px] text-warn">Found hard: {(p!.results!.steps || []).filter((x) => x.scored && x.first != null && x.first < 70).map((x) => x.title).join(', ')}</p>
+                      )}
                       {p?.answer?.trim() && (
                         i.status === 'submitted'
                           ? <Answer text={p.answer} open />

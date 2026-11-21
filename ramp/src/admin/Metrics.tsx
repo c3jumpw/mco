@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, errText } from '../lib/supabase';
 import { q, useAsync, useTitle } from '../lib/hooks';
 import { useMe } from '../lib/session';
 import { SUBMISSION_COLS, appliesTo, docsFor, latestFor, planFor, planSummary, type PlanItem } from '../lib/plan';
@@ -122,6 +122,7 @@ export default function Metrics() {
                   </section>
 
                   <Funnel steps={m.funnel} />
+                  <Insights data={res.data} scope={m.scope.map((x) => x.id)} />
                   <ModuleTable rows={m.moduleRows} />
                   <DocsTable rows={m.docRows} />
                 </>
@@ -335,3 +336,76 @@ function DocsTable({ rows }: { rows: { id: string; title: string; should: number
     </Card>
   );
 }
+
+// ───────────────────────── training insights (interactive results) ─────────────────────────
+
+/** Quiz and practice scores, time spent, and the exercises people find hardest, from finished modules. */
+function Insights({ data, scope }: { data: Data; scope: string[] }) {
+  const toast = useToast();
+  const { me } = useMe();
+  const [sent, setSent] = useState(false);
+  const ids = new Set(scope);
+  const done = data.progress.filter((p) => ids.has(p.member_id) && (p.status === 'completed' || p.status === 'submitted'));
+  const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, c) => a + c, 0) / xs.length) : null);
+  const quiz = avg(done.map((p) => p.score).filter((x): x is number => x != null));
+  const practice = avg(done.map((p) => p.results?.practice).filter((x): x is number => typeof x === 'number'));
+  const minutes = avg(done.map((p) => p.results?.secs).filter((x): x is number => typeof x === 'number' && x > 0).map((x) => x / 60));
+  // Hardest exercises: lowest average first-try score, with at least two attempts.
+  const steps = new Map<string, { title: string; module: string; scores: number[] }>();
+  for (const p of done) {
+    const mod = data.modules.find((x) => x.id === p.module_id)?.title || '';
+    for (const st of p.results?.steps || []) {
+      if (!st.scored || st.first == null) continue;
+      const k = `${p.module_id}:${st.title}`;
+      const e = steps.get(k) || { title: st.title, module: mod, scores: [] };
+      e.scores.push(st.first); steps.set(k, e);
+    }
+  }
+  const hardest = [...steps.values()].filter((x) => x.scores.length >= 2).map((x) => ({ ...x, avg: avg(x.scores)! })).sort((a, b) => a.avg - b.avg).slice(0, 5);
+  // Everyone with overdue assigned modules, for a one-click reminder.
+  const today = new Date().toLocaleDateString('en-CA');
+  const overdue = data.members.filter((x) => ids.has(x.id) && x.status === 'active' && x.id !== me.id)
+    .map((x) => ({ x, items: planFor(x, data.modules, data.roleModules, data.progress).filter((i) => i.kind !== 'optional' && i.due && i.due < today && i.status !== 'completed' && i.status !== 'submitted') }))
+    .filter((r) => r.items.length);
+  async function remindAll() {
+    const rows = overdue.flatMap((r) => r.items.map((i) => ({ member_id: r.x.id, created_by: me.id, status: 'todo', title: `Finish your training: ${i.module.title}`.slice(0, 200),
+      notes: `Reminder: “${i.module.title}” was due ${i.due}. Please finish it in Training.`, due_date: today })));
+    const { error } = await supabase.from('ramp_tasks').insert(rows);
+    if (error) { toast(errText(error), 'bad'); return; }
+    setSent(true);
+    toast(`Reminders sent to ${plural(overdue.length, 'person', 'people')}.`);
+  }
+  if (!done.length && !overdue.length) return null;
+  return (
+    <Card className="flex flex-col gap-4">
+      <CardHeader title="Training insights" subtitle="From finished modules. Practice is the first-try score on scenarios, drills and practice tools." />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat label="Modules finished" value={fig(done.length)} hint="Completed or sent for review" />
+        <Stat label="Average quiz score" value={fig(quiz == null ? '—' : `${quiz}%`)} hint="Where modules have quizzes" />
+        <Stat label="Average practice score" value={fig(practice == null ? '—' : `${practice}%`)} tone={practice != null && practice < 70 ? 'warn' : undefined} hint="First try, interactive steps" />
+        <Stat label="Average time per module" value={fig(minutes == null ? '—' : `${minutes} min`)} hint="Time on steps" />
+      </div>
+      {hardest.length > 0 && (
+        <div>
+          <p className="text-[13px] font-semibold text-ink-2 mb-2">Exercises people find hardest</p>
+          <ul className="flex flex-col divide-y divide-line-2 rounded-xl border border-line">
+            {hardest.map((h) => (
+              <li key={h.module + h.title} className="px-4 py-2.5 flex items-center gap-3">
+                <span className="flex-1 min-w-0"><span className="font-semibold text-[14.5px]">{h.title}</span><span className="block text-[12.5px] text-muted">{h.module} · {plural(h.scores.length, 'attempt')}</span></span>
+                <span className={h.avg < 60 ? 'text-bad font-semibold' : 'text-warn font-semibold'}>{h.avg}%</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[12.5px] text-muted mt-1.5">Low first-try scores usually mean the lesson before needs another example, or the exercise needs clearer wording.</p>
+        </div>
+      )}
+      {overdue.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-line-2">
+          <Button icon="bell" onClick={remindAll} disabled={sent}>{sent ? 'Reminders sent' : `Remind ${plural(overdue.length, 'person', 'people')} with overdue training`}</Button>
+          <span className="text-[13px] text-muted">Each gets a task on Home and in Tasks that closes when they finish the module.</span>
+        </div>
+      )}
+    </Card>
+  );
+}
+

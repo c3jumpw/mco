@@ -5,6 +5,25 @@
 Every RAMP release, newest first: what changed, who it affects, and the commits and database migrations behind it.
 Admins see the same log in the app under **Admin › Change log**.
 
+## 1.7 · Interactive training, the RAMP Assistant and reminders
+
+*November 21, 2026* · shown at sign-in to the people it affects
+
+Lessons you practise in, a way to turn a client’s input into custom modules, reminders to finish training, and richer training numbers.
+
+- **New:** Interactive lessons: scenarios, put-in-order, sort and match drills, flashcards, checklists and click-throughs on real screenshots, checked as you go. *(team members, guests, mentors and leads, admins)*
+- **New:** Practice versions of a task manager, calendar, inbox and team chat, where you do the real routine and RAMP checks your work. *(team members, guests, mentors and leads, admins)*
+- **New:** Some lessons add a real task, notebook page or message for you, so practice turns into work. *(team members, guests, mentors and leads, admins)*
+- **Better:** Presentations show right inside lessons: Google Slides, Docs and Drive files, Canva, Gamma and PDF links. *(team members, guests, mentors and leads, admins)*
+- **New:** Eleven new lesson types in the module builder, grouped as Explain, Practise and check, and Do and hand in, each with a live preview. *(admins)*
+- **New:** RAMP Assistant: build a packet from a client’s launch plan, the job posting and your own modules, start an Assistant chat from the setup prompt, and import the modules it writes. *(admins)*
+- **New:** Import modules from a package file or a pasted reply. They arrive as drafts, pictures included, and can go straight onto a job role. *(admins)*
+- **New:** Remind people to finish their training, one module at a time or everything open. It shows on their Home and Tasks and closes itself when they finish. *(admins, mentors and leads)*
+- **New:** Training insights on Metrics: average quiz and practice scores, time per module, the exercises people find hardest, and one click to remind everyone overdue. *(admins)*
+- **New:** See each team member’s quiz and practice scores, time spent and where every module stands. *(clients; needs agency on)*
+
+Database: `012`, `013`
+
 ## 1.6 · Change log and update notes
 
 *November 20, 2026* · shown at sign-in to the people it affects

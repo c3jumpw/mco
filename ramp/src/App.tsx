@@ -72,6 +72,7 @@ const NewsAdmin = page(() => import('./admin/NewsAdmin'));
 const ResourcesAdmin = page(() => import('./admin/ResourcesAdmin'));
 const System = page(() => import('./admin/System'));
 const Changelog = page(() => import('./admin/Changelog'));
+const Assistant = page(() => import('./admin/Assistant'));
 
 export default function App() {
   const { state, rank, isAdmin, isClient, isSuper, org, roles } = useSession();
@@ -133,6 +134,7 @@ export default function App() {
               <Route path="documents" element={<Documents />} />
               <Route path="documents/:id" element={<DocumentEditor />} />
               <Route path="training" element={<TrainingAdmin />} />
+              <Route path="training/assistant" element={<Assistant />} />
               <Route path="training/:id" element={<ModuleBuilder />} />
               <Route path="assign" element={<Assign />} />
               <Route path="people" element={<People />} />
