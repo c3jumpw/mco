@@ -2938,7 +2938,7 @@
             {
               "n": 4,
               "x": 23.8,
-              "y": 73.1,
+              "y": 75.8,
               "w": 72.3,
               "h": 4.4,
               "label": "Add to track",
@@ -2947,9 +2947,9 @@
             {
               "n": 5,
               "x": 22.2,
-              "y": 79.6,
+              "y": 82.3,
               "w": 75.6,
-              "h": 20.4,
+              "h": 17.7,
               "label": "A role’s track",
               "text": "Reorder with the arrows or remove a module with the X."
             }
