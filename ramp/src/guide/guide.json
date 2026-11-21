@@ -161,14 +161,14 @@
               "x": 0.6,
               "y": 8.5,
               "w": 18.7,
-              "h": 35.3,
+              "h": 41,
               "label": "Main menu",
               "text": "Every page you use day to day. The highlighted item is where you are."
             },
             {
               "n": 2,
               "x": 0.6,
-              "y": 43,
+              "y": 48.8,
               "w": 18.7,
               "h": 12.3,
               "label": "Badges",
@@ -177,7 +177,7 @@
             {
               "n": 3,
               "x": 0.6,
-              "y": 60.3,
+              "y": 66,
               "w": 18.7,
               "h": 6.5,
               "label": "Guide",
@@ -186,7 +186,7 @@
             {
               "n": 4,
               "x": 0.6,
-              "y": 71.6,
+              "y": 77.3,
               "w": 18.7,
               "h": 6.5,
               "label": "Admin portal",
@@ -234,14 +234,14 @@
               "x": 3.1,
               "y": 27.1,
               "w": 93.8,
-              "h": 34.4,
+              "h": 41,
               "label": "Other pages",
               "text": "Notebook, Resources, News, this Guide and your Vault."
             },
             {
               "n": 3,
               "x": 3.3,
-              "y": 69.7,
+              "y": 76.3,
               "w": 93.3,
               "h": 14.2,
               "label": "Tour and sandbox",
@@ -250,7 +250,7 @@
             {
               "n": 4,
               "x": 3.3,
-              "y": 82.9,
+              "y": 89.6,
               "w": 93.3,
               "h": 7.6,
               "label": "Sign out",
@@ -1050,7 +1050,8 @@
           "h": 2100,
           "device": "desktop",
           "caption": "A supervisor’s calendar",
-          "alt": "The Calendar on a computer for a mentor showing Both: counts of overdue items, the next seven days and the month, an Overdue card, and a month grid with coloured training, task and check-in labels marked with each person’s initials. Today’s items are listed on the right."
+          "alt": "The Calendar on a computer for a mentor showing Both: counts of overdue items, the next seven days and the month, an Overdue card, and a month grid with coloured training, task and check-in labels marked with each person’s initials. Today’s items are listed on the right.",
+          "hotspots": []
         },
         {
           "src": "/guide-media/calendar-2.webp",
@@ -1058,7 +1059,8 @@
           "h": 1688,
           "device": "phone",
           "caption": "On a phone",
-          "alt": "The Calendar on a phone: the month grid with coloured dots under days that have something due, and today’s training and task listed below."
+          "alt": "The Calendar on a phone: the month grid with coloured dots under days that have something due, and today’s training and task listed below.",
+          "hotspots": []
         }
       ],
       "steps": [
@@ -1859,7 +1861,7 @@
               "n": 1,
               "x": 23.8,
               "y": 3.2,
-              "w": 72.3,
+              "w": 59.4,
               "h": 2.6,
               "label": "Training plan",
               "text": "Every assigned module with its due date, score and status."
@@ -1973,7 +1975,7 @@
             {
               "n": 3,
               "x": 0.6,
-              "y": 48.3,
+              "y": 51.9,
               "w": 18.7,
               "h": 43.6,
               "label": "Admin menu",
@@ -4627,7 +4629,8 @@
           "h": 1950,
           "device": "desktop",
           "caption": "Demo accounts",
-          "alt": "Demo accounts in Client accounts: a Rebuild demo button and a card for each demo person (owner, admin, department lead, training supervisor, employee, trainee, guest, placed team member and client contact) with what each one is for."
+          "alt": "Demo accounts in Client accounts: a Rebuild demo button and a card for each demo person (owner, admin, department lead, training supervisor, employee, trainee, guest, placed team member and client contact) with what each one is for.",
+          "hotspots": []
         }
       ],
       "steps": [
