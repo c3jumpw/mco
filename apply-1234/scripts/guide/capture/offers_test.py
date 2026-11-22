@@ -7,6 +7,8 @@ import run as base
 
 errors, calls = [], []
 offers = {}          # id -> row
+COMPANY = {"offer_defaults": {}}
+JOB_SETTINGS = {}
 TOKEN = "tok_" + "x" * 30
 
 def cors(route, status=200, body=None):
@@ -112,16 +114,25 @@ def handler(route, request):
         if m and "application_id" not in url:
             o = offers.get(m.group(1))
             return ok(o if single else ([o] if o else []))
-        rows = sorted(offers.values(), key=lambda x: x["created_at"], reverse=True)
+        am = re.search(r"application_id=eq\.([\w-]+)", url)
+        rows = sorted([o for o in offers.values() if not am or o["application_id"] == am.group(1)], key=lambda x: x["created_at"], reverse=True)
         return ok(rows[0] if single and rows else rows)
     if "/rest/v1/hiring_applications" in url and method == "PATCH":
         calls.append({"patch_app": json.loads(request.post_data or "{}")})
         return route.fulfill(status=204, body="")
+    if "/rest/v1/hiring_company" in url:
+        if method == "PATCH":
+            body = json.loads(request.post_data or "{}"); calls.append({"patch_company": body}); COMPANY.update(body)
+            return route.fulfill(status=204, body="")
+        return ok(COMPANY if single else [COMPANY])
     if "/rest/v1/hiring_jobs" in url and method == "PATCH":
-        calls.append({"patch_job": json.loads(request.post_data or "{}")})
+        body = json.loads(request.post_data or "{}")
+        calls.append({"patch_job": body})
+        if "settings" in body: JOB_SETTINGS.clear(); JOB_SETTINGS.update(body["settings"])
         return route.fulfill(status=204, body="")
     if "/rest/v1/hiring_jobs" in url and method == "GET":
-        return ok(JOB_O if single else [JOB_O])
+        j = dict(JOB_O, settings=dict(JOB_SETTINGS))
+        return ok(j if single else [j])
     return base.handler(route, request)
 
 JOB_O = dict(copy.deepcopy(JOB), posting=JOB["posting"] + "\n\n## Details\n- **Location:** Remote\n- **Schedule:** Monday to Friday, flexible hours\n- **Pay:** TBD")
@@ -158,13 +169,12 @@ def main(b):
     field("Company name").fill("Brand Craftsman")
     field("Engagement").fill("Independent contractor, full-time hours")
     field("Start date").fill("2026-12-01")
-    field("Amount").fill("6.00")
+    field("Pay").fill("6.00")
     field("Paid").fill("twice a month")
     field("Email").fill("alex@brand.test")
     # manager name is the first "Name" field inside the Hiring manager card
-    card = pg.locator(".rounded-2xl, [class*='rounded']").filter(has_text="replies go to this person").first
-    card.locator("input").nth(0).fill("Alex Rivera")
-    card.locator("input").nth(1).fill("CEO")
+    field("Name").fill("Alex Rivera")
+    field("Title").fill("CEO")
     pg.wait_for_timeout(1200)
     preview = pg.locator("article").first
     check("Brand Craftsman" in preview.inner_text() and "USD 6.00 per hour" in preview.inner_text(), "preview fills company and pay")
@@ -252,6 +262,43 @@ def main(b):
     check(pg.get_by_text(re.compile("Read the transcript")).count() == 1, "transcript readable on the profile")
     pg.get_by_text("Recordings and transcripts").scroll_into_view_if_needed()
     pg.screenshot(path=f"{SHOTS}/test-offer-profile.png", full_page=True)
+    ctx.close()
+
+    # ── Company defaults, the job's Offer tab, and an offer that starts from them ──
+    JOB_SETTINGS.clear()      # start this job fresh (the earlier send saved its details)
+    ctx, pg = mk(1280, 1000, admin=True)
+    pg.goto(f"{BASE}/admin/settings"); pg.wait_for_timeout(1200)
+    card = pg.locator("#offer-defaults").locator("xpath=..")
+    card.get_by_role("button", name="Edit").click(); pg.wait_for_timeout(300)
+    card.locator("label", has_text=re.compile("^Company name")).locator("input").fill("Kestrel Studio")
+    card.locator("label", has_text=re.compile("^Name")).locator("input").fill("Rae Morgan")
+    card.locator("label", has_text=re.compile("^Email")).locator("input").fill("rae@kestrel.test")
+    card.locator("label", has_text=re.compile("^Engagement")).locator("input").fill("Independent contractor")
+    card.locator("label", has_text=re.compile("^Paid")).locator("input").fill("every two weeks")
+    pg.get_by_role("button", name="Save offer defaults").click(); pg.wait_for_timeout(600)
+    saved = next((c["patch_company"] for c in calls if "patch_company" in c), {})
+    check(saved.get("offer_defaults", {}).get("company") == "Kestrel Studio" and saved["offer_defaults"].get("manager_email") == "rae@kestrel.test", "Settings saves the company's offer defaults")
+    pg.screenshot(path=f"{SHOTS}/test-offer-company.png", full_page=True)
+    pg.goto(f"{BASE}/admin/jobs/j1?tab=offer"); pg.wait_for_timeout(1200)
+    check(pg.locator("label", has_text=re.compile("^Company name")).locator("input").get_attribute("placeholder") == "Kestrel Studio", "job Offer tab shows the company's values as placeholders")
+    pg.locator("label", has_text=re.compile("^Starting pay")).locator("input").fill("120.00")
+    pg.locator("label", has_text=re.compile("^Provisional period")).locator("input").fill("90 days")
+    pg.locator("label", has_text=re.compile("^Counted")).locator("select").select_option("per week")
+    pg.wait_for_timeout(1500)
+    od = JOB_SETTINGS.get("offer_defaults", {})
+    check(od.get("pay_amount") == "120.00" and od.get("provisional_period") == "90 days" and od.get("pay_period") == "per week" and "company" not in od, f"job saves only its own choices: {od}")
+    pg.screenshot(path=f"{SHOTS}/test-offer-jobtab.png", full_page=True)
+    # Marcus (a2) gets an offer that starts from company + job
+    pg.goto(f"{BASE}/admin/candidates/a2"); pg.wait_for_timeout(1200)
+    pg.get_by_role("button", name="Prepare an offer").click(); pg.wait_for_timeout(1200)
+    new = [o for o in offers.values() if o["application_id"] == "a2"][-1]
+    f = new["fields"]
+    check(f.get("company") == "Kestrel Studio" and f.get("manager_name") == "Rae Morgan" and f.get("pay_amount") == "120.00"
+          and f.get("pay_period") == "per week" and f.get("provisional_period") == "90 days" and f.get("pay_schedule") == "every two weeks", f"offer starts from company + job: {f}")
+    check(pg.locator("details[open]").count() == 0, "company, role and manager are folded away when complete")
+    check(pg.get_by_text("For Marcus", exact=True).count() == 1, "the offer opens on what's specific to the person")
+    check("your first 90 days" in pg.locator("article").inner_text(), "preview shows the provisional period")
+    pg.screenshot(path=f"{SHOTS}/test-offer-layered.png")
     ctx.close()
 
     # ── Typed signature and decline, on a phone ──

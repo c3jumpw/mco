@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Application, Job } from '../lib/types';
-import { OFFER_STATUS, fmtDay, fmtStamp, offerDefaults, payText, type Offer } from '../lib/offers';
+import { OFFER_STATUS, fmtDay, fmtStamp, loadCompanyDefaults, offerDefaults, payText, type Offer } from '../lib/offers';
 import { Button, Card, Pill, SectionTitle, Spinner, useToast } from '../ui';
 import { OfferRecord } from './OfferEditor';
 
@@ -20,9 +20,9 @@ export function OfferCard({ app, job }: { app: Application; job: Job | null }) {
   const prepare = async () => {
     if (!job) return;
     setBusy(true);
-    const d = offerDefaults(job);
+    const d = offerDefaults(job, await loadCompanyDefaults());
     const { data, error } = await supabase.from('hiring_offers')
-      .insert({ application_id: app.id, job_id: app.job_id, fields: d.fields, letter: d.letter, terms: d.terms, attachments: [] })
+      .insert({ application_id: app.id, job_id: app.job_id, fields: d.fields, letter: d.letter, terms: d.terms, attachments: d.attachments })
       .select('id').single();
     setBusy(false);
     if (error) toast(error.message, 'bad'); else nav(`/admin/candidates/${app.id}/offer/${data.id}`);

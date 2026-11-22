@@ -11,6 +11,7 @@ import PuzzleTab from './job/PuzzleTab';
 import ActivityTab from './job/ActivityTab';
 import QuestionsTab from './job/QuestionsTab';
 import InterviewTab from './job/InterviewTab';
+import OfferTab from './job/OfferTab';
 import Pipeline from './Pipeline';
 import ExportModal from './ExportModal';
 import { BEFORE_REFRESH } from './refresh';
@@ -18,7 +19,7 @@ import { useRole } from './role';
 import { activityWarnings } from '../lib/steps';
 import AccessCard from './job/AccessCard';
 
-export type TabId = 'overview' | 'posting' | 'puzzle' | 'activity' | 'questions' | 'interview' | 'candidates';
+export type TabId = 'overview' | 'posting' | 'puzzle' | 'activity' | 'questions' | 'interview' | 'offer' | 'candidates';
 export type Patch = (p: Partial<Job>) => void;
 
 export default function JobEditor() {
@@ -82,6 +83,7 @@ export default function JobEditor() {
     { id: 'activity', label: 'Activity page' },
     { id: 'questions', label: `Steps${job.questions.length ? ` (${job.questions.length})` : ''}` },
     { id: 'interview', label: 'Interview' },
+    { id: 'offer', label: 'Offer' },
     { id: 'candidates', label: `Candidates${stats?.submissions ? ` (${stats.submissions})` : ''}` },
   ];
 
@@ -112,6 +114,7 @@ export default function JobEditor() {
         {tab === 'activity' && <ActivityTab job={job} patch={patch} />}
         {tab === 'questions' && <QuestionsTab job={job} patch={patch} />}
         {tab === 'interview' && <InterviewTab job={job} patch={patch} />}
+        {tab === 'offer' && <OfferTab job={job} patch={patch} />}
         {tab === 'candidates' && <Pipeline jobId={job.id} jobs={[job]} />}
       </div>
     </div>

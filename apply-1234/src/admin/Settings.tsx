@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import type { Template } from '../lib/types';
 import { fmtDate, store } from '../lib/util';
 import { listTemplates } from './data';
+import { CompanyOfferCard } from './CompanyOfferCard';
 import { Button, Card, Input, Pill, SectionTitle, Toggle, useToast } from '../ui';
 
 interface AdminRow { email: string; user_id: string | null; added_at: string; claimed_at: string | null; notify_applications?: boolean; notify_messages?: boolean }
@@ -63,6 +64,8 @@ export default function Settings({ email }: { email: string }) {
             <Link to="/admin/guide"><Button variant="ghost">Open the full guide</Button></Link>
           </div>
         </Card>
+
+        <CompanyOfferCard />
 
         <Card>
           <SectionTitle sub="People on this list can create a login and see every job and candidate.">Hiring team</SectionTitle>

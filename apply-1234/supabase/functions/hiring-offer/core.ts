@@ -31,6 +31,7 @@ export interface Store {
   setStage(appId: string, stage: string): Promise<void>;
   isStaff(userId: string, jobId: string): Promise<boolean>;
   upload(path: string, bytes: Uint8Array, type: string): Promise<void>;
+  copy(from: string, to: string): Promise<void>;
   download(path: string): Promise<Uint8Array | null>;
   signedUrl(path: string, seconds: number, downloadName?: string): Promise<string | null>;
 }
@@ -98,9 +99,18 @@ export async function handle(req: Request, d: Deps): Promise<Response> {
       const hash = await sha256Hex(documentText(letter, terms, offer.attachments || []));
       const token = (d.token || randomToken)();
       const cc = ccList(body.cc, app.email);
+      // Attachments shared from the company or job settings are copied into this offer's folder, so the
+      // sent offer keeps its own copy even if the shared file is later replaced or removed.
+      const own = `${base(offer)}/`;
+      const attachments: OfferFile[] = [];
+      for (const [i, a] of (offer.attachments || []).entries()) {
+        if (a.path.startsWith(own)) { attachments.push(a); continue; }
+        const to = `${own}attachments/${Date.now().toString(36)}${i}-${a.path.split('/').pop()}`;
+        try { await s.copy(a.path, to); attachments.push({ ...a, path: to }); } catch { attachments.push(a); }
+      }
       const events = [...(offer.events || []), { at, type: 'sent', by: user.email, ip: meta.ip, ua: meta.ua, note: `to ${app.email}${cc.length ? `, cc ${cc.join(', ')}` : ''}` }];
       const sent = await s.patch(offer.id, {
-        status: 'sent', token, fields: { ...offer.fields, cc }, final_letter: letter, final_terms: terms, doc_hash: hash, sent_at: at, sent_by: user.email,
+        status: 'sent', token, fields: { ...offer.fields, cc }, attachments, final_letter: letter, final_terms: terms, doc_hash: hash, sent_at: at, sent_by: user.email,
         sent_meta: meta, expires_at: `${offer.fields.expires}T23:59:59Z`, events,
       }, ['draft']);
       if (!sent) return fail('already_sent', 409);

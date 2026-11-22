@@ -5,32 +5,22 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Application, Job } from '../lib/types';
 import {
-  CURRENCIES, ccList, DEFAULT_LETTER, DEFAULT_TERMS, EMPLOYMENT_TYPES, EVENT_LABELS, OFFER_STATUS, PAY_PERIODS, TEAM_BUCKET,
-  defaultsToKeep, fillOffer, fmtDay, fmtStamp, missingForSend, offerCall, offerError, offerTitle, offerVars, placeholdersIn, uaLabel,
-  type Offer, type OfferFields, type OfferFile,
+  CURRENCIES, ccList, DEFAULT_LETTER, DEFAULT_TERMS, EMPLOYMENT_TYPES, EVENT_LABELS, OFFER_STATUS, PAY_PERIODS,
+  defaultsToKeep, fillOffer, loadCompanyDefaults, teamFileLink, fmtDay, fmtStamp, missingForSend, offerCall, offerError, offerTitle, offerVars, placeholdersIn, uaLabel,
+  type Offer, type OfferDefaults, type OfferFields, type OfferFile,
 } from '../lib/offers';
 import { fmtSize } from '../lib/files';
 import { getApplication, getJob, updateJob } from './data';
+import { useRole } from './role';
 import { OfferDocument } from '../candidate/OfferDocument';
+import { AddFileButton, AttachmentList } from './OfferDefaultsForm';
 import { Button, Card, CopyButton, Field, Input, Loading, Modal, Pill, SectionTitle, Segmented, Select, Spinner, Textarea, cx, useToast } from '../ui';
 
-const OFFER_FILE_TYPES: Record<string, string> = {
-  pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  odt: 'application/vnd.oasis.opendocument.text', rtf: 'application/rtf', txt: 'text/plain',
-  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
-};
-const FILLINS = ['first', 'candidate_name', 'company', 'position', 'start_date', 'pay', 'pay_schedule', 'schedule', 'location',
+const FILLINS = ['first', 'candidate_name', 'company', 'position', 'start_date', 'pay', 'pay_schedule', 'schedule', 'location', 'provisional_period',
   'employment_type', 'expires', 'manager_name', 'manager_title', 'manager_contact', 'benefits'];
 
-export const slugName = (n: string) => n.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file';
+export { slugName, teamFileLink } from '../lib/offers';
 export const offerBase = (o: Pick<Offer, 'job_id' | 'application_id' | 'id'>) => `${o.job_id}/${o.application_id}/offers/${o.id}`;
-
-/** A short-lived link to a file in the hiring team's private storage. */
-export async function teamFileLink(path: string, download?: string) {
-  const { data, error } = await supabase.storage.from(TEAM_BUCKET).createSignedUrl(path, 600, download ? { download } : undefined);
-  if (error) throw error;
-  return data.signedUrl;
-}
 
 /** Everything recorded about an offer, as a file to keep with the signed PDF. */
 export function auditTrail(o: Offer, app: Pick<Application, 'name' | 'email'>) {
@@ -94,9 +84,17 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
   const [terms, setTerms] = useState(offer.terms);
   const [files, setFiles] = useState<OfferFile[]>(offer.attachments || []);
   const [view, setView] = useState<'edit' | 'preview'>('edit');
+  const role = useRole();
+  const first = app.name.split(' ')[0];
+  const [company, setCompany] = useState<OfferDefaults>({});
+  useEffect(() => { loadCompanyDefaults().then(setCompany); }, []);
+  // The folded details start open when something there still needs filling in.
+  const [detailsOpen, setDetailsOpen] = useState(() => {
+    const ff = offer.fields || {};
+    return !(ff.company && ff.position && ff.employment_type && ff.manager_name && ff.manager_email);
+  });
   const [saved, setSaved] = useState<'saved' | 'saving' | 'error'>('saved');
   const [sendOpen, setSendOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const focused = useRef<'letter' | 'terms'>('letter');
   const areas = { letter: useRef<HTMLTextAreaElement>(null), terms: useRef<HTMLTextAreaElement>(null) };
 
@@ -135,23 +133,6 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(at + text.length, at + text.length); });
   };
 
-  const upload = async (list: FileList | null) => {
-    if (!list?.length) return;
-    setUploading(true);
-    const added: OfferFile[] = [];
-    for (const file of Array.from(list)) {
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if (!OFFER_FILE_TYPES[ext]) { toast(`${file.name}: choose a PDF, Word, text or image file.`, 'bad'); continue; }
-      if (file.size > 20 * 1024 * 1024) { toast(`${file.name} is over 20 MB.`, 'bad'); continue; }
-      const path = `${offerBase(offer)}/attachments/${Date.now().toString(36)}-${slugName(file.name)}.${ext}`;
-      const { error } = await supabase.storage.from(TEAM_BUCKET).upload(path, file, { contentType: OFFER_FILE_TYPES[ext], upsert: false });
-      if (error) toast(`${file.name}: ${error.message}`, 'bad');
-      else added.push({ path, name: file.name.slice(0, 160), size: file.size, type: OFFER_FILE_TYPES[ext] });
-    }
-    setUploading(false);
-    if (added.length) { setFiles((x) => [...x, ...added]); touch(); }
-  };
-
   const discard = async () => {
     if (!confirm('Delete this draft offer?')) return;
     clearTimeout(timer.current); dirty.current = false;
@@ -187,32 +168,13 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] items-start">
         <div className={cx('space-y-5 min-w-0', view === 'preview' && 'hidden lg:block')}>
           <Card>
-            <SectionTitle>Company</SectionTitle>
+            <SectionTitle sub="The only things that usually change from one offer to the next.">For {first}</SectionTitle>
             <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Company name"><Input value={f.company || ''} onChange={(e) => set('company', e.target.value)} /></Field>
-              <Field label="Address" hint="Optional. Shown under the name."><Input value={f.company_address || ''} onChange={(e) => set('company_address', e.target.value)} /></Field>
-            </div>
-          </Card>
-
-          <Card>
-            <SectionTitle>The role</SectionTitle>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Position"><Input value={f.position || ''} onChange={(e) => set('position', e.target.value)} /></Field>
-              <Field label="Engagement" hint="Pick one or type your own.">
-                <Input list="offer-employment" value={f.employment_type || ''} onChange={(e) => set('employment_type', e.target.value)} placeholder="e.g. Full-time employee" />
-                <datalist id="offer-employment">{EMPLOYMENT_TYPES.map((t) => <option key={t} value={t} />)}</datalist>
-              </Field>
               <Field label="Start date"><Input type="date" value={f.start_date || ''} onChange={(e) => set('start_date', e.target.value)} /></Field>
-              <Field label="Offer expires" hint="They can sign until the end of this day (UTC)."><Input type="date" value={f.expires || ''} onChange={(e) => set('expires', e.target.value)} /></Field>
-              <Field label="Location"><Input value={f.location || ''} onChange={(e) => set('location', e.target.value)} placeholder="e.g. Remote" /></Field>
-              <Field label="Schedule"><Input value={f.schedule || ''} onChange={(e) => set('schedule', e.target.value)} placeholder="e.g. Monday to Friday, flexible hours" /></Field>
+              <Field label="Sign by" hint="They can sign until the end of this day (UTC)."><Input type="date" value={f.expires || ''} onChange={(e) => set('expires', e.target.value)} /></Field>
             </div>
-          </Card>
-
-          <Card>
-            <SectionTitle>Pay</SectionTitle>
-            <div className="grid grid-cols-[1fr_96px] sm:grid-cols-[1fr_96px_150px] gap-3">
-              <Field label="Amount"><Input inputMode="decimal" value={f.pay_amount || ''} onChange={(e) => set('pay_amount', e.target.value)} placeholder="e.g. 6.00" /></Field>
+            <div className="grid grid-cols-[1fr_96px] sm:grid-cols-[1fr_96px_150px] gap-3 mt-3">
+              <Field label="Pay"><Input inputMode="decimal" value={f.pay_amount || ''} onChange={(e) => set('pay_amount', e.target.value)} placeholder="e.g. 100.00" /></Field>
               <Field label="Currency">
                 <Input list="offer-currency" value={f.pay_currency || ''} onChange={(e) => set('pay_currency', e.target.value.toUpperCase().slice(0, 3))} />
                 <datalist id="offer-currency">{CURRENCIES.map((c) => <option key={c} value={c} />)}</datalist>
@@ -224,21 +186,48 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
                 </Select>
               </Field>
             </div>
-            <div className="grid sm:grid-cols-2 gap-3 mt-3">
-              <Field label="Paid" hint="e.g. twice a month, by bank transfer"><Input value={f.pay_schedule || ''} onChange={(e) => set('pay_schedule', e.target.value)} /></Field>
-              <Field label="Benefits" hint="Optional."><Input value={f.benefits || ''} onChange={(e) => set('benefits', e.target.value)} placeholder="e.g. paid time off, equipment allowance" /></Field>
-            </div>
           </Card>
 
-          <Card>
-            <SectionTitle sub="The offer email comes from your company name through apply1234, and replies go to this person.">Hiring manager</SectionTitle>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Name"><Input value={f.manager_name || ''} onChange={(e) => set('manager_name', e.target.value)} /></Field>
-              <Field label="Title"><Input value={f.manager_title || ''} onChange={(e) => set('manager_title', e.target.value)} placeholder="e.g. CEO" /></Field>
-              <Field label="Email"><Input type="email" value={f.manager_email || ''} onChange={(e) => set('manager_email', e.target.value.trim())} /></Field>
-              <Field label="Phone" hint="Optional."><Input type="tel" value={f.manager_phone || ''} onChange={(e) => set('manager_phone', e.target.value)} /></Field>
+          <details className="group rounded-2xl bg-card border border-line" open={detailsOpen} onToggle={(e) => setDetailsOpen((e.target as HTMLDetailsElement).open)}>
+            <summary className="list-none cursor-pointer px-5 py-4 flex items-start justify-between gap-3">
+              <span className="min-w-0">
+                <span className="block font-semibold">Company, role and hiring manager</span>
+                <span className="block text-[13px] text-muted mt-0.5 truncate">
+                  {[f.company, f.position, f.employment_type, f.manager_name].filter(Boolean).join(' · ') || 'Not filled in yet'}
+                </span>
+                <span className="block text-[12px] text-muted mt-1">Filled in from your company and job offer details. Changes here apply to this offer only.</span>
+              </span>
+              <span className="text-sm text-muted shrink-0 group-open:hidden">Edit</span>
+              <span className="text-sm text-muted shrink-0 hidden group-open:inline">Close</span>
+            </summary>
+            <div className="px-5 pb-5 space-y-5 border-t border-line pt-4">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <Field label="Company name"><Input value={f.company || ''} onChange={(e) => set('company', e.target.value)} /></Field>
+                <Field label="Address" hint="Optional. Shown under the name."><Input value={f.company_address || ''} onChange={(e) => set('company_address', e.target.value)} /></Field>
+                <Field label="Position"><Input value={f.position || ''} onChange={(e) => set('position', e.target.value)} /></Field>
+                <Field label="Engagement" hint="Pick one or type your own.">
+                  <Input list="offer-employment" value={f.employment_type || ''} onChange={(e) => set('employment_type', e.target.value)} placeholder="e.g. Full-time employee" />
+                  <datalist id="offer-employment">{EMPLOYMENT_TYPES.map((t) => <option key={t} value={t} />)}</datalist>
+                </Field>
+                <Field label="Provisional period" hint="Optional, e.g. 90 days."><Input value={f.provisional_period || ''} onChange={(e) => set('provisional_period', e.target.value)} /></Field>
+                <Field label="Location"><Input value={f.location || ''} onChange={(e) => set('location', e.target.value)} placeholder="e.g. Remote" /></Field>
+                <Field label="Schedule"><Input value={f.schedule || ''} onChange={(e) => set('schedule', e.target.value)} placeholder="e.g. Monday to Friday, flexible hours" /></Field>
+                <Field label="Paid" hint="e.g. every two weeks (bi-weekly)"><Input value={f.pay_schedule || ''} onChange={(e) => set('pay_schedule', e.target.value)} /></Field>
+                <Field label="Benefits" hint="Optional."><Input value={f.benefits || ''} onChange={(e) => set('benefits', e.target.value)} placeholder="e.g. paid time off" /></Field>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Hiring manager</p>
+                <p className="text-[12px] text-muted mb-2">The offer email comes from your company name through apply1234, and replies go to this person.</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <Field label="Name"><Input value={f.manager_name || ''} onChange={(e) => set('manager_name', e.target.value)} /></Field>
+                  <Field label="Title"><Input value={f.manager_title || ''} onChange={(e) => set('manager_title', e.target.value)} placeholder="e.g. CEO" /></Field>
+                  <Field label="Email"><Input type="email" value={f.manager_email || ''} onChange={(e) => set('manager_email', e.target.value.trim())} /></Field>
+                  <Field label="Phone" hint="Optional."><Input type="tel" value={f.manager_phone || ''} onChange={(e) => set('manager_phone', e.target.value)} /></Field>
+                </div>
+              </div>
+              {job && <p className="text-[13px] text-muted">To change these for every offer, edit <Link className="underline underline-offset-2 hover:text-ink" to={`/admin/jobs/${job.id}?tab=offer`}>the job’s offer details</Link>{role === 'admin' ? <> or <Link className="underline underline-offset-2 hover:text-ink" to="/admin/settings#offer-defaults">your company’s</Link></> : null}.</p>}
             </div>
-          </Card>
+          </details>
 
           <Card>
             <SectionTitle sub="Words in {braces} fill in from the fields above. Tap one to add it where you're typing."
@@ -267,23 +256,8 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
 
           <Card>
             <SectionTitle sub="An NDA, handbook or anything else that's part of the offer. The candidate opens them before signing.">Attachments</SectionTitle>
-            {files.length > 0 && (
-              <ul className="space-y-2 mb-3">
-                {files.map((a, i) => (
-                  <li key={a.path} className="flex items-center gap-3 rounded-xl border border-line px-3 py-2">
-                    <span className="grid place-items-center h-8 w-7 rounded bg-accent-soft text-accent text-[9px] font-bold uppercase">{a.name.split('.').pop()}</span>
-                    <span className="min-w-0 flex-1 text-sm truncate">{a.name}<span className="text-muted"> · {fmtSize(a.size || 0)}</span></span>
-                    <Button size="sm" variant="ghost" onClick={async () => window.open(await teamFileLink(a.path), '_blank', 'noopener')}>Open</Button>
-                    <Button size="sm" variant="ghost" onClick={() => { setFiles((x) => x.filter((_, j) => j !== i)); touch(); }}>Remove</Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <label className={cx('inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-dashed border-line text-sm cursor-pointer hover:border-ink/30', uploading && 'opacity-50 pointer-events-none')}>
-              {uploading ? <><Spinner /> Uploading</> : '+ Add a file'}
-              <input type="file" multiple className="sr-only" accept={Object.keys(OFFER_FILE_TYPES).map((x) => `.${x}`).join(',')}
-                onChange={(e) => { upload(e.target.files); e.target.value = ''; }} />
-            </label>
+            <AttachmentList files={files} onRemove={(i) => { setFiles((x) => x.filter((_, j) => j !== i)); touch(); }} />
+            <AddFileButton folder={`${offerBase(offer)}/attachments`} onAdd={(added) => { setFiles((x) => [...x, ...added]); touch(); }} />
             <p className="text-xs text-muted mt-2">PDF, Word, text or image, up to 20 MB each.</p>
           </Card>
         </div>
@@ -295,13 +269,13 @@ function Draft({ app, job, offer, setOffer }: { app: Application; job: Job | nul
       </div>
 
       <SendModal open={sendOpen} onClose={() => setSendOpen(false)} app={app} job={job} offer={{ ...offer, fields: f, letter, terms, attachments: files }}
-        missing={missing} onSent={(o) => setOffer(o)} flush={flush} />
+        missing={missing} onSent={(o) => setOffer(o)} flush={flush} company={company} />
     </>
   );
 }
 
-function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
-  { open: boolean; onClose: () => void; app: Application; job: Job | null; offer: Offer; missing: string[]; onSent: (o: Offer) => void; flush: () => Promise<boolean> }) {
+function SendModal({ open, onClose, app, job, offer, missing, onSent, flush, company }:
+  { open: boolean; onClose: () => void; app: Application; job: Job | null; offer: Offer; missing: string[]; onSent: (o: Offer) => void; flush: () => Promise<boolean>; company: OfferDefaults }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -324,7 +298,9 @@ function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
       return;
     }
     if (remember && job) {
-      await updateJob(job.id, { settings: { ...(job.settings || {}), offer_defaults: defaultsToKeep(f, offer.letter, offer.terms) } });
+      const fresh = await getJob(job.id);   // the job's details may have changed since this page opened
+      const settings = fresh?.settings || job.settings || {};
+      await updateJob(job.id, { settings: { ...settings, offer_defaults: defaultsToKeep(f, offer.letter, offer.terms, offer.attachments, company, settings.offer_defaults || {}) } });
     }
     const { data } = await supabase.from('hiring_offers').select('*').eq('id', offer.id).single();
     setBusy(false); onClose();
@@ -364,7 +340,7 @@ function SendModal({ open, onClose, app, job, offer, missing, onSent, flush }:
           <p className="text-sm text-ink-2 mt-2">After sending, the offer can’t be changed. To change it, withdraw it and send a new one.</p>
           <label className="mt-4 flex items-start gap-2.5 text-sm cursor-pointer">
             <input type="checkbox" className="mt-0.5 h-4 w-4 accent-ink" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-            <span>Remember the company, manager, pay schedule, letter and terms for this job’s next offer</span>
+            <span>Save the company, manager, terms and attachments as this job’s offer details, so the next offer starts from them</span>
           </label>
           {err && <p className="mt-4 rounded-xl bg-bad-soft text-bad text-sm px-4 py-3">{err}</p>}
           <div className="mt-5 flex justify-end gap-2">
@@ -398,7 +374,7 @@ function SentOffer({ app, offer, reload }: { app: Application; offer: Offer; rel
   };
   const fresh = async () => {
     const { data, error } = await supabase.from('hiring_offers').insert({
-      application_id: offer.application_id, job_id: offer.job_id, fields: offer.fields,
+      application_id: offer.application_id, job_id: offer.job_id, fields: { ...offer.fields, cc: undefined },
       letter: offer.letter, terms: offer.terms, attachments: offer.attachments,
     }).select('id').single();
     if (error) toast(error.message, 'bad'); else nav(`/admin/candidates/${app.id}/offer/${data.id}`);

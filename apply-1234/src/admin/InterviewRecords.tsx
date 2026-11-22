@@ -2,11 +2,10 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Application, InterviewRecord } from '../lib/types';
-import { TEAM_BUCKET } from '../lib/offers';
+import { TEAM_BUCKET, slugName, teamFileLink } from '../lib/offers';
 import { fmtSize } from '../lib/files';
 import { fmtDate, uid } from '../lib/util';
 import { Button, CopyButton, Field, Input, Segmented, Spinner, Textarea, cx, useToast } from '../ui';
-import { slugName, teamFileLink } from './OfferEditor';
 
 const RECORD_FILE_TYPES: Record<string, string> = {
   pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

@@ -6,6 +6,15 @@ export * from '../../supabase/functions/hiring-offer/offer';
 
 export const TEAM_BUCKET = 'hiring-team';
 
+export const slugName = (n: string) => n.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file';
+
+/** A short-lived link to a file in the hiring team's private storage. */
+export async function teamFileLink(path: string, download?: string) {
+  const { data, error } = await supabase.storage.from(TEAM_BUCKET).createSignedUrl(path, 600, download ? { download } : undefined);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
 export type OfferStatus = 'draft' | 'sent' | 'viewed' | 'signed' | 'declined' | 'withdrawn';
 export interface Offer {
   id: string; application_id: string; job_id: string; status: OfferStatus;
@@ -65,25 +74,62 @@ export const OFFER_ERRORS: Record<string, string> = {
 };
 export const offerError = (code?: string) => OFFER_ERRORS[code || ''] || OFFER_ERRORS.server;
 
-/** Pre-fills a new offer from the job and whatever was remembered from its last offer. */
-export function offerDefaults(job: { title: string; posting: string; settings?: { offer_defaults?: OfferFields & { letter?: string; terms?: string } } }) {
-  const { letter, terms, ...saved } = job.settings?.offer_defaults || {};
+/** Defaults an offer starts from. Company-wide ones live in hiring_company; each job can override them
+ *  in settings.offer_defaults. `pay_amount` on a job is its internal starting pay (never shown publicly). */
+export type OfferDefaults = Omit<OfferFields, 'cc' | 'start_date' | 'expires'> & {
+  letter?: string; terms?: string; attachments?: OfferFile[]; sign_days?: number;
+};
+
+const isSet = (v: unknown) => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) ? v.length > 0 : v != null);
+const setOnly = <T extends object>(o?: T | null) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => isSet(v))) as Partial<T>;
+
+/** Company defaults with the job's own choices on top. Attachments from both are used. */
+export function mergeDefaults(company?: OfferDefaults | null, job?: OfferDefaults | null): OfferDefaults {
+  const atts = [...(company?.attachments || []), ...(job?.attachments || [])];
+  const seen = new Set<string>();
+  return { ...setOnly(company), ...setOnly(job), attachments: atts.filter((a) => !seen.has(a.path) && !!seen.add(a.path)) };
+}
+
+export async function loadCompanyDefaults(): Promise<OfferDefaults> {
+  const { data } = await supabase.from('hiring_company').select('offer_defaults').maybeSingle();
+  return ((data as { offer_defaults?: OfferDefaults } | null)?.offer_defaults) || {};
+}
+
+export async function saveCompanyDefaults(d: OfferDefaults) {
+  const { error } = await supabase.from('hiring_company').update({ offer_defaults: d }).eq('id', true);
+  return error;
+}
+
+const plusDays = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
+
+/** Pre-fills a new offer: company defaults, then the job's offer details, then what the posting says. */
+export function offerDefaults(job: { title: string; posting: string; settings?: { offer_defaults?: OfferDefaults } }, company?: OfferDefaults | null) {
+  const { letter, terms, attachments, sign_days, ...saved } = mergeDefaults(company, job.settings?.offer_defaults);
   const line = (label: string) => (job.posting.match(new RegExp(`^\\s*[-*]\\s*\\**${label}\\**\\s*:\\s*(.+)$`, 'im'))?.[1] || '').replace(/\*\*/g, '').trim();
   const fromPosting = (label: string) => { const v = line(label); return /^\[|\btbd\b|to be (decided|confirmed)/i.test(v) ? '' : v; };
-  const plus = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
   const fields: OfferFields = {
     pay_currency: 'USD', pay_period: 'per hour',
     ...saved,
     position: job.title,
     location: saved.location || fromPosting('Location'),
     schedule: saved.schedule || fromPosting('Schedule') || fromPosting('Hours'),
-    start_date: '', expires: plus(7), pay_amount: '',
+    start_date: '', expires: plusDays(Number(sign_days) > 0 ? Number(sign_days) : 7), pay_amount: saved.pay_amount || '',
   };
-  return { fields, letter: letter || DEFAULT_LETTER, terms: terms ?? DEFAULT_TERMS };
+  return { fields, letter: letter || DEFAULT_LETTER, terms: terms || DEFAULT_TERMS, attachments: attachments || [] };
 }
 
-/** What to remember on the job for its next offer: everything except what's specific to this person. */
-export function defaultsToKeep(f: OfferFields, letter: string, terms: string) {
-  const { start_date: _s, expires: _e, pay_amount: _p, position: _pos, ...keep } = f;
-  return { ...keep, letter, terms };
+/** What to save as the job's offer details after sending: only what differs from the company defaults,
+ *  and nothing specific to this person. The job's starting pay is kept. */
+export function defaultsToKeep(f: OfferFields, letter: string, terms: string, attachments: OfferFile[], company: OfferDefaults, job: OfferDefaults): OfferDefaults {
+  const { start_date: _s, expires: _e, pay_amount: _p, position: _pos, cc: _cc, ...rest } = f;
+  const keep: OfferDefaults = { ...job };
+  for (const [k, v] of Object.entries(rest) as [keyof OfferDefaults, string][]) {
+    if ((v || '') === ((company as Record<string, unknown>)[k] || '')) delete keep[k]; else (keep as Record<string, unknown>)[k] = v;
+  }
+  if (letter === (company.letter || DEFAULT_LETTER)) delete keep.letter; else keep.letter = letter;
+  if (terms === (company.terms || DEFAULT_TERMS)) delete keep.terms; else keep.terms = terms;
+  const companyPaths = new Set((company.attachments || []).map((a) => a.path));
+  const own = attachments.filter((a) => !companyPaths.has(a.path));
+  if (own.length) keep.attachments = own; else delete keep.attachments;
+  return keep;
 }

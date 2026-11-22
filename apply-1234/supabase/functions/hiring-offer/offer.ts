@@ -9,6 +9,7 @@ export interface OfferFields {
   employment_type?: string;
   location?: string;
   schedule?: string;
+  provisional_period?: string; // e.g. 90 days
   start_date?: string;      // YYYY-MM-DD
   expires?: string;         // YYYY-MM-DD, the last day to sign
   pay_amount?: string;
@@ -74,6 +75,7 @@ export function offerVars(f: OfferFields, candidate: { name: string; email?: str
     employment_type: t(f.employment_type),
     location: t(f.location),
     schedule: t(f.schedule),
+    provisional_period: t(f.provisional_period),
     start_date: fmtDay(f.start_date),
     expires: fmtDay(f.expires),
     pay: payText(f),
@@ -188,6 +190,7 @@ We are delighted to offer you the position of **{position}** with **{company}**.
 - **Schedule:** {schedule}
 - **Location:** {location}
 - **Reports to:** {reports_to}
+- **Provisional period:** your first {provisional_period}
 - **Benefits:** {benefits}
 
 This offer is subject to the terms and conditions below. To accept, please review them and sign by **{expires}**.
@@ -200,12 +203,12 @@ We look forward to working with you.
 {signoff_title}`;
 
 export const DEFAULT_TERMS = `1. **Engagement.** This role is offered on this basis: {employment_type}. [Employee: your employment is at will, so either you or {company} may end it at any time, subject to the notice below. Contractor: you are an independent contractor responsible for your own taxes, and this offer does not create an employment relationship. Keep the one that applies.]
-2. **Trial period.** The first [90] days are a trial period, during which either side may end the arrangement with [7] days' written notice.
+2. **Provisional period.** Your first {provisional_period} are a provisional period, during which either side may end the arrangement with [7] days' written notice.
 3. **Pay.** You will be paid {pay}, {pay_schedule}, by [payment method].
 4. **Hours.** {schedule}. [Core hours, time zone and how quickly you're expected to respond.]
 5. **Confidentiality.** You will keep confidential any non-public information about {company}, its clients and its business, during and after your time with us.
 6. **Work product.** Work you create for {company} in this role belongs to {company}, and you will sign any documents needed to confirm this.
 7. **Equipment and accounts.** [Who provides the computer, software and accounts. Company accounts and data are returned when the arrangement ends.]
-8. **Ending the arrangement.** After the trial period, either side may end this arrangement with [14] days' written notice.
+8. **Ending the arrangement.** After any provisional period, either side may end this arrangement with [14] days' written notice.
 9. **Conditions.** This offer is conditional on [reference checks, proof of identity or right to work; delete if none].
 10. **Entire agreement.** This letter and these terms are the whole agreement about this offer and replace anything discussed before. They are governed by the laws of [state or country].`;

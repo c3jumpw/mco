@@ -99,6 +99,7 @@ function inline(s: string): Run[] {
 function markdown(w: Writer, md: string) {
   const lines = md.replace(/\r\n/g, '\n').split('\n');
   let prevBlank = true;
+  let num = 0;   // numbered lists count from 1 in order, even if a line was left out
   for (const raw of lines) {
     const line = raw.trimEnd();
     if (!line.trim()) { if (!prevBlank) w.gap(6); prevBlank = true; continue; }
@@ -112,7 +113,8 @@ function markdown(w: Writer, md: string) {
       w.runs([{ text: h[2].replace(/\*\*/g, ''), bold: true }], { size, leading: size + 6 });
       w.gap(2);
     } else if (ul || ol) {
-      const marker = ul ? '•' : `${ol![1]}.`;
+      num = ul ? 0 : num + 1;
+      const marker = ul ? '•' : `${num}.`;
       w.ensure(16);
       w.text(marker, M + 4, w.y - 10.5, 10.5, ul ? w.f.reg : w.f.bold, ul ? ACCENT : INK);
       w.runs(inline(ul ? ul[1] : ol![2]), { x: M + 22, width: CW - 22 });
@@ -120,6 +122,7 @@ function markdown(w: Writer, md: string) {
     } else {
       w.runs(inline(line));
     }
+    if (!(ul || ol)) num = 0;
     prevBlank = false;
   }
 }

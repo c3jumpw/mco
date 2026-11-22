@@ -41,6 +41,10 @@ const store: Store = {
     const { error } = await db.storage.from(BUCKET).upload(path, bytes, { contentType: type, upsert: false });
     if (error) throw error;
   },
+  async copy(from, to) {
+    const { error } = await db.storage.from(BUCKET).copy(from, to);
+    if (error) throw error;
+  },
   async download(path) {
     const { data } = await db.storage.from(BUCKET).download(path);
     return data ? new Uint8Array(await data.arrayBuffer()) : null;

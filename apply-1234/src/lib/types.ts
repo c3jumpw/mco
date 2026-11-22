@@ -74,7 +74,7 @@ export interface JobSettings {
   confirm_body?: string;
   reply_to?: string;
   /** Company, manager, pay schedule and terms remembered from the last offer on this job. */
-  offer_defaults?: import('../../supabase/functions/hiring-offer/offer').OfferFields & { letter?: string; terms?: string };
+  offer_defaults?: import('./offers').OfferDefaults;
 }
 
 export interface Job {

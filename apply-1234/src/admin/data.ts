@@ -162,6 +162,7 @@ export interface NewJobInput {
   questions: (Partial<Question> & { text: string })[];
   interview: { text: string; kind: 'general' | 'custom' }[];
   rubric: string[];
+  offer?: import('../lib/offers').OfferDefaults;   // the job's offer details, if filled in
 }
 
 export async function createJobFromWizard(i: NewJobInput): Promise<Job> {
@@ -181,7 +182,7 @@ export async function createJobFromWizard(i: NewJobInput): Promise<Job> {
       questions: i.questions.map((q) => ({ ...q, id: q.id || uid('q'), text: q.text, guidance: q.guidance || '' })),
       interview_questions: i.interview.map((q) => ({ id: uid('q'), text: q.text, kind: q.kind })),
       ...(i.rubric.length ? { rubric: i.rubric } : {}),
-      settings: DEFAULT_SETTINGS,
+      settings: { ...DEFAULT_SETTINGS, ...(i.offer && Object.keys(i.offer).length ? { offer_defaults: i.offer } : {}) },
     })
     .select('*')
     .single();

@@ -31,6 +31,7 @@ function setup(fields: Partial<Offer['fields']> = {}) {
     setStage: async (_a, stage) => { app.stage = stage; },
     isStaff: async (uid) => uid === 'admin',
     upload: async (p, b) => { if (files.has(p)) throw new Error('exists'); files.set(p, b); },
+    copy: async (from, to) => { const b = files.get(from); if (!b) throw new Error('missing'); files.set(to, b); },
     download: async (p) => files.get(p) || null,
     signedUrl: async (p) => `https://files.test/${p}`,
   };
@@ -145,4 +146,18 @@ Deno.test('CC: copies go out without the signing link, and CC gets the signed PD
   await t.call({ action: 'sign', token: t.offer.token, name: 'Mary Ruth Example', signature: { kind: 'typed' }, consent: true, read: true });
   const signed = t.mails.find((m) => m.subject.includes('signed the offer'))!;
   assert(signed.to.includes('ops@brand.test') && signed.to.includes('alex@brand.test') && signed.attachments?.length === 1, 'CC gets the signed PDF');
+});
+
+Deno.test('shared attachments are copied into the offer when it is sent; provisional period fills in', async () => {
+  const t = setup({ provisional_period: '90 days' });
+  t.offer.attachments = [{ path: 'company/offer/nda.pdf', name: 'NDA.pdf', size: 9, type: 'application/pdf' }];
+  t.files.set('company/offer/nda.pdf', new Uint8Array([1, 2, 3]));
+  const r = await t.call({ action: 'send', offer_id: t.offer.id }, { jwt: 'admin-jwt' });
+  assert(r.body.ok, JSON.stringify(r.body));
+  const a = t.offer.attachments[0];
+  assert(a.path.startsWith('job1/app1/offers/0ff00000-0000-4000-8000-000000000001/attachments/') && a.path.endsWith('-nda.pdf') && t.files.has(a.path), `copied: ${a.path}`);
+  assert(t.offer.final_letter!.includes('**Provisional period:** your first 90 days'), 'letter has the provisional period');
+  assert(t.offer.final_terms!.includes('Your first 90 days are a provisional period'), 'terms have it');
+  const none = fillOffer(DEFAULT_TERMS, offerVars({ company: 'Acme' }, { name: 'A B' }));
+  assert(!none.includes('Provisional period'), 'line dropped when not set');
 });

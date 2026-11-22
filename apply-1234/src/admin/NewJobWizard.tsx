@@ -11,6 +11,8 @@ import StepsEditor, { StepIcon } from './job/StepsEditor';
 import { randomCode, randomSlug, randomWord, rangeLabel, storeJson } from '../lib/util';
 import { DEFAULT_ACTIVITY, createJob, createJobFromWizard, freeCode, linkProblem, listJobs, takenLinks, updateJob } from './data';
 import { ParsedSummary } from './AiImport';
+import { OfferDefaultsForm } from './OfferDefaultsForm';
+import { loadCompanyDefaults, type OfferDefaults } from '../lib/offers';
 import { Button, Card, CopyButton, Field, Input, Pill, Segmented, Select, Textarea, Toggle, cx, useToast } from '../ui';
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
@@ -33,6 +35,7 @@ interface WizardState {
   family?: string;        // role family the steps came from ('video' = classic video questions)
   steps?: Question[] | null;
   edited?: boolean;       // steps changed after picking a preset
+  offer?: OfferDefaults;  // optional offer details for the job
 }
 
 const KEY = 'a1234_wizard';
@@ -61,6 +64,8 @@ export default function NewJobWizard() {
   const toast = useToast();
   const [s, setS] = useState<WizardState>(() => ({ ...fresh(), ...upgrade(storeJson<WizardState>(KEY)) }));
   const [created, setCreated] = useState<Job | null>(null);
+  const [companyOffer, setCompanyOffer] = useState<OfferDefaults>({});
+  useEffect(() => { loadCompanyDefaults().then(setCompanyOffer); }, []);
   const [busy, setBusy] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [dupId, setDupId] = useState('');
@@ -166,6 +171,7 @@ export default function NewJobWizard() {
         questions: finalSteps,
         interview: s.skippedAi ? [] : parsed.interview,
         rubric: s.skippedAi ? [] : parsed.rubric,
+        offer: Object.fromEntries(Object.entries(s.offer || {}).filter(([, v]) => v !== '' && v != null)) as OfferDefaults,
       });
       if (goLive && job.questions.length && !stepIssues.length) {
         await updateJob(job.id, { status: 'published', published_at: new Date().toISOString() });
@@ -446,6 +452,18 @@ export default function NewJobWizard() {
               <p className="text-xs text-muted mt-1">Edit them on the job's “Notes & posting” tab after you create it.</p>
             </Card>
           )}
+          <Card pad={false}>
+            <details>
+              <summary className="px-5 py-4 cursor-pointer">
+                <span className="text-sm font-medium">Offer details</span><span className="text-sm text-muted"> · optional</span>
+                <span className="block text-[12px] text-muted mt-0.5 ml-4">Engagement, starting pay, schedule and hiring manager for offers on this job. Pay stays private. You can also do this later on the job’s Offer tab.</span>
+              </summary>
+              <div className="px-5 pb-5">
+                <OfferDefaultsForm scope="job" cards={false} folder="" sections={['role', 'pay', 'manager']} inherit={companyOffer}
+                  value={s.offer || {}} onChange={(p) => set({ offer: { ...(s.offer || {}), ...p } })} />
+              </div>
+            </details>
+          </Card>
           <Card pad={false}>
             <details>
               <summary className="px-5 py-4 text-sm font-medium cursor-pointer">Preview the posting</summary>
