@@ -24,6 +24,28 @@ export interface Release {
 
 export const CHANGELOG: Release[] = [
   {
+    date: '2026-11-22', title: 'Offer details set up once', kind: 'Improved', areas: ['Offers', 'Jobs'],
+    items: [
+      'Settings › Offer defaults: your company, hiring manager, engagement, how often pay is paid, days to sign, letter, terms and standard attachments such as an NDA, used by every offer.',
+      'A new Offer tab on each job for what that job does differently, including an internal starting pay (never on the posting) and a provisional period such as “90 days”.',
+      'The new-job wizard has optional offer details on its last step.',
+      'Offers open on what’s specific to the person: start date, pay and the date to sign by. Company, role and manager arrive filled in and folded away.',
+      'After sending, “Save as this job’s offer details” keeps only what differs from your company’s defaults.',
+      'Shared attachments are copied into each sent offer, so a signed offer keeps its own copy. The signed PDF numbers terms in order even when a line is left out.',
+    ],
+    whatsNew: [
+      'Settings › Offer defaults: set your company, hiring manager, letter, terms and NDA once.',
+      'Each job has an Offer tab for its own details, including a private starting pay and a provisional period.',
+      'Preparing an offer now only asks for the person’s start date, pay and the date to sign by.',
+    ],
+    technical: [
+      'Migration 008_company_offer_defaults: hiring_company (one row; admins edit, full-access editors read), hiring_any_editor(), and read access to hiring-team/company/ for editors.',
+      'hiring-offer v3: copies attachments outside the offer folder into it on send; {provisional_period}; sequential list numbers in the PDF.',
+    ],
+    commits: ['edcb08f'],
+    version: 6, image: 'job-offer',
+  },
+  {
     date: '2026-11-20', title: 'A change log', kind: 'New', areas: ['Help'],
     items: [
       'Help › Change log lists every update to apply1234 since it launched, with dates, newest or oldest first.',

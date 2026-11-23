@@ -2,7 +2,7 @@
 // Pictures come from scripts/guide/img (refreshed by scripts/guide/update.sh). When a screen or
 // feature changes, update its slide here and add an entry to whatsnew.ts.
 
-export const TOUR_UPDATED = '2026-11-20';
+export const TOUR_UPDATED = '2026-11-22';
 
 export interface Slide {
   id: string;
@@ -101,6 +101,12 @@ export const SLIDES: Slide[] = [
     points: ['Interview questions, general and written for this job.', 'The confirmation email candidates get when they submit.', 'Invite and rejection email templates, and your scheduling link.', 'The rubric your team scores against.'],
   },
   {
+    id: 'job-offer', section: 'Inside a job', image: 'job-offer',
+    title: 'Offer details',
+    lead: 'What offers for this job start from, so each offer only needs the person’s start date, pay and deadline.',
+    points: ['Engagement, provisional period, schedule, hiring manager, and an internal starting pay that never appears on the posting.', 'Blank fields use your company’s offer defaults from Settings.', 'You can also fill these in on the last step of the new-job wizard.'],
+  },
+  {
     id: 'share', section: 'Inside a job', image: 'access-card', adminOnly: true,
     title: 'Share a job',
     lead: 'Give someone access to just this job, from its Overview tab.',
@@ -139,8 +145,8 @@ export const SLIDES: Slide[] = [
   {
     id: 'offer', section: 'Make an offer', image: 'offer-editor',
     title: 'Write the offer',
-    lead: 'On a candidate’s page, choose Prepare an offer. Fill in the company, role, start date, pay and hiring manager. The preview shows exactly what they’ll sign.',
-    points: ['Start from the standard letter and starter terms, or write your own. Notes in [brackets] must be replaced before you can send.', 'Attach an NDA, handbook or anything else that’s part of the offer.', 'Drafts save as you type, and only your hiring team can see them.'],
+    lead: 'On a candidate’s page, choose Prepare an offer. It starts from your company’s offer defaults and the job’s Offer tab, so you add their start date, pay and deadline. The preview shows exactly what they’ll sign.',
+    points: ['Company, role and manager arrive filled in and folded away. Open them to change anything for this offer only.', 'Notes in [brackets] in the letter or terms must be replaced before you can send.', 'Drafts save as you type, and only your hiring team can see them.'],
   },
   {
     id: 'offer-send', section: 'Make an offer', image: 'offer-send',
@@ -174,8 +180,8 @@ export const SLIDES: Slide[] = [
   {
     id: 'settings', section: 'Messages and settings', image: 'admin-settings', to: '/admin/settings', toLabel: 'Open Settings', adminOnly: true,
     title: 'Settings',
-    lead: 'Your email alerts, the hiring team and saved templates.',
-    points: ['Choose which emails you get: new applicants, new messages.', 'Add teammates by email. They sign up with that address.', 'Reuse activity pages and postings as templates.'],
+    lead: 'Your email alerts, offer defaults, the hiring team and saved templates.',
+    points: ['Choose which emails you get: new applicants, new messages.', 'Offer defaults: your company, hiring manager, letter, terms and an NDA, used by every offer.', 'Add teammates by email. They sign up with that address.', 'Reuse activity pages and postings as templates.'],
   },
   {
     id: 'candidate-side', section: 'The candidate’s side', image: 'cand-8-welcome', phone: true,

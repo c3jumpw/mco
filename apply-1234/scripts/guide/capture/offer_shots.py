@@ -1,6 +1,7 @@
 """Offer letters and interview records: runs the offer checks, then takes the guide and tour pictures.
 
   offer-editor      the offer editor with its live preview
+  job-offer         a job's Offer tab, on top of the company's offer defaults
   offer-send        the send window, with CC
   offer-record      a signed offer: the document, its record, files and event log
   interview-records recordings and transcripts on a candidate's page
@@ -44,6 +45,12 @@ def main(b):
     open_offer = dict(copy.deepcopy(base), id="0ff000e0-0000-4000-8000-0000000000e0", status="sent", token=T.TOKEN + "g",
                       final_terms=base["final_terms"], signed_at=None, signer_name=None, pdf_path=None, signature=None)
     T.offers[open_offer["id"]] = open_offer
+    # Company defaults and this job's offer details, as a team would set them up
+    T.COMPANY["offer_defaults"] = {"company": "Brand Craftsman", "company_address": "100 Main St, Austin, TX", "manager_name": "Alex Rivera",
+        "manager_title": "CEO", "manager_email": "alex@brand.test", "employment_type": "Independent contractor", "pay_currency": "USD",
+        "pay_schedule": "every two weeks", "sign_days": 7, "attachments": [{"path": "company/offer/nda.pdf", "name": "NDA.pdf", "size": 2048, "type": "application/pdf"}]}
+    T.JOB_SETTINGS.clear()
+    T.JOB_SETTINGS["offer_defaults"] = {"pay_amount": "120.00", "pay_period": "per week", "provisional_period": "90 days", "location": "Remote", "schedule": "Monday to Friday, flexible hours"}
 
     def mk(w, h, admin=False, mobile=False):
         ctx = b.new_context(viewport={"width": w, "height": h}, device_scale_factor=2, is_mobile=mobile, has_touch=mobile)
@@ -61,6 +68,12 @@ def main(b):
     pg.locator("label", has_text="Also CC").locator("input").fill("ops@brandcraftsman.test")
     pg.wait_for_timeout(200)
     pg.locator("div.fixed.inset-0 div.rise").first.screenshot(path=f"{OUT}/offer-send.png")
+    ctx.close()
+
+    # The job's Offer tab
+    ctx, pg = mk(1280, 980, admin=True)
+    pg.goto(f"{BASE}/admin/jobs/j1?tab=offer"); pg.wait_for_timeout(1500)
+    pg.screenshot(path=f"{OUT}/job-offer.png")
     ctx.close()
 
     # A signed offer's record

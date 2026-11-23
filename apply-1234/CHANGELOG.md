@@ -2,7 +2,24 @@
 
 Written from `src/admin/changelog.ts` by `node scripts/changelog.mjs`. Edit that file, not this one.
 
-13 updates, 2026-11-07 to 2026-11-20.
+14 updates, 2026-11-07 to 2026-11-22.
+
+## 2026-11-22 · Offer details set up once
+
+Improved · Offers, Jobs · What’s new 6
+
+- Settings › Offer defaults: your company, hiring manager, engagement, how often pay is paid, days to sign, letter, terms and standard attachments such as an NDA, used by every offer.
+- A new Offer tab on each job for what that job does differently, including an internal starting pay (never on the posting) and a provisional period such as “90 days”.
+- The new-job wizard has optional offer details on its last step.
+- Offers open on what’s specific to the person: start date, pay and the date to sign by. Company, role and manager arrive filled in and folded away.
+- After sending, “Save as this job’s offer details” keeps only what differs from your company’s defaults.
+- Shared attachments are copied into each sent offer, so a signed offer keeps its own copy. The signed PDF numbers terms in order even when a line is left out.
+
+Technical:
+- Migration 008_company_offer_defaults: hiring_company (one row; admins edit, full-access editors read), hiring_any_editor(), and read access to hiring-team/company/ for editors.
+- hiring-offer v3: copies attachments outside the offer folder into it on send; {provisional_period}; sequential list numbers in the PDF.
+
+Commits: edcb08f
 
 ## 2026-11-20 · A change log
 

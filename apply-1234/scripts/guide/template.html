@@ -395,6 +395,13 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
           </div>@@SHOT job-interview|The Interview tab@@</div>
         </div>
         <div class="tabcard">
+          <div class="label"><span>Offer</span></div>
+          <div class="cols"><div class="text">
+            <p>What offers for this job start from: engagement, provisional period, location, schedule, an internal <b>starting pay</b>, how often pay is paid, the hiring manager, and any letter, terms or attachments that differ from your company's.</p>
+            <p>Blank fields use your company's <b>offer defaults</b> from Settings, shown greyed out. Pay here is private: it never appears on the posting. See <a href="#offers">Make an offer</a>.</p>
+          </div>@@SHOT job-offer|The Offer tab@@</div>
+        </div>
+        <div class="tabcard">
           <div class="label"><span>Candidates</span></div>
           <div class="cols"><div class="text">
             <p>This job's applicants by stage, with their flags and scores. It works like the main Candidates page, filtered to one job.</p>
@@ -556,18 +563,28 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
         <p>Write the offer in apply1234 and send it from your company name. The candidate signs online, everyone gets the signed PDF, and the full record stays on the candidate's page.</p>
       </header>
       <ol class="list">
-        <li><b>Prepare.</b> On the candidate's page, choose <b>Prepare an offer</b>. The company, manager, pay schedule, letter and terms fill in from the job's last offer.</li>
+        <li><b>Prepare.</b> On the candidate's page, choose <b>Prepare an offer</b>. Everything fills in from your offer defaults and the job's Offer tab.</li>
         <li><b>Preview.</b> Fill in the start date, pay and expiry. The preview shows exactly what they'll read and sign.</li>
         <li><b>Send.</b> Choose who gets a copy, then send. The email comes from your company name, and replies go to the hiring manager.</li>
         <li><b>Signed.</b> They sign on any device. The signed PDF goes to everyone, and they move to Hired.</li>
       </ol>
+
+      <h3 class="sub">Set it up once</h3>
+      <p style="color:var(--ink-2);margin-bottom:14px">Every offer is built from three layers, so writing one takes about a minute:</p>
+      <ul class="list">
+        <li><b>Settings › Offer defaults</b> (admins): your company name and address, the hiring manager, engagement type, how often pay is paid, how many days people have to sign, your letter and terms, and attachments every offer should have, such as an NDA.</li>
+        <li><b>The job's Offer tab</b>: anything this job does differently, plus its internal starting pay and provisional period. Blank fields use the company's. You can also fill these in on the last step of the new-job wizard.</li>
+        <li><b>The offer itself</b>: the person's start date, pay and the date to sign by. Company, role and manager arrive filled in and folded away; open them to change anything for this offer only.</li>
+      </ul>
+      <p style="color:var(--ink-2);margin-top:12px">When you send, <b>Save as this job's offer details</b> keeps what you changed (but not the person's pay or dates) for the next offer on the job. Shared attachments are copied into each sent offer, so a signed offer keeps its own copy even if you later replace the file.</p>
 
       <h3 class="sub">Writing the offer</h3>
       @@SHOT offer-editor|The offer editor: the details on the left, a live preview on the right@@
       <div class="pair" style="margin-top:28px">
         <div class="text">
           <ul class="list">
-            <li><b>The details.</b> Company and address, position, engagement (employee or contractor), start date, the date the offer expires, location, schedule, pay (amount, currency, per hour, week, month or year, and how often it's paid), benefits, and the hiring manager's name, title, email and phone.</li>
+            <li><b>For this person.</b> Start date, pay (amount, currency, and per hour, week, month or year) and the date to sign by.</li>
+            <li><b>Company, role and hiring manager</b>, folded away once filled in: company and address, position, engagement (employee or contractor), provisional period, location, schedule, how often pay is paid, benefits, and the hiring manager's name, title, email and phone.</li>
             <li><b>The letter</b> is written in plain text with fill-ins in braces, such as <code>{first}</code>, <code>{pay}</code> and <code>{start_date}</code>. Tap a fill-in to add it where you're typing. A line whose fill-in is empty is left out.</li>
             <li><b>Terms and conditions</b> start from a starter set. Every <code>[note in brackets]</code> must be replaced before the offer can be sent, and they're highlighted in the preview. Have the terms checked by someone who knows employment law where the candidate lives.</li>
             <li><b>Attachments</b> such as an NDA or handbook are part of the offer. The candidate opens them before signing, and each opening is logged.</li>
