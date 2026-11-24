@@ -50,7 +50,7 @@ export default function Settings({ email }: { email: string }) {
               <Toggle checked={mine.notify_applications !== false} onChange={(v) => setNotify({ notify_applications: v })}
                 label="Someone finishes an activity" hint="Their name, the auto-checks, and a link straight to their answers." />
               <Toggle checked={mine.notify_messages !== false} onChange={(v) => setNotify({ notify_messages: v })}
-                label="A candidate sends a help message" hint="From the “Need help?” button on activity pages. Reply straight from the email." />
+                label="A candidate sends a message" hint="Help messages from activity pages, and messages from candidates about any offer. Reply straight from the email." />
             </div>
           ) : <p className="text-sm text-muted">Loading…</p>}
           <p className="text-xs text-muted mt-4 leading-relaxed">The candidate confirmation email is set per job, on its Interview tab.</p>

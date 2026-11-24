@@ -22,7 +22,18 @@ def handler(route, request):
         return ok(JOBX if single else [JOBX])
     if request.method == "GET" and "/rest/v1/hiring_applications" in url and "id=eq." not in url and "interview_at=gte" not in url and "stage=eq.new" not in url:
         return ok(APPS)
+    if "/rest/v1/hiring_chat" in url and "application_id=eq." not in url:
+        # Two conversations with candidates, for the Inbox picture: one unread, one answered
+        if request.method == "HEAD" or "count=exact" in request.headers.get("prefer", ""):
+            return route.fulfill(status=200, headers={"content-range": "0-0/1", "Access-Control-Expose-Headers": "content-range", "Access-Control-Allow-Origin": "*"}, content_type="application/json", body="[]")
+        return ok(CHATS if request.method == "GET" else [])
     return N.handler(route, request)
+
+CHATS = [
+    {"application_id": "a3", "job_id": "j1", "sender": "candidate", "body": "Thank you! Is the start date flexible? I could begin a week later if that helps.", "created_at": "2026-11-06T12:40:00Z", "read_at": None, "hiring_applications": {"name": "Priya Shah"}},
+    {"application_id": "a1", "job_id": "j1", "sender": "team", "body": "Yes, the 8th works. I'll send an updated offer today.", "created_at": "2026-11-05T17:10:00Z", "read_at": None, "hiring_applications": {"name": "Jane Rivera"}},
+    {"application_id": "a1", "job_id": "j1", "sender": "candidate", "body": "Could I start on December 8th instead?", "created_at": "2026-11-05T16:55:00Z", "read_at": "2026-11-05T17:00:00Z", "hiring_applications": {"name": "Jane Rivera"}},
+]
 
 SAMPLE_AI = """# TITLE
 Operations Coordinator
@@ -170,7 +181,7 @@ def main(b):
     pg.screenshot(path=f"{OUT}/export.png")
     pg.goto(BASE + "/admin/inbox"); pg.wait_for_timeout(900)
     pg.get_by_text("I pasted my Loom link").click(); pg.wait_for_timeout(300)
-    shot(pg, "admin-inbox", content_clip(pg, 56, 680, 48, 960))
+    shot(pg, "admin-inbox", content_clip(pg, 56, 900, 48, 960))
     pg.goto(BASE + "/admin/activity"); pg.wait_for_timeout(1000)
     shot(pg, "admin-activity", content_clip(pg, 56, 760))
     pg.goto(BASE + "/admin/settings"); pg.wait_for_timeout(800)

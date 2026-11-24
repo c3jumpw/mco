@@ -2,7 +2,7 @@
 // Pictures come from scripts/guide/img (refreshed by scripts/guide/update.sh). When a screen or
 // feature changes, update its slide here and add an entry to whatsnew.ts.
 
-export const TOUR_UPDATED = '2026-11-22';
+export const TOUR_UPDATED = '2026-11-24';
 
 export interface Slide {
   id: string;
@@ -167,10 +167,22 @@ export const SLIDES: Slide[] = [
     points: ['The signed PDF ends with a certificate: the time, IP address, device and a fingerprint of the exact text.', 'Download the signature, the attachments and an audit trail of every open and signature.', 'Sending moves them to Offer; signing moves them to Hired.'],
   },
   {
+    id: 'offer-messages', section: 'Make an offer', image: 'offer-messages',
+    title: 'Messages with the candidate',
+    lead: 'Candidates can ask questions from their offer page instead of replying to the email. The conversation stays on their page in apply1234.',
+    points: ['The hiring manager, whoever sent the offer, anyone CC’d and admins with message alerts on get an email, with a button to reply.', 'Your reply is emailed to them with a link back to the conversation.', 'It still works after the offer expires or is withdrawn.'],
+  },
+  {
+    id: 'offer-questions', section: 'Make an offer', image: 'cand-16-message', phone: true,
+    title: 'Questions from their phone',
+    lead: 'The offer email and reminders say “Questions? Message us” and link straight to this box.',
+    points: ['They see the whole conversation and get an email when you reply.'],
+  },
+  {
     id: 'inbox', section: 'Messages and settings', image: 'admin-inbox', to: '/admin/inbox', toLabel: 'Open the Inbox', adminOnly: true,
     title: 'Inbox',
-    lead: 'Candidates can send a message from the Help button on every step of the activity.',
-    points: ['The orange number counts new messages.', 'Reply by email in one click, then mark it done.'],
+    lead: 'Conversations with candidates about their offers, and messages from the Help button on every step of the activity.',
+    points: ['The orange number counts new messages of both kinds.', 'Open a conversation to read and reply on the candidate’s page.', 'Reply to a help message by email in one click, then mark it done.'],
   },
   {
     id: 'activity', section: 'Messages and settings', image: 'admin-activity', to: '/admin/activity', toLabel: 'Open Activity', adminOnly: true,

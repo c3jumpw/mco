@@ -7,6 +7,8 @@
   interview-records recordings and transcripts on a candidate's page
   cand-14-offer     the candidate's offer page on a phone
   cand-15-sign      signing on a phone
+  offer-messages    the Messages card on a candidate's page
+  cand-16-message   the Questions? box on the candidate's offer page, on a phone
 """
 import copy, json, re
 from playwright.sync_api import sync_playwright
@@ -86,6 +88,31 @@ def main(b):
     rec = pg.locator("div.pt-4.border-t", has=pg.get_by_text("Recordings and transcripts", exact=True)).first
     rec.scroll_into_view_if_needed()
     rec.screenshot(path=f"{OUT}/interview-records.png")
+    ctx.close()
+
+    # Messages: a short conversation about the start date, on the profile and on the candidate's phone
+    T.CHATS[:] = [
+        {"id": "m1", "application_id": "a1", "job_id": "j1", "offer_id": open_offer["id"], "sender": "candidate", "author_email": APP["email"], "author_name": APP["name"],
+         "body": "Thank you for the offer! Could I start on December 8th instead? I'm finishing a project the week before.", "meta": {}, "emailed": [],
+         "read_at": "2026-11-06T12:20:00Z", "read_by": ADMIN_EMAIL, "created_at": "2026-11-06T12:05:00Z"},
+        {"id": "m2", "application_id": "a1", "job_id": "j1", "offer_id": open_offer["id"], "sender": "team", "author_email": ADMIN_EMAIL, "author_name": "Alex Rivera",
+         "body": "Congratulations, Jane. Yes, the 8th works. I'll send an updated offer today.", "meta": {}, "emailed": [APP["email"]],
+         "read_at": None, "read_by": None, "created_at": "2026-11-06T12:22:00Z"},
+        {"id": "m3", "application_id": "a1", "job_id": "j1", "offer_id": open_offer["id"], "sender": "candidate", "author_email": APP["email"], "author_name": APP["name"],
+         "body": "Perfect, thank you!", "meta": {}, "emailed": [], "read_at": None, "read_by": None, "created_at": "2026-11-06T12:30:00Z"},
+    ]
+    ctx, pg = mk(1280, 1000, admin=True)
+    pg.goto(f"{BASE}/admin/candidates/a1#messages"); pg.wait_for_timeout(1800)
+    conv = pg.locator("#messages").locator("xpath=..")
+    conv.evaluate("el => window.scrollBy(0, el.getBoundingClientRect().top - 90)"); pg.wait_for_timeout(300)
+    conv.screenshot(path=f"{OUT}/offer-messages.png")
+    ctx.close()
+    ctx, pg = mk(390, 844, mobile=True)
+    pg.goto(f"{BASE}/offer/{open_offer['token']}#messages"); pg.wait_for_timeout(1800)
+    pg.locator("#messages textarea").fill("Do I need anything for the first day?")
+    pg.evaluate("window.scrollBy(0, document.getElementById('messages').getBoundingClientRect().top - 68)")
+    pg.wait_for_timeout(300)
+    pg.screenshot(path=f"{OUT}/cand-16-message.png")
     ctx.close()
 
     # The candidate's side, on a phone

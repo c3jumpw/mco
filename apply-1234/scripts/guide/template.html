@@ -307,7 +307,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       <div class="menu-grid">
         <div class="menu-card"><div class="hd"><i>1</i><h3>Jobs</h3></div><p class="path">/admin</p><p>Your home page. The Overview dashboard sits on top and every job is listed below it. Start a new job here.</p></div>
         <div class="menu-card"><div class="hd"><i>2</i><h3>Candidates</h3></div><p class="path">/admin/candidates</p><p>Everyone who applied, across all jobs. Filter by job or stage, search, then open a person to review them.</p></div>
-        <div class="menu-card"><div class="hd"><i>3</i><h3>Inbox</h3></div><p class="path">/admin/inbox</p><p>Messages candidates send with the Help button. The orange number counts unread ones.</p></div>
+        <div class="menu-card"><div class="hd"><i>3</i><h3>Inbox</h3></div><p class="path">/admin/inbox</p><p>Conversations with candidates about their offers, and messages sent with the Help button. The orange number counts unread ones.</p></div>
         <div class="menu-card"><div class="hd"><i>4</i><h3>Activity</h3></div><p class="path">/admin/activity</p><p>A live log of visits, wrong link tries and submissions, plus the most-tried wrong links.</p></div>
         <div class="menu-card"><div class="hd"><i>5</i><h3>Settings</h3></div><p class="path">/admin/settings</p><p>Your email alerts, the hiring team list, saved templates and your account.</p></div>
         <div class="menu-card"><div class="hd"><i>6</i><h3>Help</h3></div><p class="path">/admin/guide · /admin/changelog</p><p>The getting-started tour (every screen, slide by slide), What's new after each update, this guide, and the <b>change log</b>: every update since launch, with dates, that you can filter, search and download as Markdown or JSON.</p></div>
@@ -567,6 +567,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
         <li><b>Preview.</b> Fill in the start date, pay and expiry. The preview shows exactly what they'll read and sign.</li>
         <li><b>Send.</b> Choose who gets a copy, then send. The email comes from your company name, and replies go to the hiring manager.</li>
         <li><b>Signed.</b> They sign on any device. The signed PDF goes to everyone, and they move to Hired.</li>
+        <li><b>Questions.</b> At any point, they can message you from their offer page, and you reply from their page in apply1234.</li>
       </ol>
 
       <h3 class="sub">Set it up once</h3>
@@ -597,6 +598,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       <h3 class="sub">Sending and copies</h3>
       <ul class="list">
         <li><b>From</b> "<i>Your company</i> via apply1234 &lt;hiring@apply1234.com&gt;", so it comes from a known sending address. <b>Replies</b> go to the hiring manager.</li>
+        <li><b>Questions?</b> The offer email and reminders invite the candidate to message you from their offer page, with a link straight to it, so the conversation is saved with their offer instead of in someone's inbox.</li>
         <li><b>CC.</b> The hiring manager is copied by default. Add anyone else under <b>Also CC</b>. People copied get the whole offer, but no signing link, so only the candidate can open and sign it. They also get the signed PDF.</li>
         <li><b>After sending</b>, the offer can't be changed. To change it, <b>Withdraw</b> it and prepare a new one. You can also <b>Copy signing link</b> or <b>Send a reminder</b>.</li>
         <li>The candidate moves to <b>Offer</b> when it's sent, and to <b>Hired</b> when they sign.</li>
@@ -606,6 +608,21 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       <div class="phones">
         @@PHONE cand-14-offer|1|The offer|From their email, they open a private link to the whole offer, the terms and any attachments, with the date to sign by.@@
         @@PHONE cand-15-sign|2|Sign or decline|They draw or type a signature, confirm they've read everything and agree to sign electronically. They can decline with a note.@@
+        @@PHONE cand-16-message|3|Questions?|Under the offer, they write to you and see your replies. It works before and after signing, and after the offer expires.@@
+      </div>
+
+      <h3 class="sub">Messages with the candidate</h3>
+      <div class="pair">
+        <div class="text">
+          <ul class="list">
+            <li><b>When they write</b>, the hiring manager, whoever sent the offer, everyone CC'd and admins with message alerts on get an email with the message and a <b>Reply in apply1234</b> button. Replying to that email also reaches the candidate, but isn't saved in apply1234.</li>
+            <li><b>The Messages card</b> on the candidate's page, under the offer, holds the whole conversation. Opening it marks their messages read.</li>
+            <li><b>Your reply</b> is emailed to them from your company name, with a button back to the conversation. If they reply to that email, it goes to the hiring manager.</li>
+            <li>New messages show in the <b>Inbox</b> under <b>Conversations with candidates</b>, and count toward its orange number.</li>
+            <li>Everyone who can open the candidate can read and reply. Messages can't be edited or deleted once sent.</li>
+          </ul>
+        </div>
+        @@SHOT offer-messages|The Messages card on a candidate's page@@
       </div>
 
       <h3 class="sub">The signed record</h3>
@@ -656,19 +673,20 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
     <section id="inbox">
       <header>
         <p class="eyebrow">10 · Everyone</p>
-        <h2>Inbox and help messages</h2>
-        <p>Every activity page has a <b>Help</b> button in the corner. Candidates choose <i>Something isn't working</i>, <i>Question about the role</i> or <i>Something else</i>, write a message and leave their email.</p>
+        <h2>Inbox</h2>
+        <p>Two kinds of messages land here. <b>Conversations with candidates</b> come from their offer pages (see <a href="#offers">Make an offer</a>). <b>Help messages</b> come from the <b>Help</b> button in the corner of every activity page, where candidates choose <i>Something isn't working</i>, <i>Question about the role</i> or <i>Something else</i>, write a message and leave their email.</p>
       </header>
       <div class="pair flip">
         <div class="text">
           <ul class="list">
-            <li>New messages show an orange dot and raise the count on the <b>Inbox</b> menu item. Team members with alerts on also get an email.</li>
-            <li>Open a message to see the step they were on, their browser and screen size, any error they saw and whether they've applied. <b>Yes, open their application</b> jumps to their page.</li>
+            <li>New messages of both kinds show an orange dot and raise the count on the <b>Inbox</b> menu item. Team members with alerts on also get an email.</li>
+            <li><b>Conversations with candidates</b> are at the top, newest first, with the latest message. Open one to read and reply on the candidate's page.</li>
+            <li>Open a help message to see the step they were on, their browser and screen size, any error they saw and whether they've applied. <b>Yes, open their application</b> jumps to their page.</li>
             <li><b>Reply by email</b> opens your email app with their message quoted.</li>
             <li><b>Mark done</b> moves it to the Done list. Add a private note for the team at any point.</li>
           </ul>
         </div>
-        @@SHOT admin-inbox|The Inbox with a message opened@@
+        @@SHOT admin-inbox|The Inbox: conversations with candidates, then help messages@@
       </div>
     </section>
 
@@ -689,6 +707,8 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
           <tr><td>You send an offer</td><td><span class="chip neutral">You send it</span> "Your offer from {company}" with a private signing link</td><td>The candidate. Replies go to the hiring manager.</td><td>The offer itself</td></tr>
           <tr><td>You send an offer</td><td><span class="chip accent">Automatic</span> A copy of the whole offer, without the signing link</td><td>Everyone you CC (the hiring manager by default)</td><td>The send window</td></tr>
           <tr><td>The candidate signs</td><td><span class="chip accent">Automatic</span> The signed PDF with its signature certificate</td><td>The candidate, the hiring manager, whoever sent it and everyone CC'd</td><td>Nothing to set</td></tr>
+          <tr><td>A candidate messages you from their offer</td><td><span class="chip accent">Automatic</span> Their message, with a "Reply in apply1234" button</td><td>The hiring manager, whoever sent the offer, everyone CC'd, and admins with message alerts on. Replies go to the candidate.</td><td>Settings › Email me when (admins)</td></tr>
+          <tr><td>You reply in apply1234</td><td><span class="chip neutral">You send it</span> Your reply, with a button back to the conversation</td><td>The candidate. Replies go to the hiring manager.</td><td>Nothing to set</td></tr>
           <tr><td>The candidate declines</td><td><span class="chip accent">Automatic</span> Their reason, if they gave one</td><td>The hiring manager, whoever sent it and everyone CC'd</td><td>Nothing to set</td></tr>
           <tr><td>You click Reject</td><td><span class="chip neutral">You send it</span> A kind rejection</td><td>The candidate</td><td>Job › Interview › Emails</td></tr>
           <tr><td>Someone signs up</td><td><span class="chip accent">Automatic</span> "Confirm your apply1234 login"</td><td>The new team member</td><td>Set up once in Supabase</td></tr>
@@ -726,7 +746,7 @@ footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line);
       <div class="pair flip">
         <div class="text">
           <h3>Email me when</h3>
-          <p>Each team member chooses their own alerts: when someone finishes an activity, and when a candidate sends a help message.</p>
+          <p>Each team member chooses their own alerts: when someone finishes an activity, and when a candidate sends a message (a help message, or a message about an offer). The hiring manager, the sender and anyone CC'd on an offer always hear about messages on it.</p>
           <h3 style="margin-top:8px">Add a teammate</h3>
           <ol class="list">
             <li>Type their email under <b>Hiring team</b> and click <b>Add</b>.</li>

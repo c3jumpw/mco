@@ -15,7 +15,7 @@ for png in sorted(SHOTS.glob('*.png')):
         continue
     im = Image.open(png).convert('RGB')
     w, h = im.size
-    tw = 520 if name.startswith('cand-') else 700 if name == 'interview-records' else 900 if name in ('export', 'step-library', 'step-presets', 'offer-send') else min(w, 1100)
+    tw = 520 if name.startswith('cand-') else 700 if name in ('interview-records', 'offer-messages') else 900 if name in ('export', 'step-library', 'step-presets', 'offer-send') else min(w, 1100)
     if w != tw:
         im = im.resize((tw, round(h * tw / w)), Image.LANCZOS)
     out = IMG / f'{name}.webp'

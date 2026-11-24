@@ -2,7 +2,23 @@
 
 Written from `src/admin/changelog.ts` by `node scripts/changelog.mjs`. Edit that file, not this one.
 
-14 updates, 2026-11-07 to 2026-11-22.
+15 updates, 2026-11-07 to 2026-11-24.
+
+## 2026-11-24 · Messages with candidates
+
+New · Offers, Candidates, Emails · What’s new 7
+
+- Candidates can ask questions from their offer page, in a “Questions?” box, instead of replying to an email. It works before and after they sign, and after an offer expires or is withdrawn.
+- Offer emails and reminders now say “Questions? Message your company” with a link straight to the box.
+- When a candidate writes, the hiring manager, whoever sent the offer, anyone CC’d and admins with message alerts on get an email with a “Reply in apply1234” button. Replying to that email still reaches the candidate, but isn’t saved in apply1234.
+- A Messages card on the candidate’s page, under the offer, holds the whole conversation. Your replies are emailed to them from your company name through apply1234, with a button back to the conversation.
+- The Inbox has a “Conversations with candidates” list, and unread messages count toward the Inbox number. Opening a conversation marks it read.
+
+Technical:
+- Migration 009_candidate_messages: hiring_chat (the team reads and marks read; messages are written only by the function), with a guard trigger that allows changing read_at only.
+- hiring-offer v4: candidate “message” (up to 30 a day per candidate) and team “reply” actions; “view” returns the conversation; alert emails set Reply-To to the candidate, replies set it to the hiring manager.
+
+Commits: 17c54a2
 
 ## 2026-11-22 · Offer details set up once
 
