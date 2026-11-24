@@ -1,5 +1,5 @@
 // deno test -A supabase/functions/hiring-offer/core_test.ts
-import { handle, type App, type Deps, type Mail, type Offer, type Store } from './core.ts';
+import { handle, type App, type Chat, type Deps, type Mail, type Offer, type Store } from './core.ts';
 import { DEFAULT_LETTER, DEFAULT_TERMS, fillOffer, missingForSend, offerVars, sha256Hex, documentText } from './offer.ts';
 
 const assert = (c: unknown, msg: string) => { if (!c) throw new Error(msg); };
@@ -23,6 +23,7 @@ function setup(fields: Partial<Offer['fields']> = {}) {
   const app: App = { id: 'app1', job_id: 'job1', name: 'Mary Ruth Example', email: 'mary@example.test', stage: 'interview' };
   const files = new Map<string, Uint8Array>();
   const mails: Mail[] = [];
+  const chats: Chat[] = [];
   const store: Store = {
     offer: async (id) => (id === offer.id ? structuredClone(offer) : null),
     offerByToken: async (t) => (t === offer.token ? structuredClone(offer) : null),
@@ -32,6 +33,11 @@ function setup(fields: Partial<Offer['fields']> = {}) {
     isStaff: async (uid) => uid === 'admin',
     upload: async (p, b) => { if (files.has(p)) throw new Error('exists'); files.set(p, b); },
     copy: async (from, to) => { const b = files.get(from); if (!b) throw new Error('missing'); files.set(to, b); },
+    chat: async (appId) => chats.filter((c) => c.application_id === appId).map((c) => structuredClone(c)),
+    addChat: async (row) => { const c = { ...row, id: `c${chats.length + 1}`, created_at: new Date().toISOString(), read_at: null } as Chat; chats.push(c); return structuredClone(c); },
+    patchChat: async (id, p) => { Object.assign(chats.find((c) => c.id === id)!, p); },
+    markRead: async (appId, by) => { for (const c of chats) if (c.application_id === appId && c.sender === 'candidate' && !c.read_at) Object.assign(c, { read_at: 'now', read_by: by }); },
+    alertEmails: async () => ['admin@team.test', 'boss@brand.test'],
     download: async (p) => files.get(p) || null,
     signedUrl: async (p) => `https://files.test/${p}`,
   };
@@ -45,7 +51,7 @@ function setup(fields: Partial<Offer['fields']> = {}) {
     method: 'POST', body: JSON.stringify(body),
     headers: { 'content-type': 'application/json', 'x-forwarded-for': `${opts.ip || '203.0.113.7'}, 10.0.0.1`, 'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit Safari/604.1', ...(opts.jwt ? { authorization: `Bearer ${opts.jwt}` } : {}) },
   }), deps).then(async (r) => ({ status: r.status, body: await r.json() }));
-  return { offer, app, files, mails, call, setClock: (d: string) => { clock = new Date(d); } };
+  return { offer, app, files, mails, chats, call, setClock: (d: string) => { clock = new Date(d); } };
 }
 
 Deno.test('placeholders fill and empty lines drop', () => {
@@ -160,4 +166,37 @@ Deno.test('shared attachments are copied into the offer when it is sent; provisi
   assert(t.offer.final_terms!.includes('Your first 90 days are a provisional period'), 'terms have it');
   const none = fillOffer(DEFAULT_TERMS, offerVars({ company: 'Acme' }, { name: 'A B' }));
   assert(!none.includes('Provisional period'), 'line dropped when not set');
+});
+
+Deno.test('messages: the candidate writes from the offer page, the team replies in apply1234', async () => {
+  const t = setup();
+  await t.call({ action: 'send', offer_id: t.offer.id, cc: ['ops@brand.test'] }, { jwt: 'admin-jwt' });
+  const token = t.offer.token!;
+  t.mails.length = 0;
+  assert((await t.call({ action: 'message', token, body: '   ' })).body.error === 'empty', 'empty refused');
+  const m = await t.call({ action: 'message', token, body: 'Could I start on the 8th instead?' }, { ip: '203.0.113.9' });
+  assert(m.body.ok && m.body.messages.length === 1 && m.body.messages[0].from === 'you', JSON.stringify(m.body));
+  assert(t.chats[0].meta?.ip === '203.0.113.9' && t.chats[0].offer_id === t.offer.id, 'saved with IP and offer');
+  const alert = t.mails.find((x) => x.subject.startsWith('Message from Mary Ruth Example'))!;
+  assert(alert && ['alex@brand.test', 'boss@brand.test', 'ops@brand.test', 'admin@team.test'].every((e) => alert.to.includes(e)) && alert.to.length === 4, `team alerted: ${alert?.to}`);
+  assert(alert.reply_to === 'mary@example.test' && alert.html.includes('/admin/candidates/app1#messages') && !alert.html.includes(token), 'alert links to the profile, not the signing link');
+  assert(JSON.stringify(t.chats[0].emailed) === JSON.stringify(alert.to), 'who was emailed is recorded');
+  // The team replies
+  assert((await t.call({ action: 'reply', offer_id: t.offer.id, body: 'Yes' })).status === 401, 'reply needs sign-in');
+  const r = await t.call({ action: 'reply', offer_id: t.offer.id, body: 'Yes, the 8th works. I\'ll send an updated offer.' }, { jwt: 'admin-jwt' });
+  assert(r.body.ok && r.body.emailed, JSON.stringify(r.body));
+  assert(t.chats[0].read_at && t.chats[1].sender === 'team' && t.chats[1].author_email === 'boss@brand.test' && t.chats[1].author_name === '', 'reply saved, message marked read');
+  const toCand = t.mails.find((x) => x.subject.startsWith('Message from Brand Craftsman'))!;
+  assert(toCand.to[0] === 'mary@example.test' && toCand.html.includes(`/offer/${token}#messages`) && toCand.reply_to === 'alex@brand.test', 'candidate emailed with a link back');
+  // The candidate sees the conversation, without team email addresses
+  const v = await t.call({ action: 'view', token });
+  const msgs = v.body.offer.messages;
+  assert(msgs.length === 2 && msgs[1].from === 'team' && msgs[1].name === 'Brand Craftsman' && !JSON.stringify(msgs).includes('boss@brand.test'), JSON.stringify(msgs));
+  // Still open after the offer expires
+  t.setClock('2026-12-30T00:00:00Z');
+  assert((await t.call({ action: 'message', token, body: 'Is the role still open?' })).body.ok, 'can write after expiry');
+  // The offer email points to messages
+  const offerMail = setup();
+  await offerMail.call({ action: 'send', offer_id: offerMail.offer.id }, { jwt: 'admin-jwt' });
+  assert(offerMail.mails[0].html.includes('#messages') && offerMail.mails[0].text.includes('#messages'), 'offer email links to messages');
 });

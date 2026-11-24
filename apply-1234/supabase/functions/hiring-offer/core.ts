@@ -20,6 +20,12 @@ export interface Offer {
   withdrawn_at: string | null; pdf_path: string | null; events: OfferEvent[];
 }
 export interface App { id: string; job_id: string; name: string; email: string; stage: string }
+/** A message in the conversation between a candidate and the hiring team. */
+export interface Chat {
+  id: string; application_id: string; job_id: string; offer_id: string | null; sender: 'candidate' | 'team';
+  author_email: string; author_name: string; body: string; meta?: { ip?: string; ua?: string }; emailed?: string[];
+  read_at?: string | null; created_at: string;
+}
 export interface Mail { to: string[]; cc?: string[]; subject: string; html: string; text: string; reply_to?: string; from_name?: string; attachments?: { filename: string; content: string }[] }
 
 export interface Store {
@@ -34,6 +40,12 @@ export interface Store {
   copy(from: string, to: string): Promise<void>;
   download(path: string): Promise<Uint8Array | null>;
   signedUrl(path: string, seconds: number, downloadName?: string): Promise<string | null>;
+  chat(appId: string): Promise<Chat[]>;
+  addChat(row: Omit<Chat, 'id' | 'created_at'>): Promise<Chat>;
+  patchChat(id: string, patch: Partial<Chat>): Promise<void>;
+  markRead(appId: string, by: string): Promise<void>;
+  /** Admins who get an email when a candidate writes. */
+  alertEmails(): Promise<string[]>;
 }
 
 export interface Deps {
@@ -66,6 +78,12 @@ function randomToken() {
 }
 const b64 = (bytes: Uint8Array) => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(s); };
 const base = (o: Offer) => `${o.job_id}/${o.application_id}/offers/${o.id}`;
+const cleanBody = (v: unknown) => String(v || '').replace(/\r\n/g, '\n').replace(/\n{4,}/g, '\n\n\n').trim().slice(0, 5000);
+const emails = (list: unknown[]) => [...new Set(list.filter((x): x is string => typeof x === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.trim())).map((x) => x.trim().toLowerCase()))];
+/** The conversation as the candidate sees it: no team members' email addresses, no read receipts. */
+const publicChat = (list: Chat[], company: string) => list.map((m) => ({
+  id: m.id, from: m.sender === 'candidate' ? 'you' : 'team', name: m.sender === 'candidate' ? '' : (m.author_name || company), body: m.body, at: m.created_at,
+}));
 const fileName = (s: string) => s.replace(/[^\w .-]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 80) || 'offer';
 
 export async function handle(req: Request, d: Deps): Promise<Response> {
@@ -78,7 +96,7 @@ export async function handle(req: Request, d: Deps): Promise<Response> {
   const s = d.store;
 
   // ── Hiring team ──
-  if (['send', 'resend', 'withdraw', 'rebuild_pdf'].includes(action)) {
+  if (['send', 'resend', 'withdraw', 'rebuild_pdf', 'reply'].includes(action)) {
     const jwt = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
     const user = jwt ? await d.user(jwt) : null;
     if (!user) return fail('sign_in', 401);
@@ -138,6 +156,21 @@ export async function handle(req: Request, d: Deps): Promise<Response> {
       }, ['sent', 'viewed']);
       return done ? json({ ok: true }) : fail('not_open');
     }
+    if (action === 'reply') {
+      if (!offer.token) return fail('not_sent');
+      const text = cleanBody(body.body);
+      if (!text) return fail('empty');
+      const f = offer.fields;
+      const isManager = user.email === (f.manager_email || '').trim().toLowerCase();
+      const msg = await s.addChat({
+        application_id: app.id, job_id: offer.job_id, offer_id: offer.id, sender: 'team', author_email: user.email,
+        author_name: isManager ? (f.manager_name || '') : '', body: text, meta: { ip: meta.ip, ua: meta.ua },
+      });
+      await s.markRead(app.id, user.email);
+      const r = await mailCandidateMessage(d, offer, app, msg);
+      if (r.ok) await s.patchChat(msg.id, { emailed: [app.email] });
+      return json({ ok: true, emailed: r.ok, error: r.ok ? undefined : r.error });
+    }
     if (action === 'rebuild_pdf') {
       if (offer.status !== 'signed') return fail('not_signed');
       const r = await finishSigned(d, offer, app, false);
@@ -163,7 +196,28 @@ export async function handle(req: Request, d: Deps): Promise<Response> {
     if (log && offer.events.length < 200) patch.events = [...offer.events, { at: now(), type: 'viewed', ip: meta.ip, ua: meta.ua }];
     if (offer.status === 'sent') patch.status = 'viewed';
     const cur = (await s.patch(offer.id, patch)) || offer;
-    return json({ ok: true, offer: publicOffer(cur, app, expired) });
+    const messages = publicChat(await s.chat(app.id), offer.fields.company || '');
+    return json({ ok: true, offer: { ...publicOffer(cur, app, expired), messages } });
+  }
+
+  if (action === 'message') {
+    // Open whatever the offer's state: a candidate may write to ask for more time after it has expired.
+    const text = cleanBody(body.body);
+    if (!text) return fail('empty');
+    const list = await s.chat(app.id);
+    const day = list.filter((m) => m.sender === 'candidate' && Date.now() - new Date(m.created_at).getTime() < 86_400_000).length;
+    if (day >= 30) return fail('too_many', 429);
+    const msg = await s.addChat({
+      application_id: app.id, job_id: offer.job_id, offer_id: offer.id, sender: 'candidate', author_email: app.email,
+      author_name: app.name, body: text, meta: { ip: meta.ip, ua: meta.ua },
+    });
+    const f = offer.fields;
+    const to = emails([f.manager_email, offer.sent_by, ...(f.cc || []), ...(await s.alertEmails())]).filter((x) => x !== app.email.toLowerCase());
+    if (to.length) {
+      const r = await mailTeamMessage(d, offer, app, msg, to);
+      if (r.ok) await s.patchChat(msg.id, { emailed: to });
+    }
+    return json({ ok: true, messages: publicChat([...list, msg], f.company || '') });
   }
 
   if (action === 'file') {
@@ -295,13 +349,14 @@ function mailOffer(d: Deps, o: Offer, app: App, reminder: boolean) {
   return d.send({
     to: [app.email], from_name: company, reply_to: f.manager_email,
     subject: `${reminder ? 'Reminder: ' : ''}Your offer from ${company}: ${f.position}`,
-    text: `Hi ${firstName(app.name)},\n\n${company} would like to offer you the position of ${f.position}. Review the offer and its terms, then sign online:\n\n${link}\n\nThe offer is open until ${fmtDay(f.expires)}. Questions? Reply to reach ${f.manager_name}.\n`,
+    text: `Hi ${firstName(app.name)},\n\n${company} would like to offer you the position of ${f.position}. Review the offer and its terms, then sign online:\n\n${link}\n\nThe offer is open until ${fmtDay(f.expires)}.\n\nQuestions? Message ${company} from your offer page: ${link}#messages\nYou can also reply to this email to reach ${f.manager_name}.\n`,
     html: layout(heading(reminder ? 'A reminder about your offer' : 'You have an offer', `${esc(f.position)} · ${esc(company)}`) +
       paragraphs(`Hi ${firstName(app.name)},\n\n${company} would like to offer you the position of ${f.position}. Review the offer, its terms and any attached documents, then sign online. It takes about five minutes.`) +
       table(row('Start date', esc(fmtDay(f.start_date))) + row('Pay', esc(payText(f))) + row('Open until', esc(fmtDay(f.expires))) +
         row('Contact', `${esc(f.manager_name)}${f.manager_email ? `, <a href="mailto:${esc(f.manager_email)}" style="color:#16151a">${esc(f.manager_email)}</a>` : ''}`)) +
       button(link, 'Review and sign your offer') +
-      `<p style="margin:16px 0 0;font-size:12px;color:#6e6c73;">This link is just for you. Questions? Reply to this email to reach ${esc(f.manager_name)}.</p>`,
+      `<p style="margin:16px 0 0;font-size:14px;line-height:1.55;color:#16151a;">Questions? <a href="${esc(link)}#messages" style="color:#16151a;font-weight:600;">Message ${esc(company)}</a> from your offer page. You’ll get an email when they reply.</p>` +
+      `<p style="margin:10px 0 0;font-size:12px;color:#6e6c73;">This link is just for you. You can also reply to this email to reach ${esc(f.manager_name)}.</p>`,
       `${company} would like to offer you the ${f.position} role.`),
   });
 }
@@ -324,6 +379,42 @@ function mailCopy(d: Deps, o: Offer, app: App, cc: string[]) {
       (o.final_terms ? `<p style="margin:18px 0 8px;font-size:16px;font-weight:700;">Terms and conditions</p>${mdEmail(o.final_terms, esc)}` : '') +
       ((o.attachments || []).length ? `<p style="margin:18px 0 8px;font-size:15px;font-weight:700;">Attachments</p><p style="margin:0;font-size:14px;">${o.attachments.map((a) => esc(a.name)).join('<br>')}</p>` : '') +
       `</div>` + button(profile, 'Open their profile (hiring team)'), `Your copy of the offer to ${app.name}.`),
+  });
+}
+
+const quote = (text: string) =>
+  `<div style="margin:4px 0 6px;padding:12px 14px;border-left:3px solid #ff5a1f;background:#f5f3ee;border-radius:8px;font-size:15px;line-height:1.6;color:#16151a;white-space:pre-wrap;">${esc(text)}</div>`;
+
+/** A message from the hiring team, emailed to the candidate with a link back to the conversation. */
+function mailCandidateMessage(d: Deps, o: Offer, app: App, msg: Chat) {
+  const f = o.fields;
+  const company = f.company || 'The hiring team';
+  const link = `${d.site}/offer/${o.token}#messages`;
+  const who = msg.author_name ? `${msg.author_name} at ${company}` : company;
+  return d.send({
+    to: [app.email], from_name: company, reply_to: f.manager_email,
+    subject: `Message from ${company}: ${f.position}`,
+    text: `Hi ${firstName(app.name)},\n\n${who} sent you a message:\n\n${msg.body}\n\nReply on your offer page so it stays with your offer: ${link}\n`,
+    html: layout(heading(`A message from ${company}`, esc(f.position || '')) +
+      paragraphs(`Hi ${firstName(app.name)},\n\n${who} sent you a message:`) + quote(msg.body) +
+      button(link, `Reply to ${company}`) +
+      `<p style="margin:14px 0 0;font-size:12px;color:#6e6c73;">Replying on your offer page keeps your messages with your offer. You can also reply to this email to reach ${esc(f.manager_name || company)}.</p>`,
+      `${who}: ${msg.body.slice(0, 90)}`),
+  });
+}
+
+/** Tells the team a candidate has written, with a button to reply in apply1234. */
+function mailTeamMessage(d: Deps, o: Offer, app: App, msg: Chat, to: string[]) {
+  const f = o.fields;
+  const profile = `${d.site}/admin/candidates/${app.id}#messages`;
+  return d.send({
+    to, from_name: 'apply1234', reply_to: app.email,
+    subject: `Message from ${app.name}: ${f.position}`,
+    text: `${app.name} sent a message about their offer for ${f.position}:\n\n${msg.body}\n\nReply in apply1234: ${profile}\n\nReplying in apply1234 keeps the conversation on their profile and emails them your reply. Replying to this email goes straight to them but isn't saved in apply1234.\n`,
+    html: layout(heading(`${app.name} sent a message`, `${esc(f.position || '')} · ${esc(f.company || '')}`) + quote(msg.body) +
+      button(profile, 'Reply in apply1234') +
+      `<p style="margin:14px 0 0;font-size:12px;color:#6e6c73;">Replying in apply1234 keeps the conversation on their profile and emails them your reply. Replying to this email goes straight to ${esc(firstName(app.name))} but isn’t saved in apply1234.</p>`,
+      `${app.name}: ${msg.body.slice(0, 90)}`),
   });
 }
 

@@ -4,7 +4,7 @@
 //
 // Secret needed: APPLY1234_RESEND_API_KEY (falls back to RESEND_API_KEY), same as hiring-notify.
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { handle, type Mail, type Offer, type Store } from './core.ts';
+import { handle, type Chat, type Mail, type Offer, type Store } from './core.ts';
 
 const BUCKET = 'hiring-team';
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
@@ -48,6 +48,24 @@ const store: Store = {
   async download(path) {
     const { data } = await db.storage.from(BUCKET).download(path);
     return data ? new Uint8Array(await data.arrayBuffer()) : null;
+  },
+  async chat(appId) {
+    const { data } = await db.from('hiring_chat').select('*').eq('application_id', appId).order('created_at');
+    return (data || []) as Chat[];
+  },
+  async addChat(row) {
+    const { data, error } = await db.from('hiring_chat').insert(row).select('*').single();
+    if (error) throw error;
+    return data as Chat;
+  },
+  async patchChat(id, patch) { await db.from('hiring_chat').update(patch).eq('id', id); },
+  async markRead(appId, by) {
+    await db.from('hiring_chat').update({ read_at: new Date().toISOString(), read_by: by })
+      .eq('application_id', appId).eq('sender', 'candidate').is('read_at', null);
+  },
+  async alertEmails() {
+    const { data } = await db.from('hiring_admins').select('email, notify_messages');
+    return (data || []).filter((a) => a.notify_messages !== false).map((a) => a.email as string);
   },
   async signedUrl(path, seconds, downloadName) {
     const { data } = await db.storage.from(BUCKET).createSignedUrl(path, seconds, downloadName ? { download: downloadName } : undefined);

@@ -8,6 +8,7 @@ import run as base
 errors, calls = [], []
 offers = {}          # id -> row
 COMPANY = {"offer_defaults": {}}
+CHATS = []           # hiring_chat rows
 JOB_SETTINGS = {}
 TOKEN = "tok_" + "x" * 30
 
@@ -25,7 +26,9 @@ def public(o, app):
             "candidate": {"name": app["name"], "email": app["email"]}, "letter": o["final_letter"], "terms": o["final_terms"],
             "attachments": [{"id": i, "name": a["name"], "size": a.get("size"), "type": a.get("type", "")} for i, a in enumerate(o["attachments"])],
             "sent_at": o["sent_at"], "signed_at": o["signed_at"], "signer_name": o["signer_name"], "declined_at": o["declined_at"],
-            "signature_kind": (o.get("signature") or {}).get("kind"), "pdf": bool(o.get("pdf_path")), "doc_hash": o.get("doc_hash")}
+            "signature_kind": (o.get("signature") or {}).get("kind"), "pdf": bool(o.get("pdf_path")), "doc_hash": o.get("doc_hash"),
+            "messages": [{"id": c["id"], "from": "you" if c["sender"] == "candidate" else "team", "name": "" if c["sender"] == "candidate" else (c["author_name"] or f.get("company", "")),
+                          "body": c["body"], "at": c["created_at"]} for c in CHATS if c["application_id"] == o["application_id"]]}
 
 def fill(text, f, app):
     """The same rules as fillOffer in offer.ts: dates spelled out, and a line whose fill-in is empty is left out."""
@@ -59,6 +62,13 @@ def handler(route, request):
         b = json.loads(request.post_data or "{}")
         calls.append(b)
         a = b.get("action")
+        if a == "reply":
+            o = offers.get(b.get("offer_id"))
+            CHATS.append({"id": f"c{len(CHATS)+1}", "application_id": o["application_id"], "job_id": o["job_id"], "offer_id": o["id"], "sender": "team",
+                          "author_email": ADMIN_EMAIL, "author_name": "", "body": b["body"], "meta": {}, "emailed": ["jane@example.com"], "read_at": None, "read_by": None, "created_at": NOW})
+            for c in CHATS:
+                if c["application_id"] == o["application_id"] and c["sender"] == "candidate": c["read_at"] = NOW
+            return cors(route, 200, {"ok": True, "emailed": True})
         if a in ("send", "resend", "withdraw", "rebuild_pdf"):
             o = offers.get(b.get("offer_id"))
             if not o: return cors(route, 404, {"ok": False, "error": "not_found"})
@@ -84,6 +94,11 @@ def handler(route, request):
                      signer_meta={"ip": "203.0.113.7", "ua": "Mozilla/5.0 (iPhone) Safari", "tz": b.get("tz")}, pdf_path="j1/a1/offers/x/signed-offer.pdf")
             o["events"].append({"at": NOW, "type": "signed", "ip": "203.0.113.7"})
             return cors(route, 200, {"ok": True, "pdf": True, "emailed": True})
+        if a == "message":
+            if not (b.get("body") or "").strip(): return cors(route, 400, {"ok": False, "error": "empty"})
+            CHATS.append({"id": f"c{len(CHATS)+1}", "application_id": o["application_id"], "job_id": o["job_id"], "offer_id": o["id"], "sender": "candidate",
+                          "author_email": APP["email"], "author_name": APP["name"], "body": b["body"].strip(), "meta": {}, "emailed": [], "read_at": None, "read_by": None, "created_at": NOW})
+            return cors(route, 200, {"ok": True, "messages": public(o, APP)["messages"]})
         if a == "decline":
             o.update(status="declined", declined_at=NOW, decline_reason=b.get("reason")); return cors(route, 200, {"ok": True})
         if a == "file": return cors(route, 200, {"ok": True, "url": "https://example.com/file.pdf"})
@@ -120,6 +135,19 @@ def handler(route, request):
     if "/rest/v1/hiring_applications" in url and method == "PATCH":
         calls.append({"patch_app": json.loads(request.post_data or "{}")})
         return route.fulfill(status=204, body="")
+    if "/rest/v1/hiring_chat" in url:
+        if method == "PATCH":
+            calls.append({"patch_chat": json.loads(request.post_data or "{}")})
+            for c in CHATS:
+                if c["sender"] == "candidate" and not c["read_at"]: c["read_at"] = NOW
+            return route.fulfill(status=204, body="")
+        if method == "HEAD" or "count=exact" in request.headers.get("prefer", ""):
+            n = len([c for c in CHATS if c["sender"] == "candidate" and not c["read_at"]])
+            return route.fulfill(status=200, headers={"content-range": f"0-0/{n}", "Access-Control-Expose-Headers": "content-range", "Access-Control-Allow-Origin": "*"}, content_type="application/json", body="[]")
+        am = re.search(r"application_id=eq\.([\w-]+)", url)
+        rows = [dict(c, hiring_applications={"name": APP["name"] if c["application_id"] == "a1" else "Marcus Lee"}) for c in CHATS if not am or c["application_id"] == am.group(1)]
+        if "order=created_at.desc" in url: rows = list(reversed(rows))
+        return ok(rows)
     if "/rest/v1/hiring_company" in url:
         if method == "PATCH":
             body = json.loads(request.post_data or "{}"); calls.append({"patch_company": body}); COMPANY.update(body)
@@ -255,7 +283,7 @@ def main(b):
     pg.get_by_role("button", name="Add recording").click(); pg.wait_for_timeout(400)
     pg.get_by_role("button", name="+ Add a recording, transcript or file").click()
     pg.get_by_role("button", name="Transcript", exact=True).click()
-    pg.locator("textarea").last.fill("Alex: Tell me about yourself.\nJane: I run operations for a small agency.")
+    pg.locator("label", has_text="Transcript text").locator("textarea").fill("Alex: Tell me about yourself.\nJane: I run operations for a small agency.")
     pg.get_by_role("button", name="Add transcript").click(); pg.wait_for_timeout(600)
     recs = [c["patch_app"]["interview_records"] for c in calls if "patch_app" in c and "interview_records" in c["patch_app"]]
     check(len(recs) >= 2 and recs[-1][0]["url"] == "https://zoom.us/rec/share/abc" and recs[-1][1]["kind"] == "transcript", "interview records saved")
@@ -301,6 +329,35 @@ def main(b):
     pg.screenshot(path=f"{SHOTS}/test-offer-layered.png")
     ctx.close()
 
+    # ── Messages: the candidate writes from the offer page, the team replies on the profile ──
+    ctx, pg = mk(1280, 900)
+    pg.goto(f"{BASE}/offer/{TOKEN}#messages"); pg.wait_for_timeout(1500)
+    check(pg.locator("#messages").count() == 1, "offer page has a messages section")
+    pg.locator("#messages textarea").fill("Could I start on December 8th instead?")
+    pg.get_by_role("button", name="Send message").click(); pg.wait_for_timeout(800)
+    sentm = [c for c in calls if c.get("action") == "message"]
+    check(sentm and sentm[-1]["body"] == "Could I start on December 8th instead?", "candidate message sent to the function")
+    check(pg.locator("#messages").get_by_text("Could I start on December 8th instead?").count() == 1 and pg.get_by_text(re.compile("Sent. We’ll email you")).count() == 1, "message shows in the conversation")
+    pg.locator("#messages").screenshot(path=f"{SHOTS}/test-offer-messages-candidate.png")
+    ctx.close()
+    ctx, pg = mk(1280, 1000, admin=True)
+    pg.goto(f"{BASE}/admin/inbox"); pg.wait_for_timeout(1200)
+    pg.screenshot(path=f"{SHOTS}/test-offer-inbox.png", full_page=True)
+    check(pg.get_by_text("Conversations with candidates", exact=True).count() == 1 and pg.get_by_text("1 new", exact=True).count() == 1, "Inbox lists the conversation as new")
+    check(pg.locator("nav a[href='/admin/inbox'] span").filter(has_text=re.compile(r"^1$")).count() >= 1, "the Inbox badge counts the unread candidate message")
+    pg.get_by_role("link", name=re.compile("Jane Rivera")).first.click(); pg.wait_for_timeout(1500)
+    check("/admin/candidates/a1" in pg.url, "Inbox opens the candidate's profile")
+    conv = pg.locator("#messages").locator("xpath=..")
+    check(conv.get_by_text("Could I start on December 8th instead?").count() == 1, "profile shows the candidate's message")
+    check(any("patch_chat" in c for c in calls), "opening the conversation marks it read")
+    conv.locator("textarea").fill("Yes, the 8th works. I'll send an updated offer today.")
+    conv.get_by_role("button", name="Send").click(); pg.wait_for_timeout(1000)
+    rep_calls = [c for c in calls if c.get("action") == "reply"]
+    check(rep_calls and rep_calls[-1]["offer_id"] == oid, "reply goes through the function for the latest sent offer")
+    check(conv.get_by_text("Yes, the 8th works. I'll send an updated offer today.").count() == 1, "reply shows in the conversation")
+    conv.screenshot(path=f"{SHOTS}/test-offer-messages-team.png")
+    ctx.close()
+
     # ── Typed signature and decline, on a phone ──
     o = offers[oid]
     o2 = dict(copy.deepcopy(o), id="0ff00009-0000-4000-8000-000000000009", status="sent", token=TOKEN + "b", signed_at=None, signer_name=None, pdf_path=None, signature=None)
@@ -322,7 +379,7 @@ def main(b):
     ctx, pg = mk(390, 844, mobile=True)
     pg.goto(f"{BASE}/offer/{TOKEN}c"); pg.wait_for_timeout(1500)
     pg.get_by_text("Decline the offer").click()
-    pg.locator("textarea").fill("Accepted another role.")
+    pg.get_by_placeholder("Optional").fill("Accepted another role.")
     pg.get_by_role("button", name="Decline", exact=True).click(); pg.wait_for_timeout(1200)
     check(o3["status"] == "declined" and o3["decline_reason"] == "Accepted another role.", "decline sends the note")
     check(pg.get_by_text("You declined this offer.").count() == 1, "declined state shows")

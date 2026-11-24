@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { HMessage, Job } from '../lib/types';
 import { fmtDate, relTime } from '../lib/util';
-import { listJobs, listMessages, updateMessage } from './data';
+import { chatSummaries, listJobs, listMessages, updateMessage, type ChatSummary } from './data';
 import { Button, Card, Empty, Loading, Pill, Segmented, Textarea, cx, useToast } from '../ui';
 
 export const KIND_LABEL: Record<HMessage['kind'], string> = {
@@ -23,6 +23,8 @@ export default function Inbox() {
   const [jobs, setJobs] = useState<Record<string, Job>>({});
   const [filter, setFilter] = useState<Filter>('open');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [chats, setChats] = useState<ChatSummary[]>([]);
+  useEffect(() => { chatSummaries().then(setChats).catch(() => {}); }, []);
 
   const load = () => listMessages().then(setMsgs).catch(() => setMsgs([]));
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function Inbox() {
         <div>
           <h1 className="font-display text-4xl sm:text-5xl leading-none">Inbox</h1>
           <p className="text-sm text-muted mt-2">
-            Messages from the “Need help?” button on activity pages.{counts.unread ? ` ${counts.unread} unread.` : ''}
+            Conversations with candidates, and messages from the “Need help?” button on activity pages.{counts.unread ? ` ${counts.unread} unread help messages.` : ''}
           </p>
         </div>
         <Segmented value={filter} onChange={setFilter} options={[
@@ -71,6 +73,30 @@ export default function Inbox() {
           { id: 'all', label: 'All' },
         ]} />
       </div>
+
+      {chats.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-semibold mb-2">Conversations with candidates</h2>
+          <p className="text-[12px] text-muted mb-3">Messages from candidates’ offer pages. Open one to read and reply on their profile.</p>
+          <div className="space-y-2">
+            {chats.map((c) => (
+              <Link key={c.application_id} to={`/admin/candidates/${c.application_id}#messages`}
+                className={cx('flex items-start gap-3 rounded-2xl border bg-card px-4 sm:px-5 py-3 hover:border-ink/30 transition', c.unread ? 'border-ink/30' : 'border-line')}>
+                <span className={cx('mt-1.5 h-2 w-2 rounded-full shrink-0', c.unread ? 'bg-accent' : 'bg-transparent')} aria-label={c.unread ? 'Unread' : undefined} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className={cx('text-sm', c.unread ? 'font-semibold' : 'font-medium')}>{c.name}</span>
+                    {c.unread > 0 && <Pill tone="accent">{c.unread} new</Pill>}
+                  </span>
+                  <span className="block text-sm text-ink-2 mt-0.5 line-clamp-1">{c.from === 'team' ? 'You: ' : ''}{c.body}</span>
+                  <span className="block text-[12px] text-muted mt-0.5">{jobs[c.job_id] ? `${jobs[c.job_id].title} · ` : ''}{relTime(c.at)}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <h2 className="text-sm font-semibold mt-8 mb-3">Help messages</h2>
+        </section>
+      )}
 
       {shown.length === 0 ? (
         <Empty title={filter === 'done' ? 'Nothing marked done yet.' : 'All clear.'}>

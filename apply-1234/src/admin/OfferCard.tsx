@@ -6,6 +6,7 @@ import type { Application, Job } from '../lib/types';
 import { OFFER_STATUS, fmtDay, fmtStamp, loadCompanyDefaults, offerDefaults, payText, type Offer } from '../lib/offers';
 import { Button, Card, Pill, SectionTitle, Spinner, useToast } from '../ui';
 import { OfferRecord } from './OfferEditor';
+import { Conversation } from './Conversation';
 
 export function OfferCard({ app, job }: { app: Application; job: Job | null }) {
   const toast = useToast();
@@ -30,6 +31,7 @@ export function OfferCard({ app, job }: { app: Application; job: Job | null }) {
 
   if (offers === null) return <Card><SectionTitle>Offer</SectionTitle><Spinner /></Card>;
   const [o, ...older] = offers;
+  const latestSent = offers.find((x) => x.status !== 'draft' && x.token);
   const first = app.name.split(' ')[0];
   if (!o) {
     return (
@@ -78,6 +80,7 @@ export function OfferCard({ app, job }: { app: Application; job: Job | null }) {
         )}
       </Card>
       {o.status !== 'draft' && <OfferRecord app={app} offer={o} compact />}
+      {latestSent && <Conversation app={app} offer={latestSent} />}
     </>
   );
 }

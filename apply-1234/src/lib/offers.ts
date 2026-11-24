@@ -37,6 +37,17 @@ export interface PublicOffer {
   letter: string; terms: string; attachments: { id: number; name: string; size: number | null; type: string }[];
   sent_at: string | null; signed_at: string | null; signer_name: string | null; declined_at: string | null;
   signature_kind: 'drawn' | 'typed' | null; pdf: boolean; doc_hash: string | null;
+  messages: PublicChat[];
+}
+
+/** A message as the candidate sees it. */
+export interface PublicChat { id: string; from: 'you' | 'team'; name: string; body: string; at: string }
+
+/** A message as the hiring team sees it (hiring_chat). */
+export interface ChatRow {
+  id: string; application_id: string; job_id: string; offer_id: string | null; sender: 'candidate' | 'team';
+  author_email: string; author_name: string; body: string; meta: { ip?: string; ua?: string }; emailed: string[];
+  read_at: string | null; read_by: string | null; created_at: string;
 }
 
 export const OFFER_STATUS: Record<OfferStatus, { label: string; tone: 'neutral' | 'accent' | 'good' | 'warn' | 'bad' }> = {
@@ -70,6 +81,9 @@ export const OFFER_ERRORS: Record<string, string> = {
   not_allowed: 'You don’t have access to send offers for this job.',
   already_sent: 'This offer has already been sent.',
   not_signed: 'This offer hasn’t been signed yet.',
+  empty: 'Write a message first.',
+  too_many: 'That’s a lot of messages for one day. Please wait for a reply.',
+  not_sent: 'Send the offer first. Messages work through the candidate’s offer page.',
   server: 'Something went wrong on our side. Try again in a moment.',
 };
 export const offerError = (code?: string) => OFFER_ERRORS[code || ''] || OFFER_ERRORS.server;

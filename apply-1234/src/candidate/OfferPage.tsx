@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { offerError, fmtDay, fmtStamp, offerCall, offerTitle, type PublicOffer } from '../lib/offers';
 import { OfferDocument, SignaturePad } from './OfferDocument';
+import { OfferMessages } from './OfferMessages';
 import { Button, Input, Modal, Segmented, Spinner, Textarea, Wordmark, cx } from '../ui';
 
 export default function OfferPage() {
@@ -16,6 +17,10 @@ export default function OfferPage() {
   };
   useEffect(() => { document.title = 'Your offer'; load(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+  // Links from emails end in #messages: open the page at the conversation.
+  useEffect(() => {
+    if (offer && location.hash === '#messages') setTimeout(() => document.getElementById('messages')?.scrollIntoView({ behavior: 'smooth' }), 150);
+  }, [offer?.id]);
 
   const open = async (file: number | 'pdf') => {
     const w = window.open('', '_blank');
@@ -46,6 +51,7 @@ export default function OfferPage() {
             date={offer.sent_at} letter={offer.letter} terms={offer.terms} attachments={offer.attachments} onFile={(i) => open(i)} />
         </div>
         {['sent', 'viewed'].includes(offer.status) && !offer.expired && <SignBox offer={offer} token={token} onDone={load} contact={contact} />}
+        <OfferMessages token={token} company={offer.company} manager={offer.manager.name} email={offer.candidate.email} initial={offer.messages || []} />
         {err && <p className="mt-4 rounded-xl bg-bad-soft text-bad text-sm px-4 py-3">{err}</p>}
       </div>
     </Shell>
@@ -80,12 +86,12 @@ function StatusBanner({ offer, contact, onPdf }: { offer: PublicOffer; contact: 
   }
   if (offer.status === 'declined') return <Note tone="neutral" title="You declined this offer." text={`If that was a mistake, contact ${contact}.`} />;
   if (offer.status === 'withdrawn') return <Note tone="neutral" title="This offer was withdrawn." text={`Questions? Contact ${contact}.`} />;
-  if (offer.expired) return <Note tone="warn" title="This offer has expired." text={`If you'd still like to accept, contact ${contact}.`} />;
+  if (offer.expired) return <Note tone="warn" title="This offer has expired." text={`If you'd still like to accept, send ${offer.company || 'the hiring team'} a message below, or contact ${contact}.`} />;
   return (
     <div>
       <h1 className="font-display text-[44px] sm:text-[60px] leading-[.95]">You have an offer.</h1>
       <p className="text-ink-2 mt-3 leading-relaxed">
-        Read the offer, the terms and any attachments below, then sign at the bottom{offer.summary.expires ? <> by <strong className="text-ink font-semibold">{fmtDay(offer.summary.expires)}</strong></> : ''}. Questions? Contact {contact}.
+        Read the offer, the terms and any attachments below, then sign at the bottom{offer.summary.expires ? <> by <strong className="text-ink font-semibold">{fmtDay(offer.summary.expires)}</strong></> : ''}. Questions? <a href="#messages" className="underline underline-offset-2 hover:text-ink">Message {offer.company || 'the hiring team'}</a>.
       </p>
     </div>
   );

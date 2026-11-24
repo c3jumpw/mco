@@ -47,8 +47,26 @@ export async function updateMessage(id: string, patch: Partial<HMessage>) {
 }
 
 export async function unreadMessages(): Promise<number> {
-  const { count } = await supabase.from('hiring_messages').select('id', { count: 'exact', head: true }).eq('status', 'new');
-  return count || 0;
+  const [help, chat] = await Promise.all([
+    supabase.from('hiring_messages').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    supabase.from('hiring_chat').select('id', { count: 'exact', head: true }).eq('sender', 'candidate').is('read_at', null),
+  ]);
+  return (help.count || 0) + (chat.count || 0);
+}
+
+/** The latest message in each conversation with a candidate, newest first. */
+export interface ChatSummary { application_id: string; job_id: string; name: string; body: string; at: string; from: 'candidate' | 'team'; unread: number }
+export async function chatSummaries(): Promise<ChatSummary[]> {
+  const { data } = await supabase.from('hiring_chat')
+    .select('application_id, job_id, sender, body, created_at, read_at, hiring_applications(name)')
+    .order('created_at', { ascending: false }).limit(300);
+  const out = new Map<string, ChatSummary>();
+  for (const r of (data || []) as unknown as { application_id: string; job_id: string; sender: 'candidate' | 'team'; body: string; created_at: string; read_at: string | null; hiring_applications: { name: string } | null }[]) {
+    const s = out.get(r.application_id) || { application_id: r.application_id, job_id: r.job_id, name: r.hiring_applications?.name || 'Candidate', body: r.body, at: r.created_at, from: r.sender, unread: 0 };
+    if (r.sender === 'candidate' && !r.read_at) s.unread += 1;
+    out.set(r.application_id, s);
+  }
+  return [...out.values()];
 }
 
 export function fillTemplate(t: string, vars: Record<string, string>) {
